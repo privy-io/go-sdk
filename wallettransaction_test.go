@@ -34,9 +34,10 @@ func TestWalletTransactionGetWithOptionalParams(t *testing.T) {
 			Asset: privyapiclient.WalletTransactionGetParamsAssetUnion{
 				OfWalletTransactionGetsAssetString: privyapiclient.String("usdc"),
 			},
-			Chain:  privyapiclient.WalletTransactionGetParamsChainBase,
+			Chain:  privyapiclient.WalletTransactionGetParamsChainEthereum,
 			Cursor: privyapiclient.String("x"),
 			Limit:  privyapiclient.Float(100),
+			TxHash: privyapiclient.String("tx_hash"),
 		},
 	)
 	if err != nil {
