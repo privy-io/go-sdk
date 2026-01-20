@@ -170,11 +170,11 @@ func (r *WalletTransactionGetResponseTransactionDetailsUnion) UnmarshalJSON(data
 }
 
 type WalletTransactionGetResponseTransactionDetailsObject struct {
-	// Any of "usdc", "eth", "pol", "usdt", "sol".
+	// Any of "usdc", "eth", "pol", "usdt", "eurc", "usdb", "sol".
 	Asset string `json:"asset,required"`
 	// Any of "ethereum", "arbitrum", "base", "linea", "optimism", "polygon", "solana",
 	// "zksync_era", "sepolia", "arbitrum_sepolia", "base_sepolia", "linea_testnet",
-	// "optimism_sepolia", "polygon_amoy".
+	// "optimism_sepolia", "polygon_amoy", "solana_devnet", "solana_testnet".
 	Chain                string            `json:"chain,required"`
 	DisplayValues        map[string]string `json:"display_values,required"`
 	RawValue             string            `json:"raw_value,required"`
@@ -210,10 +210,12 @@ func (r *WalletTransactionGetResponseTransactionDetailsObject) UnmarshalJSON(dat
 
 type WalletTransactionGetParams struct {
 	Asset WalletTransactionGetParamsAssetUnion `query:"asset,omitzero,required" json:"-"`
-	// Any of "base".
+	// Any of "ethereum", "arbitrum", "base", "linea", "optimism", "polygon", "solana",
+	// "sepolia".
 	Chain  WalletTransactionGetParamsChain `query:"chain,omitzero,required" json:"-"`
 	Limit  param.Opt[float64]              `query:"limit,omitzero" json:"-"`
 	Cursor param.Opt[string]               `query:"cursor,omitzero" json:"-"`
+	TxHash param.Opt[string]               `query:"tx_hash,omitzero" json:"-"`
 	paramObj
 }
 
@@ -253,11 +255,20 @@ const (
 	WalletTransactionGetParamsAssetStringEth  WalletTransactionGetParamsAssetString = "eth"
 	WalletTransactionGetParamsAssetStringPol  WalletTransactionGetParamsAssetString = "pol"
 	WalletTransactionGetParamsAssetStringUsdt WalletTransactionGetParamsAssetString = "usdt"
+	WalletTransactionGetParamsAssetStringEurc WalletTransactionGetParamsAssetString = "eurc"
+	WalletTransactionGetParamsAssetStringUsdb WalletTransactionGetParamsAssetString = "usdb"
 	WalletTransactionGetParamsAssetStringSol  WalletTransactionGetParamsAssetString = "sol"
 )
 
 type WalletTransactionGetParamsChain string
 
 const (
-	WalletTransactionGetParamsChainBase WalletTransactionGetParamsChain = "base"
+	WalletTransactionGetParamsChainEthereum WalletTransactionGetParamsChain = "ethereum"
+	WalletTransactionGetParamsChainArbitrum WalletTransactionGetParamsChain = "arbitrum"
+	WalletTransactionGetParamsChainBase     WalletTransactionGetParamsChain = "base"
+	WalletTransactionGetParamsChainLinea    WalletTransactionGetParamsChain = "linea"
+	WalletTransactionGetParamsChainOptimism WalletTransactionGetParamsChain = "optimism"
+	WalletTransactionGetParamsChainPolygon  WalletTransactionGetParamsChain = "polygon"
+	WalletTransactionGetParamsChainSolana   WalletTransactionGetParamsChain = "solana"
+	WalletTransactionGetParamsChainSepolia  WalletTransactionGetParamsChain = "sepolia"
 )

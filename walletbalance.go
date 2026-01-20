@@ -66,11 +66,11 @@ func (r *WalletBalanceGetResponse) UnmarshalJSON(data []byte) error {
 }
 
 type WalletBalanceGetResponseBalance struct {
-	// Any of "usdc", "eth", "pol", "usdt", "sol".
+	// Any of "usdc", "eth", "pol", "usdt", "eurc", "usdb", "sol".
 	Asset string `json:"asset,required"`
 	// Any of "ethereum", "arbitrum", "base", "linea", "optimism", "polygon", "solana",
 	// "zksync_era", "sepolia", "arbitrum_sepolia", "base_sepolia", "linea_testnet",
-	// "optimism_sepolia", "polygon_amoy".
+	// "optimism_sepolia", "polygon_amoy", "solana_devnet", "solana_testnet".
 	Chain            string            `json:"chain,required"`
 	DisplayValues    map[string]string `json:"display_values,required"`
 	RawValue         string            `json:"raw_value,required"`
@@ -96,7 +96,7 @@ func (r *WalletBalanceGetResponseBalance) UnmarshalJSON(data []byte) error {
 type WalletBalanceGetParams struct {
 	Asset WalletBalanceGetParamsAssetUnion `query:"asset,omitzero,required" json:"-"`
 	Chain WalletBalanceGetParamsChainUnion `query:"chain,omitzero,required" json:"-"`
-	// Any of "usd".
+	// Any of "usd", "eur".
 	IncludeCurrency WalletBalanceGetParamsIncludeCurrency `query:"include_currency,omitzero" json:"-"`
 	paramObj
 }
@@ -136,6 +136,8 @@ const (
 	WalletBalanceGetParamsAssetStringEth  WalletBalanceGetParamsAssetString = "eth"
 	WalletBalanceGetParamsAssetStringPol  WalletBalanceGetParamsAssetString = "pol"
 	WalletBalanceGetParamsAssetStringUsdt WalletBalanceGetParamsAssetString = "usdt"
+	WalletBalanceGetParamsAssetStringEurc WalletBalanceGetParamsAssetString = "eurc"
+	WalletBalanceGetParamsAssetStringUsdb WalletBalanceGetParamsAssetString = "usdb"
 	WalletBalanceGetParamsAssetStringSol  WalletBalanceGetParamsAssetString = "sol"
 )
 
@@ -176,10 +178,13 @@ const (
 	WalletBalanceGetParamsChainStringLineaTestnet    WalletBalanceGetParamsChainString = "linea_testnet"
 	WalletBalanceGetParamsChainStringOptimismSepolia WalletBalanceGetParamsChainString = "optimism_sepolia"
 	WalletBalanceGetParamsChainStringPolygonAmoy     WalletBalanceGetParamsChainString = "polygon_amoy"
+	WalletBalanceGetParamsChainStringSolanaDevnet    WalletBalanceGetParamsChainString = "solana_devnet"
+	WalletBalanceGetParamsChainStringSolanaTestnet   WalletBalanceGetParamsChainString = "solana_testnet"
 )
 
 type WalletBalanceGetParamsIncludeCurrency string
 
 const (
 	WalletBalanceGetParamsIncludeCurrencyUsd WalletBalanceGetParamsIncludeCurrency = "usd"
+	WalletBalanceGetParamsIncludeCurrencyEur WalletBalanceGetParamsIncludeCurrency = "eur"
 )
