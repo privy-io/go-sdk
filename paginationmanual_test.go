@@ -12,7 +12,7 @@ import (
 	"github.com/stainless-sdks/privy-api-client-go/option"
 )
 
-func TestUsage(t *testing.T) {
+func TestManualPagination(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -25,10 +25,21 @@ func TestUsage(t *testing.T) {
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	t.Skip("Prism tests are disabled")
-	wallet, err := client.Wallets.Get(context.TODO(), "wallet_id")
+	page, err := client.Wallets.List(context.TODO(), privyapiclient.WalletListParams{})
 	if err != nil {
 		t.Fatalf("err should be nil: %s", err.Error())
 	}
-	t.Logf("%+v\n", wallet.ID)
+	for _, wallet := range page.Data {
+		t.Logf("%+v\n", wallet.ID)
+	}
+	// Prism mock isn't going to give us real pagination
+	page, err = page.GetNextPage()
+	if err != nil {
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+	if page != nil {
+		for _, wallet := range page.Data {
+			t.Logf("%+v\n", wallet.ID)
+		}
+	}
 }
