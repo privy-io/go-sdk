@@ -4306,9 +4306,7 @@ type PolicyNewParams struct {
 	//
 	// Any of "1.0".
 	Version PolicyNewParamsVersion `json:"version,omitzero,required"`
-	// The key quorum ID to set as the owner of the resource. If you provide this, do
-	// not specify an owner.
-	OwnerID param.Opt[string] `json:"owner_id,omitzero"`
+	OwnerID param.Opt[string]      `json:"owner_id,omitzero"`
 	// Idempotency keys ensure API requests are executed only once within a 24-hour
 	// window.
 	PrivyIdempotencyKey param.Opt[string] `header:"privy-idempotency-key,omitzero" json:"-"`
@@ -5222,8 +5220,6 @@ func (r *PolicyNewParamsOwnerUserOwner) UnmarshalJSON(data []byte) error {
 }
 
 type PolicyUpdateParams struct {
-	// The key quorum ID to set as the owner of the resource. If you provide this, do
-	// not specify an owner.
 	OwnerID param.Opt[string] `json:"owner_id,omitzero"`
 	// Name to assign to policy.
 	Name param.Opt[string] `json:"name,omitzero"`

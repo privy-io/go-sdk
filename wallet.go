@@ -3040,8 +3040,6 @@ func (r *WalletNewParamsOwnerUserOwner) UnmarshalJSON(data []byte) error {
 }
 
 type WalletUpdateParams struct {
-	// The key quorum ID to set as the owner of the resource. If you provide this, do
-	// not specify an owner.
 	OwnerID param.Opt[string] `json:"owner_id,omitzero"`
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.
