@@ -119,7 +119,7 @@ custom := param.Override[privyapiclient.FooParams](12)
 
 ### Request unions
 
-Unions are represented as a struct with fields prefixed by "Of" for each of it's variants,
+Unions are represented as a struct with fields prefixed by "Of" for each of its variants,
 only one field can be non-zero. The non-zero field will be serialized.
 
 Sub-properties of the union can be accessed via methods on the union struct.
@@ -278,8 +278,33 @@ This library provides some conveniences for working with paginated list endpoint
 
 You can use `.ListAutoPaging()` methods to iterate through items across all pages:
 
+```go
+iter := client.Wallets.ListAutoPaging(context.TODO(), privyapiclient.WalletListParams{})
+// Automatically fetches more pages as needed.
+for iter.Next() {
+	wallet := iter.Current()
+	fmt.Printf("%+v\n", wallet)
+}
+if err := iter.Err(); err != nil {
+	panic(err.Error())
+}
+```
+
 Or you can use simple `.List()` methods to fetch a single page and receive a standard response object
 with additional helper methods like `.GetNextPage()`, e.g.:
+
+```go
+page, err := client.Wallets.List(context.TODO(), privyapiclient.WalletListParams{})
+for page != nil {
+	for _, wallet := range page.Data {
+		fmt.Printf("%+v\n", wallet)
+	}
+	page, err = page.GetNextPage()
+}
+if err != nil {
+	panic(err.Error())
+}
+```
 
 ### Errors
 
