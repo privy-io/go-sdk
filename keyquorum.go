@@ -89,8 +89,8 @@ func (r *KeyQuorumService) Get(ctx context.Context, keyQuorumID string, opts ...
 type KeyQuorum struct {
 	ID                     string                      `json:"id,required" format:"cuid2"`
 	AuthorizationKeys      []KeyQuorumAuthorizationKey `json:"authorization_keys,required"`
-	AuthorizationThreshold float64                     `json:"authorization_threshold"`
-	DisplayName            string                      `json:"display_name"`
+	AuthorizationThreshold float64                     `json:"authorization_threshold,required"`
+	DisplayName            string                      `json:"display_name,required"`
 	UserIDs                []string                    `json:"user_ids"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
