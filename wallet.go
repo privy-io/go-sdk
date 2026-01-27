@@ -3143,9 +3143,14 @@ func (r *WalletUpdateParamsOwnerUserOwner) UnmarshalJSON(data []byte) error {
 }
 
 type WalletListParams struct {
-	Limit  param.Opt[float64] `query:"limit,omitzero" json:"-"`
-	Cursor param.Opt[string]  `query:"cursor,omitzero" json:"-"`
-	UserID param.Opt[string]  `query:"user_id,omitzero" json:"-"`
+	Limit param.Opt[float64] `query:"limit,omitzero" json:"-"`
+	// Filter wallets by authorization public key. Returns wallets owned by key quorums
+	// that include the specified P-256 public key (base64-encoded DER format). Cannot
+	// be used together with user_id.
+	AuthorizationKey param.Opt[string] `query:"authorization_key,omitzero" json:"-"`
+	Cursor           param.Opt[string] `query:"cursor,omitzero" json:"-"`
+	// Filter wallets by user ID. Cannot be used together with authorization_key.
+	UserID param.Opt[string] `query:"user_id,omitzero" json:"-"`
 	// The wallet chain types.
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
