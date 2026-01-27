@@ -107,10 +107,11 @@ func TestWalletListWithOptionalParams(t *testing.T) {
 		option.WithAppSecret("My App Secret"),
 	)
 	_, err := client.Wallets.List(context.TODO(), privyapiclient.WalletListParams{
-		ChainType: privyapiclient.WalletChainTypeEthereum,
-		Cursor:    privyapiclient.String("x"),
-		Limit:     privyapiclient.Float(100),
-		UserID:    privyapiclient.String("user_id"),
+		AuthorizationKey: privyapiclient.String("s=-/fw-L-+N\n"),
+		ChainType:        privyapiclient.WalletChainTypeEthereum,
+		Cursor:           privyapiclient.String("x"),
+		Limit:            privyapiclient.Float(100),
+		UserID:           privyapiclient.String("user_id"),
 	})
 	if err != nil {
 		var apierr *privyapiclient.Error
