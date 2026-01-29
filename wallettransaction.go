@@ -170,7 +170,6 @@ func (r *WalletTransactionGetResponseTransactionDetailsUnion) UnmarshalJSON(data
 }
 
 type WalletTransactionGetResponseTransactionDetailsObject struct {
-	// Any of "usdc", "eth", "pol", "usdt", "eurc", "usdb", "sol".
 	Asset string `json:"asset,required"`
 	// Any of "ethereum", "arbitrum", "base", "linea", "optimism", "polygon", "solana",
 	// "zksync_era", "sepolia", "arbitrum_sepolia", "base_sepolia", "linea_testnet",
