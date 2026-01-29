@@ -66,7 +66,6 @@ func (r *WalletBalanceGetResponse) UnmarshalJSON(data []byte) error {
 }
 
 type WalletBalanceGetResponseBalance struct {
-	// Any of "usdc", "eth", "pol", "usdt", "eurc", "usdb", "sol".
 	Asset string `json:"asset,required"`
 	// Any of "ethereum", "arbitrum", "base", "linea", "optimism", "polygon", "solana",
 	// "zksync_era", "sepolia", "arbitrum_sepolia", "base_sepolia", "linea_testnet",
@@ -94,8 +93,9 @@ func (r *WalletBalanceGetResponseBalance) UnmarshalJSON(data []byte) error {
 }
 
 type WalletBalanceGetParams struct {
-	Asset WalletBalanceGetParamsAssetUnion `query:"asset,omitzero,required" json:"-"`
-	Chain WalletBalanceGetParamsChainUnion `query:"chain,omitzero,required" json:"-"`
+	Token WalletBalanceGetParamsTokenUnion `query:"token,omitzero" json:"-"`
+	Asset WalletBalanceGetParamsAssetUnion `query:"asset,omitzero" json:"-"`
+	Chain WalletBalanceGetParamsChainUnion `query:"chain,omitzero" json:"-"`
 	// Any of "usd", "eur".
 	IncludeCurrency WalletBalanceGetParamsIncludeCurrency `query:"include_currency,omitzero" json:"-"`
 	paramObj
@@ -107,6 +107,24 @@ func (r WalletBalanceGetParams) URLQuery() (v url.Values, err error) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type WalletBalanceGetParamsTokenUnion struct {
+	OfString      param.Opt[string] `query:",omitzero,inline"`
+	OfStringArray []string          `query:",omitzero,inline"`
+	paramUnion
+}
+
+func (u *WalletBalanceGetParamsTokenUnion) asAny() any {
+	if !param.IsOmitted(u.OfString) {
+		return &u.OfString.Value
+	} else if !param.IsOmitted(u.OfStringArray) {
+		return &u.OfStringArray
+	}
+	return nil
 }
 
 // Only one field can be non-zero.
