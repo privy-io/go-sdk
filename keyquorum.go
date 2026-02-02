@@ -85,9 +85,8 @@ func (r *KeyQuorumService) Get(ctx context.Context, keyQuorumID string, opts ...
 	return
 }
 
-// A key quorum for authorizing wallet operations.
 type KeyQuorum struct {
-	ID                     string                      `json:"id,required" format:"cuid2"`
+	ID                     string                      `json:"id,required"`
 	AuthorizationKeys      []KeyQuorumAuthorizationKey `json:"authorization_keys,required"`
 	AuthorizationThreshold float64                     `json:"authorization_threshold"`
 	DisplayName            string                      `json:"display_name"`
@@ -146,16 +145,10 @@ func (r *KeyQuorumDeleteResponse) UnmarshalJSON(data []byte) error {
 }
 
 type KeyQuorumNewParams struct {
-	// The number of keys that must sign for an action to be valid. Must be less than
-	// or equal to total number of key quorum members.
 	AuthorizationThreshold param.Opt[float64] `json:"authorization_threshold,omitzero"`
 	DisplayName            param.Opt[string]  `json:"display_name,omitzero"`
-	// List of P-256 public keys of the keys that should be authorized to sign on the
-	// key quorum, in base64-encoded DER format.
-	PublicKeys []string `json:"public_keys,omitzero"`
-	// List of user IDs of the users that should be authorized to sign on the key
-	// quorum.
-	UserIDs []string `json:"user_ids,omitzero"`
+	PublicKeys             []string           `json:"public_keys,omitzero"`
+	UserIDs                []string           `json:"user_ids,omitzero"`
 	paramObj
 }
 
@@ -168,19 +161,13 @@ func (r *KeyQuorumNewParams) UnmarshalJSON(data []byte) error {
 }
 
 type KeyQuorumUpdateParams struct {
-	// The number of keys that must sign for an action to be valid. Must be less than
-	// or equal to total number of key quorum members.
 	AuthorizationThreshold param.Opt[float64] `json:"authorization_threshold,omitzero"`
 	DisplayName            param.Opt[string]  `json:"display_name,omitzero"`
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.
 	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
-	// List of P-256 public keys of the keys that should be authorized to sign on the
-	// key quorum, in base64-encoded DER format.
-	PublicKeys []string `json:"public_keys,omitzero"`
-	// List of user IDs of the users that should be authorized to sign on the key
-	// quorum.
-	UserIDs []string `json:"user_ids,omitzero"`
+	PublicKeys                  []string          `json:"public_keys,omitzero"`
+	UserIDs                     []string          `json:"user_ids,omitzero"`
 	paramObj
 }
 
