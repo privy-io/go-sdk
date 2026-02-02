@@ -236,330 +236,6 @@ func (r *UserService) UnlinkLinkedAccount(ctx context.Context, userID string, bo
 	return
 }
 
-// LinkedAccountUnion contains all possible properties and values from
-// [LinkedAccountEmail], [LinkedAccountPhone], [LinkedAccountEthereum],
-// [LinkedAccountSolana], [LinkedAccountSmartWallet],
-// [LinkedAccountEthereumEmbeddedWallet], [LinkedAccountSolanaEmbeddedWallet],
-// [LinkedAccountBitcoinSegwitEmbeddedWallet],
-// [LinkedAccountBitcoinTaprootEmbeddedWallet],
-// [LinkedAccountCurveSigningEmbeddedWallet], [LinkedAccountGoogleOAuth],
-// [LinkedAccountTwitterOAuth], [LinkedAccountDiscordOAuth],
-// [LinkedAccountGitHubOAuth], [LinkedAccountSpotifyOAuth],
-// [LinkedAccountInstagramOAuth], [LinkedAccountTiktokOAuth],
-// [LinkedAccountLineOAuth], [LinkedAccountTwitchOAuth],
-// [LinkedAccountLinkedInOAuth], [LinkedAccountAppleOAuth],
-// [LinkedAccountCustomOAuth], [LinkedAccountCustomJwt], [LinkedAccountFarcaster],
-// [LinkedAccountPasskey], [LinkedAccountTelegram], [LinkedAccountCrossApp],
-// [LinkedAccountAuthorizationKey].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-type LinkedAccountUnion struct {
-	Address          string  `json:"address"`
-	FirstVerifiedAt  float64 `json:"first_verified_at"`
-	LatestVerifiedAt float64 `json:"latest_verified_at"`
-	Type             string  `json:"type"`
-	VerifiedAt       float64 `json:"verified_at"`
-	// This field is from variant [LinkedAccountPhone].
-	PhoneNumber string `json:"phoneNumber"`
-	// This field is from variant [LinkedAccountPhone].
-	Number           string `json:"number"`
-	ChainType        string `json:"chain_type"`
-	WalletClient     string `json:"wallet_client"`
-	ChainID          string `json:"chain_id"`
-	ConnectorType    string `json:"connector_type"`
-	WalletClientType string `json:"wallet_client_type"`
-	// This field is from variant [LinkedAccountSmartWallet].
-	SmartWalletType SmartWalletType `json:"smart_wallet_type"`
-	// This field is from variant [LinkedAccountSmartWallet].
-	SmartWalletVersion string `json:"smart_wallet_version"`
-	ID                 string `json:"id"`
-	Delegated          bool   `json:"delegated"`
-	Imported           bool   `json:"imported"`
-	// This field is from variant [LinkedAccountEthereumEmbeddedWallet].
-	RecoveryMethod    EmbeddedWalletRecoveryMethod `json:"recovery_method"`
-	WalletIndex       float64                      `json:"wallet_index"`
-	PublicKey         string                       `json:"public_key"`
-	Email             string                       `json:"email"`
-	Name              string                       `json:"name"`
-	Subject           string                       `json:"subject"`
-	ProfilePictureURL string                       `json:"profile_picture_url"`
-	Username          string                       `json:"username"`
-	// This field is from variant [LinkedAccountLinkedInOAuth].
-	VanityName string `json:"vanity_name"`
-	// This field is from variant [LinkedAccountCustomJwt].
-	CustomUserID string `json:"custom_user_id"`
-	// This field is from variant [LinkedAccountFarcaster].
-	Fid float64 `json:"fid"`
-	// This field is from variant [LinkedAccountFarcaster].
-	OwnerAddress string `json:"owner_address"`
-	// This field is from variant [LinkedAccountFarcaster].
-	Bio string `json:"bio"`
-	// This field is from variant [LinkedAccountFarcaster].
-	DisplayName string `json:"display_name"`
-	// This field is from variant [LinkedAccountFarcaster].
-	HomepageURL string `json:"homepage_url"`
-	// This field is from variant [LinkedAccountFarcaster].
-	ProfilePicture string `json:"profile_picture"`
-	// This field is from variant [LinkedAccountFarcaster].
-	SignerPublicKey string `json:"signer_public_key"`
-	// This field is from variant [LinkedAccountPasskey].
-	CredentialID string `json:"credential_id"`
-	// This field is from variant [LinkedAccountPasskey].
-	EnrolledInMfa bool `json:"enrolled_in_mfa"`
-	// This field is from variant [LinkedAccountPasskey].
-	AuthenticatorName string `json:"authenticator_name"`
-	// This field is from variant [LinkedAccountPasskey].
-	CreatedWithBrowser string `json:"created_with_browser"`
-	// This field is from variant [LinkedAccountPasskey].
-	CreatedWithDevice string `json:"created_with_device"`
-	// This field is from variant [LinkedAccountPasskey].
-	CreatedWithOs string `json:"created_with_os"`
-	// This field is from variant [LinkedAccountTelegram].
-	TelegramUserID string `json:"telegram_user_id"`
-	// This field is from variant [LinkedAccountTelegram].
-	FirstName string `json:"first_name"`
-	// This field is from variant [LinkedAccountTelegram].
-	LastName string `json:"last_name"`
-	// This field is from variant [LinkedAccountTelegram].
-	PhotoURL string `json:"photo_url"`
-	// This field is from variant [LinkedAccountCrossApp].
-	EmbeddedWallets []CrossAppEmbeddedWallet `json:"embedded_wallets"`
-	// This field is from variant [LinkedAccountCrossApp].
-	ProviderAppID string `json:"provider_app_id"`
-	// This field is from variant [LinkedAccountCrossApp].
-	SmartWallets []CrossAppSmartWallet `json:"smart_wallets"`
-	JSON         struct {
-		Address            respjson.Field
-		FirstVerifiedAt    respjson.Field
-		LatestVerifiedAt   respjson.Field
-		Type               respjson.Field
-		VerifiedAt         respjson.Field
-		PhoneNumber        respjson.Field
-		Number             respjson.Field
-		ChainType          respjson.Field
-		WalletClient       respjson.Field
-		ChainID            respjson.Field
-		ConnectorType      respjson.Field
-		WalletClientType   respjson.Field
-		SmartWalletType    respjson.Field
-		SmartWalletVersion respjson.Field
-		ID                 respjson.Field
-		Delegated          respjson.Field
-		Imported           respjson.Field
-		RecoveryMethod     respjson.Field
-		WalletIndex        respjson.Field
-		PublicKey          respjson.Field
-		Email              respjson.Field
-		Name               respjson.Field
-		Subject            respjson.Field
-		ProfilePictureURL  respjson.Field
-		Username           respjson.Field
-		VanityName         respjson.Field
-		CustomUserID       respjson.Field
-		Fid                respjson.Field
-		OwnerAddress       respjson.Field
-		Bio                respjson.Field
-		DisplayName        respjson.Field
-		HomepageURL        respjson.Field
-		ProfilePicture     respjson.Field
-		SignerPublicKey    respjson.Field
-		CredentialID       respjson.Field
-		EnrolledInMfa      respjson.Field
-		AuthenticatorName  respjson.Field
-		CreatedWithBrowser respjson.Field
-		CreatedWithDevice  respjson.Field
-		CreatedWithOs      respjson.Field
-		TelegramUserID     respjson.Field
-		FirstName          respjson.Field
-		LastName           respjson.Field
-		PhotoURL           respjson.Field
-		EmbeddedWallets    respjson.Field
-		ProviderAppID      respjson.Field
-		SmartWallets       respjson.Field
-		raw                string
-	} `json:"-"`
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountEmail() (v LinkedAccountEmail) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountPhone() (v LinkedAccountPhone) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountEthereum() (v LinkedAccountEthereum) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountSolana() (v LinkedAccountSolana) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountSmartWallet() (v LinkedAccountSmartWallet) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountEthereumEmbeddedWallet() (v LinkedAccountEthereumEmbeddedWallet) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountSolanaEmbeddedWallet() (v LinkedAccountSolanaEmbeddedWallet) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountBitcoinSegwitEmbeddedWallet() (v LinkedAccountBitcoinSegwitEmbeddedWallet) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountBitcoinTaprootEmbeddedWallet() (v LinkedAccountBitcoinTaprootEmbeddedWallet) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountCurveSigningEmbeddedWallet() (v LinkedAccountCurveSigningEmbeddedWallet) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountGoogleOAuth() (v LinkedAccountGoogleOAuth) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountTwitterOAuth() (v LinkedAccountTwitterOAuth) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountDiscordOAuth() (v LinkedAccountDiscordOAuth) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountGitHubOAuth() (v LinkedAccountGitHubOAuth) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountSpotifyOAuth() (v LinkedAccountSpotifyOAuth) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountInstagramOAuth() (v LinkedAccountInstagramOAuth) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountTiktokOAuth() (v LinkedAccountTiktokOAuth) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountLineOAuth() (v LinkedAccountLineOAuth) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountTwitchOAuth() (v LinkedAccountTwitchOAuth) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountLinkedInOAuth() (v LinkedAccountLinkedInOAuth) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountAppleOAuth() (v LinkedAccountAppleOAuth) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountCustomOAuth() (v LinkedAccountCustomOAuth) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountCustomJwt() (v LinkedAccountCustomJwt) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountFarcaster() (v LinkedAccountFarcaster) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountPasskey() (v LinkedAccountPasskey) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountTelegram() (v LinkedAccountTelegram) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountCrossApp() (v LinkedAccountCrossApp) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedAccountUnion) AsLinkedAccountAuthorizationKey() (v LinkedAccountAuthorizationKey) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u LinkedAccountUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *LinkedAccountUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// A Privy user object.
-type User struct {
-	ID string `json:"id,required"`
-	// Unix timestamp of when the user was created in milliseconds.
-	CreatedAt float64 `json:"created_at,required"`
-	// Indicates if the user has accepted the terms of service.
-	HasAcceptedTerms bool `json:"has_accepted_terms,required"`
-	// Indicates if the user is a guest account user.
-	IsGuest        bool                   `json:"is_guest,required"`
-	LinkedAccounts []LinkedAccountUnion   `json:"linked_accounts,required"`
-	MfaMethods     []LinkedMfaMethodUnion `json:"mfa_methods,required"`
-	// Custom metadata associated with the user.
-	CustomMetadata CustomMetadata `json:"custom_metadata"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID               respjson.Field
-		CreatedAt        respjson.Field
-		HasAcceptedTerms respjson.Field
-		IsGuest          respjson.Field
-		LinkedAccounts   respjson.Field
-		MfaMethods       respjson.Field
-		CustomMetadata   respjson.Field
-		ExtraFields      map[string]respjson.Field
-		raw              string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r User) RawJSON() string { return r.JSON.raw }
-func (r *User) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // An email account linked to the user.
 type LinkedAccountEmail struct {
 	Address          string  `json:"address,required"`
@@ -927,7 +603,7 @@ const (
 	EmbeddedWalletRecoveryMethodPrivy                 EmbeddedWalletRecoveryMethod = "privy"
 	EmbeddedWalletRecoveryMethodUserPasscode          EmbeddedWalletRecoveryMethod = "user-passcode"
 	EmbeddedWalletRecoveryMethodGoogleDrive           EmbeddedWalletRecoveryMethod = "google-drive"
-	EmbeddedWalletRecoveryMethodIcloud                EmbeddedWalletRecoveryMethod = "icloud"
+	EmbeddedWalletRecoveryMethodICloud                EmbeddedWalletRecoveryMethod = "icloud"
 	EmbeddedWalletRecoveryMethodRecoveryEncryptionKey EmbeddedWalletRecoveryMethod = "recovery-encryption-key"
 	EmbeddedWalletRecoveryMethodPrivyV2               EmbeddedWalletRecoveryMethod = "privy-v2"
 )
@@ -1925,6 +1601,297 @@ type LinkedAccountAuthorizationKeyType string
 const (
 	LinkedAccountAuthorizationKeyTypeAuthorizationKey LinkedAccountAuthorizationKeyType = "authorization_key"
 )
+
+// LinkedAccountUnion contains all possible properties and values from
+// [LinkedAccountEmail], [LinkedAccountPhone], [LinkedAccountEthereum],
+// [LinkedAccountSolana], [LinkedAccountSmartWallet],
+// [LinkedAccountEthereumEmbeddedWallet], [LinkedAccountSolanaEmbeddedWallet],
+// [LinkedAccountBitcoinSegwitEmbeddedWallet],
+// [LinkedAccountBitcoinTaprootEmbeddedWallet],
+// [LinkedAccountCurveSigningEmbeddedWallet], [LinkedAccountGoogleOAuth],
+// [LinkedAccountTwitterOAuth], [LinkedAccountDiscordOAuth],
+// [LinkedAccountGitHubOAuth], [LinkedAccountSpotifyOAuth],
+// [LinkedAccountInstagramOAuth], [LinkedAccountTiktokOAuth],
+// [LinkedAccountLineOAuth], [LinkedAccountTwitchOAuth],
+// [LinkedAccountLinkedInOAuth], [LinkedAccountAppleOAuth],
+// [LinkedAccountCustomOAuth], [LinkedAccountCustomJwt], [LinkedAccountFarcaster],
+// [LinkedAccountPasskey], [LinkedAccountTelegram], [LinkedAccountCrossApp],
+// [LinkedAccountAuthorizationKey].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type LinkedAccountUnion struct {
+	Address          string  `json:"address"`
+	FirstVerifiedAt  float64 `json:"first_verified_at"`
+	LatestVerifiedAt float64 `json:"latest_verified_at"`
+	Type             string  `json:"type"`
+	VerifiedAt       float64 `json:"verified_at"`
+	// This field is from variant [LinkedAccountPhone].
+	PhoneNumber string `json:"phoneNumber"`
+	// This field is from variant [LinkedAccountPhone].
+	Number           string `json:"number"`
+	ChainType        string `json:"chain_type"`
+	WalletClient     string `json:"wallet_client"`
+	ChainID          string `json:"chain_id"`
+	ConnectorType    string `json:"connector_type"`
+	WalletClientType string `json:"wallet_client_type"`
+	// This field is from variant [LinkedAccountSmartWallet].
+	SmartWalletType SmartWalletType `json:"smart_wallet_type"`
+	// This field is from variant [LinkedAccountSmartWallet].
+	SmartWalletVersion string `json:"smart_wallet_version"`
+	ID                 string `json:"id"`
+	Delegated          bool   `json:"delegated"`
+	Imported           bool   `json:"imported"`
+	// This field is from variant [LinkedAccountEthereumEmbeddedWallet].
+	RecoveryMethod    EmbeddedWalletRecoveryMethod `json:"recovery_method"`
+	WalletIndex       float64                      `json:"wallet_index"`
+	PublicKey         string                       `json:"public_key"`
+	Email             string                       `json:"email"`
+	Name              string                       `json:"name"`
+	Subject           string                       `json:"subject"`
+	ProfilePictureURL string                       `json:"profile_picture_url"`
+	Username          string                       `json:"username"`
+	// This field is from variant [LinkedAccountLinkedInOAuth].
+	VanityName string `json:"vanity_name"`
+	// This field is from variant [LinkedAccountCustomJwt].
+	CustomUserID string `json:"custom_user_id"`
+	// This field is from variant [LinkedAccountFarcaster].
+	Fid float64 `json:"fid"`
+	// This field is from variant [LinkedAccountFarcaster].
+	OwnerAddress string `json:"owner_address"`
+	// This field is from variant [LinkedAccountFarcaster].
+	Bio string `json:"bio"`
+	// This field is from variant [LinkedAccountFarcaster].
+	DisplayName string `json:"display_name"`
+	// This field is from variant [LinkedAccountFarcaster].
+	HomepageURL string `json:"homepage_url"`
+	// This field is from variant [LinkedAccountFarcaster].
+	ProfilePicture string `json:"profile_picture"`
+	// This field is from variant [LinkedAccountFarcaster].
+	SignerPublicKey string `json:"signer_public_key"`
+	// This field is from variant [LinkedAccountPasskey].
+	CredentialID string `json:"credential_id"`
+	// This field is from variant [LinkedAccountPasskey].
+	EnrolledInMfa bool `json:"enrolled_in_mfa"`
+	// This field is from variant [LinkedAccountPasskey].
+	AuthenticatorName string `json:"authenticator_name"`
+	// This field is from variant [LinkedAccountPasskey].
+	CreatedWithBrowser string `json:"created_with_browser"`
+	// This field is from variant [LinkedAccountPasskey].
+	CreatedWithDevice string `json:"created_with_device"`
+	// This field is from variant [LinkedAccountPasskey].
+	CreatedWithOs string `json:"created_with_os"`
+	// This field is from variant [LinkedAccountTelegram].
+	TelegramUserID string `json:"telegram_user_id"`
+	// This field is from variant [LinkedAccountTelegram].
+	FirstName string `json:"first_name"`
+	// This field is from variant [LinkedAccountTelegram].
+	LastName string `json:"last_name"`
+	// This field is from variant [LinkedAccountTelegram].
+	PhotoURL string `json:"photo_url"`
+	// This field is from variant [LinkedAccountCrossApp].
+	EmbeddedWallets []CrossAppEmbeddedWallet `json:"embedded_wallets"`
+	// This field is from variant [LinkedAccountCrossApp].
+	ProviderAppID string `json:"provider_app_id"`
+	// This field is from variant [LinkedAccountCrossApp].
+	SmartWallets []CrossAppSmartWallet `json:"smart_wallets"`
+	JSON         struct {
+		Address            respjson.Field
+		FirstVerifiedAt    respjson.Field
+		LatestVerifiedAt   respjson.Field
+		Type               respjson.Field
+		VerifiedAt         respjson.Field
+		PhoneNumber        respjson.Field
+		Number             respjson.Field
+		ChainType          respjson.Field
+		WalletClient       respjson.Field
+		ChainID            respjson.Field
+		ConnectorType      respjson.Field
+		WalletClientType   respjson.Field
+		SmartWalletType    respjson.Field
+		SmartWalletVersion respjson.Field
+		ID                 respjson.Field
+		Delegated          respjson.Field
+		Imported           respjson.Field
+		RecoveryMethod     respjson.Field
+		WalletIndex        respjson.Field
+		PublicKey          respjson.Field
+		Email              respjson.Field
+		Name               respjson.Field
+		Subject            respjson.Field
+		ProfilePictureURL  respjson.Field
+		Username           respjson.Field
+		VanityName         respjson.Field
+		CustomUserID       respjson.Field
+		Fid                respjson.Field
+		OwnerAddress       respjson.Field
+		Bio                respjson.Field
+		DisplayName        respjson.Field
+		HomepageURL        respjson.Field
+		ProfilePicture     respjson.Field
+		SignerPublicKey    respjson.Field
+		CredentialID       respjson.Field
+		EnrolledInMfa      respjson.Field
+		AuthenticatorName  respjson.Field
+		CreatedWithBrowser respjson.Field
+		CreatedWithDevice  respjson.Field
+		CreatedWithOs      respjson.Field
+		TelegramUserID     respjson.Field
+		FirstName          respjson.Field
+		LastName           respjson.Field
+		PhotoURL           respjson.Field
+		EmbeddedWallets    respjson.Field
+		ProviderAppID      respjson.Field
+		SmartWallets       respjson.Field
+		raw                string
+	} `json:"-"`
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountEmail() (v LinkedAccountEmail) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountPhone() (v LinkedAccountPhone) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountEthereum() (v LinkedAccountEthereum) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountSolana() (v LinkedAccountSolana) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountSmartWallet() (v LinkedAccountSmartWallet) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountEthereumEmbeddedWallet() (v LinkedAccountEthereumEmbeddedWallet) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountSolanaEmbeddedWallet() (v LinkedAccountSolanaEmbeddedWallet) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountBitcoinSegwitEmbeddedWallet() (v LinkedAccountBitcoinSegwitEmbeddedWallet) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountBitcoinTaprootEmbeddedWallet() (v LinkedAccountBitcoinTaprootEmbeddedWallet) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountCurveSigningEmbeddedWallet() (v LinkedAccountCurveSigningEmbeddedWallet) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountGoogleOAuth() (v LinkedAccountGoogleOAuth) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountTwitterOAuth() (v LinkedAccountTwitterOAuth) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountDiscordOAuth() (v LinkedAccountDiscordOAuth) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountGitHubOAuth() (v LinkedAccountGitHubOAuth) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountSpotifyOAuth() (v LinkedAccountSpotifyOAuth) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountInstagramOAuth() (v LinkedAccountInstagramOAuth) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountTiktokOAuth() (v LinkedAccountTiktokOAuth) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountLineOAuth() (v LinkedAccountLineOAuth) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountTwitchOAuth() (v LinkedAccountTwitchOAuth) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountLinkedInOAuth() (v LinkedAccountLinkedInOAuth) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountAppleOAuth() (v LinkedAccountAppleOAuth) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountCustomOAuth() (v LinkedAccountCustomOAuth) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountCustomJwt() (v LinkedAccountCustomJwt) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountFarcaster() (v LinkedAccountFarcaster) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountPasskey() (v LinkedAccountPasskey) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountTelegram() (v LinkedAccountTelegram) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountCrossApp() (v LinkedAccountCrossApp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedAccountUnion) AsLinkedAccountAuthorizationKey() (v LinkedAccountAuthorizationKey) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u LinkedAccountUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *LinkedAccountUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 // The possible types of linked accounts.
 type LinkedAccountType string
@@ -3083,6 +3050,39 @@ func (u LinkedMfaMethodUnion) AsPasskey() (v PasskeyMfaMethod) {
 func (u LinkedMfaMethodUnion) RawJSON() string { return u.JSON.raw }
 
 func (r *LinkedMfaMethodUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A Privy user object.
+type User struct {
+	ID string `json:"id,required"`
+	// Unix timestamp of when the user was created in milliseconds.
+	CreatedAt float64 `json:"created_at,required"`
+	// Indicates if the user has accepted the terms of service.
+	HasAcceptedTerms bool `json:"has_accepted_terms,required"`
+	// Indicates if the user is a guest account user.
+	IsGuest        bool                   `json:"is_guest,required"`
+	LinkedAccounts []LinkedAccountUnion   `json:"linked_accounts,required"`
+	MfaMethods     []LinkedMfaMethodUnion `json:"mfa_methods,required"`
+	// Custom metadata associated with the user.
+	CustomMetadata CustomMetadata `json:"custom_metadata"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID               respjson.Field
+		CreatedAt        respjson.Field
+		HasAcceptedTerms respjson.Field
+		IsGuest          respjson.Field
+		LinkedAccounts   respjson.Field
+		MfaMethods       respjson.Field
+		CustomMetadata   respjson.Field
+		ExtraFields      map[string]respjson.Field
+		raw              string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r User) RawJSON() string { return r.JSON.raw }
+func (r *User) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
