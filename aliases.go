@@ -3,8 +3,8 @@
 package privyapiclient
 
 import (
-	"github.com/stainless-sdks/privy-api-client-go/internal/apierror"
-	"github.com/stainless-sdks/privy-api-client-go/packages/param"
+	"github.com/privy-io/go-sdk/internal/apierror"
+	"github.com/privy-io/go-sdk/packages/param"
 )
 
 // aliased to make [param.APIUnion] private when embedding

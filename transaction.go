@@ -3,7 +3,7 @@
 package privyapiclient
 
 import (
-	"github.com/stainless-sdks/privy-api-client-go/option"
+	"github.com/privy-io/go-sdk/option"
 )
 
 // TransactionService contains methods and other services that help with
