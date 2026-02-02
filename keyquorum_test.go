@@ -30,7 +30,7 @@ func TestKeyQuorumNewWithOptionalParams(t *testing.T) {
 	_, err := client.KeyQuorums.New(context.TODO(), privyapiclient.KeyQuorumNewParams{
 		AuthorizationThreshold: privyapiclient.Float(1),
 		DisplayName:            privyapiclient.String("Prod key quorum"),
-		PublicKeys:             []string{"-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEx4aoeD72yykviK+f/ckqE2CItVIG\n1rCnvC3/XZ1HgpOcMEMialRmTrqIK4oZlYd1RfxU3za/C9yjhboIuoPD3g==\n-----END PUBLIC KEY-----", "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAErzZtQr/bMIh3Y8f9ZqseB9i/AfjQ\nhu+agbNqXcJy/TfoNqvc/Y3Mh7gIZ8ZLXQEykycx4mYSpqrxp1lBKqsZDQ==\n-----END PUBLIC KEY-----\","},
+		PublicKeys:             []string{"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEx4aoeD72yykviK+f/ckqE2CItVIG\n1rCnvC3/XZ1HgpOcMEMialRmTrqIK4oZlYd1RfxU3za/C9yjhboIuoPD3g==", "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAErzZtQr/bMIh3Y8f9ZqseB9i/AfjQ\nhu+agbNqXcJy/TfoNqvc/Y3Mh7gIZ8ZLXQEykycx4mYSpqrxp1lBKqsZDQ=="},
 		UserIDs:                []string{"string"},
 	})
 	if err != nil {
@@ -62,7 +62,7 @@ func TestKeyQuorumUpdateWithOptionalParams(t *testing.T) {
 		privyapiclient.KeyQuorumUpdateParams{
 			AuthorizationThreshold:      privyapiclient.Float(1),
 			DisplayName:                 privyapiclient.String("Prod key quorum"),
-			PublicKeys:                  []string{"-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEx4aoeD72yykviK+f/ckqE2CItVIG\n1rCnvC3/XZ1HgpOcMEMialRmTrqIK4oZlYd1RfxU3za/C9yjhboIuoPD3g==\n-----END PUBLIC KEY-----"},
+			PublicKeys:                  []string{"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEx4aoeD72yykviK+f/ckqE2CItVIG\n1rCnvC3/XZ1HgpOcMEMialRmTrqIK4oZlYd1RfxU3za/C9yjhboIuoPD3g=="},
 			UserIDs:                     []string{"string"},
 			PrivyAuthorizationSignature: privyapiclient.String("privy-authorization-signature"),
 		},

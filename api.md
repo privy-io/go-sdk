@@ -1,8 +1,37 @@
 # Wallets
 
+Params Types:
+
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletChainType">WalletChainType</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#HpkeImportConfigParam">HpkeImportConfigParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SuiCommandName">SuiCommandName</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EthereumPersonalSignRpcInputParam">EthereumPersonalSignRpcInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EthereumSignTransactionRpcInputParam">EthereumSignTransactionRpcInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EthereumSendTransactionRpcInputParam">EthereumSendTransactionRpcInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EthereumSignTypedDataRpcInputParam">EthereumSignTypedDataRpcInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EthereumSignUserOperationRpcInputParam">EthereumSignUserOperationRpcInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EthereumSign7702AuthorizationRpcInputParam">EthereumSign7702AuthorizationRpcInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EthereumSecp256k1SignRpcInputParam">EthereumSecp256k1SignRpcInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SolanaSignTransactionRpcInputParam">SolanaSignTransactionRpcInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SolanaSignAndSendTransactionRpcInputParam">SolanaSignAndSendTransactionRpcInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SolanaSignMessageRpcInputParam">SolanaSignMessageRpcInputParam</a>
+
 Response Types:
 
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#Wallet">Wallet</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#CurveSigningChainType">CurveSigningChainType</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletChainType">WalletChainType</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SuiCommandName">SuiCommandName</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EthereumSignTransactionRpcResponse">EthereumSignTransactionRpcResponse</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EthereumSendTransactionRpcResponse">EthereumSendTransactionRpcResponse</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EthereumPersonalSignRpcResponse">EthereumPersonalSignRpcResponse</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EthereumSignTypedDataRpcResponse">EthereumSignTypedDataRpcResponse</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EthereumSignUserOperationRpcResponse">EthereumSignUserOperationRpcResponse</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EthereumSign7702AuthorizationRpcResponse">EthereumSign7702AuthorizationRpcResponse</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EthereumSecp256k1SignRpcResponse">EthereumSecp256k1SignRpcResponse</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SolanaSignTransactionRpcResponse">SolanaSignTransactionRpcResponse</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SolanaSignAndSendTransactionRpcResponse">SolanaSignAndSendTransactionRpcResponse</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SolanaSignMessageRpcResponse">SolanaSignMessageRpcResponse</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletInitImportResponse">WalletInitImportResponse</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletAuthenticateWithJwtResponseUnion">WalletAuthenticateWithJwtResponseUnion</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletExportResponse">WalletExportResponse</a>
@@ -36,9 +65,70 @@ Methods:
 
 # Users
 
+Params Types:
+
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountType">LinkedAccountType</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#CustomMetadataParam">CustomMetadataParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountWalletInputParam">LinkedAccountWalletInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountEmailInputParam">LinkedAccountEmailInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountPhoneInputParam">LinkedAccountPhoneInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountGoogleInputParam">LinkedAccountGoogleInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountTwitterInputParam">LinkedAccountTwitterInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountDiscordInputParam">LinkedAccountDiscordInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountGitHubInputParam">LinkedAccountGitHubInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountSpotifyInputParam">LinkedAccountSpotifyInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountInstagramInputParam">LinkedAccountInstagramInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountTiktokInputParam">LinkedAccountTiktokInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountLineInputParam">LinkedAccountLineInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountTwitchInputParam">LinkedAccountTwitchInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountAppleInputParam">LinkedAccountAppleInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountLinkedInInputParam">LinkedAccountLinkedInInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountFarcasterInputParam">LinkedAccountFarcasterInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountTelegramInputParam">LinkedAccountTelegramInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountCustomJwtInputParam">LinkedAccountCustomJwtInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountInputUnionParam">LinkedAccountInputUnionParam</a>
+
 Response Types:
 
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#User">User</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountEmail">LinkedAccountEmail</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountPhone">LinkedAccountPhone</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountEthereum">LinkedAccountEthereum</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SmartWalletType">SmartWalletType</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountSmartWallet">LinkedAccountSmartWallet</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountSolana">LinkedAccountSolana</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountFarcaster">LinkedAccountFarcaster</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountPasskey">LinkedAccountPasskey</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountTelegram">LinkedAccountTelegram</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EmbeddedWalletRecoveryMethod">EmbeddedWalletRecoveryMethod</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountEthereumEmbeddedWallet">LinkedAccountEthereumEmbeddedWallet</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountSolanaEmbeddedWallet">LinkedAccountSolanaEmbeddedWallet</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountBitcoinSegwitEmbeddedWallet">LinkedAccountBitcoinSegwitEmbeddedWallet</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountBitcoinTaprootEmbeddedWallet">LinkedAccountBitcoinTaprootEmbeddedWallet</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountCurveSigningEmbeddedWallet">LinkedAccountCurveSigningEmbeddedWallet</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountGoogleOAuth">LinkedAccountGoogleOAuth</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountTwitterOAuth">LinkedAccountTwitterOAuth</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountDiscordOAuth">LinkedAccountDiscordOAuth</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountGitHubOAuth">LinkedAccountGitHubOAuth</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountLinkedInOAuth">LinkedAccountLinkedInOAuth</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountSpotifyOAuth">LinkedAccountSpotifyOAuth</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountInstagramOAuth">LinkedAccountInstagramOAuth</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountTiktokOAuth">LinkedAccountTiktokOAuth</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountLineOAuth">LinkedAccountLineOAuth</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountTwitchOAuth">LinkedAccountTwitchOAuth</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountAppleOAuth">LinkedAccountAppleOAuth</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountCustomOAuth">LinkedAccountCustomOAuth</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountCustomJwt">LinkedAccountCustomJwt</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#CrossAppEmbeddedWallet">CrossAppEmbeddedWallet</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#CrossAppSmartWallet">CrossAppSmartWallet</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountCrossApp">LinkedAccountCrossApp</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountAuthorizationKey">LinkedAccountAuthorizationKey</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountUnion">LinkedAccountUnion</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#CustomMetadata">CustomMetadata</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SMSMfaMethod">SMSMfaMethod</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TotpMfaMethod">TotpMfaMethod</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#PasskeyMfaMethod">PasskeyMfaMethod</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedMfaMethodUnion">LinkedMfaMethodUnion</a>
 
 Methods:
 
@@ -65,9 +155,22 @@ Methods:
 
 # Policies
 
+Params Types:
+
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SuiTransactionCommandOperator">SuiTransactionCommandOperator</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SuiTransferObjectsCommandField">SuiTransferObjectsCommandField</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TronTransactionConditionParam">TronTransactionConditionParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SuiTransactionCommandConditionParam">SuiTransactionCommandConditionParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SuiTransferObjectsCommandConditionParam">SuiTransferObjectsCommandConditionParam</a>
+
 Response Types:
 
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#Policy">Policy</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SuiTransactionCommandOperator">SuiTransactionCommandOperator</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SuiTransferObjectsCommandField">SuiTransferObjectsCommandField</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TronTransactionCondition">TronTransactionCondition</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SuiTransactionCommandCondition">SuiTransactionCommandCondition</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SuiTransferObjectsCommandCondition">SuiTransferObjectsCommandCondition</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#PolicyDeleteResponse">PolicyDeleteResponse</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#PolicyNewRuleResponse">PolicyNewRuleResponse</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#PolicyDeleteRuleResponse">PolicyDeleteRuleResponse</a>
@@ -100,3 +203,21 @@ Methods:
 - <code title="patch /v1/key_quorums/{key_quorum_id}">client.KeyQuorums.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#KeyQuorumService.Update">Update</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, keyQuorumID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#KeyQuorumUpdateParams">KeyQuorumUpdateParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#KeyQuorum">KeyQuorum</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="delete /v1/key_quorums/{key_quorum_id}">client.KeyQuorums.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#KeyQuorumService.Delete">Delete</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, keyQuorumID <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#KeyQuorumDeleteParams">KeyQuorumDeleteParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#KeyQuorumDeleteResponse">KeyQuorumDeleteResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="get /v1/key_quorums/{key_quorum_id}">client.KeyQuorums.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#KeyQuorumService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, keyQuorumID <a href="https://pkg.go.dev/builtin#string">string</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#KeyQuorum">KeyQuorum</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
+# ClientAuth
+
+Params Types:
+
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#CustomOAuthProviderID">CustomOAuthProviderID</a>
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#CustomOAuthProviderID">CustomOAuthProviderID</a>
+
+# Analytics
+
+# Apps
+
+# Aggregations
+
+# Webhooks

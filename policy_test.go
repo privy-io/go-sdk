@@ -29,7 +29,7 @@ func TestPolicyNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Policies.New(context.TODO(), privyapiclient.PolicyNewParams{
 		ChainType: privyapiclient.PolicyNewParamsChainTypeEthereum,
-		Name:      "name",
+		Name:      "x",
 		Rules: []privyapiclient.PolicyNewParamsRule{{
 			Action: "ALLOW",
 			Conditions: []privyapiclient.PolicyNewParamsRuleConditionUnion{{
@@ -42,7 +42,7 @@ func TestPolicyNewWithOptionalParams(t *testing.T) {
 				},
 			}},
 			Method: "eth_sendTransaction",
-			Name:   "name",
+			Name:   "x",
 		}},
 		Version: privyapiclient.PolicyNewParamsVersion1_0,
 		Owner: privyapiclient.PolicyNewParamsOwnerUnion{
@@ -99,7 +99,7 @@ func TestPolicyUpdateWithOptionalParams(t *testing.T) {
 					},
 				}},
 				Method: "eth_sendTransaction",
-				Name:   "name",
+				Name:   "x",
 			}},
 			PrivyAuthorizationSignature: privyapiclient.String("privy-authorization-signature"),
 		},
@@ -172,7 +172,7 @@ func TestPolicyNewRuleWithOptionalParams(t *testing.T) {
 				},
 			}},
 			Method:                      privyapiclient.PolicyNewRuleParamsMethodEthSendTransaction,
-			Name:                        "name",
+			Name:                        "x",
 			PrivyAuthorizationSignature: privyapiclient.String("privy-authorization-signature"),
 		},
 	)
@@ -300,7 +300,7 @@ func TestPolicyUpdateRuleWithOptionalParams(t *testing.T) {
 				},
 			}},
 			Method:                      privyapiclient.PolicyUpdateRuleParamsMethodEthSendTransaction,
-			Name:                        "name",
+			Name:                        "x",
 			PrivyAuthorizationSignature: privyapiclient.String("privy-authorization-signature"),
 		},
 	)
