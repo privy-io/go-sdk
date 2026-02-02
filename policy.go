@@ -159,6 +159,474 @@ func (r *PolicyService) UpdateRule(ctx context.Context, ruleID string, params Po
 	return
 }
 
+// Operator to use for SUI transaction command conditions. Only 'eq' and 'in' are
+// supported for command names.
+type SuiTransactionCommandOperator string
+
+const (
+	SuiTransactionCommandOperatorEq SuiTransactionCommandOperator = "eq"
+	SuiTransactionCommandOperatorIn SuiTransactionCommandOperator = "in"
+)
+
+// Supported fields for SUI TransferObjects command conditions. Only 'recipient'
+// and 'amount' are supported.
+type SuiTransferObjectsCommandField string
+
+const (
+	SuiTransferObjectsCommandFieldRecipient SuiTransferObjectsCommandField = "recipient"
+	SuiTransferObjectsCommandFieldAmount    SuiTransferObjectsCommandField = "amount"
+)
+
+// TRON transaction fields for TransferContract and TriggerSmartContract
+// transaction types.
+type TronTransactionCondition struct {
+	// Supported TRON transaction fields in format "TransactionType.field_name"
+	//
+	// Any of "TransferContract.to_address", "TransferContract.amount",
+	// "TriggerSmartContract.contract_address", "TriggerSmartContract.call_value",
+	// "TriggerSmartContract.token_id", "TriggerSmartContract.call_token_value".
+	Field TronTransactionConditionField `json:"field,required"`
+	// Any of "tron_transaction".
+	FieldSource TronTransactionConditionFieldSource `json:"field_source,required"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator TronTransactionConditionOperator   `json:"operator,required"`
+	Value    TronTransactionConditionValueUnion `json:"value,required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronTransactionCondition) RawJSON() string { return r.JSON.raw }
+func (r *TronTransactionCondition) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TronTransactionCondition to a
+// TronTransactionConditionParam.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TronTransactionConditionParam.Overrides()
+func (r TronTransactionCondition) ToParam() TronTransactionConditionParam {
+	return param.Override[TronTransactionConditionParam](json.RawMessage(r.RawJSON()))
+}
+
+// Supported TRON transaction fields in format "TransactionType.field_name"
+type TronTransactionConditionField string
+
+const (
+	TronTransactionConditionFieldTransferContractToAddress           TronTransactionConditionField = "TransferContract.to_address"
+	TronTransactionConditionFieldTransferContractAmount              TronTransactionConditionField = "TransferContract.amount"
+	TronTransactionConditionFieldTriggerSmartContractContractAddress TronTransactionConditionField = "TriggerSmartContract.contract_address"
+	TronTransactionConditionFieldTriggerSmartContractCallValue       TronTransactionConditionField = "TriggerSmartContract.call_value"
+	TronTransactionConditionFieldTriggerSmartContractTokenID         TronTransactionConditionField = "TriggerSmartContract.token_id"
+	TronTransactionConditionFieldTriggerSmartContractCallTokenValue  TronTransactionConditionField = "TriggerSmartContract.call_token_value"
+)
+
+type TronTransactionConditionFieldSource string
+
+const (
+	TronTransactionConditionFieldSourceTronTransaction TronTransactionConditionFieldSource = "tron_transaction"
+)
+
+type TronTransactionConditionOperator string
+
+const (
+	TronTransactionConditionOperatorEq             TronTransactionConditionOperator = "eq"
+	TronTransactionConditionOperatorGt             TronTransactionConditionOperator = "gt"
+	TronTransactionConditionOperatorGte            TronTransactionConditionOperator = "gte"
+	TronTransactionConditionOperatorLt             TronTransactionConditionOperator = "lt"
+	TronTransactionConditionOperatorLte            TronTransactionConditionOperator = "lte"
+	TronTransactionConditionOperatorIn             TronTransactionConditionOperator = "in"
+	TronTransactionConditionOperatorInConditionSet TronTransactionConditionOperator = "in_condition_set"
+)
+
+// TronTransactionConditionValueUnion contains all possible properties and values
+// from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type TronTransactionConditionValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u TronTransactionConditionValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u TronTransactionConditionValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u TronTransactionConditionValueUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *TronTransactionConditionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// TRON transaction fields for TransferContract and TriggerSmartContract
+// transaction types.
+//
+// The properties Field, FieldSource, Operator, Value are required.
+type TronTransactionConditionParam struct {
+	// Supported TRON transaction fields in format "TransactionType.field_name"
+	//
+	// Any of "TransferContract.to_address", "TransferContract.amount",
+	// "TriggerSmartContract.contract_address", "TriggerSmartContract.call_value",
+	// "TriggerSmartContract.token_id", "TriggerSmartContract.call_token_value".
+	Field TronTransactionConditionField `json:"field,omitzero,required"`
+	// Any of "tron_transaction".
+	FieldSource TronTransactionConditionFieldSource `json:"field_source,omitzero,required"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator TronTransactionConditionOperator        `json:"operator,omitzero,required"`
+	Value    TronTransactionConditionValueUnionParam `json:"value,omitzero,required"`
+	paramObj
+}
+
+func (r TronTransactionConditionParam) MarshalJSON() (data []byte, err error) {
+	type shadow TronTransactionConditionParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TronTransactionConditionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type TronTransactionConditionValueUnionParam struct {
+	OfString      param.Opt[string] `json:",omitzero,inline"`
+	OfStringArray []string          `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u TronTransactionConditionValueUnionParam) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfStringArray)
+}
+func (u *TronTransactionConditionValueUnionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+func (u *TronTransactionConditionValueUnionParam) asAny() any {
+	if !param.IsOmitted(u.OfString) {
+		return &u.OfString.Value
+	} else if !param.IsOmitted(u.OfStringArray) {
+		return &u.OfStringArray
+	}
+	return nil
+}
+
+// SUI transaction command attributes, enables allowlisting specific command types.
+// Allowed commands: 'TransferObjects', 'SplitCoins', 'MergeCoins'. Only 'eq' and
+// 'in' operators are supported.
+type SuiTransactionCommandCondition struct {
+	// Any of "commandName".
+	Field SuiTransactionCommandConditionField `json:"field,required"`
+	// Any of "sui_transaction_command".
+	FieldSource SuiTransactionCommandConditionFieldSource `json:"field_source,required"`
+	// Operator to use for SUI transaction command conditions. Only 'eq' and 'in' are
+	// supported for command names.
+	//
+	// Any of "eq", "in".
+	Operator SuiTransactionCommandOperator `json:"operator,required"`
+	// Command name(s) to match. Must be one of: 'TransferObjects', 'SplitCoins',
+	// 'MergeCoins'
+	Value SuiTransactionCommandConditionValueUnion `json:"value,required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SuiTransactionCommandCondition) RawJSON() string { return r.JSON.raw }
+func (r *SuiTransactionCommandCondition) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this SuiTransactionCommandCondition to a
+// SuiTransactionCommandConditionParam.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// SuiTransactionCommandConditionParam.Overrides()
+func (r SuiTransactionCommandCondition) ToParam() SuiTransactionCommandConditionParam {
+	return param.Override[SuiTransactionCommandConditionParam](json.RawMessage(r.RawJSON()))
+}
+
+type SuiTransactionCommandConditionField string
+
+const (
+	SuiTransactionCommandConditionFieldCommandName SuiTransactionCommandConditionField = "commandName"
+)
+
+type SuiTransactionCommandConditionFieldSource string
+
+const (
+	SuiTransactionCommandConditionFieldSourceSuiTransactionCommand SuiTransactionCommandConditionFieldSource = "sui_transaction_command"
+)
+
+// SuiTransactionCommandConditionValueUnion contains all possible properties and
+// values from [SuiCommandName], [[]SuiCommandName].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfSuiCommandName OfSuiCommandNameArray]
+type SuiTransactionCommandConditionValueUnion struct {
+	// This field will be present if the value is a [SuiCommandName] instead of an
+	// object.
+	OfSuiCommandName SuiCommandName `json:",inline"`
+	// This field will be present if the value is a [[]SuiCommandName] instead of an
+	// object.
+	OfSuiCommandNameArray []SuiCommandName `json:",inline"`
+	JSON                  struct {
+		OfSuiCommandName      respjson.Field
+		OfSuiCommandNameArray respjson.Field
+		raw                   string
+	} `json:"-"`
+}
+
+func (u SuiTransactionCommandConditionValueUnion) AsSuiCommandName() (v SuiCommandName) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u SuiTransactionCommandConditionValueUnion) AsSuiCommandNameArray() (v []SuiCommandName) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u SuiTransactionCommandConditionValueUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *SuiTransactionCommandConditionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// SUI transaction command attributes, enables allowlisting specific command types.
+// Allowed commands: 'TransferObjects', 'SplitCoins', 'MergeCoins'. Only 'eq' and
+// 'in' operators are supported.
+//
+// The properties Field, FieldSource, Operator, Value are required.
+type SuiTransactionCommandConditionParam struct {
+	// Any of "commandName".
+	Field SuiTransactionCommandConditionField `json:"field,omitzero,required"`
+	// Any of "sui_transaction_command".
+	FieldSource SuiTransactionCommandConditionFieldSource `json:"field_source,omitzero,required"`
+	// Operator to use for SUI transaction command conditions. Only 'eq' and 'in' are
+	// supported for command names.
+	//
+	// Any of "eq", "in".
+	Operator SuiTransactionCommandOperator `json:"operator,omitzero,required"`
+	// Command name(s) to match. Must be one of: 'TransferObjects', 'SplitCoins',
+	// 'MergeCoins'
+	Value SuiTransactionCommandConditionValueUnionParam `json:"value,omitzero,required"`
+	paramObj
+}
+
+func (r SuiTransactionCommandConditionParam) MarshalJSON() (data []byte, err error) {
+	type shadow SuiTransactionCommandConditionParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *SuiTransactionCommandConditionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type SuiTransactionCommandConditionValueUnionParam struct {
+	// Check if union is this variant with !param.IsOmitted(union.OfSuiCommandName)
+	OfSuiCommandName      param.Opt[SuiCommandName] `json:",omitzero,inline"`
+	OfSuiCommandNameArray []SuiCommandName          `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u SuiTransactionCommandConditionValueUnionParam) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfSuiCommandName, u.OfSuiCommandNameArray)
+}
+func (u *SuiTransactionCommandConditionValueUnionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+func (u *SuiTransactionCommandConditionValueUnionParam) asAny() any {
+	if !param.IsOmitted(u.OfSuiCommandName) {
+		return &u.OfSuiCommandName
+	} else if !param.IsOmitted(u.OfSuiCommandNameArray) {
+		return &u.OfSuiCommandNameArray
+	}
+	return nil
+}
+
+// SUI TransferObjects command attributes, including recipient and amount fields.
+type SuiTransferObjectsCommandCondition struct {
+	// Supported fields for SUI TransferObjects command conditions. Only 'recipient'
+	// and 'amount' are supported.
+	//
+	// Any of "recipient", "amount".
+	Field SuiTransferObjectsCommandField `json:"field,required"`
+	// Any of "sui_transfer_objects_command".
+	FieldSource SuiTransferObjectsCommandConditionFieldSource `json:"field_source,required"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator SuiTransferObjectsCommandConditionOperator   `json:"operator,required"`
+	Value    SuiTransferObjectsCommandConditionValueUnion `json:"value,required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SuiTransferObjectsCommandCondition) RawJSON() string { return r.JSON.raw }
+func (r *SuiTransferObjectsCommandCondition) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this SuiTransferObjectsCommandCondition to a
+// SuiTransferObjectsCommandConditionParam.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// SuiTransferObjectsCommandConditionParam.Overrides()
+func (r SuiTransferObjectsCommandCondition) ToParam() SuiTransferObjectsCommandConditionParam {
+	return param.Override[SuiTransferObjectsCommandConditionParam](json.RawMessage(r.RawJSON()))
+}
+
+type SuiTransferObjectsCommandConditionFieldSource string
+
+const (
+	SuiTransferObjectsCommandConditionFieldSourceSuiTransferObjectsCommand SuiTransferObjectsCommandConditionFieldSource = "sui_transfer_objects_command"
+)
+
+type SuiTransferObjectsCommandConditionOperator string
+
+const (
+	SuiTransferObjectsCommandConditionOperatorEq             SuiTransferObjectsCommandConditionOperator = "eq"
+	SuiTransferObjectsCommandConditionOperatorGt             SuiTransferObjectsCommandConditionOperator = "gt"
+	SuiTransferObjectsCommandConditionOperatorGte            SuiTransferObjectsCommandConditionOperator = "gte"
+	SuiTransferObjectsCommandConditionOperatorLt             SuiTransferObjectsCommandConditionOperator = "lt"
+	SuiTransferObjectsCommandConditionOperatorLte            SuiTransferObjectsCommandConditionOperator = "lte"
+	SuiTransferObjectsCommandConditionOperatorIn             SuiTransferObjectsCommandConditionOperator = "in"
+	SuiTransferObjectsCommandConditionOperatorInConditionSet SuiTransferObjectsCommandConditionOperator = "in_condition_set"
+)
+
+// SuiTransferObjectsCommandConditionValueUnion contains all possible properties
+// and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type SuiTransferObjectsCommandConditionValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u SuiTransferObjectsCommandConditionValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u SuiTransferObjectsCommandConditionValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u SuiTransferObjectsCommandConditionValueUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *SuiTransferObjectsCommandConditionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// SUI TransferObjects command attributes, including recipient and amount fields.
+//
+// The properties Field, FieldSource, Operator, Value are required.
+type SuiTransferObjectsCommandConditionParam struct {
+	// Supported fields for SUI TransferObjects command conditions. Only 'recipient'
+	// and 'amount' are supported.
+	//
+	// Any of "recipient", "amount".
+	Field SuiTransferObjectsCommandField `json:"field,omitzero,required"`
+	// Any of "sui_transfer_objects_command".
+	FieldSource SuiTransferObjectsCommandConditionFieldSource `json:"field_source,omitzero,required"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator SuiTransferObjectsCommandConditionOperator        `json:"operator,omitzero,required"`
+	Value    SuiTransferObjectsCommandConditionValueUnionParam `json:"value,omitzero,required"`
+	paramObj
+}
+
+func (r SuiTransferObjectsCommandConditionParam) MarshalJSON() (data []byte, err error) {
+	type shadow SuiTransferObjectsCommandConditionParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *SuiTransferObjectsCommandConditionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type SuiTransferObjectsCommandConditionValueUnionParam struct {
+	OfString      param.Opt[string] `json:",omitzero,inline"`
+	OfStringArray []string          `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u SuiTransferObjectsCommandConditionValueUnionParam) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfStringArray)
+}
+func (u *SuiTransferObjectsCommandConditionValueUnionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+func (u *SuiTransferObjectsCommandConditionValueUnionParam) asAny() any {
+	if !param.IsOmitted(u.OfString) {
+		return &u.OfString.Value
+	} else if !param.IsOmitted(u.OfStringArray) {
+		return &u.OfStringArray
+	}
+	return nil
+}
+
 // A policy for controlling wallet operations.
 type Policy struct {
 	// Unique ID of the created policy. This will be the primary identifier when using
@@ -1067,474 +1535,6 @@ type PolicyVersion string
 const (
 	PolicyVersion1_0 PolicyVersion = "1.0"
 )
-
-// Operator to use for SUI transaction command conditions. Only 'eq' and 'in' are
-// supported for command names.
-type SuiTransactionCommandOperator string
-
-const (
-	SuiTransactionCommandOperatorEq SuiTransactionCommandOperator = "eq"
-	SuiTransactionCommandOperatorIn SuiTransactionCommandOperator = "in"
-)
-
-// Supported fields for SUI TransferObjects command conditions. Only 'recipient'
-// and 'amount' are supported.
-type SuiTransferObjectsCommandField string
-
-const (
-	SuiTransferObjectsCommandFieldRecipient SuiTransferObjectsCommandField = "recipient"
-	SuiTransferObjectsCommandFieldAmount    SuiTransferObjectsCommandField = "amount"
-)
-
-// TRON transaction fields for TransferContract and TriggerSmartContract
-// transaction types.
-type TronTransactionCondition struct {
-	// Supported TRON transaction fields in format "TransactionType.field_name"
-	//
-	// Any of "TransferContract.to_address", "TransferContract.amount",
-	// "TriggerSmartContract.contract_address", "TriggerSmartContract.call_value",
-	// "TriggerSmartContract.token_id", "TriggerSmartContract.call_token_value".
-	Field TronTransactionConditionField `json:"field,required"`
-	// Any of "tron_transaction".
-	FieldSource TronTransactionConditionFieldSource `json:"field_source,required"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator TronTransactionConditionOperator   `json:"operator,required"`
-	Value    TronTransactionConditionValueUnion `json:"value,required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Field       respjson.Field
-		FieldSource respjson.Field
-		Operator    respjson.Field
-		Value       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r TronTransactionCondition) RawJSON() string { return r.JSON.raw }
-func (r *TronTransactionCondition) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// ToParam converts this TronTransactionCondition to a
-// TronTransactionConditionParam.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// TronTransactionConditionParam.Overrides()
-func (r TronTransactionCondition) ToParam() TronTransactionConditionParam {
-	return param.Override[TronTransactionConditionParam](json.RawMessage(r.RawJSON()))
-}
-
-// Supported TRON transaction fields in format "TransactionType.field_name"
-type TronTransactionConditionField string
-
-const (
-	TronTransactionConditionFieldTransferContractToAddress           TronTransactionConditionField = "TransferContract.to_address"
-	TronTransactionConditionFieldTransferContractAmount              TronTransactionConditionField = "TransferContract.amount"
-	TronTransactionConditionFieldTriggerSmartContractContractAddress TronTransactionConditionField = "TriggerSmartContract.contract_address"
-	TronTransactionConditionFieldTriggerSmartContractCallValue       TronTransactionConditionField = "TriggerSmartContract.call_value"
-	TronTransactionConditionFieldTriggerSmartContractTokenID         TronTransactionConditionField = "TriggerSmartContract.token_id"
-	TronTransactionConditionFieldTriggerSmartContractCallTokenValue  TronTransactionConditionField = "TriggerSmartContract.call_token_value"
-)
-
-type TronTransactionConditionFieldSource string
-
-const (
-	TronTransactionConditionFieldSourceTronTransaction TronTransactionConditionFieldSource = "tron_transaction"
-)
-
-type TronTransactionConditionOperator string
-
-const (
-	TronTransactionConditionOperatorEq             TronTransactionConditionOperator = "eq"
-	TronTransactionConditionOperatorGt             TronTransactionConditionOperator = "gt"
-	TronTransactionConditionOperatorGte            TronTransactionConditionOperator = "gte"
-	TronTransactionConditionOperatorLt             TronTransactionConditionOperator = "lt"
-	TronTransactionConditionOperatorLte            TronTransactionConditionOperator = "lte"
-	TronTransactionConditionOperatorIn             TronTransactionConditionOperator = "in"
-	TronTransactionConditionOperatorInConditionSet TronTransactionConditionOperator = "in_condition_set"
-)
-
-// TronTransactionConditionValueUnion contains all possible properties and values
-// from [string], [[]string].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfStringArray]
-type TronTransactionConditionValueUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [[]string] instead of an object.
-	OfStringArray []string `json:",inline"`
-	JSON          struct {
-		OfString      respjson.Field
-		OfStringArray respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-func (u TronTransactionConditionValueUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u TronTransactionConditionValueUnion) AsStringArray() (v []string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u TronTransactionConditionValueUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *TronTransactionConditionValueUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// TRON transaction fields for TransferContract and TriggerSmartContract
-// transaction types.
-//
-// The properties Field, FieldSource, Operator, Value are required.
-type TronTransactionConditionParam struct {
-	// Supported TRON transaction fields in format "TransactionType.field_name"
-	//
-	// Any of "TransferContract.to_address", "TransferContract.amount",
-	// "TriggerSmartContract.contract_address", "TriggerSmartContract.call_value",
-	// "TriggerSmartContract.token_id", "TriggerSmartContract.call_token_value".
-	Field TronTransactionConditionField `json:"field,omitzero,required"`
-	// Any of "tron_transaction".
-	FieldSource TronTransactionConditionFieldSource `json:"field_source,omitzero,required"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator TronTransactionConditionOperator        `json:"operator,omitzero,required"`
-	Value    TronTransactionConditionValueUnionParam `json:"value,omitzero,required"`
-	paramObj
-}
-
-func (r TronTransactionConditionParam) MarshalJSON() (data []byte, err error) {
-	type shadow TronTransactionConditionParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *TronTransactionConditionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type TronTransactionConditionValueUnionParam struct {
-	OfString      param.Opt[string] `json:",omitzero,inline"`
-	OfStringArray []string          `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u TronTransactionConditionValueUnionParam) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfString, u.OfStringArray)
-}
-func (u *TronTransactionConditionValueUnionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *TronTransactionConditionValueUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
-}
-
-// SUI transaction command attributes, enables allowlisting specific command types.
-// Allowed commands: 'TransferObjects', 'SplitCoins', 'MergeCoins'. Only 'eq' and
-// 'in' operators are supported.
-type SuiTransactionCommandCondition struct {
-	// Any of "commandName".
-	Field SuiTransactionCommandConditionField `json:"field,required"`
-	// Any of "sui_transaction_command".
-	FieldSource SuiTransactionCommandConditionFieldSource `json:"field_source,required"`
-	// Operator to use for SUI transaction command conditions. Only 'eq' and 'in' are
-	// supported for command names.
-	//
-	// Any of "eq", "in".
-	Operator SuiTransactionCommandOperator `json:"operator,required"`
-	// Command name(s) to match. Must be one of: 'TransferObjects', 'SplitCoins',
-	// 'MergeCoins'
-	Value SuiTransactionCommandConditionValueUnion `json:"value,required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Field       respjson.Field
-		FieldSource respjson.Field
-		Operator    respjson.Field
-		Value       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r SuiTransactionCommandCondition) RawJSON() string { return r.JSON.raw }
-func (r *SuiTransactionCommandCondition) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// ToParam converts this SuiTransactionCommandCondition to a
-// SuiTransactionCommandConditionParam.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// SuiTransactionCommandConditionParam.Overrides()
-func (r SuiTransactionCommandCondition) ToParam() SuiTransactionCommandConditionParam {
-	return param.Override[SuiTransactionCommandConditionParam](json.RawMessage(r.RawJSON()))
-}
-
-type SuiTransactionCommandConditionField string
-
-const (
-	SuiTransactionCommandConditionFieldCommandName SuiTransactionCommandConditionField = "commandName"
-)
-
-type SuiTransactionCommandConditionFieldSource string
-
-const (
-	SuiTransactionCommandConditionFieldSourceSuiTransactionCommand SuiTransactionCommandConditionFieldSource = "sui_transaction_command"
-)
-
-// SuiTransactionCommandConditionValueUnion contains all possible properties and
-// values from [SuiCommandName], [[]SuiCommandName].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfSuiCommandName OfSuiCommandNameArray]
-type SuiTransactionCommandConditionValueUnion struct {
-	// This field will be present if the value is a [SuiCommandName] instead of an
-	// object.
-	OfSuiCommandName SuiCommandName `json:",inline"`
-	// This field will be present if the value is a [[]SuiCommandName] instead of an
-	// object.
-	OfSuiCommandNameArray []SuiCommandName `json:",inline"`
-	JSON                  struct {
-		OfSuiCommandName      respjson.Field
-		OfSuiCommandNameArray respjson.Field
-		raw                   string
-	} `json:"-"`
-}
-
-func (u SuiTransactionCommandConditionValueUnion) AsSuiCommandName() (v SuiCommandName) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u SuiTransactionCommandConditionValueUnion) AsSuiCommandNameArray() (v []SuiCommandName) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u SuiTransactionCommandConditionValueUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *SuiTransactionCommandConditionValueUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// SUI transaction command attributes, enables allowlisting specific command types.
-// Allowed commands: 'TransferObjects', 'SplitCoins', 'MergeCoins'. Only 'eq' and
-// 'in' operators are supported.
-//
-// The properties Field, FieldSource, Operator, Value are required.
-type SuiTransactionCommandConditionParam struct {
-	// Any of "commandName".
-	Field SuiTransactionCommandConditionField `json:"field,omitzero,required"`
-	// Any of "sui_transaction_command".
-	FieldSource SuiTransactionCommandConditionFieldSource `json:"field_source,omitzero,required"`
-	// Operator to use for SUI transaction command conditions. Only 'eq' and 'in' are
-	// supported for command names.
-	//
-	// Any of "eq", "in".
-	Operator SuiTransactionCommandOperator `json:"operator,omitzero,required"`
-	// Command name(s) to match. Must be one of: 'TransferObjects', 'SplitCoins',
-	// 'MergeCoins'
-	Value SuiTransactionCommandConditionValueUnionParam `json:"value,omitzero,required"`
-	paramObj
-}
-
-func (r SuiTransactionCommandConditionParam) MarshalJSON() (data []byte, err error) {
-	type shadow SuiTransactionCommandConditionParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *SuiTransactionCommandConditionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type SuiTransactionCommandConditionValueUnionParam struct {
-	// Check if union is this variant with !param.IsOmitted(union.OfSuiCommandName)
-	OfSuiCommandName      param.Opt[SuiCommandName] `json:",omitzero,inline"`
-	OfSuiCommandNameArray []SuiCommandName          `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u SuiTransactionCommandConditionValueUnionParam) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfSuiCommandName, u.OfSuiCommandNameArray)
-}
-func (u *SuiTransactionCommandConditionValueUnionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *SuiTransactionCommandConditionValueUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfSuiCommandName) {
-		return &u.OfSuiCommandName
-	} else if !param.IsOmitted(u.OfSuiCommandNameArray) {
-		return &u.OfSuiCommandNameArray
-	}
-	return nil
-}
-
-// SUI TransferObjects command attributes, including recipient and amount fields.
-type SuiTransferObjectsCommandCondition struct {
-	// Supported fields for SUI TransferObjects command conditions. Only 'recipient'
-	// and 'amount' are supported.
-	//
-	// Any of "recipient", "amount".
-	Field SuiTransferObjectsCommandField `json:"field,required"`
-	// Any of "sui_transfer_objects_command".
-	FieldSource SuiTransferObjectsCommandConditionFieldSource `json:"field_source,required"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator SuiTransferObjectsCommandConditionOperator   `json:"operator,required"`
-	Value    SuiTransferObjectsCommandConditionValueUnion `json:"value,required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Field       respjson.Field
-		FieldSource respjson.Field
-		Operator    respjson.Field
-		Value       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r SuiTransferObjectsCommandCondition) RawJSON() string { return r.JSON.raw }
-func (r *SuiTransferObjectsCommandCondition) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// ToParam converts this SuiTransferObjectsCommandCondition to a
-// SuiTransferObjectsCommandConditionParam.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// SuiTransferObjectsCommandConditionParam.Overrides()
-func (r SuiTransferObjectsCommandCondition) ToParam() SuiTransferObjectsCommandConditionParam {
-	return param.Override[SuiTransferObjectsCommandConditionParam](json.RawMessage(r.RawJSON()))
-}
-
-type SuiTransferObjectsCommandConditionFieldSource string
-
-const (
-	SuiTransferObjectsCommandConditionFieldSourceSuiTransferObjectsCommand SuiTransferObjectsCommandConditionFieldSource = "sui_transfer_objects_command"
-)
-
-type SuiTransferObjectsCommandConditionOperator string
-
-const (
-	SuiTransferObjectsCommandConditionOperatorEq             SuiTransferObjectsCommandConditionOperator = "eq"
-	SuiTransferObjectsCommandConditionOperatorGt             SuiTransferObjectsCommandConditionOperator = "gt"
-	SuiTransferObjectsCommandConditionOperatorGte            SuiTransferObjectsCommandConditionOperator = "gte"
-	SuiTransferObjectsCommandConditionOperatorLt             SuiTransferObjectsCommandConditionOperator = "lt"
-	SuiTransferObjectsCommandConditionOperatorLte            SuiTransferObjectsCommandConditionOperator = "lte"
-	SuiTransferObjectsCommandConditionOperatorIn             SuiTransferObjectsCommandConditionOperator = "in"
-	SuiTransferObjectsCommandConditionOperatorInConditionSet SuiTransferObjectsCommandConditionOperator = "in_condition_set"
-)
-
-// SuiTransferObjectsCommandConditionValueUnion contains all possible properties
-// and values from [string], [[]string].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfStringArray]
-type SuiTransferObjectsCommandConditionValueUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [[]string] instead of an object.
-	OfStringArray []string `json:",inline"`
-	JSON          struct {
-		OfString      respjson.Field
-		OfStringArray respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-func (u SuiTransferObjectsCommandConditionValueUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u SuiTransferObjectsCommandConditionValueUnion) AsStringArray() (v []string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u SuiTransferObjectsCommandConditionValueUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *SuiTransferObjectsCommandConditionValueUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// SUI TransferObjects command attributes, including recipient and amount fields.
-//
-// The properties Field, FieldSource, Operator, Value are required.
-type SuiTransferObjectsCommandConditionParam struct {
-	// Supported fields for SUI TransferObjects command conditions. Only 'recipient'
-	// and 'amount' are supported.
-	//
-	// Any of "recipient", "amount".
-	Field SuiTransferObjectsCommandField `json:"field,omitzero,required"`
-	// Any of "sui_transfer_objects_command".
-	FieldSource SuiTransferObjectsCommandConditionFieldSource `json:"field_source,omitzero,required"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator SuiTransferObjectsCommandConditionOperator        `json:"operator,omitzero,required"`
-	Value    SuiTransferObjectsCommandConditionValueUnionParam `json:"value,omitzero,required"`
-	paramObj
-}
-
-func (r SuiTransferObjectsCommandConditionParam) MarshalJSON() (data []byte, err error) {
-	type shadow SuiTransferObjectsCommandConditionParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *SuiTransferObjectsCommandConditionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type SuiTransferObjectsCommandConditionValueUnionParam struct {
-	OfString      param.Opt[string] `json:",omitzero,inline"`
-	OfStringArray []string          `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u SuiTransferObjectsCommandConditionValueUnionParam) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfString, u.OfStringArray)
-}
-func (u *SuiTransferObjectsCommandConditionValueUnionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *SuiTransferObjectsCommandConditionValueUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
-}
 
 type PolicyDeleteResponse struct {
 	// Whether the policy was deleted successfully.

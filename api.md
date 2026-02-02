@@ -19,9 +19,9 @@ Params Types:
 Response Types:
 
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#CurveSigningChainType">CurveSigningChainType</a>
-- <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#Wallet">Wallet</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#WalletChainType">WalletChainType</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#SuiCommandName">SuiCommandName</a>
+- <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#Wallet">Wallet</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#EthereumSignTransactionRpcResponse">EthereumSignTransactionRpcResponse</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#EthereumSendTransactionRpcResponse">EthereumSendTransactionRpcResponse</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#EthereumPersonalSignRpcResponse">EthereumPersonalSignRpcResponse</a>
@@ -100,8 +100,6 @@ Params Types:
 
 Response Types:
 
-- <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#LinkedAccountUnion">LinkedAccountUnion</a>
-- <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#User">User</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#LinkedAccountEmail">LinkedAccountEmail</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#LinkedAccountPhone">LinkedAccountPhone</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#LinkedAccountEthereum">LinkedAccountEthereum</a>
@@ -134,11 +132,13 @@ Response Types:
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#CrossAppSmartWallet">CrossAppSmartWallet</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#LinkedAccountCrossApp">LinkedAccountCrossApp</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#LinkedAccountAuthorizationKey">LinkedAccountAuthorizationKey</a>
+- <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#LinkedAccountUnion">LinkedAccountUnion</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#CustomMetadata">CustomMetadata</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#SMSMfaMethod">SMSMfaMethod</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#TotpMfaMethod">TotpMfaMethod</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#PasskeyMfaMethod">PasskeyMfaMethod</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#LinkedMfaMethodUnion">LinkedMfaMethodUnion</a>
+- <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#User">User</a>
 
 Methods:
 
@@ -175,12 +175,12 @@ Params Types:
 
 Response Types:
 
-- <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#Policy">Policy</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#SuiTransactionCommandOperator">SuiTransactionCommandOperator</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#SuiTransferObjectsCommandField">SuiTransferObjectsCommandField</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#TronTransactionCondition">TronTransactionCondition</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#SuiTransactionCommandCondition">SuiTransactionCommandCondition</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#SuiTransferObjectsCommandCondition">SuiTransferObjectsCommandCondition</a>
+- <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#Policy">Policy</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#PolicyDeleteResponse">PolicyDeleteResponse</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#PolicyNewRuleResponse">PolicyNewRuleResponse</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go">privyapiclient</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#PolicyDeleteRuleResponse">PolicyDeleteRuleResponse</a>
