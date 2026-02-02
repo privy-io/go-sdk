@@ -8,8 +8,8 @@ import (
 	"os"
 	"slices"
 
-	"github.com/stainless-sdks/privy-api-client-go/internal/requestconfig"
-	"github.com/stainless-sdks/privy-api-client-go/option"
+	"github.com/privy-io/go-sdk/internal/requestconfig"
+	"github.com/privy-io/go-sdk/option"
 )
 
 // Client creates a struct with services and top level methods that help with

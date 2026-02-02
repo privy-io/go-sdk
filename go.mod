@@ -1,4 +1,4 @@
-module github.com/stainless-sdks/privy-api-client-go
+module github.com/privy-io/go-sdk
 
 go 1.22
 
