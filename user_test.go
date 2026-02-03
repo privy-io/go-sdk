@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package privyapiclient_test
+package privyclient_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/privy-io/go-sdk"
-	"github.com/privy-io/go-sdk/internal/testutil"
-	"github.com/privy-io/go-sdk/option"
+	"github.com/stainless-sdks/privy-api-client-go"
+	"github.com/stainless-sdks/privy-api-client-go/internal/testutil"
+	"github.com/stainless-sdks/privy-api-client-go/option"
 )
 
 func TestUserNewWithOptionalParams(t *testing.T) {
@@ -22,35 +22,34 @@ func TestUserNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Users.New(context.TODO(), privyapiclient.UserNewParams{
-		LinkedAccounts: []privyapiclient.LinkedAccountInputUnionParam{{
-			OfEmail: &privyapiclient.LinkedAccountEmailInputParam{
+	_, err := client.Users.New(context.TODO(), privyclient.UserNewParams{
+		LinkedAccounts: []privyclient.UserNewParamsLinkedAccountUnion{{
+			OfEmail: &privyclient.UserNewParamsLinkedAccountEmail{
 				Address: "tom.bombadill@privy.io",
-				Type:    privyapiclient.LinkedAccountEmailInputTypeEmail,
 			},
 		}},
-		CustomMetadata: privyapiclient.CustomMetadataParam{
-			"foo": privyapiclient.CustomMetadataItemUnionParam{
-				OfString: privyapiclient.String("string"),
+		CustomMetadata: map[string]privyclient.UserNewParamsCustomMetadataUnion{
+			"foo": {
+				OfString: privyclient.String("string"),
 			},
 		},
-		Wallets: []privyapiclient.UserNewParamsWallet{{
-			ChainType: privyapiclient.WalletChainTypeEthereum,
-			AdditionalSigners: []privyapiclient.UserNewParamsWalletAdditionalSigner{{
+		Wallets: []privyclient.UserNewParamsWallet{{
+			ChainType: "solana",
+			AdditionalSigners: []privyclient.UserNewParamsWalletAdditionalSigner{{
 				SignerID:          "signer_id",
 				OverridePolicyIDs: []string{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 			}},
-			CreateSmartWallet: privyapiclient.Bool(true),
+			CreateSmartWallet: privyclient.Bool(true),
 			PolicyIDs:         []string{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 		}},
 	})
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -67,17 +66,17 @@ func TestUserListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Users.List(context.TODO(), privyapiclient.UserListParams{
-		Cursor: privyapiclient.String("x"),
-		Limit:  privyapiclient.Float(100),
+	_, err := client.Users.List(context.TODO(), privyclient.UserListParams{
+		Cursor: privyclient.String("x"),
+		Limit:  privyclient.Float(100),
 	})
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -94,14 +93,14 @@ func TestUserDelete(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
 	err := client.Users.Delete(context.TODO(), "user_id")
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -118,14 +117,14 @@ func TestUserGet(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
 	_, err := client.Users.Get(context.TODO(), "user_id")
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -142,16 +141,16 @@ func TestUserGetByCustomAuthID(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Users.GetByCustomAuthID(context.TODO(), privyapiclient.UserGetByCustomAuthIDParams{
+	_, err := client.Users.GetByCustomAuthID(context.TODO(), privyclient.UserGetByCustomAuthIDParams{
 		CustomUserID: "custom_user_id",
 	})
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -168,16 +167,16 @@ func TestUserGetByDiscordUsername(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Users.GetByDiscordUsername(context.TODO(), privyapiclient.UserGetByDiscordUsernameParams{
+	_, err := client.Users.GetByDiscordUsername(context.TODO(), privyclient.UserGetByDiscordUsernameParams{
 		Username: "username",
 	})
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -194,16 +193,16 @@ func TestUserGetByEmailAddress(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Users.GetByEmailAddress(context.TODO(), privyapiclient.UserGetByEmailAddressParams{
+	_, err := client.Users.GetByEmailAddress(context.TODO(), privyclient.UserGetByEmailAddressParams{
 		Address: "dev@stainless.com",
 	})
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -220,16 +219,16 @@ func TestUserGetByFarcasterID(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Users.GetByFarcasterID(context.TODO(), privyapiclient.UserGetByFarcasterIDParams{
+	_, err := client.Users.GetByFarcasterID(context.TODO(), privyclient.UserGetByFarcasterIDParams{
 		Fid: 0,
 	})
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -246,16 +245,16 @@ func TestUserGetByGitHubUsername(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Users.GetByGitHubUsername(context.TODO(), privyapiclient.UserGetByGitHubUsernameParams{
+	_, err := client.Users.GetByGitHubUsername(context.TODO(), privyclient.UserGetByGitHubUsernameParams{
 		Username: "username",
 	})
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -272,16 +271,16 @@ func TestUserGetByPhoneNumber(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Users.GetByPhoneNumber(context.TODO(), privyapiclient.UserGetByPhoneNumberParams{
+	_, err := client.Users.GetByPhoneNumber(context.TODO(), privyclient.UserGetByPhoneNumberParams{
 		Number: "number",
 	})
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -298,16 +297,16 @@ func TestUserGetBySmartWalletAddress(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Users.GetBySmartWalletAddress(context.TODO(), privyapiclient.UserGetBySmartWalletAddressParams{
+	_, err := client.Users.GetBySmartWalletAddress(context.TODO(), privyclient.UserGetBySmartWalletAddressParams{
 		Address: "address",
 	})
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -324,16 +323,16 @@ func TestUserGetByTelegramUserID(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Users.GetByTelegramUserID(context.TODO(), privyapiclient.UserGetByTelegramUserIDParams{
+	_, err := client.Users.GetByTelegramUserID(context.TODO(), privyclient.UserGetByTelegramUserIDParams{
 		TelegramUserID: "telegram_user_id",
 	})
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -350,16 +349,16 @@ func TestUserGetByTelegramUsername(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Users.GetByTelegramUsername(context.TODO(), privyapiclient.UserGetByTelegramUsernameParams{
+	_, err := client.Users.GetByTelegramUsername(context.TODO(), privyclient.UserGetByTelegramUsernameParams{
 		Username: "username",
 	})
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -376,16 +375,16 @@ func TestUserGetByTwitterSubject(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Users.GetByTwitterSubject(context.TODO(), privyapiclient.UserGetByTwitterSubjectParams{
+	_, err := client.Users.GetByTwitterSubject(context.TODO(), privyclient.UserGetByTwitterSubjectParams{
 		Subject: "subject",
 	})
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -402,16 +401,16 @@ func TestUserGetByTwitterUsername(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Users.GetByTwitterUsername(context.TODO(), privyapiclient.UserGetByTwitterUsernameParams{
+	_, err := client.Users.GetByTwitterUsername(context.TODO(), privyclient.UserGetByTwitterUsernameParams{
 		Username: "username",
 	})
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -428,16 +427,16 @@ func TestUserGetByWalletAddress(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Users.GetByWalletAddress(context.TODO(), privyapiclient.UserGetByWalletAddressParams{
+	_, err := client.Users.GetByWalletAddress(context.TODO(), privyclient.UserGetByWalletAddressParams{
 		Address: "address",
 	})
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -454,7 +453,7 @@ func TestUserPregenerateWallets(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
@@ -462,20 +461,20 @@ func TestUserPregenerateWallets(t *testing.T) {
 	_, err := client.Users.PregenerateWallets(
 		context.TODO(),
 		"user_id",
-		privyapiclient.UserPregenerateWalletsParams{
-			Wallets: []privyapiclient.UserPregenerateWalletsParamsWallet{{
-				ChainType: privyapiclient.WalletChainTypeEthereum,
-				AdditionalSigners: []privyapiclient.UserPregenerateWalletsParamsWalletAdditionalSigner{{
+		privyclient.UserPregenerateWalletsParams{
+			Wallets: []privyclient.UserPregenerateWalletsParamsWallet{{
+				ChainType: privyclient.UserPregenerateWalletsParamsWalletChainTypeEthereum,
+				AdditionalSigners: []privyclient.UserPregenerateWalletsParamsWalletAdditionalSigner{{
 					SignerID:          "signer_id",
 					OverridePolicyIDs: []string{"string"},
 				}},
-				CreateSmartWallet: privyapiclient.Bool(true),
+				CreateSmartWallet: privyclient.Bool(true),
 				PolicyIDs:         []string{"string"},
 			}},
 		},
 	)
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -492,18 +491,18 @@ func TestUserSearch(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Users.Search(context.TODO(), privyapiclient.UserSearchParams{
-		OfSearchTerm: &privyapiclient.UserSearchParamsBodySearchTerm{
-			SearchTerm: "searchTerm",
+	_, err := client.Users.Search(context.TODO(), privyclient.UserSearchParams{
+		OfSearchTerm: &privyclient.UserSearchParamsBodySearchTerm{
+			SearchTerm: "search_term",
 		},
 	})
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -520,7 +519,7 @@ func TestUserSetCustomMetadata(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
@@ -528,16 +527,16 @@ func TestUserSetCustomMetadata(t *testing.T) {
 	_, err := client.Users.SetCustomMetadata(
 		context.TODO(),
 		"user_id",
-		privyapiclient.UserSetCustomMetadataParams{
-			CustomMetadata: privyapiclient.CustomMetadataParam{
-				"key": privyapiclient.CustomMetadataItemUnionParam{
-					OfString: privyapiclient.String("value"),
+		privyclient.UserSetCustomMetadataParams{
+			CustomMetadata: map[string]privyclient.UserSetCustomMetadataParamsCustomMetadataUnion{
+				"key": {
+					OfString: privyclient.String("value"),
 				},
 			},
 		},
 	)
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -554,7 +553,7 @@ func TestUserUnlinkLinkedAccountWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
@@ -562,14 +561,14 @@ func TestUserUnlinkLinkedAccountWithOptionalParams(t *testing.T) {
 	_, err := client.Users.UnlinkLinkedAccount(
 		context.TODO(),
 		"user_id",
-		privyapiclient.UserUnlinkLinkedAccountParams{
+		privyclient.UserUnlinkLinkedAccountParams{
 			Handle:   "test@test.com",
-			Type:     privyapiclient.LinkedAccountTypeEmail,
-			Provider: privyapiclient.String("provider"),
+			Type:     privyclient.UserUnlinkLinkedAccountParamsTypeEmail,
+			Provider: privyclient.String("provider"),
 		},
 	)
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
