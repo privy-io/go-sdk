@@ -57,6 +57,14 @@ $ npx prism mock path/to/your/openapi.yml
 $ ./scripts/test
 ```
 
+## Running end-to-end tests
+
+End-to-end tests run against the staging environment. They require a `.env` file with `TEST_APP_SECRET` set.
+
+```sh
+$ go test -tags=e2e -v ./e2e/...
+```
+
 ## Formatting
 
 This library uses the standard gofmt code formatter:
