@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/privy-io/go-sdk"
-	"github.com/privy-io/go-sdk/internal/testutil"
-	"github.com/privy-io/go-sdk/option"
+	"github.com/stainless-sdks/privy-api-client-go"
+	"github.com/stainless-sdks/privy-api-client-go/internal/testutil"
+	"github.com/stainless-sdks/privy-api-client-go/option"
 )
 
 func TestPolicyNewWithOptionalParams(t *testing.T) {

@@ -1,8 +1,8 @@
 package sentinel_test
 
 import (
-	"github.com/privy-io/go-sdk/internal/encoding/json/sentinel"
-	"github.com/privy-io/go-sdk/packages/param"
+	"github.com/stainless-sdks/privy-api-client-go/internal/encoding/json/sentinel"
+	"github.com/stainless-sdks/privy-api-client-go/packages/param"
 	"reflect"
 	"slices"
 	"testing"

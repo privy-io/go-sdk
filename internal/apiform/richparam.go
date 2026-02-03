@@ -1,7 +1,7 @@
 package apiform
 
 import (
-	"github.com/privy-io/go-sdk/packages/param"
+	"github.com/stainless-sdks/privy-api-client-go/packages/param"
 	"mime/multipart"
 	"reflect"
 )
