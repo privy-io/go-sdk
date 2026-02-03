@@ -66,11 +66,10 @@ func (r *WalletBalanceGetResponse) UnmarshalJSON(data []byte) error {
 }
 
 type WalletBalanceGetResponseBalance struct {
-	// Any of "usdc", "eth", "pol", "usdt", "sol".
 	Asset string `json:"asset,required"`
 	// Any of "ethereum", "arbitrum", "base", "linea", "optimism", "polygon", "solana",
 	// "zksync_era", "sepolia", "arbitrum_sepolia", "base_sepolia", "linea_testnet",
-	// "optimism_sepolia", "polygon_amoy".
+	// "optimism_sepolia", "polygon_amoy", "solana_devnet", "solana_testnet".
 	Chain            string            `json:"chain,required"`
 	DisplayValues    map[string]string `json:"display_values,required"`
 	RawValue         string            `json:"raw_value,required"`
@@ -94,9 +93,10 @@ func (r *WalletBalanceGetResponseBalance) UnmarshalJSON(data []byte) error {
 }
 
 type WalletBalanceGetParams struct {
-	Asset WalletBalanceGetParamsAssetUnion `query:"asset,omitzero,required" json:"-"`
-	Chain WalletBalanceGetParamsChainUnion `query:"chain,omitzero,required" json:"-"`
-	// Any of "usd".
+	Token WalletBalanceGetParamsTokenUnion `query:"token,omitzero" json:"-"`
+	Asset WalletBalanceGetParamsAssetUnion `query:"asset,omitzero" json:"-"`
+	Chain WalletBalanceGetParamsChainUnion `query:"chain,omitzero" json:"-"`
+	// Any of "usd", "eur".
 	IncludeCurrency WalletBalanceGetParamsIncludeCurrency `query:"include_currency,omitzero" json:"-"`
 	paramObj
 }
@@ -107,6 +107,24 @@ func (r WalletBalanceGetParams) URLQuery() (v url.Values, err error) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type WalletBalanceGetParamsTokenUnion struct {
+	OfString      param.Opt[string] `query:",omitzero,inline"`
+	OfStringArray []string          `query:",omitzero,inline"`
+	paramUnion
+}
+
+func (u *WalletBalanceGetParamsTokenUnion) asAny() any {
+	if !param.IsOmitted(u.OfString) {
+		return &u.OfString.Value
+	} else if !param.IsOmitted(u.OfStringArray) {
+		return &u.OfStringArray
+	}
+	return nil
 }
 
 // Only one field can be non-zero.
@@ -136,6 +154,8 @@ const (
 	WalletBalanceGetParamsAssetStringEth  WalletBalanceGetParamsAssetString = "eth"
 	WalletBalanceGetParamsAssetStringPol  WalletBalanceGetParamsAssetString = "pol"
 	WalletBalanceGetParamsAssetStringUsdt WalletBalanceGetParamsAssetString = "usdt"
+	WalletBalanceGetParamsAssetStringEurc WalletBalanceGetParamsAssetString = "eurc"
+	WalletBalanceGetParamsAssetStringUsdb WalletBalanceGetParamsAssetString = "usdb"
 	WalletBalanceGetParamsAssetStringSol  WalletBalanceGetParamsAssetString = "sol"
 )
 
@@ -176,10 +196,13 @@ const (
 	WalletBalanceGetParamsChainStringLineaTestnet    WalletBalanceGetParamsChainString = "linea_testnet"
 	WalletBalanceGetParamsChainStringOptimismSepolia WalletBalanceGetParamsChainString = "optimism_sepolia"
 	WalletBalanceGetParamsChainStringPolygonAmoy     WalletBalanceGetParamsChainString = "polygon_amoy"
+	WalletBalanceGetParamsChainStringSolanaDevnet    WalletBalanceGetParamsChainString = "solana_devnet"
+	WalletBalanceGetParamsChainStringSolanaTestnet   WalletBalanceGetParamsChainString = "solana_testnet"
 )
 
 type WalletBalanceGetParamsIncludeCurrency string
 
 const (
 	WalletBalanceGetParamsIncludeCurrencyUsd WalletBalanceGetParamsIncludeCurrency = "usd"
+	WalletBalanceGetParamsIncludeCurrencyEur WalletBalanceGetParamsIncludeCurrency = "eur"
 )

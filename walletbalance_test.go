@@ -31,6 +31,9 @@ func TestWalletBalanceGetWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"wallet_id",
 		privyclient.WalletBalanceGetParams{
+			Token: privyclient.WalletBalanceGetParamsTokenUnion{
+				OfString: privyclient.String("string"),
+			},
 			Asset: privyclient.WalletBalanceGetParamsAssetUnion{
 				OfWalletBalanceGetsAssetString: privyclient.String("usdc"),
 			},

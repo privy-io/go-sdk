@@ -28,18 +28,19 @@ func TestUserNewWithOptionalParams(t *testing.T) {
 		option.WithAppSecret("My App Secret"),
 	)
 	_, err := client.Users.New(context.TODO(), privyclient.UserNewParams{
-		LinkedAccounts: []privyclient.UserNewParamsLinkedAccountUnion{{
-			OfEmail: &privyclient.UserNewParamsLinkedAccountEmail{
+		LinkedAccounts: []privyclient.LinkedAccountInputUnionParam{{
+			OfEmail: &privyclient.LinkedAccountEmailInputParam{
 				Address: "tom.bombadill@privy.io",
+				Type:    privyclient.LinkedAccountEmailInputTypeEmail,
 			},
 		}},
-		CustomMetadata: map[string]privyclient.UserNewParamsCustomMetadataUnion{
-			"foo": {
+		CustomMetadata: privyclient.CustomMetadataParam{
+			"foo": privyclient.CustomMetadataItemUnionParam{
 				OfString: privyclient.String("string"),
 			},
 		},
 		Wallets: []privyclient.UserNewParamsWallet{{
-			ChainType: "solana",
+			ChainType: privyclient.WalletChainTypeEthereum,
 			AdditionalSigners: []privyclient.UserNewParamsWalletAdditionalSigner{{
 				SignerID:          "signer_id",
 				OverridePolicyIDs: []string{"xxxxxxxxxxxxxxxxxxxxxxxx"},
@@ -463,7 +464,7 @@ func TestUserPregenerateWallets(t *testing.T) {
 		"user_id",
 		privyclient.UserPregenerateWalletsParams{
 			Wallets: []privyclient.UserPregenerateWalletsParamsWallet{{
-				ChainType: privyclient.UserPregenerateWalletsParamsWalletChainTypeEthereum,
+				ChainType: privyclient.WalletChainTypeEthereum,
 				AdditionalSigners: []privyclient.UserPregenerateWalletsParamsWalletAdditionalSigner{{
 					SignerID:          "signer_id",
 					OverridePolicyIDs: []string{"string"},
@@ -498,7 +499,7 @@ func TestUserSearch(t *testing.T) {
 	)
 	_, err := client.Users.Search(context.TODO(), privyclient.UserSearchParams{
 		OfSearchTerm: &privyclient.UserSearchParamsBodySearchTerm{
-			SearchTerm: "search_term",
+			SearchTerm: "searchTerm",
 		},
 	})
 	if err != nil {
@@ -528,8 +529,8 @@ func TestUserSetCustomMetadata(t *testing.T) {
 		context.TODO(),
 		"user_id",
 		privyclient.UserSetCustomMetadataParams{
-			CustomMetadata: map[string]privyclient.UserSetCustomMetadataParamsCustomMetadataUnion{
-				"key": {
+			CustomMetadata: privyclient.CustomMetadataParam{
+				"key": privyclient.CustomMetadataItemUnionParam{
 					OfString: privyclient.String("value"),
 				},
 			},
@@ -563,7 +564,7 @@ func TestUserUnlinkLinkedAccountWithOptionalParams(t *testing.T) {
 		"user_id",
 		privyclient.UserUnlinkLinkedAccountParams{
 			Handle:   "test@test.com",
-			Type:     privyclient.UserUnlinkLinkedAccountParamsTypeEmail,
+			Type:     privyclient.LinkedAccountTypeEmail,
 			Provider: privyclient.String("provider"),
 		},
 	)
