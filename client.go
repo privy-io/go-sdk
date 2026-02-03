@@ -27,6 +27,7 @@ type Client struct {
 	Apps         AppService
 	Aggregations AggregationService
 	Webhooks     WebhookService
+	Yield        YieldService
 }
 
 // DefaultClientOptions read from the environment (PRIVY_APP_ID, PRIVY_APP_SECRET,
@@ -64,6 +65,7 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.Apps = NewAppService(opts...)
 	r.Aggregations = NewAggregationService(opts...)
 	r.Webhooks = NewWebhookService(opts...)
+	r.Yield = NewYieldService(opts...)
 
 	return
 }
