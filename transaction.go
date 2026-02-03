@@ -1,9 +1,9 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package privyapiclient
+package privyclient
 
 import (
-	"github.com/privy-io/go-sdk/option"
+	"github.com/stainless-sdks/privy-api-client-go/option"
 )
 
 // TransactionService contains methods and other services that help with

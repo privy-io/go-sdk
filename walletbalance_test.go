@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package privyapiclient_test
+package privyclient_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/privy-io/go-sdk"
-	"github.com/privy-io/go-sdk/internal/testutil"
-	"github.com/privy-io/go-sdk/option"
+	"github.com/stainless-sdks/privy-api-client-go"
+	"github.com/stainless-sdks/privy-api-client-go/internal/testutil"
+	"github.com/stainless-sdks/privy-api-client-go/option"
 )
 
 func TestWalletBalanceGetWithOptionalParams(t *testing.T) {
@@ -22,7 +22,7 @@ func TestWalletBalanceGetWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
@@ -30,21 +30,18 @@ func TestWalletBalanceGetWithOptionalParams(t *testing.T) {
 	_, err := client.Wallets.Balance.Get(
 		context.TODO(),
 		"wallet_id",
-		privyapiclient.WalletBalanceGetParams{
-			Token: privyapiclient.WalletBalanceGetParamsTokenUnion{
-				OfString: privyapiclient.String("string"),
+		privyclient.WalletBalanceGetParams{
+			Asset: privyclient.WalletBalanceGetParamsAssetUnion{
+				OfWalletBalanceGetsAssetString: privyclient.String("usdc"),
 			},
-			Asset: privyapiclient.WalletBalanceGetParamsAssetUnion{
-				OfWalletBalanceGetsAssetString: privyapiclient.String("usdc"),
+			Chain: privyclient.WalletBalanceGetParamsChainUnion{
+				OfWalletBalanceGetsChainString: privyclient.String("ethereum"),
 			},
-			Chain: privyapiclient.WalletBalanceGetParamsChainUnion{
-				OfWalletBalanceGetsChainString: privyapiclient.String("ethereum"),
-			},
-			IncludeCurrency: privyapiclient.WalletBalanceGetParamsIncludeCurrencyUsd,
+			IncludeCurrency: privyclient.WalletBalanceGetParamsIncludeCurrencyUsd,
 		},
 	)
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
