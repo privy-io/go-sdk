@@ -28,10 +28,10 @@ func TestWalletNewWithOptionalParams(t *testing.T) {
 		option.WithAppSecret("My App Secret"),
 	)
 	_, err := client.Wallets.New(context.TODO(), privyclient.WalletNewParams{
-		ChainType: privyclient.WalletNewParamsChainTypeEthereum,
+		ChainType: privyclient.WalletChainTypeEthereum,
 		AdditionalSigners: []privyclient.WalletNewParamsAdditionalSigner{{
-			OverridePolicyIDs: []string{"string"},
 			SignerID:          "signer_id",
+			OverridePolicyIDs: []string{"string"},
 		}},
 		Owner: privyclient.WalletNewParamsOwnerUnion{
 			OfPublicKeyOwner: &privyclient.WalletNewParamsOwnerPublicKeyOwner{
@@ -70,8 +70,8 @@ func TestWalletUpdateWithOptionalParams(t *testing.T) {
 		"wallet_id",
 		privyclient.WalletUpdateParams{
 			AdditionalSigners: []privyclient.WalletUpdateParamsAdditionalSigner{{
-				OverridePolicyIDs: []string{"string"},
 				SignerID:          "signer_id",
+				OverridePolicyIDs: []string{"string"},
 			}},
 			Owner: privyclient.WalletUpdateParamsOwnerUnion{
 				OfPublicKeyOwner: &privyclient.WalletUpdateParamsOwnerPublicKeyOwner{
@@ -107,10 +107,11 @@ func TestWalletListWithOptionalParams(t *testing.T) {
 		option.WithAppSecret("My App Secret"),
 	)
 	_, err := client.Wallets.List(context.TODO(), privyclient.WalletListParams{
-		ChainType: privyclient.WalletListParamsChainTypeCosmos,
-		Cursor:    privyclient.String("x"),
-		Limit:     privyclient.Float(100),
-		UserID:    privyclient.String("user_id"),
+		AuthorizationKey: privyclient.String("s=-/fw-L-+N\n"),
+		ChainType:        privyclient.WalletChainTypeEthereum,
+		Cursor:           privyclient.String("x"),
+		Limit:            privyclient.Float(100),
+		UserID:           privyclient.String("user_id"),
 	})
 	if err != nil {
 		var apierr *privyclient.Error
@@ -173,6 +174,11 @@ func TestWallet_SubmitImportWithOptionalParams(t *testing.T) {
 				Ciphertext:      "PRoRXygG+YYSDBXjCopNYZmx8Z6nvdl1D0lpePTYZdZI2VGfK+LkFt+GlEJqdoi9",
 				EncapsulatedKey: "BOhR6xITDt5THJawHHJKrKdI9CBr2M/SDWzZZAaOW4gCMsSpC65U007WyKiwuuOVAo1BNm4YgcBBROuMmyIZXZk=",
 				EncryptionType:  "HPKE",
+				HpkeConfig: privyclient.HpkeImportConfigParam{
+					Aad:           privyclient.String("aad"),
+					AeadAlgorithm: privyclient.HpkeImportConfigAeadAlgorithmChacha20Poly1305,
+					Info:          privyclient.String("info"),
+				},
 			},
 		},
 		AdditionalSigners: []privyclient.Wallet_SubmitImportParamsAdditionalSigner{{
@@ -298,8 +304,10 @@ func TestWalletRawSignWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"wallet_id",
 		privyclient.WalletRawSignParams{
-			Params: privyclient.WalletRawSignParamsParams{
-				Hash: privyclient.String("0x0775aeed9c9ce6e0fbc4db25c5e4e6368029651c905c286f813126a09025a21e"),
+			Params: privyclient.WalletRawSignParamsParamsUnion{
+				OfHash: &privyclient.WalletRawSignParamsParamsHash{
+					Hash: "0x0775aeed9c9ce6e0fbc4db25c5e4e6368029651c905c286f813126a09025a21e",
+				},
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
 			PrivyIdempotencyKey:         privyclient.String("privy-idempotency-key"),
@@ -332,39 +340,52 @@ func TestWalletRpcWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"wallet_id",
 		privyclient.WalletRpcParams{
-			OfEthSendTransaction: &privyclient.WalletRpcParamsBodyEthSendTransaction{
-				Caip2: "eip155:8453",
-				Params: privyclient.WalletRpcParamsBodyEthSendTransactionParams{
-					Transaction: privyclient.WalletRpcParamsBodyEthSendTransactionParamsTransaction{
-						ChainID: privyclient.WalletRpcParamsBodyEthSendTransactionParamsTransactionChainIDUnion{
+			OfEthSendTransaction: &privyclient.EthereumSendTransactionRpcInputParam{
+				Caip2:  "eip155:8453",
+				Method: privyclient.EthereumSendTransactionRpcInputMethodEthSendTransaction,
+				Params: privyclient.EthereumSendTransactionRpcInputParamsParam{
+					Transaction: privyclient.EthereumSendTransactionRpcInputParamsTransactionParam{
+						AuthorizationList: []privyclient.EthereumSendTransactionRpcInputParamsTransactionAuthorizationListParam{{
+							ChainID: privyclient.EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionParam{
+								OfString: privyclient.String("string"),
+							},
+							Contract: "contract",
+							Nonce: privyclient.EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnionParam{
+								OfString: privyclient.String("string"),
+							},
+							R:       "r",
+							S:       "s",
+							YParity: 0,
+						}},
+						ChainID: privyclient.EthereumSendTransactionRpcInputParamsTransactionChainIDUnionParam{
 							OfString: privyclient.String("string"),
 						},
 						Data: privyclient.String("data"),
 						From: privyclient.String("from"),
-						GasLimit: privyclient.WalletRpcParamsBodyEthSendTransactionParamsTransactionGasLimitUnion{
+						GasLimit: privyclient.EthereumSendTransactionRpcInputParamsTransactionGasLimitUnionParam{
 							OfString: privyclient.String("string"),
 						},
-						GasPrice: privyclient.WalletRpcParamsBodyEthSendTransactionParamsTransactionGasPriceUnion{
+						GasPrice: privyclient.EthereumSendTransactionRpcInputParamsTransactionGasPriceUnionParam{
 							OfString: privyclient.String("string"),
 						},
-						MaxFeePerGas: privyclient.WalletRpcParamsBodyEthSendTransactionParamsTransactionMaxFeePerGasUnion{
+						MaxFeePerGas: privyclient.EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnionParam{
 							OfString: privyclient.String("string"),
 						},
-						MaxPriorityFeePerGas: privyclient.WalletRpcParamsBodyEthSendTransactionParamsTransactionMaxPriorityFeePerGasUnion{
+						MaxPriorityFeePerGas: privyclient.EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionParam{
 							OfString: privyclient.String("string"),
 						},
-						Nonce: privyclient.WalletRpcParamsBodyEthSendTransactionParamsTransactionNonceUnion{
+						Nonce: privyclient.EthereumSendTransactionRpcInputParamsTransactionNonceUnionParam{
 							OfString: privyclient.String("string"),
 						},
 						To:   privyclient.String("0x0000000000000000000000000000000000000000"),
 						Type: 0,
-						Value: privyclient.WalletRpcParamsBodyEthSendTransactionParamsTransactionValueUnion{
+						Value: privyclient.EthereumSendTransactionRpcInputParamsTransactionValueUnionParam{
 							OfInt: privyclient.Int(1),
 						},
 					},
 				},
 				Address:   privyclient.String("address"),
-				ChainType: "ethereum",
+				ChainType: privyclient.EthereumSendTransactionRpcInputChainTypeEthereum,
 				Sponsor:   privyclient.Bool(true),
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
