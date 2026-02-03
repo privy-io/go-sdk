@@ -1,8 +1,8 @@
 package paramutil
 
 import (
-	"github.com/stainless-sdks/privy-api-client-go/packages/param"
-	"github.com/stainless-sdks/privy-api-client-go/packages/respjson"
+	"github.com/privy-io/go-sdk/packages/param"
+	"github.com/privy-io/go-sdk/packages/respjson"
 )
 
 func AddrIfPresent[T comparable](v param.Opt[T]) *T {

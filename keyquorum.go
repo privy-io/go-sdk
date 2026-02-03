@@ -9,11 +9,11 @@ import (
 	"net/http"
 	"slices"
 
-	"github.com/stainless-sdks/privy-api-client-go/internal/apijson"
-	"github.com/stainless-sdks/privy-api-client-go/internal/requestconfig"
-	"github.com/stainless-sdks/privy-api-client-go/option"
-	"github.com/stainless-sdks/privy-api-client-go/packages/param"
-	"github.com/stainless-sdks/privy-api-client-go/packages/respjson"
+	"github.com/privy-io/go-sdk/internal/apijson"
+	"github.com/privy-io/go-sdk/internal/requestconfig"
+	"github.com/privy-io/go-sdk/option"
+	"github.com/privy-io/go-sdk/packages/param"
+	"github.com/privy-io/go-sdk/packages/respjson"
 )
 
 // KeyQuorumService contains methods and other services that help with interacting
