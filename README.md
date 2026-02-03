@@ -53,11 +53,11 @@ import (
 )
 
 func main() {
-	client := privyclient.NewPrivyClient(
-		option.WithAppID("My App ID"),         // defaults to os.LookupEnv("PRIVY_APP_ID")
-		option.WithAppSecret("My App Secret"), // defaults to os.LookupEnv("PRIVY_APP_SECRET")
-		option.WithEnvironmentStaging(),       // defaults to option.WithEnvironmentProduction()
-	)
+	client := privyclient.NewPrivyClient(privyclient.PrivyClientOptions{
+		AppID:     "My App ID",
+		AppSecret: "My App Secret",
+		// APIUrl: "https://auth.staging.privy.io", // optional, defaults to production
+	})
 	wallet, err := client.Wallets.Get(context.TODO(), "wallet_id")
 	if err != nil {
 		panic(err.Error())
