@@ -1,33 +1,33 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package privyapiclient
+package privyclient
 
 import (
 	"github.com/privy-io/go-sdk/option"
 )
 
-// PrivyClient is an enhanced client with custom functionality.
-// It wraps the generated Client and provides access to enhanced services.
-//
-// This is the recommended client type for most use cases as it provides
-// wrapped services with additional functionality while maintaining full
-// compatibility with the base Client.
+// PrivyClient is the main entrypoint for the Privy API Go SDK.
 //
 // Example:
 //
-//	client := privyapiclient.NewPrivyClient(
+//	client := privyclient.NewPrivyClient(
 //	    option.WithAppID("my-app-id"),
 //	    option.WithAppSecret("my-app-secret"),
 //	    option.WithEnvironmentStaging(),
 //	)
-//	wallet, err := client.Wallets.Get(ctx, "wallet_id")
 type PrivyClient struct {
-	// Client is the underlying generated client.
-	// You can use this to access any services not yet wrapped by PrivyClient.
-	Client Client
+	client Client
 
-	// Wallets provides access to wallet operations with enhanced functionality.
-	Wallets *PrivyWalletService
+	Wallets      *PrivyWalletService
+	Users        *PrivyUserService
+	Policies     *PrivyPolicyService
+	Transactions *PrivyTransactionService
+	KeyQuorums   *PrivyKeyQuorumService
+	ClientAuth   *PrivyClientAuthService
+	Analytics    *PrivyAnalyticsService
+	Apps         *PrivyAppService
+	Aggregations *PrivyAggregationService
+	Webhooks     *PrivyWebhookService
 }
 
 // NewPrivyClient creates a new enhanced Privy client.
@@ -35,7 +35,7 @@ type PrivyClient struct {
 //
 // It accepts the same options as the generated client:
 //
-//	client := privyapiclient.NewPrivyClient(
+//	client := privyclient.NewPrivyClient(
 //	    option.WithAppID("my-app-id"),
 //	    option.WithAppSecret("my-app-secret"),
 //	    option.WithEnvironmentStaging(),
@@ -43,15 +43,16 @@ type PrivyClient struct {
 func NewPrivyClient(opts ...option.RequestOption) *PrivyClient {
 	client := NewClient(opts...)
 	return &PrivyClient{
-		Client:  client,
-		Wallets: NewPrivyWalletService(client.Wallets),
+		client:       client,
+		Wallets:      newPrivyWalletService(client.Wallets),
+		Users:        newPrivyUserService(client.Users),
+		Policies:     newPrivyPolicyService(client.Policies),
+		Transactions: newPrivyTransactionService(client.Transactions),
+		KeyQuorums:   newPrivyKeyQuorumService(client.KeyQuorums),
+		ClientAuth:   newPrivyClientAuthService(client.ClientAuth),
+		Analytics:    newPrivyAnalyticsService(client.Analytics),
+		Apps:         newPrivyAppService(client.Apps),
+		Aggregations: newPrivyAggregationService(client.Aggregations),
+		Webhooks:     newPrivyWebhookService(client.Webhooks),
 	}
 }
-
-// Add your custom client methods below this line.
-// Example:
-//
-// func (c *PrivyClient) CustomMethod() error {
-//     // Your custom logic here
-//     return nil
-// }
