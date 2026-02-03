@@ -53,7 +53,7 @@ import (
 )
 
 func main() {
-	client := privyclient.NewClient(
+	client := privyclient.NewPrivyClient(
 		option.WithAppID("My App ID"),         // defaults to os.LookupEnv("PRIVY_APP_ID")
 		option.WithAppSecret("My App Secret"), // defaults to os.LookupEnv("PRIVY_APP_SECRET")
 		option.WithEnvironmentStaging(),       // defaults to option.WithEnvironmentProduction()
@@ -66,6 +66,20 @@ func main() {
 }
 
 ```
+
+### Client Types
+
+This SDK provides two client types:
+
+- **`NewPrivyClient()`** (Recommended): Enhanced client with additional functionality
+  and convenience methods. This is the recommended client for most use cases as it
+  provides a wrapper around the generated SDK with custom features.
+
+- **`NewClient()`**: The base generated client. Use this if you need direct access
+  to the raw generated SDK without any wrappers.
+
+Both clients accept the same options and provide access to the same API endpoints.
+The enhanced client delegates to the base client while adding custom functionality.
 
 ### Request fields
 
