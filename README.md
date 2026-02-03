@@ -67,19 +67,13 @@ func main() {
 
 ```
 
-### Client Types
+### Client Entry Point
 
 This SDK provides two client types:
 
-- **`NewPrivyClient()`** (Recommended): Enhanced client with additional functionality
-  and convenience methods. This is the recommended client for most use cases as it
-  provides a wrapper around the generated SDK with custom features.
+- **`NewPrivyClient()`**: Main entrypoint for the Privy Go SDK, exposing Privy APIs and
+  and convenience methods. 
 
-- **`NewClient()`**: The base generated client. Use this if you need direct access
-  to the raw generated SDK without any wrappers.
-
-Both clients accept the same options and provide access to the same API endpoints.
-The enhanced client delegates to the base client while adding custom functionality.
 
 ### Request fields
 
