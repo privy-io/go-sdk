@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"net/http/httputil"
 
-	"github.com/stainless-sdks/privy-api-client-go/internal/apijson"
-	"github.com/stainless-sdks/privy-api-client-go/packages/respjson"
+	"github.com/privy-io/go-sdk/internal/apijson"
+	"github.com/privy-io/go-sdk/packages/respjson"
 )
 
 // Error represents an error that originates from the API, i.e. when a request is
