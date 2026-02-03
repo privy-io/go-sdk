@@ -1,7 +1,7 @@
 package apijson
 
 import (
-	"github.com/stainless-sdks/privy-api-client-go/packages/respjson"
+	"github.com/privy-io/go-sdk/packages/respjson"
 	"reflect"
 )
 

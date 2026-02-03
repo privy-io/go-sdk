@@ -18,10 +18,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/stainless-sdks/privy-api-client-go/internal"
-	"github.com/stainless-sdks/privy-api-client-go/internal/apierror"
-	"github.com/stainless-sdks/privy-api-client-go/internal/apiform"
-	"github.com/stainless-sdks/privy-api-client-go/internal/apiquery"
+	"github.com/privy-io/go-sdk/internal"
+	"github.com/privy-io/go-sdk/internal/apierror"
+	"github.com/privy-io/go-sdk/internal/apiform"
+	"github.com/privy-io/go-sdk/internal/apiquery"
 )
 
 func getDefaultHeaders() map[string]string {

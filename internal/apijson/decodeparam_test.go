@@ -3,8 +3,8 @@ package apijson_test
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/stainless-sdks/privy-api-client-go/internal/apijson"
-	"github.com/stainless-sdks/privy-api-client-go/packages/param"
+	"github.com/privy-io/go-sdk/internal/apijson"
+	"github.com/privy-io/go-sdk/packages/param"
 	"reflect"
 	"testing"
 )
