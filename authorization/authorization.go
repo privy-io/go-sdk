@@ -9,8 +9,11 @@ import (
 	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
+
+	"github.com/cyberphone/json-canonicalization/go/src/webpki.org/jsoncanonicalizer"
 )
 
 // AuthorizationContext contains credentials used for signing authorization requests.
@@ -18,6 +21,70 @@ type AuthorizationContext struct {
 	// PrivateKeys is an array of base64-encoded PKCS8-formatted P-256 private keys.
 	// Keys must not include PEM headers.
 	PrivateKeys []string
+}
+
+// WalletApiRequestSignatureInput defines the structure of a request payload
+// that gets signed for authorization.
+type WalletApiRequestSignatureInput struct {
+	// Version is the signature version. Currently, 1 is the only valid version.
+	Version int `json:"version"`
+	// Method is the HTTP request method: "POST", "PUT", "PATCH", or "DELETE".
+	// Signatures are not required on GET requests.
+	Method string `json:"method"`
+	// URL is the request URL. Should not contain a trailing slash.
+	URL string `json:"url"`
+	// Body is the request body (JSON-serializable). Omitted when nil.
+	Body any `json:"body,omitempty"`
+	// Headers contains Privy-specific headers to include in signature.
+	// Required: "privy-app-id". Optional: "privy-idempotency-key".
+	Headers map[string]string `json:"headers"`
+}
+
+// FormatRequestForAuthorizationSignature formats the request payload into bytes
+// ready for signing. It creates a canonical representation of the request using
+// RFC 8785 JSON Canonicalization Scheme (JCS).
+//
+// Parameters:
+//   - input: WalletApiRequestSignatureInput - The request payload to format
+//
+// Returns:
+//   - []byte: UTF-8 encoded canonicalized JSON
+//   - error: Non-nil if JSON marshaling or canonicalization fails
+func FormatRequestForAuthorizationSignature(input WalletApiRequestSignatureInput) ([]byte, error) {
+	// Handle special case: empty body {} should become ""
+	body := input.Body
+	if body != nil {
+		bodyBytes, err := json.Marshal(body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal body: %w", err)
+		}
+		if string(bodyBytes) == "{}" {
+			body = ""
+		}
+	}
+
+	// Create a copy with the potentially modified body
+	inputCopy := WalletApiRequestSignatureInput{
+		Version: input.Version,
+		Method:  input.Method,
+		URL:     input.URL,
+		Body:    body,
+		Headers: input.Headers,
+	}
+
+	// Marshal the input to JSON
+	jsonBytes, err := json.Marshal(inputCopy)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal input to JSON: %w", err)
+	}
+
+	// Canonicalize the JSON using RFC 8785
+	canonicalized, err := jsoncanonicalizer.Transform(jsonBytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to canonicalize JSON: %w", err)
+	}
+
+	return canonicalized, nil
 }
 
 // GenerateAuthorizationSignature signs a payload with a P-256 private key.
