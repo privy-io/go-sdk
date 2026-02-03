@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stainless-sdks/privy-api-client-go"
-	"github.com/stainless-sdks/privy-api-client-go/internal"
-	"github.com/stainless-sdks/privy-api-client-go/option"
+	"github.com/privy-io/go-sdk"
+	"github.com/privy-io/go-sdk/internal"
+	"github.com/privy-io/go-sdk/option"
 )
 
 type closureTransport struct {

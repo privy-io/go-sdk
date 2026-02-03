@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/stainless-sdks/privy-api-client-go/packages/param"
+	"github.com/privy-io/go-sdk/packages/param"
 )
 
 var encoders sync.Map // map[encoderEntry]encoderFunc

@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/stainless-sdks/privy-api-client-go/internal/requestconfig"
+	"github.com/privy-io/go-sdk/internal/requestconfig"
 	"github.com/tidwall/sjson"
 )
 
@@ -20,7 +20,7 @@ import (
 // which can be supplied to clients, services, and methods. You can read more about this functional
 // options pattern in our [README].
 //
-// [README]: https://pkg.go.dev/github.com/stainless-sdks/privy-api-client-go#readme-requestoptions
+// [README]: https://pkg.go.dev/github.com/privy-io/go-sdk#readme-requestoptions
 type RequestOption = requestconfig.RequestOption
 
 // WithBaseURL returns a RequestOption that sets the BaseURL for the client.
