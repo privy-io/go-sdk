@@ -3,8 +3,8 @@ package respjson_test
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/stainless-sdks/privy-api-client-go/internal/apijson"
-	rj "github.com/stainless-sdks/privy-api-client-go/packages/respjson"
+	"github.com/privy-io/go-sdk/internal/apijson"
+	rj "github.com/privy-io/go-sdk/packages/respjson"
 	"reflect"
 	"testing"
 )

@@ -2,7 +2,7 @@ package param_test
 
 import (
 	"encoding/json"
-	"github.com/stainless-sdks/privy-api-client-go/packages/param"
+	"github.com/privy-io/go-sdk/packages/param"
 	"testing"
 )
 
