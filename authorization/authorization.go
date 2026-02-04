@@ -14,6 +14,7 @@ import (
 	"fmt"
 
 	"github.com/cyberphone/json-canonicalization/go/src/webpki.org/jsoncanonicalizer"
+	"github.com/privy-io/go-sdk/internal/jwtexchange"
 )
 
 // AuthorizationContext contains credentials used for signing authorization requests.
@@ -21,7 +22,13 @@ type AuthorizationContext struct {
 	// PrivateKeys is an array of base64-encoded PKCS8-formatted P-256 private keys.
 	// Keys must not include PEM headers.
 	PrivateKeys []string
+
+	// UserJwts contains JWTs for users that should sign the request authorization.
+	// These should be valid JWTs for the user. Each JWT will be exchanged for
+	// a short-lived authorization private key via the JwtExchanger.
+	UserJwts []string
 }
+
 
 // WalletApiRequestSignatureInput defines the structure of a request payload
 // that gets signed for authorization.
@@ -136,17 +143,33 @@ func GenerateAuthorizationSignature(privateKey string, payload []byte) (string, 
 // Parameters:
 //   - ctx: AuthorizationContext containing the credentials
 //   - payload: The arbitrary byte array to sign
+//   - exchanger: JwtExchanger for exchanging JWTs for private keys (may be nil if no JWTs in context)
 //
 // Returns:
 //   - An array of base64-encoded DER-format signatures, one per key
 //   - An error if any key fails to sign, indicating which key index failed
-func GenerateAuthorizationSignatures(ctx AuthorizationContext, payload []byte) ([]string, error) {
-	if len(ctx.PrivateKeys) == 0 {
+func GenerateAuthorizationSignatures(ctx AuthorizationContext, payload []byte, exchanger jwtexchange.JwtExchanger) ([]string, error) {
+	// Check if JWTs are present but no exchanger provided
+	if len(ctx.UserJwts) > 0 && exchanger == nil {
+		return nil, errors.New("JWTs present but no exchanger provided")
+	}
+
+	// Exchange JWTs for private keys
+	jwtDerivedKeys, err := jwtexchange.ExchangeJwtsForKeys(exchanger, ctx.UserJwts)
+	if err != nil {
+		return nil, err
+	}
+
+	// Combine all private keys: PrivateKeys first, then JWT-derived keys
+	allKeys := append(ctx.PrivateKeys, jwtDerivedKeys...)
+
+	if len(allKeys) == 0 {
 		return []string{}, nil
 	}
 
-	signatures := make([]string, len(ctx.PrivateKeys))
-	for i, key := range ctx.PrivateKeys {
+	// Generate signatures for all keys
+	signatures := make([]string, len(allKeys))
+	for i, key := range allKeys {
 		sig, err := GenerateAuthorizationSignature(key, payload)
 		if err != nil {
 			return nil, fmt.Errorf("failed to sign with key at index %d: %w", i, err)
