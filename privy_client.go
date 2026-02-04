@@ -63,6 +63,7 @@ func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
 	requestOpts := []option.RequestOption{
 		option.WithAppID(opts.AppID),
 		option.WithAppSecret(opts.AppSecret),
+		option.WithHeader("privy-app-id", opts.AppID),
 	}
 
 	// Add API URL if provided, otherwise use production default
