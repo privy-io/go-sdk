@@ -1,5 +1,3 @@
-// File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
-
 package privyclient
 
 import (
@@ -37,7 +35,6 @@ type PrivyClient struct {
 	Policies     *PrivyPolicyService
 	Transactions *PrivyTransactionService
 	KeyQuorums   *PrivyKeyQuorumService
-	ClientAuth   *PrivyClientAuthService
 	Analytics    *PrivyAnalyticsService
 	Apps         *PrivyAppService
 	Aggregations *PrivyAggregationService
@@ -83,7 +80,6 @@ func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
 		Policies:     newPrivyPolicyService(client.Policies),
 		Transactions: newPrivyTransactionService(client.Transactions),
 		KeyQuorums:   newPrivyKeyQuorumService(client.KeyQuorums),
-		ClientAuth:   newPrivyClientAuthService(client.ClientAuth),
 		Analytics:    newPrivyAnalyticsService(client.Analytics),
 		Apps:         newPrivyAppService(client.Apps),
 		Aggregations: newPrivyAggregationService(client.Aggregations),
