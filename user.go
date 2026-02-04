@@ -2479,6 +2479,42 @@ const (
 	LinkedAccountCustomJwtInputTypeCustomAuth LinkedAccountCustomJwtInputType = "custom_auth"
 )
 
+// The payload for importing a passkey account.
+//
+// The properties CredentialDeviceType, CredentialID, CredentialPublicKey,
+// CredentialUsername, Type are required.
+type LinkedAccountPasskeyInputParam struct {
+	// Any of "singleDevice", "multiDevice".
+	CredentialDeviceType LinkedAccountPasskeyInputCredentialDeviceType `json:"credential_device_type,omitzero,required"`
+	CredentialID         string                                        `json:"credential_id,required"`
+	CredentialPublicKey  string                                        `json:"credential_public_key,required"`
+	CredentialUsername   string                                        `json:"credential_username,required"`
+	// Any of "passkey".
+	Type LinkedAccountPasskeyInputType `json:"type,omitzero,required"`
+	paramObj
+}
+
+func (r LinkedAccountPasskeyInputParam) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountPasskeyInputParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *LinkedAccountPasskeyInputParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type LinkedAccountPasskeyInputCredentialDeviceType string
+
+const (
+	LinkedAccountPasskeyInputCredentialDeviceTypeSingleDevice LinkedAccountPasskeyInputCredentialDeviceType = "singleDevice"
+	LinkedAccountPasskeyInputCredentialDeviceTypeMultiDevice  LinkedAccountPasskeyInputCredentialDeviceType = "multiDevice"
+)
+
+type LinkedAccountPasskeyInputType string
+
+const (
+	LinkedAccountPasskeyInputTypePasskey LinkedAccountPasskeyInputType = "passkey"
+)
+
 func LinkedAccountInputParamOfWallet(address string, chainType LinkedAccountWalletInputChainType, type_ LinkedAccountWalletInputType) LinkedAccountInputUnionParam {
 	var wallet LinkedAccountWalletInputParam
 	wallet.Address = address
@@ -2594,6 +2630,7 @@ type LinkedAccountInputUnionParam struct {
 	OfFarcaster      *LinkedAccountFarcasterInputParam `json:",omitzero,inline"`
 	OfTelegram       *LinkedAccountTelegramInputParam  `json:",omitzero,inline"`
 	OfCustomAuth     *LinkedAccountCustomJwtInputParam `json:",omitzero,inline"`
+	OfPasskey        *LinkedAccountPasskeyInputParam   `json:",omitzero,inline"`
 	paramUnion
 }
 
@@ -2614,7 +2651,8 @@ func (u LinkedAccountInputUnionParam) MarshalJSON() ([]byte, error) {
 		u.OfLinkedinOAuth,
 		u.OfFarcaster,
 		u.OfTelegram,
-		u.OfCustomAuth)
+		u.OfCustomAuth,
+		u.OfPasskey)
 }
 func (u *LinkedAccountInputUnionParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
@@ -2655,6 +2693,8 @@ func (u *LinkedAccountInputUnionParam) asAny() any {
 		return u.OfTelegram
 	} else if !param.IsOmitted(u.OfCustomAuth) {
 		return u.OfCustomAuth
+	} else if !param.IsOmitted(u.OfPasskey) {
+		return u.OfPasskey
 	}
 	return nil
 }
@@ -2764,6 +2804,38 @@ func (u LinkedAccountInputUnionParam) GetCustomUserID() *string {
 }
 
 // Returns a pointer to the underlying variant's property, if present.
+func (u LinkedAccountInputUnionParam) GetCredentialDeviceType() *string {
+	if vt := u.OfPasskey; vt != nil {
+		return (*string)(&vt.CredentialDeviceType)
+	}
+	return nil
+}
+
+// Returns a pointer to the underlying variant's property, if present.
+func (u LinkedAccountInputUnionParam) GetCredentialID() *string {
+	if vt := u.OfPasskey; vt != nil {
+		return &vt.CredentialID
+	}
+	return nil
+}
+
+// Returns a pointer to the underlying variant's property, if present.
+func (u LinkedAccountInputUnionParam) GetCredentialPublicKey() *string {
+	if vt := u.OfPasskey; vt != nil {
+		return &vt.CredentialPublicKey
+	}
+	return nil
+}
+
+// Returns a pointer to the underlying variant's property, if present.
+func (u LinkedAccountInputUnionParam) GetCredentialUsername() *string {
+	if vt := u.OfPasskey; vt != nil {
+		return &vt.CredentialUsername
+	}
+	return nil
+}
+
+// Returns a pointer to the underlying variant's property, if present.
 func (u LinkedAccountInputUnionParam) GetAddress() *string {
 	if vt := u.OfWallet; vt != nil {
 		return (*string)(&vt.Address)
@@ -2808,6 +2880,8 @@ func (u LinkedAccountInputUnionParam) GetType() *string {
 	} else if vt := u.OfTelegram; vt != nil {
 		return (*string)(&vt.Type)
 	} else if vt := u.OfCustomAuth; vt != nil {
+		return (*string)(&vt.Type)
+	} else if vt := u.OfPasskey; vt != nil {
 		return (*string)(&vt.Type)
 	}
 	return nil
@@ -2935,6 +3009,7 @@ func init() {
 		apijson.Discriminator[LinkedAccountFarcasterInputParam]("farcaster"),
 		apijson.Discriminator[LinkedAccountTelegramInputParam]("telegram"),
 		apijson.Discriminator[LinkedAccountCustomJwtInputParam]("custom_auth"),
+		apijson.Discriminator[LinkedAccountPasskeyInputParam]("passkey"),
 	)
 }
 
