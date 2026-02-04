@@ -1091,3 +1091,368 @@ func TestGenerateAuthorizationSignatures_OrderVerification(t *testing.T) {
 		t.Error("second signature should NOT be from PrivateKey")
 	}
 }
+
+// MockAuthorizationSigner implements AuthorizationSigner for testing.
+type MockAuthorizationSigner struct {
+	ReturnSignature string
+	ReturnError     error
+	ReceivedPayload []byte
+}
+
+func (m *MockAuthorizationSigner) Sign(payload []byte) (string, error) {
+	m.ReceivedPayload = payload
+	return m.ReturnSignature, m.ReturnError
+}
+
+// Tests for Signatures field
+
+func TestGenerateAuthorizationSignatures_EmptySignatures(t *testing.T) {
+	ctx := AuthorizationContext{
+		Signatures: []string{},
+	}
+	payload := []byte("test payload")
+
+	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if signatures == nil {
+		t.Fatal("expected non-nil slice")
+	}
+
+	if len(signatures) != 0 {
+		t.Fatalf("expected empty slice, got %d signatures", len(signatures))
+	}
+}
+
+func TestGenerateAuthorizationSignatures_SinglePrecomputedSignature(t *testing.T) {
+	precomputedSig := "precomputed-signature-base64"
+	ctx := AuthorizationContext{
+		Signatures: []string{precomputedSig},
+	}
+	payload := []byte("test payload")
+
+	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(signatures) != 1 {
+		t.Fatalf("expected 1 signature, got %d", len(signatures))
+	}
+
+	if signatures[0] != precomputedSig {
+		t.Errorf("expected signature %q, got %q", precomputedSig, signatures[0])
+	}
+}
+
+func TestGenerateAuthorizationSignatures_MultiplePrecomputedSignatures(t *testing.T) {
+	precomputedSigs := []string{"sig1-base64", "sig2-base64", "sig3-base64"}
+	ctx := AuthorizationContext{
+		Signatures: precomputedSigs,
+	}
+	payload := []byte("test payload")
+
+	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(signatures) != 3 {
+		t.Fatalf("expected 3 signatures, got %d", len(signatures))
+	}
+
+	for i, expected := range precomputedSigs {
+		if signatures[i] != expected {
+			t.Errorf("signature[%d]: expected %q, got %q", i, expected, signatures[i])
+		}
+	}
+}
+
+func TestGenerateAuthorizationSignatures_SignaturesIncludedAsIs(t *testing.T) {
+	// Signatures should be included without modification, even if they look unusual
+	weirdSig := "this-is-not-valid-base64!!!"
+	ctx := AuthorizationContext{
+		Signatures: []string{weirdSig},
+	}
+	payload := []byte("test payload")
+
+	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(signatures) != 1 {
+		t.Fatalf("expected 1 signature, got %d", len(signatures))
+	}
+
+	if signatures[0] != weirdSig {
+		t.Errorf("signature should be included as-is: expected %q, got %q", weirdSig, signatures[0])
+	}
+}
+
+// Tests for Signers field
+
+func TestGenerateAuthorizationSignatures_EmptySigners(t *testing.T) {
+	ctx := AuthorizationContext{
+		Signers: []AuthorizationSigner{},
+	}
+	payload := []byte("test payload")
+
+	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if signatures == nil {
+		t.Fatal("expected non-nil slice")
+	}
+
+	if len(signatures) != 0 {
+		t.Fatalf("expected empty slice, got %d signatures", len(signatures))
+	}
+}
+
+func TestGenerateAuthorizationSignatures_SingleSignerSuccess(t *testing.T) {
+	expectedSig := "signer-signature-base64"
+	signer := &MockAuthorizationSigner{ReturnSignature: expectedSig}
+	ctx := AuthorizationContext{
+		Signers: []AuthorizationSigner{signer},
+	}
+	payload := []byte("test payload")
+
+	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(signatures) != 1 {
+		t.Fatalf("expected 1 signature, got %d", len(signatures))
+	}
+
+	if signatures[0] != expectedSig {
+		t.Errorf("expected signature %q, got %q", expectedSig, signatures[0])
+	}
+
+	// Verify the signer received the correct payload
+	if string(signer.ReceivedPayload) != string(payload) {
+		t.Errorf("signer received wrong payload: expected %q, got %q", payload, signer.ReceivedPayload)
+	}
+}
+
+func TestGenerateAuthorizationSignatures_MultipleSignersSuccess(t *testing.T) {
+	signer1 := &MockAuthorizationSigner{ReturnSignature: "sig1"}
+	signer2 := &MockAuthorizationSigner{ReturnSignature: "sig2"}
+	signer3 := &MockAuthorizationSigner{ReturnSignature: "sig3"}
+
+	ctx := AuthorizationContext{
+		Signers: []AuthorizationSigner{signer1, signer2, signer3},
+	}
+	payload := []byte("test payload")
+
+	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(signatures) != 3 {
+		t.Fatalf("expected 3 signatures, got %d", len(signatures))
+	}
+
+	expectedSigs := []string{"sig1", "sig2", "sig3"}
+	for i, expected := range expectedSigs {
+		if signatures[i] != expected {
+			t.Errorf("signature[%d]: expected %q, got %q", i, expected, signatures[i])
+		}
+	}
+}
+
+func TestGenerateAuthorizationSignatures_SignerError(t *testing.T) {
+	signer := &MockAuthorizationSigner{
+		ReturnError: errors.New("KMS signing failed"),
+	}
+
+	ctx := AuthorizationContext{
+		Signers: []AuthorizationSigner{signer},
+	}
+	payload := []byte("test payload")
+
+	_, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	if err == nil {
+		t.Fatal("expected error for signer failure")
+	}
+
+	if !strings.Contains(err.Error(), "signer at index 0 failed") {
+		t.Errorf("expected error to mention signer index, got: %v", err)
+	}
+	if !strings.Contains(err.Error(), "KMS signing failed") {
+		t.Errorf("expected error to contain original error message, got: %v", err)
+	}
+}
+
+func TestGenerateAuthorizationSignatures_SecondSignerError(t *testing.T) {
+	signer1 := &MockAuthorizationSigner{ReturnSignature: "sig1"}
+	signer2 := &MockAuthorizationSigner{ReturnError: errors.New("vault unavailable")}
+
+	ctx := AuthorizationContext{
+		Signers: []AuthorizationSigner{signer1, signer2},
+	}
+	payload := []byte("test payload")
+
+	_, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	if err == nil {
+		t.Fatal("expected error for signer failure")
+	}
+
+	if !strings.Contains(err.Error(), "signer at index 1 failed") {
+		t.Errorf("expected error to mention signer index 1, got: %v", err)
+	}
+}
+
+// Tests for combined context scenarios
+
+func TestGenerateAuthorizationSignatures_AllFieldsPopulated(t *testing.T) {
+	// Setup: pre-computed signatures
+	precomputedSigs := []string{"precomputed1", "precomputed2"}
+
+	// Setup: private keys
+	pkKey1B64, pkKey1 := generateTestP256Key(t)
+	pkKey2B64, pkKey2 := generateTestP256Key(t)
+
+	// Setup: JWT-derived keys
+	jwtKey1B64, jwtKey1 := generateTestP256Key(t)
+	jwtKey2B64, jwtKey2 := generateTestP256Key(t)
+	exchanger := &MockJwtExchanger{
+		Keys: map[string]string{
+			"jwt1": jwtKey1B64,
+			"jwt2": jwtKey2B64,
+		},
+	}
+
+	// Setup: signers
+	signer1 := &MockAuthorizationSigner{ReturnSignature: "signer1-sig"}
+	signer2 := &MockAuthorizationSigner{ReturnSignature: "signer2-sig"}
+
+	ctx := AuthorizationContext{
+		Signatures:  precomputedSigs,
+		PrivateKeys: []string{pkKey1B64, pkKey2B64},
+		UserJwts:    []string{"jwt1", "jwt2"},
+		Signers:     []AuthorizationSigner{signer1, signer2},
+	}
+	payload := []byte("test payload for all fields")
+
+	signatures, err := GenerateAuthorizationSignatures(ctx, payload, exchanger)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Expected: 2 precomputed + 2 private key + 2 JWT-derived + 2 signer = 8 signatures
+	if len(signatures) != 8 {
+		t.Fatalf("expected 8 signatures, got %d", len(signatures))
+	}
+
+	// Verify order: Signatures first
+	if signatures[0] != "precomputed1" || signatures[1] != "precomputed2" {
+		t.Errorf("precomputed signatures not in correct position: %v", signatures[:2])
+	}
+
+	// Verify order: PrivateKey signatures next
+	hash := sha256.Sum256(payload)
+	sig2Bytes, _ := base64.StdEncoding.DecodeString(signatures[2])
+	if !ecdsa.VerifyASN1(&pkKey1.PublicKey, hash[:], sig2Bytes) {
+		t.Error("signature[2] should be from pkKey1")
+	}
+	sig3Bytes, _ := base64.StdEncoding.DecodeString(signatures[3])
+	if !ecdsa.VerifyASN1(&pkKey2.PublicKey, hash[:], sig3Bytes) {
+		t.Error("signature[3] should be from pkKey2")
+	}
+
+	// Verify order: JWT-derived signatures next
+	sig4Bytes, _ := base64.StdEncoding.DecodeString(signatures[4])
+	if !ecdsa.VerifyASN1(&jwtKey1.PublicKey, hash[:], sig4Bytes) {
+		t.Error("signature[4] should be from jwtKey1")
+	}
+	sig5Bytes, _ := base64.StdEncoding.DecodeString(signatures[5])
+	if !ecdsa.VerifyASN1(&jwtKey2.PublicKey, hash[:], sig5Bytes) {
+		t.Error("signature[5] should be from jwtKey2")
+	}
+
+	// Verify order: Signer signatures last
+	if signatures[6] != "signer1-sig" || signatures[7] != "signer2-sig" {
+		t.Errorf("signer signatures not in correct position: %v", signatures[6:])
+	}
+}
+
+func TestGenerateAuthorizationSignatures_OnlySignatures(t *testing.T) {
+	ctx := AuthorizationContext{
+		Signatures: []string{"only-precomputed-sig"},
+	}
+	payload := []byte("test payload")
+
+	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(signatures) != 1 {
+		t.Fatalf("expected 1 signature, got %d", len(signatures))
+	}
+
+	if signatures[0] != "only-precomputed-sig" {
+		t.Errorf("expected %q, got %q", "only-precomputed-sig", signatures[0])
+	}
+}
+
+func TestGenerateAuthorizationSignatures_OnlySigners(t *testing.T) {
+	signer := &MockAuthorizationSigner{ReturnSignature: "only-signer-sig"}
+	ctx := AuthorizationContext{
+		Signers: []AuthorizationSigner{signer},
+	}
+	payload := []byte("test payload")
+
+	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(signatures) != 1 {
+		t.Fatalf("expected 1 signature, got %d", len(signatures))
+	}
+
+	if signatures[0] != "only-signer-sig" {
+		t.Errorf("expected %q, got %q", "only-signer-sig", signatures[0])
+	}
+}
+
+func TestGenerateAuthorizationSignatures_PrivateKeysAndSigners(t *testing.T) {
+	pkKeyB64, pkKey := generateTestP256Key(t)
+	signer := &MockAuthorizationSigner{ReturnSignature: "signer-sig"}
+
+	ctx := AuthorizationContext{
+		PrivateKeys: []string{pkKeyB64},
+		Signers:     []AuthorizationSigner{signer},
+	}
+	payload := []byte("test payload")
+
+	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(signatures) != 2 {
+		t.Fatalf("expected 2 signatures, got %d", len(signatures))
+	}
+
+	// First should be from private key
+	hash := sha256.Sum256(payload)
+	sig0Bytes, _ := base64.StdEncoding.DecodeString(signatures[0])
+	if !ecdsa.VerifyASN1(&pkKey.PublicKey, hash[:], sig0Bytes) {
+		t.Error("signature[0] should be from private key")
+	}
+
+	// Second should be from signer
+	if signatures[1] != "signer-sig" {
+		t.Errorf("signature[1] should be from signer: expected %q, got %q", "signer-sig", signatures[1])
+	}
+}

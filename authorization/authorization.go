@@ -27,8 +27,15 @@ type AuthorizationContext struct {
 	// These should be valid JWTs for the user. Each JWT will be exchanged for
 	// a short-lived authorization private key via the JwtExchanger.
 	UserJwts []string
-}
 
+	// Signatures contains pre-computed base64-encoded DER-format signatures.
+	// These are included directly in the authorization header without modification.
+	Signatures []string
+
+	// Signers contains external signing implementations.
+	// Each signer's Sign method is called with the formatted payload.
+	Signers []AuthorizationSigner
+}
 
 // WalletApiRequestSignatureInput defines the structure of a request payload
 // that gets signed for authorization.
@@ -146,13 +153,19 @@ func GenerateAuthorizationSignature(privateKey string, payload []byte) (string, 
 //   - exchanger: JwtExchanger for exchanging JWTs for private keys (may be nil if no JWTs in context)
 //
 // Returns:
-//   - An array of base64-encoded DER-format signatures, one per key
-//   - An error if any key fails to sign, indicating which key index failed
+//   - An array of base64-encoded DER-format signatures
+//   - An error if any signing operation fails
 func GenerateAuthorizationSignatures(ctx AuthorizationContext, payload []byte, exchanger jwtexchange.JwtExchanger) ([]string, error) {
 	// Check if JWTs are present but no exchanger provided
 	if len(ctx.UserJwts) > 0 && exchanger == nil {
 		return nil, errors.New("JWTs present but no exchanger provided")
 	}
+
+	// Initialize slice for collecting signatures
+	signatures := make([]string, 0, len(ctx.Signatures)+len(ctx.PrivateKeys)+len(ctx.UserJwts)+len(ctx.Signers))
+
+	// Append pre-computed signatures directly (no validation required)
+	signatures = append(signatures, ctx.Signatures...)
 
 	// Exchange JWTs for private keys
 	jwtDerivedKeys, err := jwtexchange.ExchangeJwtsForKeys(exchanger, ctx.UserJwts)
@@ -160,21 +173,24 @@ func GenerateAuthorizationSignatures(ctx AuthorizationContext, payload []byte, e
 		return nil, err
 	}
 
-	// Combine all private keys: PrivateKeys first, then JWT-derived keys
+	// Combine all private keys and sign with them
 	allKeys := append(ctx.PrivateKeys, jwtDerivedKeys...)
 
-	if len(allKeys) == 0 {
-		return []string{}, nil
-	}
-
-	// Generate signatures for all keys
-	signatures := make([]string, len(allKeys))
 	for i, key := range allKeys {
 		sig, err := GenerateAuthorizationSignature(key, payload)
 		if err != nil {
 			return nil, fmt.Errorf("failed to sign with key at index %d: %w", i, err)
 		}
-		signatures[i] = sig
+		signatures = append(signatures, sig)
+	}
+
+	// Call each external signer
+	for i, signer := range ctx.Signers {
+		sig, err := signer.Sign(payload)
+		if err != nil {
+			return nil, fmt.Errorf("signer at index %d failed: %w", i, err)
+		}
+		signatures = append(signatures, sig)
 	}
 
 	return signatures, nil
