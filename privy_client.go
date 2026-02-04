@@ -1,6 +1,9 @@
 package privyclient
 
 import (
+	"fmt"
+
+	"github.com/privy-io/go-sdk/internal"
 	"github.com/privy-io/go-sdk/option"
 )
 
@@ -64,6 +67,7 @@ func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
 		option.WithAppID(opts.AppID),
 		option.WithAppSecret(opts.AppSecret),
 		option.WithHeader("privy-app-id", opts.AppID),
+		option.WithHeader("privy-client", fmt.Sprintf("go:%s", internal.PackageVersion)),
 	}
 
 	// Add API URL if provided, otherwise use production default
