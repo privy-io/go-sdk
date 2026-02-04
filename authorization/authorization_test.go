@@ -1,6 +1,7 @@
 package authorization
 
 import (
+	"context"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -173,12 +174,12 @@ func TestGenerateAuthorizationSignatures_Success(t *testing.T) {
 	key1B64, key1 := generateTestP256Key(t)
 	key2B64, key2 := generateTestP256Key(t)
 
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		PrivateKeys: []string{key1B64, key2B64},
 	}
 	payload := []byte("test payload for multiple signatures")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	signatures, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -202,12 +203,12 @@ func TestGenerateAuthorizationSignatures_Success(t *testing.T) {
 }
 
 func TestGenerateAuthorizationSignatures_EmptyContext(t *testing.T) {
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		PrivateKeys: []string{},
 	}
 	payload := []byte("test payload")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	signatures, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, nil)
 	if err != nil {
 		t.Fatalf("unexpected error for empty context: %v", err)
 	}
@@ -222,12 +223,12 @@ func TestGenerateAuthorizationSignatures_EmptyContext(t *testing.T) {
 }
 
 func TestGenerateAuthorizationSignatures_NilPrivateKeys(t *testing.T) {
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		PrivateKeys: nil,
 	}
 	payload := []byte("test payload")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	signatures, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, nil)
 	if err != nil {
 		t.Fatalf("unexpected error for nil private keys: %v", err)
 	}
@@ -245,12 +246,12 @@ func TestGenerateAuthorizationSignatures_PartialFailure(t *testing.T) {
 	validKeyB64, _ := generateTestP256Key(t)
 	invalidKeyB64 := base64.StdEncoding.EncodeToString([]byte("invalid key"))
 
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		PrivateKeys: []string{validKeyB64, invalidKeyB64},
 	}
 	payload := []byte("test payload")
 
-	_, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	_, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, nil)
 	if err == nil {
 		t.Fatal("expected error for partial failure")
 	}
@@ -264,12 +265,12 @@ func TestGenerateAuthorizationSignatures_FirstKeyInvalid(t *testing.T) {
 	invalidKeyB64 := base64.StdEncoding.EncodeToString([]byte("invalid key"))
 	validKeyB64, _ := generateTestP256Key(t)
 
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		PrivateKeys: []string{invalidKeyB64, validKeyB64},
 	}
 	payload := []byte("test payload")
 
-	_, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	_, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, nil)
 	if err == nil {
 		t.Fatal("expected error when first key is invalid")
 	}
@@ -282,12 +283,12 @@ func TestGenerateAuthorizationSignatures_FirstKeyInvalid(t *testing.T) {
 func TestGenerateAuthorizationSignatures_SingleKey(t *testing.T) {
 	keyB64, key := generateTestP256Key(t)
 
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		PrivateKeys: []string{keyB64},
 	}
 	payload := []byte("test payload")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	signatures, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -830,7 +831,7 @@ type MockJwtExchanger struct {
 	Errors map[string]error
 }
 
-func (m *MockJwtExchanger) ExchangeJwtForAuthorizationKey(jwt string) (string, error) {
+func (m *MockJwtExchanger) ExchangeJwtForAuthorizationKey(ctx context.Context, jwt string) (string, error) {
 	if err, ok := m.Errors[jwt]; ok {
 		return "", err
 	}
@@ -851,12 +852,12 @@ func TestGenerateAuthorizationSignatures_OnlyJwts(t *testing.T) {
 		},
 	}
 
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		UserJwts: []string{"jwt1", "jwt2"},
 	}
 	payload := []byte("test payload for JWT signatures")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload, exchanger)
+	signatures, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, exchanger)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -892,13 +893,13 @@ func TestGenerateAuthorizationSignatures_PrivateKeysAndJwts(t *testing.T) {
 		},
 	}
 
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		PrivateKeys: []string{pkKey1B64, pkKey2B64},
 		UserJwts:    []string{"jwt1", "jwt2"},
 	}
 	payload := []byte("test payload for mixed signatures")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload, exchanger)
+	signatures, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, exchanger)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -934,13 +935,13 @@ func TestGenerateAuthorizationSignatures_PrivateKeysAndJwts(t *testing.T) {
 }
 
 func TestGenerateAuthorizationSignatures_EmptyContextNoJwts(t *testing.T) {
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		PrivateKeys: []string{},
 		UserJwts:    []string{},
 	}
 	payload := []byte("test payload")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	signatures, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, nil)
 	if err != nil {
 		t.Fatalf("unexpected error for empty context: %v", err)
 	}
@@ -961,12 +962,12 @@ func TestGenerateAuthorizationSignatures_JwtExchangeFailure(t *testing.T) {
 		},
 	}
 
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		UserJwts: []string{"bad-jwt"},
 	}
 	payload := []byte("test payload")
 
-	_, err := GenerateAuthorizationSignatures(ctx, payload, exchanger)
+	_, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, exchanger)
 	if err == nil {
 		t.Fatal("expected error for JWT exchange failure")
 	}
@@ -988,12 +989,12 @@ func TestGenerateAuthorizationSignatures_PartialJwtExchangeFailure(t *testing.T)
 		},
 	}
 
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		UserJwts: []string{"good-jwt", "bad-jwt"},
 	}
 	payload := []byte("test payload")
 
-	_, err := GenerateAuthorizationSignatures(ctx, payload, exchanger)
+	_, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, exchanger)
 	if err == nil {
 		t.Fatal("expected error for partial JWT exchange failure")
 	}
@@ -1004,12 +1005,12 @@ func TestGenerateAuthorizationSignatures_PartialJwtExchangeFailure(t *testing.T)
 }
 
 func TestGenerateAuthorizationSignatures_NilExchangerWithJwts(t *testing.T) {
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		UserJwts: []string{"some-jwt"},
 	}
 	payload := []byte("test payload")
 
-	_, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	_, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, nil)
 	if err == nil {
 		t.Fatal("expected error when JWTs present but exchanger is nil")
 	}
@@ -1022,13 +1023,13 @@ func TestGenerateAuthorizationSignatures_NilExchangerWithJwts(t *testing.T) {
 func TestGenerateAuthorizationSignatures_NilExchangerWithoutJwts(t *testing.T) {
 	keyB64, key := generateTestP256Key(t)
 
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		PrivateKeys: []string{keyB64},
 		UserJwts:    nil,
 	}
 	payload := []byte("test payload")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	signatures, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -1056,13 +1057,13 @@ func TestGenerateAuthorizationSignatures_OrderVerification(t *testing.T) {
 		},
 	}
 
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		PrivateKeys: []string{pkKey1B64},
 		UserJwts:    []string{"jwt"},
 	}
 	payload := []byte("test payload for order verification")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload, exchanger)
+	signatures, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, exchanger)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -1099,7 +1100,7 @@ type MockAuthorizationSigner struct {
 	ReceivedPayload []byte
 }
 
-func (m *MockAuthorizationSigner) Sign(payload []byte) (string, error) {
+func (m *MockAuthorizationSigner) Sign(ctx context.Context, payload []byte) (string, error) {
 	m.ReceivedPayload = payload
 	return m.ReturnSignature, m.ReturnError
 }
@@ -1107,12 +1108,12 @@ func (m *MockAuthorizationSigner) Sign(payload []byte) (string, error) {
 // Tests for Signatures field
 
 func TestGenerateAuthorizationSignatures_EmptySignatures(t *testing.T) {
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		Signatures: []string{},
 	}
 	payload := []byte("test payload")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	signatures, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -1128,12 +1129,12 @@ func TestGenerateAuthorizationSignatures_EmptySignatures(t *testing.T) {
 
 func TestGenerateAuthorizationSignatures_SinglePrecomputedSignature(t *testing.T) {
 	precomputedSig := "precomputed-signature-base64"
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		Signatures: []string{precomputedSig},
 	}
 	payload := []byte("test payload")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	signatures, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -1149,12 +1150,12 @@ func TestGenerateAuthorizationSignatures_SinglePrecomputedSignature(t *testing.T
 
 func TestGenerateAuthorizationSignatures_MultiplePrecomputedSignatures(t *testing.T) {
 	precomputedSigs := []string{"sig1-base64", "sig2-base64", "sig3-base64"}
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		Signatures: precomputedSigs,
 	}
 	payload := []byte("test payload")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	signatures, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -1173,12 +1174,12 @@ func TestGenerateAuthorizationSignatures_MultiplePrecomputedSignatures(t *testin
 func TestGenerateAuthorizationSignatures_SignaturesIncludedAsIs(t *testing.T) {
 	// Signatures should be included without modification, even if they look unusual
 	weirdSig := "this-is-not-valid-base64!!!"
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		Signatures: []string{weirdSig},
 	}
 	payload := []byte("test payload")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	signatures, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -1195,12 +1196,12 @@ func TestGenerateAuthorizationSignatures_SignaturesIncludedAsIs(t *testing.T) {
 // Tests for Signers field
 
 func TestGenerateAuthorizationSignatures_EmptySigners(t *testing.T) {
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		Signers: []AuthorizationSigner{},
 	}
 	payload := []byte("test payload")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	signatures, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -1217,12 +1218,12 @@ func TestGenerateAuthorizationSignatures_EmptySigners(t *testing.T) {
 func TestGenerateAuthorizationSignatures_SingleSignerSuccess(t *testing.T) {
 	expectedSig := "signer-signature-base64"
 	signer := &MockAuthorizationSigner{ReturnSignature: expectedSig}
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		Signers: []AuthorizationSigner{signer},
 	}
 	payload := []byte("test payload")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	signatures, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -1246,12 +1247,12 @@ func TestGenerateAuthorizationSignatures_MultipleSignersSuccess(t *testing.T) {
 	signer2 := &MockAuthorizationSigner{ReturnSignature: "sig2"}
 	signer3 := &MockAuthorizationSigner{ReturnSignature: "sig3"}
 
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		Signers: []AuthorizationSigner{signer1, signer2, signer3},
 	}
 	payload := []byte("test payload")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	signatures, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -1273,12 +1274,12 @@ func TestGenerateAuthorizationSignatures_SignerError(t *testing.T) {
 		ReturnError: errors.New("KMS signing failed"),
 	}
 
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		Signers: []AuthorizationSigner{signer},
 	}
 	payload := []byte("test payload")
 
-	_, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	_, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, nil)
 	if err == nil {
 		t.Fatal("expected error for signer failure")
 	}
@@ -1295,12 +1296,12 @@ func TestGenerateAuthorizationSignatures_SecondSignerError(t *testing.T) {
 	signer1 := &MockAuthorizationSigner{ReturnSignature: "sig1"}
 	signer2 := &MockAuthorizationSigner{ReturnError: errors.New("vault unavailable")}
 
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		Signers: []AuthorizationSigner{signer1, signer2},
 	}
 	payload := []byte("test payload")
 
-	_, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	_, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, nil)
 	if err == nil {
 		t.Fatal("expected error for signer failure")
 	}
@@ -1334,7 +1335,7 @@ func TestGenerateAuthorizationSignatures_AllFieldsPopulated(t *testing.T) {
 	signer1 := &MockAuthorizationSigner{ReturnSignature: "signer1-sig"}
 	signer2 := &MockAuthorizationSigner{ReturnSignature: "signer2-sig"}
 
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		Signatures:  precomputedSigs,
 		PrivateKeys: []string{pkKey1B64, pkKey2B64},
 		UserJwts:    []string{"jwt1", "jwt2"},
@@ -1342,7 +1343,7 @@ func TestGenerateAuthorizationSignatures_AllFieldsPopulated(t *testing.T) {
 	}
 	payload := []byte("test payload for all fields")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload, exchanger)
+	signatures, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, exchanger)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -1385,12 +1386,12 @@ func TestGenerateAuthorizationSignatures_AllFieldsPopulated(t *testing.T) {
 }
 
 func TestGenerateAuthorizationSignatures_OnlySignatures(t *testing.T) {
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		Signatures: []string{"only-precomputed-sig"},
 	}
 	payload := []byte("test payload")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	signatures, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -1406,12 +1407,12 @@ func TestGenerateAuthorizationSignatures_OnlySignatures(t *testing.T) {
 
 func TestGenerateAuthorizationSignatures_OnlySigners(t *testing.T) {
 	signer := &MockAuthorizationSigner{ReturnSignature: "only-signer-sig"}
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		Signers: []AuthorizationSigner{signer},
 	}
 	payload := []byte("test payload")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	signatures, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -1429,13 +1430,13 @@ func TestGenerateAuthorizationSignatures_PrivateKeysAndSigners(t *testing.T) {
 	pkKeyB64, pkKey := generateTestP256Key(t)
 	signer := &MockAuthorizationSigner{ReturnSignature: "signer-sig"}
 
-	ctx := AuthorizationContext{
+	auth := AuthorizationContext{
 		PrivateKeys: []string{pkKeyB64},
 		Signers:     []AuthorizationSigner{signer},
 	}
 	payload := []byte("test payload")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	signatures, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

@@ -4,6 +4,7 @@
 package authorization
 
 import (
+	"context"
 	"crypto/ecdsa"
 	"crypto/rand"
 	"crypto/sha256"
@@ -148,33 +149,34 @@ func GenerateAuthorizationSignature(privateKey string, payload []byte) (string, 
 // in an AuthorizationContext.
 //
 // Parameters:
-//   - ctx: AuthorizationContext containing the credentials
+//   - ctx: Context for cancellation and timeouts
+//   - auth: AuthorizationContext containing the credentials
 //   - payload: The arbitrary byte array to sign
 //   - exchanger: JwtExchanger for exchanging JWTs for private keys (may be nil if no JWTs in context)
 //
 // Returns:
 //   - An array of base64-encoded DER-format signatures
 //   - An error if any signing operation fails
-func GenerateAuthorizationSignatures(ctx AuthorizationContext, payload []byte, exchanger jwtexchange.JwtExchanger) ([]string, error) {
+func GenerateAuthorizationSignatures(ctx context.Context, auth AuthorizationContext, payload []byte, exchanger jwtexchange.JwtExchanger) ([]string, error) {
 	// Check if JWTs are present but no exchanger provided
-	if len(ctx.UserJwts) > 0 && exchanger == nil {
+	if len(auth.UserJwts) > 0 && exchanger == nil {
 		return nil, errors.New("JWTs present but no exchanger provided")
 	}
 
 	// Initialize slice for collecting signatures
-	signatures := make([]string, 0, len(ctx.Signatures)+len(ctx.PrivateKeys)+len(ctx.UserJwts)+len(ctx.Signers))
+	signatures := make([]string, 0, len(auth.Signatures)+len(auth.PrivateKeys)+len(auth.UserJwts)+len(auth.Signers))
 
 	// Append pre-computed signatures directly (no validation required)
-	signatures = append(signatures, ctx.Signatures...)
+	signatures = append(signatures, auth.Signatures...)
 
 	// Exchange JWTs for private keys
-	jwtDerivedKeys, err := jwtexchange.ExchangeJwtsForKeys(exchanger, ctx.UserJwts)
+	jwtDerivedKeys, err := jwtexchange.ExchangeJwtsForKeys(ctx, exchanger, auth.UserJwts)
 	if err != nil {
 		return nil, err
 	}
 
 	// Combine all private keys and sign with them
-	allKeys := append(ctx.PrivateKeys, jwtDerivedKeys...)
+	allKeys := append(auth.PrivateKeys, jwtDerivedKeys...)
 
 	for i, key := range allKeys {
 		sig, err := GenerateAuthorizationSignature(key, payload)
@@ -185,8 +187,8 @@ func GenerateAuthorizationSignatures(ctx AuthorizationContext, payload []byte, e
 	}
 
 	// Call each external signer
-	for i, signer := range ctx.Signers {
-		sig, err := signer.Sign(payload)
+	for i, signer := range auth.Signers {
+		sig, err := signer.Sign(ctx, payload)
 		if err != nil {
 			return nil, fmt.Errorf("signer at index %d failed: %w", i, err)
 		}

@@ -3,8 +3,8 @@ module github.com/privy-io/go-sdk
 go 1.22
 
 require (
-	github.com/joho/godotenv v1.5.1
 	github.com/cyberphone/json-canonicalization v0.0.0-20241213102144-19d51d7fe467
+	github.com/joho/godotenv v1.5.1
 	github.com/tidwall/gjson v1.18.0
 	github.com/tidwall/sjson v1.2.5
 )
