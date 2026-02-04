@@ -9,6 +9,7 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"strings"
 	"testing"
 )
@@ -177,7 +178,7 @@ func TestGenerateAuthorizationSignatures_Success(t *testing.T) {
 	}
 	payload := []byte("test payload for multiple signatures")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload)
+	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -206,7 +207,7 @@ func TestGenerateAuthorizationSignatures_EmptyContext(t *testing.T) {
 	}
 	payload := []byte("test payload")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload)
+	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
 	if err != nil {
 		t.Fatalf("unexpected error for empty context: %v", err)
 	}
@@ -226,7 +227,7 @@ func TestGenerateAuthorizationSignatures_NilPrivateKeys(t *testing.T) {
 	}
 	payload := []byte("test payload")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload)
+	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
 	if err != nil {
 		t.Fatalf("unexpected error for nil private keys: %v", err)
 	}
@@ -249,7 +250,7 @@ func TestGenerateAuthorizationSignatures_PartialFailure(t *testing.T) {
 	}
 	payload := []byte("test payload")
 
-	_, err := GenerateAuthorizationSignatures(ctx, payload)
+	_, err := GenerateAuthorizationSignatures(ctx, payload, nil)
 	if err == nil {
 		t.Fatal("expected error for partial failure")
 	}
@@ -268,7 +269,7 @@ func TestGenerateAuthorizationSignatures_FirstKeyInvalid(t *testing.T) {
 	}
 	payload := []byte("test payload")
 
-	_, err := GenerateAuthorizationSignatures(ctx, payload)
+	_, err := GenerateAuthorizationSignatures(ctx, payload, nil)
 	if err == nil {
 		t.Fatal("expected error when first key is invalid")
 	}
@@ -286,7 +287,7 @@ func TestGenerateAuthorizationSignatures_SingleKey(t *testing.T) {
 	}
 	payload := []byte("test payload")
 
-	signatures, err := GenerateAuthorizationSignatures(ctx, payload)
+	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -818,5 +819,275 @@ func TestFormatRequestForAuthorizationSignature_LiteralCanonicalization(t *testi
 				t.Errorf("canonicalization mismatch:\ngot:      %s\nexpected: %s", string(result), tt.expected)
 			}
 		})
+	}
+}
+
+// MockJwtExchanger implements JwtExchanger for testing.
+type MockJwtExchanger struct {
+	// Keys maps JWT strings to their corresponding private keys
+	Keys map[string]string
+	// Errors maps JWT strings to errors that should be returned
+	Errors map[string]error
+}
+
+func (m *MockJwtExchanger) ExchangeJwtForAuthorizationKey(jwt string) (string, error) {
+	if err, ok := m.Errors[jwt]; ok {
+		return "", err
+	}
+	if key, ok := m.Keys[jwt]; ok {
+		return key, nil
+	}
+	return "", errors.New("unknown JWT")
+}
+
+func TestGenerateAuthorizationSignatures_OnlyJwts(t *testing.T) {
+	key1B64, key1 := generateTestP256Key(t)
+	key2B64, key2 := generateTestP256Key(t)
+
+	exchanger := &MockJwtExchanger{
+		Keys: map[string]string{
+			"jwt1": key1B64,
+			"jwt2": key2B64,
+		},
+	}
+
+	ctx := AuthorizationContext{
+		UserJwts: []string{"jwt1", "jwt2"},
+	}
+	payload := []byte("test payload for JWT signatures")
+
+	signatures, err := GenerateAuthorizationSignatures(ctx, payload, exchanger)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(signatures) != 2 {
+		t.Fatalf("expected 2 signatures, got %d", len(signatures))
+	}
+
+	// Verify both signatures
+	hash := sha256.Sum256(payload)
+
+	sig1Bytes, _ := base64.StdEncoding.DecodeString(signatures[0])
+	if !ecdsa.VerifyASN1(&key1.PublicKey, hash[:], sig1Bytes) {
+		t.Error("first signature verification failed")
+	}
+
+	sig2Bytes, _ := base64.StdEncoding.DecodeString(signatures[1])
+	if !ecdsa.VerifyASN1(&key2.PublicKey, hash[:], sig2Bytes) {
+		t.Error("second signature verification failed")
+	}
+}
+
+func TestGenerateAuthorizationSignatures_PrivateKeysAndJwts(t *testing.T) {
+	pkKey1B64, pkKey1 := generateTestP256Key(t)
+	pkKey2B64, pkKey2 := generateTestP256Key(t)
+	jwtKey1B64, jwtKey1 := generateTestP256Key(t)
+	jwtKey2B64, jwtKey2 := generateTestP256Key(t)
+
+	exchanger := &MockJwtExchanger{
+		Keys: map[string]string{
+			"jwt1": jwtKey1B64,
+			"jwt2": jwtKey2B64,
+		},
+	}
+
+	ctx := AuthorizationContext{
+		PrivateKeys: []string{pkKey1B64, pkKey2B64},
+		UserJwts:    []string{"jwt1", "jwt2"},
+	}
+	payload := []byte("test payload for mixed signatures")
+
+	signatures, err := GenerateAuthorizationSignatures(ctx, payload, exchanger)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(signatures) != 4 {
+		t.Fatalf("expected 4 signatures, got %d", len(signatures))
+	}
+
+	// Verify order: PrivateKeys first, then JWT-derived keys
+	hash := sha256.Sum256(payload)
+
+	// First two should be from PrivateKeys
+	sig0Bytes, _ := base64.StdEncoding.DecodeString(signatures[0])
+	if !ecdsa.VerifyASN1(&pkKey1.PublicKey, hash[:], sig0Bytes) {
+		t.Error("signature 0 (pkKey1) verification failed")
+	}
+
+	sig1Bytes, _ := base64.StdEncoding.DecodeString(signatures[1])
+	if !ecdsa.VerifyASN1(&pkKey2.PublicKey, hash[:], sig1Bytes) {
+		t.Error("signature 1 (pkKey2) verification failed")
+	}
+
+	// Last two should be from JWT-derived keys
+	sig2Bytes, _ := base64.StdEncoding.DecodeString(signatures[2])
+	if !ecdsa.VerifyASN1(&jwtKey1.PublicKey, hash[:], sig2Bytes) {
+		t.Error("signature 2 (jwtKey1) verification failed")
+	}
+
+	sig3Bytes, _ := base64.StdEncoding.DecodeString(signatures[3])
+	if !ecdsa.VerifyASN1(&jwtKey2.PublicKey, hash[:], sig3Bytes) {
+		t.Error("signature 3 (jwtKey2) verification failed")
+	}
+}
+
+func TestGenerateAuthorizationSignatures_EmptyContextNoJwts(t *testing.T) {
+	ctx := AuthorizationContext{
+		PrivateKeys: []string{},
+		UserJwts:    []string{},
+	}
+	payload := []byte("test payload")
+
+	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	if err != nil {
+		t.Fatalf("unexpected error for empty context: %v", err)
+	}
+
+	if signatures == nil {
+		t.Fatal("expected non-nil slice for empty context")
+	}
+
+	if len(signatures) != 0 {
+		t.Fatalf("expected empty slice, got %d signatures", len(signatures))
+	}
+}
+
+func TestGenerateAuthorizationSignatures_JwtExchangeFailure(t *testing.T) {
+	exchanger := &MockJwtExchanger{
+		Errors: map[string]error{
+			"bad-jwt": errors.New("exchange failed: invalid token"),
+		},
+	}
+
+	ctx := AuthorizationContext{
+		UserJwts: []string{"bad-jwt"},
+	}
+	payload := []byte("test payload")
+
+	_, err := GenerateAuthorizationSignatures(ctx, payload, exchanger)
+	if err == nil {
+		t.Fatal("expected error for JWT exchange failure")
+	}
+
+	if !strings.Contains(err.Error(), "failed to exchange JWT at index 0") {
+		t.Errorf("expected error to mention JWT index, got: %v", err)
+	}
+}
+
+func TestGenerateAuthorizationSignatures_PartialJwtExchangeFailure(t *testing.T) {
+	key1B64, _ := generateTestP256Key(t)
+
+	exchanger := &MockJwtExchanger{
+		Keys: map[string]string{
+			"good-jwt": key1B64,
+		},
+		Errors: map[string]error{
+			"bad-jwt": errors.New("exchange failed: expired token"),
+		},
+	}
+
+	ctx := AuthorizationContext{
+		UserJwts: []string{"good-jwt", "bad-jwt"},
+	}
+	payload := []byte("test payload")
+
+	_, err := GenerateAuthorizationSignatures(ctx, payload, exchanger)
+	if err == nil {
+		t.Fatal("expected error for partial JWT exchange failure")
+	}
+
+	if !strings.Contains(err.Error(), "failed to exchange JWT at index 1") {
+		t.Errorf("expected error to mention JWT index 1, got: %v", err)
+	}
+}
+
+func TestGenerateAuthorizationSignatures_NilExchangerWithJwts(t *testing.T) {
+	ctx := AuthorizationContext{
+		UserJwts: []string{"some-jwt"},
+	}
+	payload := []byte("test payload")
+
+	_, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	if err == nil {
+		t.Fatal("expected error when JWTs present but exchanger is nil")
+	}
+
+	if !strings.Contains(err.Error(), "JWTs present but no exchanger provided") {
+		t.Errorf("expected error about missing exchanger, got: %v", err)
+	}
+}
+
+func TestGenerateAuthorizationSignatures_NilExchangerWithoutJwts(t *testing.T) {
+	keyB64, key := generateTestP256Key(t)
+
+	ctx := AuthorizationContext{
+		PrivateKeys: []string{keyB64},
+		UserJwts:    nil,
+	}
+	payload := []byte("test payload")
+
+	signatures, err := GenerateAuthorizationSignatures(ctx, payload, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(signatures) != 1 {
+		t.Fatalf("expected 1 signature, got %d", len(signatures))
+	}
+
+	// Verify the signature
+	hash := sha256.Sum256(payload)
+	sigBytes, _ := base64.StdEncoding.DecodeString(signatures[0])
+	if !ecdsa.VerifyASN1(&key.PublicKey, hash[:], sigBytes) {
+		t.Error("signature verification failed")
+	}
+}
+
+func TestGenerateAuthorizationSignatures_OrderVerification(t *testing.T) {
+	// Create distinct keys so we can verify order
+	pkKey1B64, pkKey1 := generateTestP256Key(t)
+	jwtKeyB64, jwtKey := generateTestP256Key(t)
+
+	exchanger := &MockJwtExchanger{
+		Keys: map[string]string{
+			"jwt": jwtKeyB64,
+		},
+	}
+
+	ctx := AuthorizationContext{
+		PrivateKeys: []string{pkKey1B64},
+		UserJwts:    []string{"jwt"},
+	}
+	payload := []byte("test payload for order verification")
+
+	signatures, err := GenerateAuthorizationSignatures(ctx, payload, exchanger)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(signatures) != 2 {
+		t.Fatalf("expected 2 signatures, got %d", len(signatures))
+	}
+
+	hash := sha256.Sum256(payload)
+
+	// First signature should be from PrivateKey
+	sig0Bytes, _ := base64.StdEncoding.DecodeString(signatures[0])
+	if !ecdsa.VerifyASN1(&pkKey1.PublicKey, hash[:], sig0Bytes) {
+		t.Error("first signature should be from PrivateKey")
+	}
+	if ecdsa.VerifyASN1(&jwtKey.PublicKey, hash[:], sig0Bytes) {
+		t.Error("first signature should NOT be from JWT-derived key")
+	}
+
+	// Second signature should be from JWT-derived key
+	sig1Bytes, _ := base64.StdEncoding.DecodeString(signatures[1])
+	if !ecdsa.VerifyASN1(&jwtKey.PublicKey, hash[:], sig1Bytes) {
+		t.Error("second signature should be from JWT-derived key")
+	}
+	if ecdsa.VerifyASN1(&pkKey1.PublicKey, hash[:], sig1Bytes) {
+		t.Error("second signature should NOT be from PrivateKey")
 	}
 }
