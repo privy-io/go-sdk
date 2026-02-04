@@ -8,6 +8,7 @@ import (
 	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
+	"encoding/json"
 	"strings"
 	"testing"
 )
@@ -325,4 +326,497 @@ func TestGenerateAuthorizationSignature_DeterministicHash(t *testing.T) {
 
 	// Both signatures should be valid even though they're different
 	// (This is expected behavior for ECDSA)
+}
+
+// Tests for FormatRequestForAuthorizationSignature
+
+func TestFormatRequestForAuthorizationSignature_BasicRequest(t *testing.T) {
+	input := WalletApiRequestSignatureInput{
+		Version: 1,
+		Method:  "POST",
+		URL:     "https://api.privy.io/v1/wallets",
+		Body: map[string]any{
+			"name": "test-wallet",
+		},
+		Headers: map[string]string{
+			"privy-app-id": "app-123",
+		},
+	}
+
+	result, err := FormatRequestForAuthorizationSignature(input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(result) == 0 {
+		t.Fatal("expected non-empty result")
+	}
+
+	// Verify the result is valid JSON
+	var parsed map[string]any
+	if err := json.Unmarshal(result, &parsed); err != nil {
+		t.Fatalf("result is not valid JSON: %v", err)
+	}
+
+	// Verify the fields are present
+	if parsed["version"] != float64(1) {
+		t.Errorf("expected version 1, got %v", parsed["version"])
+	}
+	if parsed["method"] != "POST" {
+		t.Errorf("expected method POST, got %v", parsed["method"])
+	}
+	if parsed["url"] != "https://api.privy.io/v1/wallets" {
+		t.Errorf("expected correct URL, got %v", parsed["url"])
+	}
+}
+
+func TestFormatRequestForAuthorizationSignature_EmptyBodyBecomesEmptyString(t *testing.T) {
+	input := WalletApiRequestSignatureInput{
+		Version: 1,
+		Method:  "POST",
+		URL:     "https://api.privy.io/v1/test",
+		Body:    map[string]any{}, // Empty body {}
+		Headers: map[string]string{
+			"privy-app-id": "app-123",
+		},
+	}
+
+	result, err := FormatRequestForAuthorizationSignature(input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Verify the body is an empty string, not {}
+	var parsed map[string]any
+	if err := json.Unmarshal(result, &parsed); err != nil {
+		t.Fatalf("result is not valid JSON: %v", err)
+	}
+
+	body := parsed["body"]
+	if body != "" {
+		t.Errorf("expected empty string body, got %v (type %T)", body, body)
+	}
+}
+
+func TestFormatRequestForAuthorizationSignature_NilBodyIsOmitted(t *testing.T) {
+	input := WalletApiRequestSignatureInput{
+		Version: 1,
+		Method:  "DELETE",
+		URL:     "https://api.privy.io/v1/test",
+		Body:    nil,
+		Headers: map[string]string{
+			"privy-app-id": "app-123",
+		},
+	}
+
+	result, err := FormatRequestForAuthorizationSignature(input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Verify the body field is omitted (not present in JSON)
+	var parsed map[string]any
+	if err := json.Unmarshal(result, &parsed); err != nil {
+		t.Fatalf("result is not valid JSON: %v", err)
+	}
+
+	if _, exists := parsed["body"]; exists {
+		t.Errorf("expected body field to be omitted, but it exists: %v", parsed["body"])
+	}
+}
+
+func TestFormatRequestForAuthorizationSignature_NestedObjectsKeysOrdered(t *testing.T) {
+	input := WalletApiRequestSignatureInput{
+		Version: 1,
+		Method:  "POST",
+		URL:     "https://api.privy.io/v1/test",
+		Body: map[string]any{
+			"zebra": "last",
+			"alpha": "first",
+			"nested": map[string]any{
+				"zoo":      "z",
+				"aardvark": "a",
+			},
+		},
+		Headers: map[string]string{
+			"privy-app-id": "app-123",
+		},
+	}
+
+	result, err := FormatRequestForAuthorizationSignature(input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// RFC 8785 requires keys to be sorted lexicographically
+	resultStr := string(result)
+
+	// Check that "alpha" comes before "nested" and "nested" comes before "zebra"
+	alphaIdx := strings.Index(resultStr, `"alpha"`)
+	nestedIdx := strings.Index(resultStr, `"nested"`)
+	zebraIdx := strings.Index(resultStr, `"zebra"`)
+
+	if alphaIdx == -1 || nestedIdx == -1 || zebraIdx == -1 {
+		t.Fatalf("expected all keys to be present in result")
+	}
+
+	if alphaIdx > nestedIdx {
+		t.Errorf("expected 'alpha' before 'nested', got positions %d and %d", alphaIdx, nestedIdx)
+	}
+	if nestedIdx > zebraIdx {
+		t.Errorf("expected 'nested' before 'zebra', got positions %d and %d", nestedIdx, zebraIdx)
+	}
+
+	// Check nested object key ordering (aardvark before zoo)
+	aardvarkIdx := strings.Index(resultStr, `"aardvark"`)
+	zooIdx := strings.Index(resultStr, `"zoo"`)
+
+	if aardvarkIdx == -1 || zooIdx == -1 {
+		t.Fatalf("expected nested keys to be present in result")
+	}
+
+	if aardvarkIdx > zooIdx {
+		t.Errorf("expected 'aardvark' before 'zoo' in nested object, got positions %d and %d", aardvarkIdx, zooIdx)
+	}
+}
+
+func TestFormatRequestForAuthorizationSignature_BodyWithArrays(t *testing.T) {
+	input := WalletApiRequestSignatureInput{
+		Version: 1,
+		Method:  "POST",
+		URL:     "https://api.privy.io/v1/test",
+		Body: map[string]any{
+			"items": []any{"apple", "banana", "cherry"},
+			"nested": []any{
+				map[string]any{"name": "item1"},
+				map[string]any{"name": "item2"},
+			},
+		},
+		Headers: map[string]string{
+			"privy-app-id": "app-123",
+		},
+	}
+
+	result, err := FormatRequestForAuthorizationSignature(input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Verify the result is valid JSON with arrays preserved
+	var parsed map[string]any
+	if err := json.Unmarshal(result, &parsed); err != nil {
+		t.Fatalf("result is not valid JSON: %v", err)
+	}
+
+	body := parsed["body"].(map[string]any)
+	items := body["items"].([]any)
+	if len(items) != 3 {
+		t.Errorf("expected 3 items, got %d", len(items))
+	}
+	if items[0] != "apple" || items[1] != "banana" || items[2] != "cherry" {
+		t.Errorf("array order not preserved: %v", items)
+	}
+}
+
+func TestFormatRequestForAuthorizationSignature_MultipleHeaders(t *testing.T) {
+	input := WalletApiRequestSignatureInput{
+		Version: 1,
+		Method:  "POST",
+		URL:     "https://api.privy.io/v1/test",
+		Body:    map[string]any{"data": "test"},
+		Headers: map[string]string{
+			"privy-app-id":          "app-123",
+			"privy-idempotency-key": "idem-456",
+		},
+	}
+
+	result, err := FormatRequestForAuthorizationSignature(input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	var parsed map[string]any
+	if err := json.Unmarshal(result, &parsed); err != nil {
+		t.Fatalf("result is not valid JSON: %v", err)
+	}
+
+	headers := parsed["headers"].(map[string]any)
+	if headers["privy-app-id"] != "app-123" {
+		t.Errorf("expected privy-app-id header, got %v", headers["privy-app-id"])
+	}
+	if headers["privy-idempotency-key"] != "idem-456" {
+		t.Errorf("expected privy-idempotency-key header, got %v", headers["privy-idempotency-key"])
+	}
+}
+
+func TestFormatRequestForAuthorizationSignature_UnicodeCharacters(t *testing.T) {
+	input := WalletApiRequestSignatureInput{
+		Version: 1,
+		Method:  "POST",
+		URL:     "https://api.privy.io/v1/test",
+		Body: map[string]any{
+			"emoji":    "🔐",
+			"chinese":  "中文",
+			"japanese": "日本語",
+			"mixed":    "Hello 世界! 🌍",
+		},
+		Headers: map[string]string{
+			"privy-app-id": "app-123",
+		},
+	}
+
+	result, err := FormatRequestForAuthorizationSignature(input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Verify the result is valid JSON with Unicode preserved
+	var parsed map[string]any
+	if err := json.Unmarshal(result, &parsed); err != nil {
+		t.Fatalf("result is not valid JSON: %v", err)
+	}
+
+	body := parsed["body"].(map[string]any)
+	if body["emoji"] != "🔐" {
+		t.Errorf("emoji not preserved: %v", body["emoji"])
+	}
+	if body["chinese"] != "中文" {
+		t.Errorf("chinese not preserved: %v", body["chinese"])
+	}
+}
+
+func TestFormatRequestForAuthorizationSignature_Numbers(t *testing.T) {
+	input := WalletApiRequestSignatureInput{
+		Version: 1,
+		Method:  "POST",
+		URL:     "https://api.privy.io/v1/test",
+		Body: map[string]any{
+			"integer":       42,
+			"negative":      -100,
+			"float":         3.14159,
+			"scientific":    1.23e10,
+			"zero":          0,
+			"negativeFloat": -0.5,
+		},
+		Headers: map[string]string{
+			"privy-app-id": "app-123",
+		},
+	}
+
+	result, err := FormatRequestForAuthorizationSignature(input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	var parsed map[string]any
+	if err := json.Unmarshal(result, &parsed); err != nil {
+		t.Fatalf("result is not valid JSON: %v", err)
+	}
+
+	body := parsed["body"].(map[string]any)
+	if body["integer"] != float64(42) {
+		t.Errorf("integer not correct: %v", body["integer"])
+	}
+	if body["negative"] != float64(-100) {
+		t.Errorf("negative not correct: %v", body["negative"])
+	}
+	if body["zero"] != float64(0) {
+		t.Errorf("zero not correct: %v", body["zero"])
+	}
+}
+
+func TestFormatRequestForAuthorizationSignature_Deterministic(t *testing.T) {
+	input := WalletApiRequestSignatureInput{
+		Version: 1,
+		Method:  "POST",
+		URL:     "https://api.privy.io/v1/test",
+		Body: map[string]any{
+			"key1": "value1",
+			"key2": "value2",
+		},
+		Headers: map[string]string{
+			"privy-app-id": "app-123",
+		},
+	}
+
+	// Generate multiple times and verify consistency
+	result1, err := FormatRequestForAuthorizationSignature(input)
+	if err != nil {
+		t.Fatalf("first call failed: %v", err)
+	}
+
+	result2, err := FormatRequestForAuthorizationSignature(input)
+	if err != nil {
+		t.Fatalf("second call failed: %v", err)
+	}
+
+	result3, err := FormatRequestForAuthorizationSignature(input)
+	if err != nil {
+		t.Fatalf("third call failed: %v", err)
+	}
+
+	if string(result1) != string(result2) {
+		t.Errorf("results 1 and 2 differ:\n1: %s\n2: %s", result1, result2)
+	}
+
+	if string(result2) != string(result3) {
+		t.Errorf("results 2 and 3 differ:\n2: %s\n3: %s", result2, result3)
+	}
+}
+
+func TestFormatRequestForAuthorizationSignature_InvalidBody(t *testing.T) {
+	// channels cannot be marshaled to JSON
+	ch := make(chan int)
+
+	input := WalletApiRequestSignatureInput{
+		Version: 1,
+		Method:  "POST",
+		URL:     "https://api.privy.io/v1/test",
+		Body:    ch,
+		Headers: map[string]string{
+			"privy-app-id": "app-123",
+		},
+	}
+
+	_, err := FormatRequestForAuthorizationSignature(input)
+	if err == nil {
+		t.Fatal("expected error for invalid body type")
+	}
+
+	if !strings.Contains(err.Error(), "failed to marshal body") {
+		t.Errorf("expected error message about marshal failure, got: %v", err)
+	}
+}
+
+func TestFormatRequestForAuthorizationSignature_NoWhitespace(t *testing.T) {
+	input := WalletApiRequestSignatureInput{
+		Version: 1,
+		Method:  "POST",
+		URL:     "https://api.privy.io/v1/test",
+		Body: map[string]any{
+			"key": "value",
+		},
+		Headers: map[string]string{
+			"privy-app-id": "app-123",
+		},
+	}
+
+	result, err := FormatRequestForAuthorizationSignature(input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// RFC 8785 specifies no whitespace between tokens
+	resultStr := string(result)
+
+	// Check for common whitespace patterns that shouldn't be present
+	if strings.Contains(resultStr, ": ") {
+		t.Error("result contains ': ' (colon with space)")
+	}
+	if strings.Contains(resultStr, ", ") {
+		t.Error("result contains ', ' (comma with space)")
+	}
+	if strings.Contains(resultStr, "\n") {
+		t.Error("result contains newline")
+	}
+	if strings.Contains(resultStr, "\t") {
+		t.Error("result contains tab")
+	}
+}
+
+func TestFormatRequestForAuthorizationSignature_AllMethods(t *testing.T) {
+	methods := []string{"POST", "PUT", "PATCH", "DELETE"}
+
+	for _, method := range methods {
+		input := WalletApiRequestSignatureInput{
+			Version: 1,
+			Method:  method,
+			URL:     "https://api.privy.io/v1/test",
+			Body:    map[string]any{"test": true},
+			Headers: map[string]string{
+				"privy-app-id": "app-123",
+			},
+		}
+
+		result, err := FormatRequestForAuthorizationSignature(input)
+		if err != nil {
+			t.Errorf("unexpected error for method %s: %v", method, err)
+			continue
+		}
+
+		var parsed map[string]any
+		if err := json.Unmarshal(result, &parsed); err != nil {
+			t.Errorf("result is not valid JSON for method %s: %v", method, err)
+			continue
+		}
+
+		if parsed["method"] != method {
+			t.Errorf("expected method %s, got %v", method, parsed["method"])
+		}
+	}
+}
+
+func TestFormatRequestForAuthorizationSignature_LiteralCanonicalization(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    WalletApiRequestSignatureInput
+		expected string
+	}{
+		{
+			name: "nil body is omitted",
+			input: WalletApiRequestSignatureInput{
+				Version: 1,
+				Method:  "POST",
+				URL:     "/api/v1/wallets",
+				Body:    nil,
+				Headers: map[string]string{
+					"privy-app-id": "test-app-id",
+				},
+			},
+			expected: `{"headers":{"privy-app-id":"test-app-id"},"method":"POST","url":"/api/v1/wallets","version":1}`,
+		},
+		{
+			name: "body with content",
+			input: WalletApiRequestSignatureInput{
+				Version: 1,
+				Method:  "POST",
+				URL:     "/api/v1/wallets",
+				Body: map[string]any{
+					"foo": "bar",
+					"baz": 1,
+					"qux": true,
+				},
+				Headers: map[string]string{
+					"privy-app-id": "test-app-id",
+				},
+			},
+			expected: `{"body":{"baz":1,"foo":"bar","qux":true},"headers":{"privy-app-id":"test-app-id"},"method":"POST","url":"/api/v1/wallets","version":1}`,
+		},
+		{
+			name: "empty body becomes empty string",
+			input: WalletApiRequestSignatureInput{
+				Version: 1,
+				Method:  "POST",
+				URL:     "/api/v1/wallets",
+				Body:    map[string]any{},
+				Headers: map[string]string{
+					"privy-app-id": "test-app-id",
+				},
+			},
+			expected: `{"body":"","headers":{"privy-app-id":"test-app-id"},"method":"POST","url":"/api/v1/wallets","version":1}`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := FormatRequestForAuthorizationSignature(tt.input)
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+
+			if string(result) != tt.expected {
+				t.Errorf("canonicalization mismatch:\ngot:      %s\nexpected: %s", string(result), tt.expected)
+			}
+		})
+	}
 }
