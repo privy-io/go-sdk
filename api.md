@@ -86,6 +86,7 @@ Params Types:
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountFarcasterInputParam">LinkedAccountFarcasterInputParam</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountTelegramInputParam">LinkedAccountTelegramInputParam</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountCustomJwtInputParam">LinkedAccountCustomJwtInputParam</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountPasskeyInputParam">LinkedAccountPasskeyInputParam</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#LinkedAccountInputUnionParam">LinkedAccountInputUnionParam</a>
 
 Response Types:
