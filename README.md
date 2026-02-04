@@ -53,11 +53,11 @@ import (
 )
 
 func main() {
-	client := privyclient.NewClient(
-		option.WithAppID("My App ID"),         // defaults to os.LookupEnv("PRIVY_APP_ID")
-		option.WithAppSecret("My App Secret"), // defaults to os.LookupEnv("PRIVY_APP_SECRET")
-		option.WithEnvironmentStaging(),       // defaults to option.WithEnvironmentProduction()
-	)
+	client := privyclient.NewPrivyClient(privyclient.PrivyClientOptions{
+		AppID:     "My App ID",
+		AppSecret: "My App Secret",
+		// APIUrl: "https://auth.staging.privy.io", // optional, defaults to production
+	})
 	wallet, err := client.Wallets.Get(context.TODO(), "wallet_id")
 	if err != nil {
 		panic(err.Error())
@@ -66,6 +66,14 @@ func main() {
 }
 
 ```
+
+### Client Entry Point
+
+This SDK provides two client types:
+
+- **`NewPrivyClient()`**: Main entrypoint for the Privy Go SDK, exposing Privy APIs and
+  and convenience methods. 
+
 
 ### Request fields
 
