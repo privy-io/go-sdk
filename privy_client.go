@@ -2,6 +2,8 @@ package privyclient
 
 import (
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/privy-io/go-sdk/internal"
 	"github.com/privy-io/go-sdk/option"
@@ -19,6 +21,11 @@ type PrivyClientOptions struct {
 	// If not provided, defaults to the production environment.
 	// Use "https://auth.staging.privy.io" for staging.
 	APIUrl string
+
+	// LogLevel sets the verbosity of SDK logging (optional).
+	// If not provided, defaults to LogLevelNone (no logging).
+	// Available levels: LogLevelNone, LogLevelError, LogLevelInfo, LogLevelDebug, LogLevelVerbose
+	LogLevel LogLevel
 }
 
 // PrivyClient is the main entrypoint for the Privy API Go SDK.
@@ -32,6 +39,7 @@ type PrivyClientOptions struct {
 //	})
 type PrivyClient struct {
 	client Client
+	logger logger
 
 	Wallets      *PrivyWalletService
 	Users        *PrivyUserService
@@ -61,7 +69,18 @@ type PrivyClient struct {
 //	    AppSecret: "my-app-secret",
 //	    APIUrl:    "https://auth.staging.privy.io",
 //	})
+//
+// With logging enabled:
+//
+//	client := privyclient.NewPrivyClient(privyclient.PrivyClientOptions{
+//	    AppID:     "my-app-id",
+//	    AppSecret: "my-app-secret",
+//	    LogLevel:  privyclient.LogLevelDebug,
+//	})
 func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
+	// Create logger internally based on log level
+	logger := newPrivyLogger(opts.LogLevel)
+
 	// Build option.RequestOption slice from PrivyClientOptions
 	requestOpts := []option.RequestOption{
 		option.WithAppID(opts.AppID),
@@ -77,17 +96,24 @@ func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
 		requestOpts = append(requestOpts, option.WithEnvironmentProduction())
 	}
 
+	// Enable HTTP debug logging for Debug and Verbose log levels
+	if opts.LogLevel >= LogLevelDebug {
+		debugLogger := log.New(os.Stdout, "[Privy][HTTP] ", 0)
+		requestOpts = append(requestOpts, option.WithDebugLog(debugLogger))
+	}
+
 	client := NewClient(requestOpts...)
 	return &PrivyClient{
 		client:       client,
-		Wallets:      newPrivyWalletService(client.Wallets),
-		Users:        newPrivyUserService(client.Users),
-		Policies:     newPrivyPolicyService(client.Policies),
-		Transactions: newPrivyTransactionService(client.Transactions),
-		KeyQuorums:   newPrivyKeyQuorumService(client.KeyQuorums),
-		Analytics:    newPrivyAnalyticsService(client.Analytics),
-		Apps:         newPrivyAppService(client.Apps),
-		Aggregations: newPrivyAggregationService(client.Aggregations),
-		Webhooks:     newPrivyWebhookService(client.Webhooks),
+		logger:       logger,
+		Wallets:      newPrivyWalletService(client.Wallets, logger),
+		Users:        newPrivyUserService(client.Users, logger),
+		Policies:     newPrivyPolicyService(client.Policies, logger),
+		Transactions: newPrivyTransactionService(client.Transactions, logger),
+		KeyQuorums:   newPrivyKeyQuorumService(client.KeyQuorums, logger),
+		Analytics:    newPrivyAnalyticsService(client.Analytics, logger),
+		Apps:         newPrivyAppService(client.Apps, logger),
+		Aggregations: newPrivyAggregationService(client.Aggregations, logger),
+		Webhooks:     newPrivyWebhookService(client.Webhooks, logger),
 	}
 }
