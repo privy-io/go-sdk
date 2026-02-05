@@ -8,7 +8,6 @@ import (
 
 	"github.com/joho/godotenv"
 	. "github.com/privy-io/go-sdk"
-	"github.com/privy-io/go-sdk/option"
 )
 
 func TestMain(m *testing.M) {
@@ -18,18 +17,17 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func newTestClient(t *testing.T) *Client {
+func newTestClient(t *testing.T) *PrivyClient {
 	t.Helper()
 	appId := os.Getenv("TEST_APP_ID")
 	appSecret := os.Getenv("TEST_APP_SECRET")
 	if appSecret == "" {
 		t.Fatal("TEST_APP_SECRET environment variable is required")
 	}
-	client := NewClient(
-		option.WithAppID(appId),
-		option.WithAppSecret(appSecret),
-		option.WithEnvironmentStaging(),
-		option.WithHeader("privy-app-id", appId),
-	)
-	return &client
+	client := NewPrivyClient(PrivyClientOptions{
+		AppID:     appId,
+		AppSecret: appSecret,
+		APIUrl:    "https://auth.staging.privy.io",
+	})
+	return client
 }
