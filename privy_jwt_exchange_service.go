@@ -48,6 +48,10 @@ func (s *PrivyJwtExchangeService) ExchangeJwtForAuthorizationKey(ctx context.Con
 	encResp := resp.AsWithEncryption()
 	encKey := encResp.EncryptedAuthorizationKey
 
+	if encKey.EncapsulatedKey == "" || encKey.Ciphertext == "" {
+		return "", fmt.Errorf("response missing required encryption fields")
+	}
+
 	encapKey, err := base64.StdEncoding.DecodeString(encKey.EncapsulatedKey)
 	if err != nil {
 		return "", fmt.Errorf("failed to decode encapsulated key: %w", err)
