@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"sync"
 
 	"github.com/privy-io/go-sdk/internal/hpke"
 	"github.com/privy-io/go-sdk/packages/param"
@@ -16,35 +15,23 @@ import (
 type PrivyJwtExchangeService struct {
 	wallet *WalletService
 	logger logger
-
-	// Lazy-initialized HPKE recipient (created on first use via sync.OnceValues)
-	getRecipient func() (*hpke.HpkeRecipient, error)
 }
 
 // newPrivyJwtExchangeService creates a new JWT exchange service.
 // This is unexported; the service is created automatically by NewPrivyClient.
-// The HPKE recipient is lazily initialized on first use, not at construction time.
 func newPrivyJwtExchangeService(wallet *WalletService, logger logger) *PrivyJwtExchangeService {
 	return &PrivyJwtExchangeService{
 		wallet: wallet,
 		logger: logger,
-		getRecipient: sync.OnceValues(func() (*hpke.HpkeRecipient, error) {
-			recipient, err := hpke.NewHpkeRecipient()
-			if err != nil {
-				return nil, fmt.Errorf("failed to create HPKE recipient: %w", err)
-			}
-			return recipient, nil
-		}),
 	}
 }
 
 // ExchangeJwtForAuthorizationKey exchanges a user JWT for a short-lived authorization private key.
 // The returned string is a base64-encoded PKCS8-formatted P-256 private key.
-// On first call, this initializes the HPKE recipient (may return error if that fails).
 func (s *PrivyJwtExchangeService) ExchangeJwtForAuthorizationKey(ctx context.Context, jwt string) (string, error) {
-	recipient, err := s.getRecipient()
+	recipient, err := hpke.NewHpkeRecipient()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create HPKE recipient: %w", err)
 	}
 
 	recipientPubKey := base64.StdEncoding.EncodeToString(recipient.PublicKeySpki)
