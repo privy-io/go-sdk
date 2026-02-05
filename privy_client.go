@@ -2,6 +2,8 @@ package privyclient
 
 import (
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/privy-io/go-sdk/internal"
 	"github.com/privy-io/go-sdk/option"
@@ -92,6 +94,12 @@ func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
 		requestOpts = append(requestOpts, option.WithBaseURL(opts.APIUrl))
 	} else {
 		requestOpts = append(requestOpts, option.WithEnvironmentProduction())
+	}
+
+	// Enable HTTP debug logging for Debug and Verbose log levels
+	if opts.LogLevel >= LogLevelDebug {
+		debugLogger := log.New(os.Stdout, "[Privy][HTTP] ", 0)
+		requestOpts = append(requestOpts, option.WithDebugLog(debugLogger))
 	}
 
 	client := NewClient(requestOpts...)
