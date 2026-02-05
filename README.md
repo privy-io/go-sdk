@@ -37,6 +37,16 @@ go get -u 'github.com/privy-io/go-sdk@v0.0.1'
 
 This library requires Go 1.22+.
 
+### Dependency Note
+
+To maintain compatibility with Go 1.23, this SDK pins `golang.org/x/crypto` to version `v0.41.0`. This version is affected by three known vulnerabilities:
+
+- [GO-2025-4116](https://pkg.go.dev/vuln/GO-2025-4116)
+- [GO-2025-4134](https://pkg.go.dev/vuln/GO-2025-4134)
+- [GO-2025-4135](https://pkg.go.dev/vuln/GO-2025-4135)
+
+**These vulnerabilities do not affect the Privy SDK.** They are related to SSH functionality (`golang.org/x/crypto/ssh`) which this SDK does not use or depend on.
+
 ## Usage
 
 The full API of this library can be found in [api.md](api.md).

@@ -50,6 +50,7 @@ type PrivyClient struct {
 	Apps         *PrivyAppService
 	Aggregations *PrivyAggregationService
 	Webhooks     *PrivyWebhookService
+	JwtExchange  *PrivyJwtExchangeService
 }
 
 // NewPrivyClient creates a new enhanced Privy client.
@@ -115,5 +116,6 @@ func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
 		Apps:         newPrivyAppService(client.Apps, logger),
 		Aggregations: newPrivyAggregationService(client.Aggregations, logger),
 		Webhooks:     newPrivyWebhookService(client.Webhooks, logger),
+		JwtExchange:  newPrivyJwtExchangeService(&client.Wallets, logger),
 	}
 }

@@ -28,6 +28,7 @@ func newTestClient(t *testing.T) *PrivyClient {
 		AppID:     appId,
 		AppSecret: appSecret,
 		APIUrl:    "https://auth.staging.privy.io",
+		LogLevel:  LogLevelVerbose,
 	})
 	return client
 }
