@@ -40,8 +40,8 @@ func (l LogLevel) String() string {
 	}
 }
 
-// Logger defines the interface for logging operations in the SDK
-type Logger interface {
+// logger defines the interface for logging operations in the SDK
+type logger interface {
 	// SetLevel sets the minimum log level to display
 	SetLevel(level LogLevel)
 	// Error logs an error message (always displayed unless LogLevelNone)
@@ -54,17 +54,17 @@ type Logger interface {
 	Verbose(msg string)
 }
 
-// PrivyLogger is a basic implementation of the Logger interface
+// privyLogger is a basic implementation of the Logger interface
 // that outputs formatted messages to stdout
-type PrivyLogger struct {
+type privyLogger struct {
 	level  LogLevel
 	writer io.Writer
 }
 
-// NewPrivyLogger creates a new PrivyLogger instance with the specified log level.
+// newPrivyLogger creates a new PrivyLogger instance with the specified log level.
 // If level is not explicitly set (zero value), it defaults to LogLevelNone (no logging).
-func NewPrivyLogger(level LogLevel) *PrivyLogger {
-	return &PrivyLogger{
+func newPrivyLogger(level LogLevel) *privyLogger {
+	return &privyLogger{
 		level:  level,
 		writer: os.Stdout,
 	}
@@ -72,32 +72,32 @@ func NewPrivyLogger(level LogLevel) *PrivyLogger {
 
 // SetLevel sets the minimum log level for the logger.
 // Note: This should only be called during initialization, not concurrently.
-func (l *PrivyLogger) SetLevel(level LogLevel) {
+func (l *privyLogger) SetLevel(level LogLevel) {
 	l.level = level
 }
 
 // Error logs an error message if log level is Error or higher
-func (l *PrivyLogger) Error(msg string) {
+func (l *privyLogger) Error(msg string) {
 	l.log(LogLevelError, msg)
 }
 
 // Info logs an informational message if log level is Info or higher
-func (l *PrivyLogger) Info(msg string) {
+func (l *privyLogger) Info(msg string) {
 	l.log(LogLevelInfo, msg)
 }
 
 // Debug logs a debug message if log level is Debug or higher
-func (l *PrivyLogger) Debug(msg string) {
+func (l *privyLogger) Debug(msg string) {
 	l.log(LogLevelDebug, msg)
 }
 
 // Verbose logs a verbose message if log level is Verbose
-func (l *PrivyLogger) Verbose(msg string) {
+func (l *privyLogger) Verbose(msg string) {
 	l.log(LogLevelVerbose, msg)
 }
 
 // log handles the actual logging with hierarchical level checking
-func (l *PrivyLogger) log(level LogLevel, msg string) {
+func (l *privyLogger) log(level LogLevel, msg string) {
 	// Don't log if current level doesn't meet or exceed the message level
 	if l.level < level {
 		return

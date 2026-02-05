@@ -37,7 +37,7 @@ type PrivyClientOptions struct {
 //	})
 type PrivyClient struct {
 	client Client
-	logger Logger
+	logger logger
 
 	Wallets      *PrivyWalletService
 	Users        *PrivyUserService
@@ -77,7 +77,7 @@ type PrivyClient struct {
 //	})
 func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
 	// Create logger internally based on log level
-	logger := NewPrivyLogger(opts.LogLevel)
+	logger := newPrivyLogger(opts.LogLevel)
 
 	// Build option.RequestOption slice from PrivyClientOptions
 	requestOpts := []option.RequestOption{
