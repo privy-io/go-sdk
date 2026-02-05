@@ -93,6 +93,9 @@ func (r *WalletBalanceGetResponseBalance) UnmarshalJSON(data []byte) error {
 }
 
 type WalletBalanceGetParams struct {
+	// The token contract address(es) to query in format "chain:address" (e.g.,
+	// "base:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" or
+	// "solana:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v").
 	Token WalletBalanceGetParamsTokenUnion `query:"token,omitzero" json:"-"`
 	Asset WalletBalanceGetParamsAssetUnion `query:"asset,omitzero" json:"-"`
 	Chain WalletBalanceGetParamsChainUnion `query:"chain,omitzero" json:"-"`
