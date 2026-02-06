@@ -230,4 +230,41 @@ func TestWallets_Ethereum(t *testing.T) {
 			})
 		}
 	})
+
+	// SendTransaction is skipped to not waste funds. Logic is shared with signing transactions so safe to not frequently test.
+	t.Run("SendTransaction", func(t *testing.T) {
+		t.Skip("skipped to not waste funds")
+		for _, wallet := range wallets {
+			t.Run(wallet.name, func(t *testing.T) {
+				data, err := client.Wallets.Ethereum.SendTransaction(ctx, wallet.id,
+					EthereumSendTransactionRpcInputParam{
+						Method: EthereumSendTransactionRpcInputMethodEthSendTransaction,
+						Caip2:  "eip155:11155111", // Sepolia
+						Params: EthereumSendTransactionRpcInputParamsParam{
+							Transaction: EthereumSendTransactionRpcInputParamsTransactionParam{
+								To: param.NewOpt("0x429c8e85D3A18F9F0a64a7A851777e24D591485C"),
+								Value: EthereumSendTransactionRpcInputParamsTransactionValueUnionParam{
+									OfString: param.NewOpt("0x1"), // 1 wei
+								},
+								ChainID: EthereumSendTransactionRpcInputParamsTransactionChainIDUnionParam{
+									OfInt: param.NewOpt[int64](11155111), // Sepolia
+								},
+							},
+						},
+					},
+					WithAuthorizationContext(wallet.authCtx),
+				)
+				if err != nil {
+					t.Fatalf("failed to send transaction: %v", err)
+				}
+
+				if data.Hash == "" {
+					t.Error("expected hash to be defined")
+				}
+				if data.Caip2 != "eip155:11155111" {
+					t.Errorf("expected caip2 to be eip155:11155111, got %s", data.Caip2)
+				}
+			})
+		}
+	})
 }
