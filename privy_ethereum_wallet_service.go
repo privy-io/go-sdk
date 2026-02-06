@@ -39,3 +39,27 @@ func (s *PrivyEthereumWalletService) Sign7702Authorization(
 	data := response.AsEthSign7702Authorization().Data
 	return &data, nil
 }
+
+// SignUserOperation calls eth_signUserOperation with the given wallet
+func (s *PrivyEthereumWalletService) SignUserOperation(
+	ctx context.Context,
+	walletID string,
+	input EthereumSignUserOperationRpcInputParam,
+	opts ...RpcOption,
+) (*EthereumSignUserOperationRpcResponseData, error) {
+	params := WalletRpcParams{
+		OfEthSignUserOperation: &input,
+	}
+
+	response, err := s.walletService.Rpc(ctx, walletID, params, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	if response.Method != "eth_signUserOperation" {
+		return nil, fmt.Errorf("unexpected response method: expected %q, got %q", "eth_signUserOperation", response.Method)
+	}
+
+	data := response.AsEthSignUserOperation().Data
+	return &data, nil
+}
