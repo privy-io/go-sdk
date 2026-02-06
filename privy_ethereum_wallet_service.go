@@ -2,7 +2,9 @@ package privyclient
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
+	"strings"
 )
 
 // PrivyEthereumWalletService provides convenience methods for Ethereum wallet operations.
@@ -85,6 +87,73 @@ func (s *PrivyEthereumWalletService) SignSecp256k1(
 	}
 
 	data := response.AsSecp256k1Sign().Data
+	return &data, nil
+}
+
+// SignMessage calls personal_sign with the given wallet.
+// If the message starts with "0x", it is treated as hex-encoded data.
+// Otherwise, it is treated as a UTF-8 string.
+func (s *PrivyEthereumWalletService) SignMessage(
+	ctx context.Context,
+	walletID string,
+	message string,
+	opts ...RpcOption,
+) (*EthereumPersonalSignRpcResponseData, error) {
+	var msgContent string
+	var encoding EthereumPersonalSignRpcInputParamsEncoding
+
+	if strings.HasPrefix(message, "0x") {
+		// The 0x prefix is removed as encoding: hex is sufficient
+		msgContent = message[2:]
+		encoding = EthereumPersonalSignRpcInputParamsEncodingHex
+	} else {
+		msgContent = message
+		encoding = EthereumPersonalSignRpcInputParamsEncodingUtf8
+	}
+
+	return s.signMessage(ctx, walletID, msgContent, encoding, opts...)
+}
+
+// SignMessageBytes calls personal_sign with the given wallet using raw bytes.
+// The bytes are hex-encoded for transmission.
+func (s *PrivyEthereumWalletService) SignMessageBytes(
+	ctx context.Context,
+	walletID string,
+	message []byte,
+	opts ...RpcOption,
+) (*EthereumPersonalSignRpcResponseData, error) {
+	return s.signMessage(ctx, walletID, hex.EncodeToString(message), EthereumPersonalSignRpcInputParamsEncodingHex, opts...)
+}
+
+func (s *PrivyEthereumWalletService) signMessage(
+	ctx context.Context,
+	walletID string,
+	message string,
+	encoding EthereumPersonalSignRpcInputParamsEncoding,
+	opts ...RpcOption,
+) (*EthereumPersonalSignRpcResponseData, error) {
+	input := EthereumPersonalSignRpcInputParam{
+		Method: EthereumPersonalSignRpcInputMethodPersonalSign,
+		Params: EthereumPersonalSignRpcInputParamsParam{
+			Message:  message,
+			Encoding: encoding,
+		},
+	}
+
+	params := WalletRpcParams{
+		OfPersonalSign: &input,
+	}
+
+	response, err := s.walletService.Rpc(ctx, walletID, params, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	if response.Method != "personal_sign" {
+		return nil, fmt.Errorf("unexpected response method: expected %q, got %q", "personal_sign", response.Method)
+	}
+
+	data := response.AsPersonalSign().Data
 	return &data, nil
 }
 
