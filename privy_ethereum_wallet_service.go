@@ -87,3 +87,27 @@ func (s *PrivyEthereumWalletService) SignSecp256k1(
 	data := response.AsSecp256k1Sign().Data
 	return &data, nil
 }
+
+// SignTypedData calls eth_signTypedData_v4 with the given wallet
+func (s *PrivyEthereumWalletService) SignTypedData(
+	ctx context.Context,
+	walletID string,
+	input EthereumSignTypedDataRpcInputParam,
+	opts ...RpcOption,
+) (*EthereumSignTypedDataRpcResponseData, error) {
+	params := WalletRpcParams{
+		OfEthSignTypedDataV4: &input,
+	}
+
+	response, err := s.walletService.Rpc(ctx, walletID, params, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	if response.Method != "eth_signTypedData_v4" {
+		return nil, fmt.Errorf("unexpected response method: expected %q, got %q", "eth_signTypedData_v4", response.Method)
+	}
+
+	data := response.AsEthSignTypedDataV4().Data
+	return &data, nil
+}
