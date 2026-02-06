@@ -122,4 +122,31 @@ func TestWallets_Ethereum(t *testing.T) {
 			})
 		}
 	})
+
+	t.Run("SignSecp256k1", func(t *testing.T) {
+		for _, wallet := range wallets {
+			t.Run(wallet.name, func(t *testing.T) {
+				hash := "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+				data, err := client.Wallets.Ethereum.SignSecp256k1(ctx, wallet.id,
+					EthereumSecp256k1SignRpcInputParam{
+						Method: EthereumSecp256k1SignRpcInputMethodSecp256k1Sign,
+						Params: EthereumSecp256k1SignRpcInputParamsParam{
+							Hash: hash,
+						},
+					},
+					WithAuthorizationContext(wallet.authCtx),
+				)
+				if err != nil {
+					t.Fatalf("failed to sign secp256k1: %v", err)
+				}
+
+				if data.Signature == "" {
+					t.Error("expected signature to be defined")
+				}
+				if data.Encoding != "hex" {
+					t.Errorf("expected encoding to be hex, got %s", data.Encoding)
+				}
+			})
+		}
+	})
 }
