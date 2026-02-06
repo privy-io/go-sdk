@@ -63,3 +63,27 @@ func (s *PrivyEthereumWalletService) SignUserOperation(
 	data := response.AsEthSignUserOperation().Data
 	return &data, nil
 }
+
+// SignSecp256k1 calls secp256k1_sign with the given wallet
+func (s *PrivyEthereumWalletService) SignSecp256k1(
+	ctx context.Context,
+	walletID string,
+	input EthereumSecp256k1SignRpcInputParam,
+	opts ...RpcOption,
+) (*EthereumSecp256k1SignRpcResponseData, error) {
+	params := WalletRpcParams{
+		OfSecp256k1Sign: &input,
+	}
+
+	response, err := s.walletService.Rpc(ctx, walletID, params, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	if response.Method != "secp256k1_sign" {
+		return nil, fmt.Errorf("unexpected response method: expected %q, got %q", "secp256k1_sign", response.Method)
+	}
+
+	data := response.AsSecp256k1Sign().Data
+	return &data, nil
+}
