@@ -191,4 +191,43 @@ func TestWallets_Ethereum(t *testing.T) {
 			})
 		}
 	})
+
+	t.Run("SignTransaction", func(t *testing.T) {
+		for _, wallet := range wallets {
+			t.Run(wallet.name, func(t *testing.T) {
+				data, err := client.Wallets.Ethereum.SignTransaction(ctx, wallet.id,
+					EthereumSignTransactionRpcInputParam{
+						Method: EthereumSignTransactionRpcInputMethodEthSignTransaction,
+						Params: EthereumSignTransactionRpcInputParamsParam{
+							Transaction: EthereumSignTransactionRpcInputParamsTransactionParam{
+								Type: 2,
+								ChainID: EthereumSignTransactionRpcInputParamsTransactionChainIDUnionParam{
+									OfInt: param.NewOpt[int64](1),
+								},
+								To: param.NewOpt("0x742d35Cc6634C0532925a3b8D1A8a9ff1e7a7A4C"),
+								Value: EthereumSignTransactionRpcInputParamsTransactionValueUnionParam{
+									OfString: param.NewOpt("0x1"),
+								},
+								GasLimit: EthereumSignTransactionRpcInputParamsTransactionGasLimitUnionParam{
+									OfString: param.NewOpt("0x5208"),
+								},
+								Data: param.NewOpt("0x"),
+							},
+						},
+					},
+					WithAuthorizationContext(wallet.authCtx),
+				)
+				if err != nil {
+					t.Fatalf("failed to sign transaction: %v", err)
+				}
+
+				if data.SignedTransaction == "" {
+					t.Error("expected signed_transaction to be defined")
+				}
+				if data.Encoding != "rlp" {
+					t.Errorf("expected encoding to be rlp, got %s", data.Encoding)
+				}
+			})
+		}
+	})
 }

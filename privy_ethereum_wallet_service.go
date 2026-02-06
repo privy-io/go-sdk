@@ -111,3 +111,27 @@ func (s *PrivyEthereumWalletService) SignTypedData(
 	data := response.AsEthSignTypedDataV4().Data
 	return &data, nil
 }
+
+// SignTransaction calls eth_signTransaction with the given wallet
+func (s *PrivyEthereumWalletService) SignTransaction(
+	ctx context.Context,
+	walletID string,
+	input EthereumSignTransactionRpcInputParam,
+	opts ...RpcOption,
+) (*EthereumSignTransactionRpcResponseData, error) {
+	params := WalletRpcParams{
+		OfEthSignTransaction: &input,
+	}
+
+	response, err := s.walletService.Rpc(ctx, walletID, params, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	if response.Method != "eth_signTransaction" {
+		return nil, fmt.Errorf("unexpected response method: expected %q, got %q", "eth_signTransaction", response.Method)
+	}
+
+	data := response.AsEthSignTransaction().Data
+	return &data, nil
+}
