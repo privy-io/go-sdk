@@ -149,4 +149,46 @@ func TestWallets_Ethereum(t *testing.T) {
 			})
 		}
 	})
+
+	t.Run("SignTypedData", func(t *testing.T) {
+		for _, wallet := range wallets {
+			t.Run(wallet.name, func(t *testing.T) {
+				data, err := client.Wallets.Ethereum.SignTypedData(ctx, wallet.id,
+					EthereumSignTypedDataRpcInputParam{
+						Method: EthereumSignTypedDataRpcInputMethodEthSignTypedDataV4,
+						Params: EthereumSignTypedDataRpcInputParamsParam{
+							TypedData: EthereumSignTypedDataRpcInputParamsTypedDataParam{
+								Domain: map[string]any{
+									"name":              "Test",
+									"version":           "1",
+									"chainId":           1,
+									"verifyingContract": "0x1234567890123456789012345678901234567890",
+								},
+								PrimaryType: "Message",
+								Types: map[string][]EthereumSignTypedDataRpcInputParamsTypedDataTypeParam{
+									"Message": {
+										{Name: "content", Type: "string"},
+									},
+								},
+								Message: map[string]any{
+									"content": "Hello world",
+								},
+							},
+						},
+					},
+					WithAuthorizationContext(wallet.authCtx),
+				)
+				if err != nil {
+					t.Fatalf("failed to sign typed data: %v", err)
+				}
+
+				if data.Signature == "" {
+					t.Error("expected signature to be defined")
+				}
+				if data.Encoding != "hex" {
+					t.Errorf("expected encoding to be hex, got %s", data.Encoding)
+				}
+			})
+		}
+	})
 }
