@@ -12,12 +12,12 @@ import (
 	"github.com/privy-io/go-sdk/packages/param"
 )
 
-func TestWallets_Rpc_EthSign7702Authorization(t *testing.T) {
+func TestWallets_Ethereum_Sign7702Authorization(t *testing.T) {
 	client := newTestClient(t)
 	ctx := context.Background()
 
-	response, err := client.Wallets.Rpc(ctx, os.Getenv("OWNERLESS_ETHEREUM_WALLET_ID"), WalletRpcParams{
-		OfEthSign7702Authorization: &EthereumSign7702AuthorizationRpcInputParam{
+	data, err := client.Wallets.Ethereum.Sign7702Authorization(ctx, os.Getenv("OWNERLESS_ETHEREUM_WALLET_ID"),
+		EthereumSign7702AuthorizationRpcInputParam{
 			Method: EthereumSign7702AuthorizationRpcInputMethodEthSign7702Authorization,
 			Params: EthereumSign7702AuthorizationRpcInputParamsParam{
 				ChainID: EthereumSign7702AuthorizationRpcInputParamsChainIDUnionParam{
@@ -25,18 +25,12 @@ func TestWallets_Rpc_EthSign7702Authorization(t *testing.T) {
 				},
 				Contract: "0x1234567890123456789012345678901234567890",
 			},
-		},
-	})
+		})
 	if err != nil {
 		t.Fatalf("failed to sign 7702 authorization: %v", err)
 	}
 
-	if response.Method != "eth_sign7702Authorization" {
-		t.Errorf("expected method to be eth_sign7702Authorization, got %s", response.Method)
-	}
-
-	authResponse := response.AsEthSign7702Authorization()
-	auth := authResponse.Data.Authorization
+	auth := data.Authorization
 	if auth.Contract == "" {
 		t.Error("expected authorization contract to be defined")
 	}
@@ -97,7 +91,7 @@ func TestWallets_Rpc_EthSignUserOperation(t *testing.T) {
 	}
 }
 
-func TestWallets_Rpc_EthSign7702Authorization_UserOwned(t *testing.T) {
+func TestWallets_Ethereum_Sign7702Authorization_UserOwned(t *testing.T) {
 	client := newTestClient(t)
 	ctx := context.Background()
 
@@ -108,9 +102,9 @@ func TestWallets_Rpc_EthSign7702Authorization_UserOwned(t *testing.T) {
 
 	jwt := generateTestJWT(t)
 
-	// Call RPC with authorization context - signature is generated automatically
-	response, err := client.Wallets.Rpc(ctx, walletID, WalletRpcParams{
-		OfEthSign7702Authorization: &EthereumSign7702AuthorizationRpcInputParam{
+	// Call with authorization context - signature is generated automatically
+	data, err := client.Wallets.Ethereum.Sign7702Authorization(ctx, walletID,
+		EthereumSign7702AuthorizationRpcInputParam{
 			Method: EthereumSign7702AuthorizationRpcInputMethodEthSign7702Authorization,
 			Params: EthereumSign7702AuthorizationRpcInputParamsParam{
 				ChainID: EthereumSign7702AuthorizationRpcInputParamsChainIDUnionParam{
@@ -119,7 +113,6 @@ func TestWallets_Rpc_EthSign7702Authorization_UserOwned(t *testing.T) {
 				Contract: "0x1234567890123456789012345678901234567890",
 			},
 		},
-	},
 		WithAuthorizationContext(&authorization.AuthorizationContext{
 			UserJwts: []string{jwt},
 		}),
@@ -128,22 +121,17 @@ func TestWallets_Rpc_EthSign7702Authorization_UserOwned(t *testing.T) {
 		t.Fatalf("failed to sign 7702 authorization: %v", err)
 	}
 
-	if response.Method != "eth_sign7702Authorization" {
-		t.Errorf("expected method to be eth_sign7702Authorization, got %s", response.Method)
-	}
-
-	authResponse := response.AsEthSign7702Authorization()
-	authData := authResponse.Data.Authorization
-	if authData.Contract == "" {
+	auth := data.Authorization
+	if auth.Contract == "" {
 		t.Error("expected authorization contract to be defined")
 	}
-	if authData.R == "" {
+	if auth.R == "" {
 		t.Error("expected authorization R value to be defined")
 	}
-	if authData.S == "" {
+	if auth.S == "" {
 		t.Error("expected authorization S value to be defined")
 	}
-	if authData.YParity != 0 && authData.YParity != 1 {
-		t.Errorf("expected y_parity to be 0 or 1, got %f", authData.YParity)
+	if auth.YParity != 0 && auth.YParity != 1 {
+		t.Errorf("expected y_parity to be 0 or 1, got %f", auth.YParity)
 	}
 }

@@ -28,6 +28,9 @@ type PrivyWalletService struct {
 	baseURL      string                   // API base URL
 	appID        string                   // App ID for headers
 	logger       logger
+
+	// Ethereum provides convenience methods for Ethereum wallet operations.
+	Ethereum *PrivyEthereumWalletService
 }
 
 // newPrivyWalletService creates a new wrapped wallet service.
@@ -39,13 +42,15 @@ func newPrivyWalletService(
 	appID string,
 	logger logger,
 ) *PrivyWalletService {
-	return &PrivyWalletService{
+	s := &PrivyWalletService{
 		WalletService: service,
 		jwtExchanger:  jwtExchanger,
 		baseURL:       baseURL,
 		appID:         appID,
 		logger:        logger,
 	}
+	s.Ethereum = newPrivyEthereumWalletService(s)
+	return s
 }
 
 // Rpc executes an RPC method on a wallet with automatic authorization signature generation.
