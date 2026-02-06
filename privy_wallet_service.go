@@ -31,6 +31,9 @@ type PrivyWalletService struct {
 
 	// Ethereum provides convenience methods for Ethereum wallet operations.
 	Ethereum *PrivyEthereumWalletService
+
+	// Solana provides convenience methods for Solana wallet operations.
+	Solana *PrivySolanaWalletService
 }
 
 // newPrivyWalletService creates a new wrapped wallet service.
@@ -50,6 +53,7 @@ func newPrivyWalletService(
 		logger:        logger,
 	}
 	s.Ethereum = newPrivyEthereumWalletService(s)
+	s.Solana = newPrivySolanaWalletService(s)
 	return s
 }
 
