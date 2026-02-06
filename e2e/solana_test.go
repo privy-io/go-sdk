@@ -170,4 +170,66 @@ func TestWallets_Solana(t *testing.T) {
 			})
 		}
 	})
+
+	// SignAndSendTransaction is skipped to not waste funds
+	t.Run("SignAndSendTransaction", func(t *testing.T) {
+		t.Skip("skipped to not waste funds")
+		transaction := "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAECBXJmGwQcj3yBWbVmZjP7TJdCdPRYRVyxV3BCR/j1AxwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQECAAAMAgAAAADh9QUAAAAAAA=="
+
+		for _, wallet := range wallets {
+			t.Run(wallet.name, func(t *testing.T) {
+				data, err := client.Wallets.Solana.SignAndSendTransaction(ctx, wallet.id,
+					SolanaSignAndSendTransactionRpcInputParam{
+						Caip2:  "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1", // Solana devnet
+						Method: SolanaSignAndSendTransactionRpcInputMethodSignAndSendTransaction,
+						Params: SolanaSignAndSendTransactionRpcInputParamsParam{
+							Transaction: transaction,
+							Encoding:    "base64",
+						},
+					},
+					WithAuthorizationContext(wallet.authCtx),
+				)
+				if err != nil {
+					t.Fatalf("failed to sign and send transaction: %v", err)
+				}
+
+				if data.Hash == "" {
+					t.Error("expected hash to be defined")
+				}
+				if data.Caip2 != "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1" {
+					t.Errorf("expected caip2 to be solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1, got %s", data.Caip2)
+				}
+			})
+		}
+	})
+
+	// SignAndSendTransactionBytes is skipped to not waste funds
+	t.Run("SignAndSendTransactionBytes", func(t *testing.T) {
+		t.Skip("skipped to not waste funds")
+		transactionB64 := "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAECBXJmGwQcj3yBWbVmZjP7TJdCdPRYRVyxV3BCR/j1AxwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQECAAAMAgAAAADh9QUAAAAAAA=="
+		transaction, err := base64.StdEncoding.DecodeString(transactionB64)
+		if err != nil {
+			t.Fatalf("failed to decode test transaction: %v", err)
+		}
+
+		for _, wallet := range wallets {
+			t.Run(wallet.name, func(t *testing.T) {
+				data, err := client.Wallets.Solana.SignAndSendTransactionBytes(ctx, wallet.id,
+					"solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1", // Solana devnet
+					transaction,
+					WithAuthorizationContext(wallet.authCtx),
+				)
+				if err != nil {
+					t.Fatalf("failed to sign and send transaction bytes: %v", err)
+				}
+
+				if data.Hash == "" {
+					t.Error("expected hash to be defined")
+				}
+				if data.Caip2 != "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1" {
+					t.Errorf("expected caip2 to be solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1, got %s", data.Caip2)
+				}
+			})
+		}
+	})
 }
