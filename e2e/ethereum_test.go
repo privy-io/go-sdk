@@ -4,9 +4,7 @@ package e2e_test
 
 import (
 	"context"
-	"fmt"
 	"os"
-	"strings"
 	"testing"
 
 	. "github.com/privy-io/go-sdk"
@@ -107,47 +105,25 @@ func TestWallets_Rpc_EthSign7702Authorization_UserOwned(t *testing.T) {
 	if walletID == "" {
 		t.Fatal("USER_OWNED_ETHEREUM_WALLET_ID environment variable is required")
 	}
-	appID := os.Getenv("TEST_APP_ID")
 
 	jwt := generateTestJWT(t)
 
-	// Build RPC request body
-	rpcBody := &EthereumSign7702AuthorizationRpcInputParam{
-		Method: EthereumSign7702AuthorizationRpcInputMethodEthSign7702Authorization,
-		Params: EthereumSign7702AuthorizationRpcInputParamsParam{
-			ChainID: EthereumSign7702AuthorizationRpcInputParamsChainIDUnionParam{
-				OfInt: param.NewOpt[int64](11155111), // Sepolia
-			},
-			Contract: "0x1234567890123456789012345678901234567890",
-		},
-	}
-
-	// Build authorization signature
-	input := authorization.WalletApiRequestSignatureInput{
-		Version: 1,
-		Method:  "POST",
-		URL:     fmt.Sprintf("https://auth.staging.privy.io/v1/wallets/%s/rpc", walletID),
-		Body:    rpcBody,
-		Headers: map[string]string{"privy-app-id": appID},
-	}
-	payload, err := authorization.FormatRequestForAuthorizationSignature(input)
-	if err != nil {
-		t.Fatalf("failed to format request for signature: %v", err)
-	}
-
-	auth := authorization.AuthorizationContext{
-		UserJwts: []string{jwt},
-	}
-	sigs, err := authorization.GenerateAuthorizationSignatures(ctx, auth, payload, client.JwtExchange)
-	if err != nil {
-		t.Fatalf("failed to generate authorization signatures: %v", err)
-	}
-
-	// Call RPC with authorization
+	// Call RPC with authorization context - signature is generated automatically
 	response, err := client.Wallets.Rpc(ctx, walletID, WalletRpcParams{
-		OfEthSign7702Authorization:  rpcBody,
-		PrivyAuthorizationSignature: param.NewOpt(strings.Join(sigs, ",")),
-	})
+		OfEthSign7702Authorization: &EthereumSign7702AuthorizationRpcInputParam{
+			Method: EthereumSign7702AuthorizationRpcInputMethodEthSign7702Authorization,
+			Params: EthereumSign7702AuthorizationRpcInputParamsParam{
+				ChainID: EthereumSign7702AuthorizationRpcInputParamsChainIDUnionParam{
+					OfInt: param.NewOpt[int64](11155111), // Sepolia
+				},
+				Contract: "0x1234567890123456789012345678901234567890",
+			},
+		},
+	},
+		WithAuthorizationContext(&authorization.AuthorizationContext{
+			UserJwts: []string{jwt},
+		}),
+	)
 	if err != nil {
 		t.Fatalf("failed to sign 7702 authorization: %v", err)
 	}

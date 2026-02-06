@@ -103,11 +103,24 @@ func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
 		requestOpts = append(requestOpts, option.WithDebugLog(debugLogger))
 	}
 
+	// Compute base URL
+	baseURL := opts.APIUrl
+	if baseURL == "" {
+		baseURL = "https://api.privy.io"
+	}
+
 	client := NewClient(requestOpts...)
+
+	// Create JWT exchange service (uses generated WalletService for AuthenticateWithJwt)
+	jwtExchange := newPrivyJwtExchangeService(&client.Wallets, logger)
+
+	// Create wallet service with jwtExchanger for authorization
+	wallets := newPrivyWalletService(client.Wallets, jwtExchange, baseURL, opts.AppID, logger)
+
 	return &PrivyClient{
 		client:       client,
 		logger:       logger,
-		Wallets:      newPrivyWalletService(client.Wallets, logger),
+		Wallets:      wallets,
 		Users:        newPrivyUserService(client.Users, logger),
 		Policies:     newPrivyPolicyService(client.Policies, logger),
 		Transactions: newPrivyTransactionService(client.Transactions, logger),
@@ -116,6 +129,6 @@ func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
 		Apps:         newPrivyAppService(client.Apps, logger),
 		Aggregations: newPrivyAggregationService(client.Aggregations, logger),
 		Webhooks:     newPrivyWebhookService(client.Webhooks, logger),
-		JwtExchange:  newPrivyJwtExchangeService(&client.Wallets, logger),
+		JwtExchange:  jwtExchange,
 	}
 }
