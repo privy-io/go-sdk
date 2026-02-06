@@ -1,6 +1,6 @@
 module github.com/privy-io/go-sdk
 
-go 1.22
+go 1.23
 
 require (
 	github.com/tidwall/gjson v1.18.0
