@@ -150,6 +150,60 @@ func TestWallets_Ethereum(t *testing.T) {
 		}
 	})
 
+	t.Run("SignMessage", func(t *testing.T) {
+		messages := []struct {
+			name    string
+			message string
+		}{
+			{name: "UTF8", message: "Hello, world!"},
+			{name: "Hex", message: "0x48656c6c6f2c20776f726c6421"}, // "Hello, world!" in hex
+		}
+
+		for _, wallet := range wallets {
+			t.Run(wallet.name, func(t *testing.T) {
+				for _, msg := range messages {
+					t.Run(msg.name, func(t *testing.T) {
+						data, err := client.Wallets.Ethereum.SignMessage(ctx, wallet.id,
+							msg.message,
+							WithAuthorizationContext(wallet.authCtx),
+						)
+						if err != nil {
+							t.Fatalf("failed to sign message: %v", err)
+						}
+
+						if data.Signature == "" {
+							t.Error("expected signature to be defined")
+						}
+						if data.Encoding != "hex" {
+							t.Errorf("expected encoding to be hex, got %s", data.Encoding)
+						}
+					})
+				}
+			})
+		}
+	})
+
+	t.Run("SignMessageBytes", func(t *testing.T) {
+		for _, wallet := range wallets {
+			t.Run(wallet.name, func(t *testing.T) {
+				data, err := client.Wallets.Ethereum.SignMessageBytes(ctx, wallet.id,
+					[]byte("Hello, world!"),
+					WithAuthorizationContext(wallet.authCtx),
+				)
+				if err != nil {
+					t.Fatalf("failed to sign message bytes: %v", err)
+				}
+
+				if data.Signature == "" {
+					t.Error("expected signature to be defined")
+				}
+				if data.Encoding != "hex" {
+					t.Errorf("expected encoding to be hex, got %s", data.Encoding)
+				}
+			})
+		}
+	})
+
 	t.Run("SignTypedData", func(t *testing.T) {
 		for _, wallet := range wallets {
 			t.Run(wallet.name, func(t *testing.T) {
