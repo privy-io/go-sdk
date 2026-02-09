@@ -62,7 +62,7 @@ $ ./scripts/test
 End-to-end tests run against the staging environment. They require a `.env` file with `TEST_APP_SECRET` set.
 
 ```sh
-$ go test -tags=e2e -v ./e2e/...
+$ go test -v ./e2e/...
 ```
 
 ## Formatting
