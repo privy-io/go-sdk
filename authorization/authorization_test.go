@@ -1457,3 +1457,109 @@ func TestGenerateAuthorizationSignatures_PrivateKeysAndSigners(t *testing.T) {
 		t.Errorf("signature[1] should be from signer: expected %q, got %q", "signer-sig", signatures[1])
 	}
 }
+
+// Tests for GenerateAuthorizationSignaturesForRequest
+
+func TestGenerateAuthorizationSignaturesForRequest(t *testing.T) {
+	// Shared test keys
+	key1B64, _ := generateTestP256Key(t)
+	key2B64, _ := generateTestP256Key(t)
+	jwtKeyB64, _ := generateTestP256Key(t)
+	invalidKeyB64 := base64.StdEncoding.EncodeToString([]byte("invalid key"))
+
+	// Shared JWT exchanger
+	exchanger := &MockJwtExchanger{
+		Keys: map[string]string{"user-jwt": jwtKeyB64},
+	}
+
+	// Shared signer
+	signer := &MockAuthorizationSigner{ReturnSignature: "signer-sig"}
+
+	tests := []struct {
+		name          string
+		auth          AuthorizationContext
+		exchanger     *MockJwtExchanger
+		input         WalletApiRequestSignatureInput
+		expectedCount int
+		expectedError string
+	}{
+		{
+			name:          "success with single key",
+			auth:          AuthorizationContext{PrivateKeys: []string{key1B64}},
+			input:         WalletApiRequestSignatureInput{Version: 1, Method: "POST", URL: "https://api.privy.io/v1/wallets", Body: map[string]any{"name": "test-wallet"}, Headers: map[string]string{"privy-app-id": "app-123"}},
+			expectedCount: 1,
+		},
+		{
+			name:          "success with multiple keys",
+			auth:          AuthorizationContext{PrivateKeys: []string{key1B64, key2B64}},
+			input:         WalletApiRequestSignatureInput{Version: 1, Method: "POST", URL: "https://api.privy.io/v1/wallets", Body: map[string]any{"data": "test"}, Headers: map[string]string{"privy-app-id": "app-123"}},
+			expectedCount: 2,
+		},
+		{
+			name:          "success with JWTs",
+			auth:          AuthorizationContext{UserJwts: []string{"user-jwt"}},
+			exchanger:     exchanger,
+			input:         WalletApiRequestSignatureInput{Version: 1, Method: "POST", URL: "https://api.privy.io/v1/wallets", Body: map[string]any{"action": "create"}, Headers: map[string]string{"privy-app-id": "app-123"}},
+			expectedCount: 1,
+		},
+		{
+			name:          "format error with invalid body",
+			auth:          AuthorizationContext{PrivateKeys: []string{key1B64}},
+			input:         WalletApiRequestSignatureInput{Version: 1, Method: "POST", URL: "https://api.privy.io/v1/test", Body: make(chan int), Headers: map[string]string{"privy-app-id": "app-123"}},
+			expectedError: "failed to format request",
+		},
+		{
+			name:          "signing error with invalid key",
+			auth:          AuthorizationContext{PrivateKeys: []string{invalidKeyB64}},
+			input:         WalletApiRequestSignatureInput{Version: 1, Method: "POST", URL: "https://api.privy.io/v1/wallets", Body: map[string]any{"data": "test"}, Headers: map[string]string{"privy-app-id": "app-123"}},
+			expectedError: "invalid PKCS8 format",
+		},
+		{
+			name:          "empty auth context",
+			auth:          AuthorizationContext{},
+			input:         WalletApiRequestSignatureInput{Version: 1, Method: "DELETE", URL: "https://api.privy.io/v1/wallets/123", Body: nil, Headers: map[string]string{"privy-app-id": "app-123"}},
+			expectedCount: 0,
+		},
+		{
+			name:          "all fields populated",
+			auth:          AuthorizationContext{Signatures: []string{"precomputed1"}, PrivateKeys: []string{key1B64}, UserJwts: []string{"user-jwt"}, Signers: []AuthorizationSigner{signer}},
+			exchanger:     exchanger,
+			input:         WalletApiRequestSignatureInput{Version: 1, Method: "POST", URL: "https://api.privy.io/v1/wallets", Body: map[string]any{"name": "my-wallet"}, Headers: map[string]string{"privy-app-id": "app-123"}},
+			expectedCount: 4,
+		},
+		{
+			name:          "empty body becomes empty string",
+			auth:          AuthorizationContext{PrivateKeys: []string{key1B64}},
+			input:         WalletApiRequestSignatureInput{Version: 1, Method: "POST", URL: "https://api.privy.io/v1/test", Body: map[string]any{}, Headers: map[string]string{"privy-app-id": "app-123"}},
+			expectedCount: 1,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			signatures, err := GenerateAuthorizationSignaturesForRequest(context.Background(), tt.auth, tt.input, tt.exchanger)
+
+			if tt.expectedError != "" {
+				if err == nil {
+					t.Fatalf("expected error containing %q, got nil", tt.expectedError)
+				}
+				if !strings.Contains(err.Error(), tt.expectedError) {
+					t.Errorf("expected error containing %q, got: %v", tt.expectedError, err)
+				}
+				return
+			}
+
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+
+			if signatures == nil {
+				t.Fatal("expected non-nil slice")
+			}
+
+			if len(signatures) != tt.expectedCount {
+				t.Fatalf("expected %d signatures, got %d", tt.expectedCount, len(signatures))
+			}
+		})
+	}
+}
