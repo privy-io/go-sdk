@@ -9,6 +9,7 @@
       "Bash(go mod tidy:*)",
       "Bash(go test:*)",
       "Bash(go vet:*)",
+      "Bash(git show:*)",
       "Bash(gh pr view:*)"
     ]
   }
