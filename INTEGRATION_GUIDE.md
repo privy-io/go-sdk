@@ -222,17 +222,34 @@ wallet, err := client.Wallets.New(context.Background(), privy.WalletNewParams{
 
 ```go
 // Sign a message
-signature, err := client.Wallets.SignMessage(ctx, "wallet_id",
-    privy.WalletSignMessageParams{
-        Message: "Hello, blockchain!",
-    })
+data, err := client.Wallets.Ethereum.SignMessage(ctx, wallet.id, "Hello, blockchain!")
+fmt.Printf("Signature: %s\n", data.Signature)
 
-// Execute RPC call
+// Execute an RPC call
 result, err := client.Wallets.Rpc(ctx, "wallet_id",
     privy.WalletRpcParams{
         Method: "eth_sendTransaction",
         Params: []interface{}{...},
     })
-```
 
-### TODO: Showcase 7702 and sign user operation convenience functions
+// Sign a 7702 authorization
+data, err := client.Wallets.Ethereum.Sign7702Authorization(ctx, wallet.id,
+  EthereumSign7702AuthorizationRpcInputParamsParam{
+    ChainID: EthereumSign7702AuthorizationRpcInputParamsChainIDUnionParam{
+      OfInt: param.NewOpt[int64](11155111), // Sepolia
+    },
+    Contract: "0x1234567890123456789012345678901234567890",
+  })
+
+// Sign a user operation
+data, err := client.Wallets.Ethereum.SignUserOperation(ctx, wallet.id,
+  EthereumSignUserOperationRpcInputParamsParam{
+    ChainID: EthereumSign7702AuthorizationRpcInputParamsChainIDUnionParam{
+      OfInt: param.NewOpt[int64](11155111), // Sepolia
+    },
+    Contract: "0x1234567890123456789012345678901234567890",
+  UserOperation: EthereumSignUserOperationRpcInputParamsUserOperationParam{
+      // ...
+    },
+  })
+```
