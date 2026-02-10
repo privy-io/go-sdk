@@ -197,3 +197,27 @@ func GenerateAuthorizationSignatures(ctx context.Context, auth AuthorizationCont
 
 	return signatures, nil
 }
+
+// GenerateAuthorizationSignaturesForRequest formats a request and generates
+// signatures for all credentials in an AuthorizationContext.
+//
+// This is a convenience function that combines FormatRequestForAuthorizationSignature
+// and GenerateAuthorizationSignatures.
+//
+// Parameters:
+//   - ctx: Context for cancellation and timeouts
+//   - auth: AuthorizationContext containing the credentials
+//   - input: WalletApiRequestSignatureInput describing the request to sign
+//   - exchanger: JwtExchanger for exchanging JWTs for private keys (may be nil if no JWTs in context)
+//
+// Returns:
+//   - An array of base64-encoded DER-format signatures
+//   - An error if formatting or any signing operation fails
+func GenerateAuthorizationSignaturesForRequest(ctx context.Context, auth AuthorizationContext, input WalletApiRequestSignatureInput, exchanger jwtexchange.JwtExchanger) ([]string, error) {
+	payload, err := FormatRequestForAuthorizationSignature(input)
+	if err != nil {
+		return nil, fmt.Errorf("failed to format request: %w", err)
+	}
+
+	return GenerateAuthorizationSignatures(ctx, auth, payload, exchanger)
+}
