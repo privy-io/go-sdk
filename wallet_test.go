@@ -122,7 +122,7 @@ func TestWalletListWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestWallet_InitImport(t *testing.T) {
+func TestWalletInitImport(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -136,8 +136,8 @@ func TestWallet_InitImport(t *testing.T) {
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Wallets._InitImport(context.TODO(), privyclient.Wallet_InitImportParams{
-		OfPrivateKey: &privyclient.Wallet_InitImportParamsBodyPrivateKey{
+	_, err := client.Wallets.InitImport(context.TODO(), privyclient.WalletInitImportParams{
+		OfPrivateKey: &privyclient.WalletInitImportParamsBodyPrivateKey{
 			Address:        "0xF1DBff66C993EE895C8cb176c30b07A559d76496",
 			ChainType:      "ethereum",
 			EncryptionType: "HPKE",
@@ -152,7 +152,7 @@ func TestWallet_InitImport(t *testing.T) {
 	}
 }
 
-func TestWallet_SubmitImportWithOptionalParams(t *testing.T) {
+func TestWalletSubmitImportWithOptionalParams(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -166,9 +166,9 @@ func TestWallet_SubmitImportWithOptionalParams(t *testing.T) {
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Wallets._SubmitImport(context.TODO(), privyclient.Wallet_SubmitImportParams{
-		Wallet: privyclient.Wallet_SubmitImportParamsWalletUnion{
-			OfPrivateKey: &privyclient.Wallet_SubmitImportParamsWalletPrivateKey{
+	_, err := client.Wallets.SubmitImport(context.TODO(), privyclient.WalletSubmitImportParams{
+		Wallet: privyclient.WalletSubmitImportParamsWalletUnion{
+			OfPrivateKey: &privyclient.WalletSubmitImportParamsWalletPrivateKey{
 				Address:         "0xF1DBff66C993EE895C8cb176c30b07A559d76496",
 				ChainType:       "ethereum",
 				Ciphertext:      "PRoRXygG+YYSDBXjCopNYZmx8Z6nvdl1D0lpePTYZdZI2VGfK+LkFt+GlEJqdoi9",
@@ -181,12 +181,12 @@ func TestWallet_SubmitImportWithOptionalParams(t *testing.T) {
 				},
 			},
 		},
-		AdditionalSigners: []privyclient.Wallet_SubmitImportParamsAdditionalSigner{{
+		AdditionalSigners: []privyclient.WalletSubmitImportParamsAdditionalSigner{{
 			SignerID:          "signer_id",
 			OverridePolicyIDs: []string{"string"},
 		}},
-		Owner: privyclient.Wallet_SubmitImportParamsOwnerUnion{
-			OfWallet_SubmitImportsOwnerUserID: &privyclient.Wallet_SubmitImportParamsOwnerUserID{
+		Owner: privyclient.WalletSubmitImportParamsOwnerUnion{
+			OfWalletSubmitImportsOwnerUserID: &privyclient.WalletSubmitImportParamsOwnerUserID{
 				UserID: "user_id",
 			},
 		},
