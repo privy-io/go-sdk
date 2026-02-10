@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.2 (2026-02-10)
+
+Full Changelog: [v0.0.1...v0.0.2](https://github.com/privy-io/go-sdk/compare/v0.0.1...v0.0.2)
+
 ## 0.0.1 (2026-02-10)
 
 Full Changelog: [v0.0.1...v0.0.1](https://github.com/privy-io/go-sdk/compare/v0.0.1...v0.0.1)
