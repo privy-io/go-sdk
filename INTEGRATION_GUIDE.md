@@ -3,17 +3,22 @@
 ## Getting Started
 
 ### Installation
+
 Install the Privy Go SDK using go get:
+
 ```bash
 go get github.com/privy-io/go-sdk
 ```
 
 ### Requirements
+
 - Go 1.23 or higher
 - Privy App ID and App Secret (available in your Privy dashboard)
 
 ### Quick Setup
+
 Initialize the Privy client with your credentials:
+
 ```go
 import privyclient "github.com/privy-io/go-sdk"
 
@@ -43,9 +48,8 @@ Each service provides methods for interacting with its respective API endpoints.
 
 ## Authorization Context & Signatures
 
-When updating resources like wallets, policies, or key quorums in the Privy API, requests [must be signed](https://docs.privy.io/controls/authorization-keys/using-owners/sign/overview) 
+When updating resources like wallets, policies, or key quorums in the Privy API, requests [must be signed](https://docs.privy.io/controls/authorization-keys/using-owners/sign/overview)
 by the resource owner in order to be authorized. Privy's Go SDK exposes utilities to simplify the authorization flow.
-
 
 ### Authorization Context
 
@@ -73,6 +77,7 @@ authCtx := authorization.AuthorizationContext{
 ### SDK Convenience Functions
 
 The SDK provides some convenience functions that accept an `AuthorizationContext` and handle all authorization steps automatically under the hood. These functions:
+
 - Build the signature input from request parameters
 - Format the request payload for signing
 - Generate signatures from all credentials in the authorization context
@@ -109,7 +114,7 @@ if err != nil {
 
 ### Generating Signatures
 
-If the SDK doesn't have a convenience function for a particular action, you can build the signature 
+If the SDK doesn't have a convenience function for a particular action, you can build the signature
 input and generate the authorization signature.
 
 ```go
@@ -144,8 +149,8 @@ signatures, err := authorization.GenerateAuthorizationSignaturesForRequest(
 
 ### Formatting Requests for Signing
 
-If you prefer to sign a request yourself through an external service (like a KMS), use the 
-`FormatRequestForAuthorizationSignature` helper to to generate your signature payload. 
+If you prefer to sign a request yourself through an external service (like a KMS), use the
+`FormatRequestForAuthorizationSignature` helper to to generate your signature payload.
 You can then take the returned serialized payload and call out to a signing service to generate a P256 signature over the payload.
 
 ```go
@@ -164,6 +169,7 @@ if err != nil {
 ```
 
 **Key Requirements:**
+
 - Private keys must be base64-encoded PKCS8-formatted P-256 keys
 - Payloads are hashed with SHA-256 before signing
 - Signatures use ECDSA with DER encoding
@@ -173,6 +179,7 @@ if err != nil {
 ## User Management
 
 ### Creating Users
+
 ```go
 user, err := client.Users.New(context.Background(), privyclient.UserNewParams{
     LinkedAccounts: []privyclient.LinkedAccountInputUnionParam{{
@@ -185,7 +192,9 @@ user, err := client.Users.New(context.Background(), privyclient.UserNewParams{
 ```
 
 ### Looking Up Users
+
 Find users by various identifiers:
+
 ```go
 // By email
 user, err := client.Users.GetByEmailAddress(ctx, privyclient.UserGetByEmailAddressParams{
@@ -201,6 +210,7 @@ user, err := client.Users.Get(ctx, "user_id")
 ## Wallet Operations
 
 ### Creating Wallets
+
 ```go
 wallet, err := client.Wallets.New(context.Background(), privyclient.WalletNewParams{
     ChainType: privyclient.WalletNewParamsChainTypeEthereum,
@@ -209,6 +219,7 @@ wallet, err := client.Wallets.New(context.Background(), privyclient.WalletNewPar
 ```
 
 ### Signing Operations
+
 ```go
 // Sign a message
 signature, err := client.Wallets.SignMessage(ctx, "wallet_id",
