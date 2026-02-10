@@ -6,7 +6,7 @@
 
 <!-- x-release-please-end -->
 
-The Privy API Go library provides convenient access to the [Privy API REST API](https://docs.privy.io)
+The Privy Go library provides convenient access to the [Privy REST API](https://docs.privy.io)
 from applications written in Go.
 
 It is generated with [Stainless](https://www.stainless.com/).
@@ -35,7 +35,7 @@ go get -u 'github.com/privy-io/go-sdk@v0.0.1'
 
 ## Requirements
 
-This library requires Go 1.22+.
+This library requires Go 1.23+.
 
 ### Dependency Note
 
@@ -49,8 +49,6 @@ To maintain compatibility with Go 1.23, this SDK pins `golang.org/x/crypto` to v
 
 ## Usage
 
-The full API of this library can be found in [api.md](api.md).
-
 ```go
 package main
 
@@ -58,12 +56,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/privy-io/go-sdk"
-	"github.com/privy-io/go-sdk/option"
+	privy "github.com/privy-io/go-sdk"
 )
 
 func main() {
-	client := privyclient.NewPrivyClient(privyclient.PrivyClientOptions{
+	client := privy.NewPrivyClient(privy.PrivyClientOptions{
 		AppID:     "My App ID",
 		AppSecret: "My App Secret",
 		// APIUrl: "https://auth.staging.privy.io", // optional, defaults to production
