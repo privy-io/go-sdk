@@ -133,17 +133,11 @@ input := authorization.WalletApiRequestSignatureInput{
     Headers: headers,
 }
 
-# // TODO: LUCAS - UPDATE THIS EXAMPLE WHEN GenerateAuthorizationSignature TAKES IN WalletApiRequestSignatureInput directly
-
-
-// Single signature
-signature, err := authorization.GenerateAuthorizationSignature(privateKey, payload)
-
-// Multiple signatures (all credentials in context)
-signatures, err := authorization.GenerateAuthorizationSignatures(
+// Generate signatures for all credentials in the context
+signatures, err := authorization.GenerateAuthorizationSignaturesForRequest(
     ctx,
     authCtx,
-    payload,
+    input,
     client.JwtExchange, // For JWT exchange
 )
 ```
