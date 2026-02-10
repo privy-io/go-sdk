@@ -104,3 +104,48 @@ func (s *PrivySolanaWalletService) SignTransactionBytes(
 ) (*SolanaSignTransactionRpcResponseData, error) {
 	return s.SignTransaction(ctx, walletID, base64.StdEncoding.EncodeToString(transaction), opts...)
 }
+
+// SignAndSendTransaction calls signAndSendTransaction with the given wallet.
+// The transaction should be a base64-encoded string.
+func (s *PrivySolanaWalletService) SignAndSendTransaction(
+	ctx context.Context,
+	walletID string,
+	input SolanaSignAndSendTransactionRpcInputParam,
+	opts ...RpcOption,
+) (*SolanaSignAndSendTransactionRpcResponseData, error) {
+	params := WalletRpcParams{
+		OfSignAndSendTransaction: &input,
+	}
+
+	response, err := s.walletService.Rpc(ctx, walletID, params, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	if response.Method != "signAndSendTransaction" {
+		return nil, fmt.Errorf("unexpected response method: expected %q, got %q", "signAndSendTransaction", response.Method)
+	}
+
+	data := response.AsSignAndSendTransaction().Data
+	return &data, nil
+}
+
+// SignAndSendTransactionBytes calls signAndSendTransaction with raw transaction bytes.
+// The bytes are base64-encoded for transmission.
+func (s *PrivySolanaWalletService) SignAndSendTransactionBytes(
+	ctx context.Context,
+	walletID string,
+	caip2 string,
+	transaction []byte,
+	opts ...RpcOption,
+) (*SolanaSignAndSendTransactionRpcResponseData, error) {
+	input := SolanaSignAndSendTransactionRpcInputParam{
+		Caip2:  caip2,
+		Method: SolanaSignAndSendTransactionRpcInputMethodSignAndSendTransaction,
+		Params: SolanaSignAndSendTransactionRpcInputParamsParam{
+			Transaction: base64.StdEncoding.EncodeToString(transaction),
+			Encoding:    "base64",
+		},
+	}
+	return s.SignAndSendTransaction(ctx, walletID, input, opts...)
+}
