@@ -20,12 +20,12 @@ go get github.com/privy-io/go-sdk
 Initialize the Privy client with your credentials:
 
 ```go
-import privyclient "github.com/privy-io/go-sdk"
+import privy "github.com/privy-io/go-sdk"
 
-client := privyclient.NewPrivyClient(privyclient.PrivyClientOptions{
+client := privy.NewPrivyClient(privy.PrivyClientOptions{
     AppID:     "your-app-id",
     AppSecret: "your-app-secret",
-    LogLevel:  privyclient.LogLevelInfo, // Optional: LogLevelNone, LogLevelError, LogLevelInfo, LogLevelDebug, LogLevelVerbose
+    LogLevel:  privy.LogLevelInfo, // Optional: LogLevelNone, LogLevelError, LogLevelInfo, LogLevelDebug, LogLevelVerbose
 })
 ```
 
@@ -97,9 +97,9 @@ authCtx := authorization.AuthorizationContext{
 result, err := client.Wallets.Rpc(
     context.Background(),
     "wallet-id",
-    privyclient.WalletRpcParams{
+    privy.WalletRpcParams{
         Method:  "eth_signTypedData_v4",
-        Params:  privyclient.WalletRpcParamsParamsUnion{OfTypedDataSign: &privyclient.TypedDataSignParams{...}},
+        Params:  privy.WalletRpcParamsParamsUnion{OfTypedDataSign: &privy.TypedDataSignParams{...}},
         ChainID: "1",
     },
     WithAuthorizationContext(&authorization.AuthorizationContext{
@@ -181,11 +181,11 @@ if err != nil {
 ### Creating Users
 
 ```go
-user, err := client.Users.New(context.Background(), privyclient.UserNewParams{
-    LinkedAccounts: []privyclient.LinkedAccountInputUnionParam{{
-        OfEmail: &privyclient.LinkedAccountEmailInputParam{
+user, err := client.Users.New(context.Background(), privy.UserNewParams{
+    LinkedAccounts: []privy.LinkedAccountInputUnionParam{{
+        OfEmail: &privy.LinkedAccountEmailInputParam{
             Address: "user@example.com",
-            Type:    privyclient.LinkedAccountEmailInputTypeEmail,
+            Type:    privy.LinkedAccountEmailInputTypeEmail,
         },
     }},
 })
@@ -197,7 +197,7 @@ Find users by various identifiers:
 
 ```go
 // By email
-user, err := client.Users.GetByEmailAddress(ctx, privyclient.UserGetByEmailAddressParams{
+user, err := client.Users.GetByEmailAddress(ctx, privy.UserGetByEmailAddressParams{
     Address: "user@example.com",
 })
 
@@ -212,8 +212,8 @@ user, err := client.Users.Get(ctx, "user_id")
 ### Creating Wallets
 
 ```go
-wallet, err := client.Wallets.New(context.Background(), privyclient.WalletNewParams{
-    ChainType: privyclient.WalletNewParamsChainTypeEthereum,
+wallet, err := client.Wallets.New(context.Background(), privy.WalletNewParams{
+    ChainType: privy.WalletNewParamsChainTypeEthereum,
     OwnerID:   "user_id_or_key_quorum_id",
 })
 ```
@@ -223,13 +223,13 @@ wallet, err := client.Wallets.New(context.Background(), privyclient.WalletNewPar
 ```go
 // Sign a message
 signature, err := client.Wallets.SignMessage(ctx, "wallet_id",
-    privyclient.WalletSignMessageParams{
+    privy.WalletSignMessageParams{
         Message: "Hello, blockchain!",
     })
 
 // Execute RPC call
 result, err := client.Wallets.Rpc(ctx, "wallet_id",
-    privyclient.WalletRpcParams{
+    privy.WalletRpcParams{
         Method: "eth_sendTransaction",
         Params: []interface{}{...},
     })
