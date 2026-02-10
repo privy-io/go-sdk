@@ -59,4 +59,39 @@ func TestWallets(t *testing.T) {
 			t.Errorf("expected wallet ID %s, got %s", walletID, result.ID)
 		}
 	})
+
+	t.Run("RawSign", func(t *testing.T) {
+		walletID := os.Getenv("P256_OWNED_TRON_WALLET_ID")
+		sk := os.Getenv("P256_PRIVATE_KEY")
+		authCtx := &authorization.AuthorizationContext{
+			PrivateKeys: []string{sk},
+		}
+
+		// A 32-byte hash (keccak256 of "hello") in hex, prefixed with 0x
+		hash := "0x1c8aff950685c2ed4bc3174f3472287b56d9517b9c948127319a09a7a36deac8"
+
+		// Call RawSign with authorization
+		result, err := client.Wallets.RawSign(
+			ctx,
+			walletID,
+			WalletRawSignParams{
+				Params: WalletRawSignParamsParamsUnion{
+					OfHash: &WalletRawSignParamsParamsHash{
+						Hash: hash,
+					},
+				},
+			},
+			WithAuthorizationContext(authCtx),
+		)
+		if err != nil {
+			t.Fatalf("failed to raw sign: %v", err)
+		}
+
+		if result.Data.Signature == "" {
+			t.Error("expected signature to be non-empty")
+		}
+		if result.Method != WalletRawSignResponseMethodRawSign {
+			t.Errorf("expected method to be raw_sign, got %s", result.Method)
+		}
+	})
 }

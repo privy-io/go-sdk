@@ -175,3 +175,67 @@ func (s *PrivyWalletService) Update(
 	// Call the underlying service
 	return s.WalletService.Update(ctx, walletID, params)
 }
+
+// RawSign signs a hash or bytes with a wallet, with automatic authorization signature generation.
+//
+// This method wraps the generated WalletService.RawSign and handles:
+//   - Building the authorization signature from an AuthorizationContext
+//   - Setting the idempotency key header
+//
+// Parameters:
+//   - ctx: Context for cancellation and timeouts
+//   - walletID: The wallet ID to sign with
+//   - params: The raw sign parameters (callers can skip PrivyAuthorizationSignature and PrivyIdempotencyKey)
+//   - opts: use WithAuthorizationContext and WithIdempotencyKey
+func (s *PrivyWalletService) RawSign(
+	ctx context.Context,
+	walletID string,
+	params WalletRawSignParams,
+	opts ...RpcOption,
+) (*WalletRawSignResponse, error) {
+	options := applyRpcOptions(opts)
+
+	// Set idempotency key if provided
+	if options.IdempotencyKey != "" {
+		params.PrivyIdempotencyKey = param.NewOpt(options.IdempotencyKey)
+	}
+
+	// Generate authorization signature if context is provided
+	if options.AuthorizationContext != nil {
+		// Build headers map
+		headers := map[string]string{
+			"privy-app-id": s.appID,
+		}
+		if options.IdempotencyKey != "" {
+			headers["privy-idempotency-key"] = options.IdempotencyKey
+		}
+
+		// Build signature input
+		sigInput := authorization.WalletApiRequestSignatureInput{
+			Version: 1,
+			Method:  "POST",
+			URL:     s.baseURL + "/v1/wallets/" + walletID + "/raw_sign",
+			Body:    params,
+			Headers: headers,
+		}
+
+		// Generate signatures
+		signatures, err := authorization.GenerateAuthorizationSignaturesForRequest(
+			ctx,
+			*options.AuthorizationContext,
+			sigInput,
+			s.jwtExchanger,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		// Set the authorization header
+		if len(signatures) > 0 {
+			params.PrivyAuthorizationSignature = param.NewOpt(strings.Join(signatures, ","))
+		}
+	}
+
+	// Call the underlying service
+	return s.WalletService.RawSign(ctx, walletID, params)
+}
