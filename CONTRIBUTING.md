@@ -41,7 +41,7 @@ To use a local version of this library from source in another project, edit the 
 directive. This can be done through the CLI with the following:
 
 ```sh
-$ go mod edit -replace github.com/stainless-sdks/privy-api-client-go=/path/to/privy-api-client-go
+$ go mod edit -replace github.com/privy-io/go-sdk=/path/to/go-sdk
 ```
 
 ## Running tests
@@ -55,6 +55,14 @@ $ npx prism mock path/to/your/openapi.yml
 
 ```sh
 $ ./scripts/test
+```
+
+## Running end-to-end tests
+
+End-to-end tests run against the staging environment. They require a `.env` file with `TEST_APP_SECRET` set.
+
+```sh
+$ go test -v ./e2e/...
 ```
 
 ## Formatting

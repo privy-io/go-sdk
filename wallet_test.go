@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package privyapiclient_test
+package privyclient
 
 import (
 	"context"
@@ -8,9 +8,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stainless-sdks/privy-api-client-go"
-	"github.com/stainless-sdks/privy-api-client-go/internal/testutil"
-	"github.com/stainless-sdks/privy-api-client-go/option"
+	"github.com/privy-io/go-sdk/internal/testutil"
+	"github.com/privy-io/go-sdk/option"
 )
 
 func TestWalletNewWithOptionalParams(t *testing.T) {
@@ -22,28 +21,28 @@ func TestWalletNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Wallets.New(context.TODO(), privyapiclient.WalletNewParams{
-		ChainType: privyapiclient.WalletNewParamsChainTypeEthereum,
-		AdditionalSigners: []privyapiclient.WalletNewParamsAdditionalSigner{{
-			OverridePolicyIDs: []string{"string"},
+	_, err := client.Wallets.New(context.TODO(), WalletNewParams{
+		ChainType: WalletChainTypeEthereum,
+		AdditionalSigners: []WalletNewParamsAdditionalSigner{{
 			SignerID:          "signer_id",
+			OverridePolicyIDs: []string{"string"},
 		}},
-		Owner: privyapiclient.WalletNewParamsOwnerUnion{
-			OfPublicKeyOwner: &privyapiclient.WalletNewParamsOwnerPublicKeyOwner{
+		Owner: WalletNewParamsOwnerUnion{
+			OfPublicKeyOwner: &WalletNewParamsOwnerPublicKeyOwner{
 				PublicKey: "public_key",
 			},
 		},
-		OwnerID:             privyapiclient.String("owner_id"),
+		OwnerID:             String("owner_id"),
 		PolicyIDs:           []string{"xxxxxxxxxxxxxxxxxxxxxxxx"},
-		PrivyIdempotencyKey: privyapiclient.String("privy-idempotency-key"),
+		PrivyIdempotencyKey: String("privy-idempotency-key"),
 	})
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -60,7 +59,7 @@ func TestWalletUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
@@ -68,23 +67,23 @@ func TestWalletUpdateWithOptionalParams(t *testing.T) {
 	_, err := client.Wallets.Update(
 		context.TODO(),
 		"wallet_id",
-		privyapiclient.WalletUpdateParams{
-			AdditionalSigners: []privyapiclient.WalletUpdateParamsAdditionalSigner{{
-				OverridePolicyIDs: []string{"string"},
+		WalletUpdateParams{
+			AdditionalSigners: []WalletUpdateParamsAdditionalSigner{{
 				SignerID:          "signer_id",
+				OverridePolicyIDs: []string{"string"},
 			}},
-			Owner: privyapiclient.WalletUpdateParamsOwnerUnion{
-				OfPublicKeyOwner: &privyapiclient.WalletUpdateParamsOwnerPublicKeyOwner{
+			Owner: WalletUpdateParamsOwnerUnion{
+				OfPublicKeyOwner: &WalletUpdateParamsOwnerPublicKeyOwner{
 					PublicKey: "public_key",
 				},
 			},
-			OwnerID:                     privyapiclient.String("owner_id"),
+			OwnerID:                     String("owner_id"),
 			PolicyIDs:                   []string{"tb54eps4z44ed0jepousxi4n"},
-			PrivyAuthorizationSignature: privyapiclient.String("privy-authorization-signature"),
+			PrivyAuthorizationSignature: String("privy-authorization-signature"),
 		},
 	)
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -101,19 +100,20 @@ func TestWalletListWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Wallets.List(context.TODO(), privyapiclient.WalletListParams{
-		ChainType: privyapiclient.WalletListParamsChainTypeCosmos,
-		Cursor:    privyapiclient.String("x"),
-		Limit:     privyapiclient.Float(100),
-		UserID:    privyapiclient.String("user_id"),
+	_, err := client.Wallets.List(context.TODO(), WalletListParams{
+		AuthorizationKey: String("s=-/fw-L-+N\n"),
+		ChainType:        WalletChainTypeEthereum,
+		Cursor:           String("x"),
+		Limit:            Float(100),
+		UserID:           String("user_id"),
 	})
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -130,20 +130,20 @@ func TestWallet_InitImport(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Wallets._InitImport(context.TODO(), privyapiclient.Wallet_InitImportParams{
-		OfPrivateKey: &privyapiclient.Wallet_InitImportParamsBodyPrivateKey{
+	_, err := client.Wallets._InitImport(context.TODO(), Wallet_InitImportParams{
+		OfPrivateKey: &Wallet_InitImportParamsBodyPrivateKey{
 			Address:        "0xF1DBff66C993EE895C8cb176c30b07A559d76496",
 			ChainType:      "ethereum",
 			EncryptionType: "HPKE",
 		},
 	})
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -160,35 +160,40 @@ func TestWallet_SubmitImportWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Wallets._SubmitImport(context.TODO(), privyapiclient.Wallet_SubmitImportParams{
-		Wallet: privyapiclient.Wallet_SubmitImportParamsWalletUnion{
-			OfPrivateKey: &privyapiclient.Wallet_SubmitImportParamsWalletPrivateKey{
+	_, err := client.Wallets._SubmitImport(context.TODO(), Wallet_SubmitImportParams{
+		Wallet: Wallet_SubmitImportParamsWalletUnion{
+			OfPrivateKey: &Wallet_SubmitImportParamsWalletPrivateKey{
 				Address:         "0xF1DBff66C993EE895C8cb176c30b07A559d76496",
 				ChainType:       "ethereum",
 				Ciphertext:      "PRoRXygG+YYSDBXjCopNYZmx8Z6nvdl1D0lpePTYZdZI2VGfK+LkFt+GlEJqdoi9",
 				EncapsulatedKey: "BOhR6xITDt5THJawHHJKrKdI9CBr2M/SDWzZZAaOW4gCMsSpC65U007WyKiwuuOVAo1BNm4YgcBBROuMmyIZXZk=",
 				EncryptionType:  "HPKE",
+				HpkeConfig: HpkeImportConfigParam{
+					Aad:           String("aad"),
+					AeadAlgorithm: HpkeImportConfigAeadAlgorithmChacha20Poly1305,
+					Info:          String("info"),
+				},
 			},
 		},
-		AdditionalSigners: []privyapiclient.Wallet_SubmitImportParamsAdditionalSigner{{
+		AdditionalSigners: []Wallet_SubmitImportParamsAdditionalSigner{{
 			SignerID:          "signer_id",
 			OverridePolicyIDs: []string{"string"},
 		}},
-		Owner: privyapiclient.Wallet_SubmitImportParamsOwnerUnion{
-			OfWallet_SubmitImportsOwnerUserID: &privyapiclient.Wallet_SubmitImportParamsOwnerUserID{
+		Owner: Wallet_SubmitImportParamsOwnerUnion{
+			OfWallet_SubmitImportsOwnerUserID: &Wallet_SubmitImportParamsOwnerUserID{
 				UserID: "user_id",
 			},
 		},
-		OwnerID:   privyapiclient.String("rkiz0ivz254drv1xw982v3jq"),
+		OwnerID:   String("rkiz0ivz254drv1xw982v3jq"),
 		PolicyIDs: []string{"string"},
 	})
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -205,18 +210,18 @@ func TestWalletAuthenticateWithJwtWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Wallets.AuthenticateWithJwt(context.TODO(), privyapiclient.WalletAuthenticateWithJwtParams{
+	_, err := client.Wallets.AuthenticateWithJwt(context.TODO(), WalletAuthenticateWithJwtParams{
 		UserJwt:            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30",
-		EncryptionType:     privyapiclient.WalletAuthenticateWithJwtParamsEncryptionTypeHpke,
-		RecipientPublicKey: privyapiclient.String("DAQcDQgAEx4aoeD72yykviK+fckqE2CItVIGn1rCnvCXZ1HgpOcMEMialRmTrqIK4oZlYd1"),
+		EncryptionType:     WalletAuthenticateWithJwtParamsEncryptionTypeHpke,
+		RecipientPublicKey: String("DAQcDQgAEx4aoeD72yykviK+fckqE2CItVIGn1rCnvCXZ1HgpOcMEMialRmTrqIK4oZlYd1"),
 	})
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -233,7 +238,7 @@ func TestWalletExportWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
@@ -241,14 +246,14 @@ func TestWalletExportWithOptionalParams(t *testing.T) {
 	_, err := client.Wallets.Export(
 		context.TODO(),
 		"wallet_id",
-		privyapiclient.WalletExportParams{
-			EncryptionType:              privyapiclient.WalletExportParamsEncryptionTypeHpke,
+		WalletExportParams{
+			EncryptionType:              WalletExportParamsEncryptionTypeHpke,
 			RecipientPublicKey:          "BDAZLOIdTaPycEYkgG0MvCzbIKJLli/yWkAV5yCa9yOsZ4JsrLweA5MnP8YIiY4k/RRzC+APhhO+P+Hoz/rt7Go=",
-			PrivyAuthorizationSignature: privyapiclient.String("privy-authorization-signature"),
+			PrivyAuthorizationSignature: String("privy-authorization-signature"),
 		},
 	)
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -265,14 +270,14 @@ func TestWalletGet(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
 	_, err := client.Wallets.Get(context.TODO(), "wallet_id")
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -289,7 +294,7 @@ func TestWalletRawSignWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
@@ -297,16 +302,18 @@ func TestWalletRawSignWithOptionalParams(t *testing.T) {
 	_, err := client.Wallets.RawSign(
 		context.TODO(),
 		"wallet_id",
-		privyapiclient.WalletRawSignParams{
-			Params: privyapiclient.WalletRawSignParamsParams{
-				Hash: privyapiclient.String("0x0775aeed9c9ce6e0fbc4db25c5e4e6368029651c905c286f813126a09025a21e"),
+		WalletRawSignParams{
+			Params: WalletRawSignParamsParamsUnion{
+				OfHash: &WalletRawSignParamsParamsHash{
+					Hash: "0x0775aeed9c9ce6e0fbc4db25c5e4e6368029651c905c286f813126a09025a21e",
+				},
 			},
-			PrivyAuthorizationSignature: privyapiclient.String("privy-authorization-signature"),
-			PrivyIdempotencyKey:         privyapiclient.String("privy-idempotency-key"),
+			PrivyAuthorizationSignature: String("privy-authorization-signature"),
+			PrivyIdempotencyKey:         String("privy-idempotency-key"),
 		},
 	)
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -323,7 +330,7 @@ func TestWalletRpcWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
@@ -331,48 +338,61 @@ func TestWalletRpcWithOptionalParams(t *testing.T) {
 	_, err := client.Wallets.Rpc(
 		context.TODO(),
 		"wallet_id",
-		privyapiclient.WalletRpcParams{
-			OfEthSendTransaction: &privyapiclient.WalletRpcParamsBodyEthSendTransaction{
-				Caip2: "eip155:8453",
-				Params: privyapiclient.WalletRpcParamsBodyEthSendTransactionParams{
-					Transaction: privyapiclient.WalletRpcParamsBodyEthSendTransactionParamsTransaction{
-						ChainID: privyapiclient.WalletRpcParamsBodyEthSendTransactionParamsTransactionChainIDUnion{
-							OfString: privyapiclient.String("string"),
+		WalletRpcParams{
+			OfEthSendTransaction: &EthereumSendTransactionRpcInputParam{
+				Caip2:  "eip155:8453",
+				Method: EthereumSendTransactionRpcInputMethodEthSendTransaction,
+				Params: EthereumSendTransactionRpcInputParamsParam{
+					Transaction: EthereumSendTransactionRpcInputParamsTransactionParam{
+						AuthorizationList: []EthereumSendTransactionRpcInputParamsTransactionAuthorizationListParam{{
+							ChainID: EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionParam{
+								OfString: String("string"),
+							},
+							Contract: "contract",
+							Nonce: EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnionParam{
+								OfString: String("string"),
+							},
+							R:       "r",
+							S:       "s",
+							YParity: 0,
+						}},
+						ChainID: EthereumSendTransactionRpcInputParamsTransactionChainIDUnionParam{
+							OfString: String("string"),
 						},
-						Data: privyapiclient.String("data"),
-						From: privyapiclient.String("from"),
-						GasLimit: privyapiclient.WalletRpcParamsBodyEthSendTransactionParamsTransactionGasLimitUnion{
-							OfString: privyapiclient.String("string"),
+						Data: String("data"),
+						From: String("from"),
+						GasLimit: EthereumSendTransactionRpcInputParamsTransactionGasLimitUnionParam{
+							OfString: String("string"),
 						},
-						GasPrice: privyapiclient.WalletRpcParamsBodyEthSendTransactionParamsTransactionGasPriceUnion{
-							OfString: privyapiclient.String("string"),
+						GasPrice: EthereumSendTransactionRpcInputParamsTransactionGasPriceUnionParam{
+							OfString: String("string"),
 						},
-						MaxFeePerGas: privyapiclient.WalletRpcParamsBodyEthSendTransactionParamsTransactionMaxFeePerGasUnion{
-							OfString: privyapiclient.String("string"),
+						MaxFeePerGas: EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnionParam{
+							OfString: String("string"),
 						},
-						MaxPriorityFeePerGas: privyapiclient.WalletRpcParamsBodyEthSendTransactionParamsTransactionMaxPriorityFeePerGasUnion{
-							OfString: privyapiclient.String("string"),
+						MaxPriorityFeePerGas: EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionParam{
+							OfString: String("string"),
 						},
-						Nonce: privyapiclient.WalletRpcParamsBodyEthSendTransactionParamsTransactionNonceUnion{
-							OfString: privyapiclient.String("string"),
+						Nonce: EthereumSendTransactionRpcInputParamsTransactionNonceUnionParam{
+							OfString: String("string"),
 						},
-						To:   privyapiclient.String("0x0000000000000000000000000000000000000000"),
+						To:   String("0x0000000000000000000000000000000000000000"),
 						Type: 0,
-						Value: privyapiclient.WalletRpcParamsBodyEthSendTransactionParamsTransactionValueUnion{
-							OfInt: privyapiclient.Int(1),
+						Value: EthereumSendTransactionRpcInputParamsTransactionValueUnionParam{
+							OfInt: Int(1),
 						},
 					},
 				},
-				Address:   privyapiclient.String("address"),
-				ChainType: "ethereum",
-				Sponsor:   privyapiclient.Bool(true),
+				Address:   String("address"),
+				ChainType: EthereumSendTransactionRpcInputChainTypeEthereum,
+				Sponsor:   Bool(true),
 			},
-			PrivyAuthorizationSignature: privyapiclient.String("privy-authorization-signature"),
-			PrivyIdempotencyKey:         privyapiclient.String("privy-idempotency-key"),
+			PrivyAuthorizationSignature: String("privy-authorization-signature"),
+			PrivyIdempotencyKey:         String("privy-idempotency-key"),
 		},
 	)
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}

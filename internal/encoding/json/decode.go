@@ -14,7 +14,7 @@ import (
 	"encoding"
 	"encoding/base64"
 	"fmt"
-	"github.com/stainless-sdks/privy-api-client-go/internal/encoding/json/shims"
+	"github.com/privy-io/go-sdk/internal/encoding/json/shims"
 	"reflect"
 	"strconv"
 	"strings"

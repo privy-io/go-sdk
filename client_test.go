@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package privyapiclient_test
+package privyclient_test
 
 import (
 	"context"
@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stainless-sdks/privy-api-client-go"
-	"github.com/stainless-sdks/privy-api-client-go/internal"
-	"github.com/stainless-sdks/privy-api-client-go/option"
+	"github.com/privy-io/go-sdk"
+	"github.com/privy-io/go-sdk/internal"
+	"github.com/privy-io/go-sdk/option"
 )
 
 type closureTransport struct {
@@ -25,7 +25,7 @@ func (t *closureTransport) RoundTrip(req *http.Request) (*http.Response, error) 
 
 func TestUserAgentHeader(t *testing.T) {
 	var userAgent string
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 		option.WithHTTPClient(&http.Client{
@@ -47,7 +47,7 @@ func TestUserAgentHeader(t *testing.T) {
 
 func TestRetryAfter(t *testing.T) {
 	retryCountHeaders := make([]string, 0)
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 		option.WithHTTPClient(&http.Client{
@@ -82,7 +82,7 @@ func TestRetryAfter(t *testing.T) {
 
 func TestDeleteRetryCountHeader(t *testing.T) {
 	retryCountHeaders := make([]string, 0)
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 		option.WithHTTPClient(&http.Client{
@@ -113,7 +113,7 @@ func TestDeleteRetryCountHeader(t *testing.T) {
 
 func TestOverwriteRetryCountHeader(t *testing.T) {
 	retryCountHeaders := make([]string, 0)
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 		option.WithHTTPClient(&http.Client{
@@ -144,7 +144,7 @@ func TestOverwriteRetryCountHeader(t *testing.T) {
 
 func TestRetryAfterMs(t *testing.T) {
 	attempts := 0
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 		option.WithHTTPClient(&http.Client{
@@ -171,7 +171,7 @@ func TestRetryAfterMs(t *testing.T) {
 }
 
 func TestContextCancel(t *testing.T) {
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 		option.WithHTTPClient(&http.Client{
@@ -192,7 +192,7 @@ func TestContextCancel(t *testing.T) {
 }
 
 func TestContextCancelDelay(t *testing.T) {
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 		option.WithHTTPClient(&http.Client{
@@ -221,7 +221,7 @@ func TestContextDeadline(t *testing.T) {
 	defer cancel()
 
 	go func() {
-		client := privyapiclient.NewClient(
+		client := privyclient.NewClient(
 			option.WithAppID("My App ID"),
 			option.WithAppSecret("My App Secret"),
 			option.WithHTTPClient(&http.Client{

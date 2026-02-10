@@ -2,7 +2,7 @@ package param
 
 import (
 	"encoding/json"
-	"github.com/stainless-sdks/privy-api-client-go/internal/encoding/json/sentinel"
+	"github.com/privy-io/go-sdk/internal/encoding/json/sentinel"
 	"reflect"
 )
 

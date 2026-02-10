@@ -1,15 +1,15 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package privyapiclient_test
+package privyclient_test
 
 import (
 	"context"
 	"os"
 	"testing"
 
-	"github.com/stainless-sdks/privy-api-client-go"
-	"github.com/stainless-sdks/privy-api-client-go/internal/testutil"
-	"github.com/stainless-sdks/privy-api-client-go/option"
+	"github.com/privy-io/go-sdk"
+	"github.com/privy-io/go-sdk/internal/testutil"
+	"github.com/privy-io/go-sdk/option"
 )
 
 func TestUsage(t *testing.T) {
@@ -20,7 +20,7 @@ func TestUsage(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),

@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package privyapiclient
+package privyclient
 
 import (
 	"context"
@@ -10,12 +10,12 @@ import (
 	"net/url"
 	"slices"
 
-	"github.com/stainless-sdks/privy-api-client-go/internal/apijson"
-	"github.com/stainless-sdks/privy-api-client-go/internal/apiquery"
-	"github.com/stainless-sdks/privy-api-client-go/internal/requestconfig"
-	"github.com/stainless-sdks/privy-api-client-go/option"
-	"github.com/stainless-sdks/privy-api-client-go/packages/param"
-	"github.com/stainless-sdks/privy-api-client-go/packages/respjson"
+	"github.com/privy-io/go-sdk/internal/apijson"
+	"github.com/privy-io/go-sdk/internal/apiquery"
+	"github.com/privy-io/go-sdk/internal/requestconfig"
+	"github.com/privy-io/go-sdk/option"
+	"github.com/privy-io/go-sdk/packages/param"
+	"github.com/privy-io/go-sdk/packages/respjson"
 )
 
 // WalletBalanceService contains methods and other services that help with
@@ -66,11 +66,10 @@ func (r *WalletBalanceGetResponse) UnmarshalJSON(data []byte) error {
 }
 
 type WalletBalanceGetResponseBalance struct {
-	// Any of "usdc", "eth", "pol", "usdt", "sol".
 	Asset string `json:"asset,required"`
 	// Any of "ethereum", "arbitrum", "base", "linea", "optimism", "polygon", "solana",
 	// "zksync_era", "sepolia", "arbitrum_sepolia", "base_sepolia", "linea_testnet",
-	// "optimism_sepolia", "polygon_amoy".
+	// "optimism_sepolia", "polygon_amoy", "solana_devnet", "solana_testnet".
 	Chain            string            `json:"chain,required"`
 	DisplayValues    map[string]string `json:"display_values,required"`
 	RawValue         string            `json:"raw_value,required"`
@@ -94,9 +93,13 @@ func (r *WalletBalanceGetResponseBalance) UnmarshalJSON(data []byte) error {
 }
 
 type WalletBalanceGetParams struct {
-	Asset WalletBalanceGetParamsAssetUnion `query:"asset,omitzero,required" json:"-"`
-	Chain WalletBalanceGetParamsChainUnion `query:"chain,omitzero,required" json:"-"`
-	// Any of "usd".
+	// The token contract address(es) to query in format "chain:address" (e.g.,
+	// "base:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" or
+	// "solana:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v").
+	Token WalletBalanceGetParamsTokenUnion `query:"token,omitzero" json:"-"`
+	Asset WalletBalanceGetParamsAssetUnion `query:"asset,omitzero" json:"-"`
+	Chain WalletBalanceGetParamsChainUnion `query:"chain,omitzero" json:"-"`
+	// Any of "usd", "eur".
 	IncludeCurrency WalletBalanceGetParamsIncludeCurrency `query:"include_currency,omitzero" json:"-"`
 	paramObj
 }
@@ -107,6 +110,24 @@ func (r WalletBalanceGetParams) URLQuery() (v url.Values, err error) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type WalletBalanceGetParamsTokenUnion struct {
+	OfString      param.Opt[string] `query:",omitzero,inline"`
+	OfStringArray []string          `query:",omitzero,inline"`
+	paramUnion
+}
+
+func (u *WalletBalanceGetParamsTokenUnion) asAny() any {
+	if !param.IsOmitted(u.OfString) {
+		return &u.OfString.Value
+	} else if !param.IsOmitted(u.OfStringArray) {
+		return &u.OfStringArray
+	}
+	return nil
 }
 
 // Only one field can be non-zero.
@@ -136,6 +157,8 @@ const (
 	WalletBalanceGetParamsAssetStringEth  WalletBalanceGetParamsAssetString = "eth"
 	WalletBalanceGetParamsAssetStringPol  WalletBalanceGetParamsAssetString = "pol"
 	WalletBalanceGetParamsAssetStringUsdt WalletBalanceGetParamsAssetString = "usdt"
+	WalletBalanceGetParamsAssetStringEurc WalletBalanceGetParamsAssetString = "eurc"
+	WalletBalanceGetParamsAssetStringUsdb WalletBalanceGetParamsAssetString = "usdb"
 	WalletBalanceGetParamsAssetStringSol  WalletBalanceGetParamsAssetString = "sol"
 )
 
@@ -176,10 +199,13 @@ const (
 	WalletBalanceGetParamsChainStringLineaTestnet    WalletBalanceGetParamsChainString = "linea_testnet"
 	WalletBalanceGetParamsChainStringOptimismSepolia WalletBalanceGetParamsChainString = "optimism_sepolia"
 	WalletBalanceGetParamsChainStringPolygonAmoy     WalletBalanceGetParamsChainString = "polygon_amoy"
+	WalletBalanceGetParamsChainStringSolanaDevnet    WalletBalanceGetParamsChainString = "solana_devnet"
+	WalletBalanceGetParamsChainStringSolanaTestnet   WalletBalanceGetParamsChainString = "solana_testnet"
 )
 
 type WalletBalanceGetParamsIncludeCurrency string
 
 const (
 	WalletBalanceGetParamsIncludeCurrencyUsd WalletBalanceGetParamsIncludeCurrency = "usd"
+	WalletBalanceGetParamsIncludeCurrencyEur WalletBalanceGetParamsIncludeCurrency = "eur"
 )

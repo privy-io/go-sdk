@@ -1,10 +1,10 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package privyapiclient
+package privyclient
 
 import (
-	"github.com/stainless-sdks/privy-api-client-go/internal/apierror"
-	"github.com/stainless-sdks/privy-api-client-go/packages/param"
+	"github.com/privy-io/go-sdk/internal/apierror"
+	"github.com/privy-io/go-sdk/packages/param"
 )
 
 // aliased to make [param.APIUnion] private when embedding

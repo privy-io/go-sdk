@@ -3,7 +3,7 @@ package param
 import (
 	"encoding/json"
 	"fmt"
-	shimjson "github.com/stainless-sdks/privy-api-client-go/internal/encoding/json"
+	shimjson "github.com/privy-io/go-sdk/internal/encoding/json"
 	"time"
 )
 

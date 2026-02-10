@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-package privyapiclient_test
+package privyclient_test
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stainless-sdks/privy-api-client-go"
-	"github.com/stainless-sdks/privy-api-client-go/internal/testutil"
-	"github.com/stainless-sdks/privy-api-client-go/option"
+	"github.com/privy-io/go-sdk"
+	"github.com/privy-io/go-sdk/internal/testutil"
+	"github.com/privy-io/go-sdk/option"
 )
 
 func TestPolicyNewWithOptionalParams(t *testing.T) {
@@ -22,39 +22,39 @@ func TestPolicyNewWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Policies.New(context.TODO(), privyapiclient.PolicyNewParams{
-		ChainType: privyapiclient.PolicyNewParamsChainTypeEthereum,
-		Name:      "name",
-		Rules: []privyapiclient.PolicyNewParamsRule{{
+	_, err := client.Policies.New(context.TODO(), privyclient.PolicyNewParams{
+		ChainType: privyclient.PolicyNewParamsChainTypeEthereum,
+		Name:      "x",
+		Rules: []privyclient.PolicyNewParamsRule{{
 			Action: "ALLOW",
-			Conditions: []privyapiclient.PolicyNewParamsRuleConditionUnion{{
-				OfEthereumTransaction: &privyapiclient.PolicyNewParamsRuleConditionEthereumTransaction{
+			Conditions: []privyclient.PolicyNewParamsRuleConditionUnion{{
+				OfEthereumTransaction: &privyclient.PolicyNewParamsRuleConditionEthereumTransaction{
 					Field:    "to",
 					Operator: "eq",
-					Value: privyapiclient.PolicyNewParamsRuleConditionEthereumTransactionValueUnion{
-						OfString: privyapiclient.String("string"),
+					Value: privyclient.PolicyNewParamsRuleConditionEthereumTransactionValueUnion{
+						OfString: privyclient.String("string"),
 					},
 				},
 			}},
 			Method: "eth_sendTransaction",
-			Name:   "name",
+			Name:   "x",
 		}},
-		Version: privyapiclient.PolicyNewParamsVersion1_0,
-		Owner: privyapiclient.PolicyNewParamsOwnerUnion{
-			OfPublicKeyOwner: &privyapiclient.PolicyNewParamsOwnerPublicKeyOwner{
+		Version: privyclient.PolicyNewParamsVersion1_0,
+		Owner: privyclient.PolicyNewParamsOwnerUnion{
+			OfPublicKeyOwner: &privyclient.PolicyNewParamsOwnerPublicKeyOwner{
 				PublicKey: "public_key",
 			},
 		},
-		OwnerID:             privyapiclient.String("owner_id"),
-		PrivyIdempotencyKey: privyapiclient.String("privy-idempotency-key"),
+		OwnerID:             privyclient.String("owner_id"),
+		PrivyIdempotencyKey: privyclient.String("privy-idempotency-key"),
 	})
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -71,7 +71,7 @@ func TestPolicyUpdateWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
@@ -79,33 +79,33 @@ func TestPolicyUpdateWithOptionalParams(t *testing.T) {
 	_, err := client.Policies.Update(
 		context.TODO(),
 		"xxxxxxxxxxxxxxxxxxxxxxxx",
-		privyapiclient.PolicyUpdateParams{
-			Name: privyapiclient.String("x"),
-			Owner: privyapiclient.PolicyUpdateParamsOwnerUnion{
-				OfPublicKeyOwner: &privyapiclient.PolicyUpdateParamsOwnerPublicKeyOwner{
+		privyclient.PolicyUpdateParams{
+			Name: privyclient.String("x"),
+			Owner: privyclient.PolicyUpdateParamsOwnerUnion{
+				OfPublicKeyOwner: &privyclient.PolicyUpdateParamsOwnerPublicKeyOwner{
 					PublicKey: "public_key",
 				},
 			},
-			OwnerID: privyapiclient.String("owner_id"),
-			Rules: []privyapiclient.PolicyUpdateParamsRule{{
+			OwnerID: privyclient.String("owner_id"),
+			Rules: []privyclient.PolicyUpdateParamsRule{{
 				Action: "ALLOW",
-				Conditions: []privyapiclient.PolicyUpdateParamsRuleConditionUnion{{
-					OfEthereumTransaction: &privyapiclient.PolicyUpdateParamsRuleConditionEthereumTransaction{
+				Conditions: []privyclient.PolicyUpdateParamsRuleConditionUnion{{
+					OfEthereumTransaction: &privyclient.PolicyUpdateParamsRuleConditionEthereumTransaction{
 						Field:    "to",
 						Operator: "eq",
-						Value: privyapiclient.PolicyUpdateParamsRuleConditionEthereumTransactionValueUnion{
-							OfString: privyapiclient.String("string"),
+						Value: privyclient.PolicyUpdateParamsRuleConditionEthereumTransactionValueUnion{
+							OfString: privyclient.String("string"),
 						},
 					},
 				}},
 				Method: "eth_sendTransaction",
-				Name:   "name",
+				Name:   "x",
 			}},
-			PrivyAuthorizationSignature: privyapiclient.String("privy-authorization-signature"),
+			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
 		},
 	)
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -122,7 +122,7 @@ func TestPolicyDeleteWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
@@ -130,12 +130,12 @@ func TestPolicyDeleteWithOptionalParams(t *testing.T) {
 	_, err := client.Policies.Delete(
 		context.TODO(),
 		"xxxxxxxxxxxxxxxxxxxxxxxx",
-		privyapiclient.PolicyDeleteParams{
-			PrivyAuthorizationSignature: privyapiclient.String("privy-authorization-signature"),
+		privyclient.PolicyDeleteParams{
+			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
 		},
 	)
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -152,7 +152,7 @@ func TestPolicyNewRuleWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
@@ -160,24 +160,24 @@ func TestPolicyNewRuleWithOptionalParams(t *testing.T) {
 	_, err := client.Policies.NewRule(
 		context.TODO(),
 		"xxxxxxxxxxxxxxxxxxxxxxxx",
-		privyapiclient.PolicyNewRuleParams{
-			Action: privyapiclient.PolicyNewRuleParamsActionAllow,
-			Conditions: []privyapiclient.PolicyNewRuleParamsConditionUnion{{
-				OfEthereumTransaction: &privyapiclient.PolicyNewRuleParamsConditionEthereumTransaction{
+		privyclient.PolicyNewRuleParams{
+			Action: privyclient.PolicyNewRuleParamsActionAllow,
+			Conditions: []privyclient.PolicyNewRuleParamsConditionUnion{{
+				OfEthereumTransaction: &privyclient.PolicyNewRuleParamsConditionEthereumTransaction{
 					Field:    "to",
 					Operator: "eq",
-					Value: privyapiclient.PolicyNewRuleParamsConditionEthereumTransactionValueUnion{
-						OfString: privyapiclient.String("string"),
+					Value: privyclient.PolicyNewRuleParamsConditionEthereumTransactionValueUnion{
+						OfString: privyclient.String("string"),
 					},
 				},
 			}},
-			Method:                      privyapiclient.PolicyNewRuleParamsMethodEthSendTransaction,
-			Name:                        "name",
-			PrivyAuthorizationSignature: privyapiclient.String("privy-authorization-signature"),
+			Method:                      privyclient.PolicyNewRuleParamsMethodEthSendTransaction,
+			Name:                        "x",
+			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
 		},
 	)
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -194,7 +194,7 @@ func TestPolicyDeleteRuleWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
@@ -202,13 +202,13 @@ func TestPolicyDeleteRuleWithOptionalParams(t *testing.T) {
 	_, err := client.Policies.DeleteRule(
 		context.TODO(),
 		"xxxxxxxxxxxxxxxxxxxxxxxx",
-		privyapiclient.PolicyDeleteRuleParams{
+		privyclient.PolicyDeleteRuleParams{
 			PolicyID:                    "xxxxxxxxxxxxxxxxxxxxxxxx",
-			PrivyAuthorizationSignature: privyapiclient.String("privy-authorization-signature"),
+			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
 		},
 	)
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -225,14 +225,14 @@ func TestPolicyGet(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
 	_, err := client.Policies.Get(context.TODO(), "xxxxxxxxxxxxxxxxxxxxxxxx")
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -249,7 +249,7 @@ func TestPolicyGetRule(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
@@ -257,12 +257,12 @@ func TestPolicyGetRule(t *testing.T) {
 	_, err := client.Policies.GetRule(
 		context.TODO(),
 		"xxxxxxxxxxxxxxxxxxxxxxxx",
-		privyapiclient.PolicyGetRuleParams{
+		privyclient.PolicyGetRuleParams{
 			PolicyID: "xxxxxxxxxxxxxxxxxxxxxxxx",
 		},
 	)
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
@@ -279,7 +279,7 @@ func TestPolicyUpdateRuleWithOptionalParams(t *testing.T) {
 	if !testutil.CheckTestServer(t, baseURL) {
 		return
 	}
-	client := privyapiclient.NewClient(
+	client := privyclient.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
@@ -287,25 +287,25 @@ func TestPolicyUpdateRuleWithOptionalParams(t *testing.T) {
 	_, err := client.Policies.UpdateRule(
 		context.TODO(),
 		"xxxxxxxxxxxxxxxxxxxxxxxx",
-		privyapiclient.PolicyUpdateRuleParams{
+		privyclient.PolicyUpdateRuleParams{
 			PolicyID: "xxxxxxxxxxxxxxxxxxxxxxxx",
-			Action:   privyapiclient.PolicyUpdateRuleParamsActionAllow,
-			Conditions: []privyapiclient.PolicyUpdateRuleParamsConditionUnion{{
-				OfEthereumTransaction: &privyapiclient.PolicyUpdateRuleParamsConditionEthereumTransaction{
+			Action:   privyclient.PolicyUpdateRuleParamsActionAllow,
+			Conditions: []privyclient.PolicyUpdateRuleParamsConditionUnion{{
+				OfEthereumTransaction: &privyclient.PolicyUpdateRuleParamsConditionEthereumTransaction{
 					Field:    "to",
 					Operator: "eq",
-					Value: privyapiclient.PolicyUpdateRuleParamsConditionEthereumTransactionValueUnion{
-						OfString: privyapiclient.String("string"),
+					Value: privyclient.PolicyUpdateRuleParamsConditionEthereumTransactionValueUnion{
+						OfString: privyclient.String("string"),
 					},
 				},
 			}},
-			Method:                      privyapiclient.PolicyUpdateRuleParamsMethodEthSendTransaction,
-			Name:                        "name",
-			PrivyAuthorizationSignature: privyapiclient.String("privy-authorization-signature"),
+			Method:                      privyclient.PolicyUpdateRuleParamsMethodEthSendTransaction,
+			Name:                        "x",
+			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
 		},
 	)
 	if err != nil {
-		var apierr *privyapiclient.Error
+		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
