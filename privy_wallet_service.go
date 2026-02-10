@@ -100,17 +100,11 @@ func (s *PrivyWalletService) Rpc(
 			Headers: headers,
 		}
 
-		// Format the request for signing
-		payload, err := authorization.FormatRequestForAuthorizationSignature(sigInput)
-		if err != nil {
-			return nil, err
-		}
-
 		// Generate signatures
-		signatures, err := authorization.GenerateAuthorizationSignatures(
+		signatures, err := authorization.GenerateAuthorizationSignaturesForRequest(
 			ctx,
 			*options.AuthorizationContext,
-			payload,
+			sigInput,
 			s.jwtExchanger,
 		)
 		if err != nil {
@@ -125,4 +119,59 @@ func (s *PrivyWalletService) Rpc(
 
 	// Call the underlying service
 	return s.WalletService.Rpc(ctx, walletID, params)
+}
+
+// Update modifies a wallet with automatic authorization signature generation.
+//
+// This method wraps the generated WalletService.Update and handles:
+//   - Building the authorization signature from an AuthorizationContext
+//
+// Parameters:
+//   - ctx: Context for cancellation and timeouts
+//   - walletID: The wallet ID to update
+//   - params: The update parameters (callers can skip PrivyAuthorizationSignature)
+//   - opts: use WithAuthorizationContext
+func (s *PrivyWalletService) Update(
+	ctx context.Context,
+	walletID string,
+	params WalletUpdateParams,
+	opts ...RpcOption,
+) (*Wallet, error) {
+	options := applyRpcOptions(opts)
+
+	// Generate authorization signature if context is provided
+	if options.AuthorizationContext != nil {
+		// Build headers map
+		headers := map[string]string{
+			"privy-app-id": s.appID,
+		}
+
+		// Build signature input
+		sigInput := authorization.WalletApiRequestSignatureInput{
+			Version: 1,
+			Method:  "PATCH",
+			URL:     s.baseURL + "/v1/wallets/" + walletID,
+			Body:    params,
+			Headers: headers,
+		}
+
+		// Generate signatures
+		signatures, err := authorization.GenerateAuthorizationSignaturesForRequest(
+			ctx,
+			*options.AuthorizationContext,
+			sigInput,
+			s.jwtExchanger,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		// Set the authorization header
+		if len(signatures) > 0 {
+			params.PrivyAuthorizationSignature = param.NewOpt(strings.Join(signatures, ","))
+		}
+	}
+
+	// Call the underlying service
+	return s.WalletService.Update(ctx, walletID, params)
 }

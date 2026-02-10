@@ -22,10 +22,14 @@ func newTestClient(t *testing.T) *PrivyClient {
 	if appSecret == "" {
 		t.Fatal("TEST_APP_SECRET environment variable is required")
 	}
-	client := NewPrivyClient(PrivyClientOptions{
+	opts := PrivyClientOptions{
 		AppID:     appId,
 		AppSecret: appSecret,
 		APIUrl:    "https://auth.staging.privy.io",
-	})
+	}
+	if os.Getenv("TEST_DEBUG_LOGS") != "" {
+		opts.LogLevel = LogLevelVerbose
+	}
+	client := NewPrivyClient(opts)
 	return client
 }
