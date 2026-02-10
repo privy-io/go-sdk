@@ -4,3 +4,5 @@ Brewfile.lock.json
 .idea/
 
 .env.secret
+
+.claude/settings.local.json
