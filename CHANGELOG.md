@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.0.2 (2026-02-11)
+
+Full Changelog: [v0.0.1...v0.0.2](https://github.com/privy-io/go-sdk/compare/v0.0.1...v0.0.2)
+
+### Features
+
+* ethereum and solana rpc helpers take in params directly ([#39](https://github.com/privy-io/go-sdk/issues/39)) ([cdecf19](https://github.com/privy-io/go-sdk/commit/cdecf19f4fd3c02819abe4d333013a27d984f90e))
+* implements PrivyPolicyService utils ([#42](https://github.com/privy-io/go-sdk/issues/42)) ([9e77bca](https://github.com/privy-io/go-sdk/commit/9e77bcadcad681228e11879994c1c212a7ab5d9d))
+
+
+### Documentation
+
+* update guides ([#40](https://github.com/privy-io/go-sdk/issues/40)) ([e4decd2](https://github.com/privy-io/go-sdk/commit/e4decd233a41baa9bfd3ef4ce7226b78c2e6fa9a))
+
 ## 0.0.1 (2026-02-10)
 
 Full Changelog: [v0.0.1...v0.0.1](https://github.com/privy-io/go-sdk/compare/v0.0.1...v0.0.1)
