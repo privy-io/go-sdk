@@ -7,6 +7,7 @@ import (
 
 	. "github.com/privy-io/go-sdk"
 	"github.com/privy-io/go-sdk/authorization"
+	"github.com/privy-io/go-sdk/packages/param"
 )
 
 func TestWallets(t *testing.T) {
@@ -37,18 +38,20 @@ func TestWallets(t *testing.T) {
 	})
 
 	t.Run("Update", func(t *testing.T) {
-		t.Skip("skipped to avoid changing test resources")
 		walletID := os.Getenv("P256_OWNED_ETHEREUM_WALLET_ID")
+		pk := os.Getenv("P256_PUBLIC_KEY")
 		sk := os.Getenv("P256_PRIVATE_KEY")
 		authCtx := &authorization.AuthorizationContext{
 			PrivateKeys: []string{sk},
 		}
 
-		// Call Update with authorization (empty params just validates auth works)
+		// Update the wallet to be ownerless
 		result, err := client.Wallets.Update(
 			ctx,
 			walletID,
-			WalletUpdateParams{},
+			WalletUpdateParams{
+				Owner: param.NullStruct[WalletUpdateParamsOwnerUnion](),
+			},
 			WithAuthorizationContext(authCtx),
 		)
 		if err != nil {
@@ -56,7 +59,31 @@ func TestWallets(t *testing.T) {
 		}
 
 		if result.ID != walletID {
-			t.Errorf("expected wallet ID %s, got %s", walletID, result.ID)
+			t.Fatalf("expected wallet ID %s, got %s", walletID, result.ID)
+		}
+
+		// Check no OwnerID (empty string)
+		if result.OwnerID != "" {
+			t.Fatalf("expected wallet to have no owner, got %s", result.OwnerID)
+		}
+
+		// Update the wallet back to be owned by the P256 key
+		result2, err := client.Wallets.Update(
+			ctx,
+			walletID,
+			WalletUpdateParams{
+				Owner: WalletUpdateParamsOwnerUnion{
+					OfPublicKeyOwner: &WalletUpdateParamsOwnerPublicKeyOwner{PublicKey: pk},
+				},
+			},
+			WithAuthorizationContext(authCtx),
+		)
+		if err != nil {
+			t.Fatalf("failed to update wallet: %v", err)
+		}
+
+		if result2.ID != walletID {
+			t.Errorf("expected wallet ID %s, got %s", walletID, result2.ID)
 		}
 	})
 
