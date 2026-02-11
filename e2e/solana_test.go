@@ -124,7 +124,10 @@ func TestWallets_Solana(t *testing.T) {
 		for _, wallet := range wallets {
 			t.Run(wallet.name, func(t *testing.T) {
 				data, err := client.Wallets.Solana.SignTransaction(ctx, wallet.id,
-					transaction,
+					SolanaSignTransactionRpcInputParamsParam{
+						Transaction: transaction,
+						Encoding:    "base64",
+					},
 					WithAuthorizationContext(wallet.authCtx),
 				)
 				if err != nil {
@@ -179,13 +182,10 @@ func TestWallets_Solana(t *testing.T) {
 		for _, wallet := range wallets {
 			t.Run(wallet.name, func(t *testing.T) {
 				data, err := client.Wallets.Solana.SignAndSendTransaction(ctx, wallet.id,
-					SolanaSignAndSendTransactionRpcInputParam{
-						Caip2:  "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1", // Solana devnet
-						Method: SolanaSignAndSendTransactionRpcInputMethodSignAndSendTransaction,
-						Params: SolanaSignAndSendTransactionRpcInputParamsParam{
-							Transaction: transaction,
-							Encoding:    "base64",
-						},
+					"solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1", // Solana devnet
+					SolanaSignAndSendTransactionRpcInputParamsParam{
+						Transaction: transaction,
+						Encoding:    "base64",
 					},
 					WithAuthorizationContext(wallet.authCtx),
 				)

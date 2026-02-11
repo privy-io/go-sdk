@@ -3,24 +3,29 @@
 ## Getting Started
 
 ### Installation
+
 Install the Privy Go SDK using go get:
+
 ```bash
 go get github.com/privy-io/go-sdk
 ```
 
 ### Requirements
+
 - Go 1.23 or higher
 - Privy App ID and App Secret (available in your Privy dashboard)
 
 ### Quick Setup
-Initialize the Privy client with your credentials:
-```go
-import privyclient "github.com/privy-io/go-sdk"
 
-client := privyclient.NewPrivyClient(privyclient.PrivyClientOptions{
+Initialize the Privy client with your credentials:
+
+```go
+import privy "github.com/privy-io/go-sdk"
+
+client := privy.NewPrivyClient(privy.PrivyClientOptions{
     AppID:     "your-app-id",
     AppSecret: "your-app-secret",
-    LogLevel:  privyclient.LogLevelInfo, // Optional: LogLevelNone, LogLevelError, LogLevelInfo, LogLevelDebug, LogLevelVerbose
+    LogLevel:  privy.LogLevelInfo, // Optional: LogLevelNone, LogLevelError, LogLevelInfo, LogLevelDebug, LogLevelVerbose
 })
 ```
 
@@ -43,9 +48,8 @@ Each service provides methods for interacting with its respective API endpoints.
 
 ## Authorization Context & Signatures
 
-When updating resources like wallets, policies, or key quorums in the Privy API, requests [must be signed](https://docs.privy.io/controls/authorization-keys/using-owners/sign/overview) 
+When updating resources like wallets, policies, or key quorums in the Privy API, requests [must be signed](https://docs.privy.io/controls/authorization-keys/using-owners/sign/overview)
 by the resource owner in order to be authorized. Privy's Go SDK exposes utilities to simplify the authorization flow.
-
 
 ### Authorization Context
 
@@ -73,6 +77,7 @@ authCtx := authorization.AuthorizationContext{
 ### SDK Convenience Functions
 
 The SDK provides some convenience functions that accept an `AuthorizationContext` and handle all authorization steps automatically under the hood. These functions:
+
 - Build the signature input from request parameters
 - Format the request payload for signing
 - Generate signatures from all credentials in the authorization context
@@ -92,9 +97,9 @@ authCtx := authorization.AuthorizationContext{
 result, err := client.Wallets.Rpc(
     context.Background(),
     "wallet-id",
-    privyclient.WalletRpcParams{
+    privy.WalletRpcParams{
         Method:  "eth_signTypedData_v4",
-        Params:  privyclient.WalletRpcParamsParamsUnion{OfTypedDataSign: &privyclient.TypedDataSignParams{...}},
+        Params:  privy.WalletRpcParamsParamsUnion{OfTypedDataSign: &privy.TypedDataSignParams{...}},
         ChainID: "1",
     },
     WithAuthorizationContext(&authorization.AuthorizationContext{
@@ -109,7 +114,7 @@ if err != nil {
 
 ### Generating Signatures
 
-If the SDK doesn't have a convenience function for a particular action, you can build the signature 
+If the SDK doesn't have a convenience function for a particular action, you can build the signature
 input and generate the authorization signature.
 
 ```go
@@ -133,25 +138,19 @@ input := authorization.WalletApiRequestSignatureInput{
     Headers: headers,
 }
 
-# // TODO: LUCAS - UPDATE THIS EXAMPLE WHEN GenerateAuthorizationSignature TAKES IN WalletApiRequestSignatureInput directly
-
-
-// Single signature
-signature, err := authorization.GenerateAuthorizationSignature(privateKey, payload)
-
-// Multiple signatures (all credentials in context)
-signatures, err := authorization.GenerateAuthorizationSignatures(
+// Generate signatures for all credentials in the context
+signatures, err := authorization.GenerateAuthorizationSignaturesForRequest(
     ctx,
     authCtx,
-    payload,
+    input,
     client.JwtExchange, // For JWT exchange
 )
 ```
 
 ### Formatting Requests for Signing
 
-If you prefer to sign a request yourself through an external service (like a KMS), use the 
-`FormatRequestForAuthorizationSignature` helper to to generate your signature payload. 
+If you prefer to sign a request yourself through an external service (like a KMS), use the
+`FormatRequestForAuthorizationSignature` helper to to generate your signature payload.
 You can then take the returned serialized payload and call out to a signing service to generate a P256 signature over the payload.
 
 ```go
@@ -170,6 +169,7 @@ if err != nil {
 ```
 
 **Key Requirements:**
+
 - Private keys must be base64-encoded PKCS8-formatted P-256 keys
 - Payloads are hashed with SHA-256 before signing
 - Signatures use ECDSA with DER encoding
@@ -179,22 +179,25 @@ if err != nil {
 ## User Management
 
 ### Creating Users
+
 ```go
-user, err := client.Users.New(context.Background(), privyclient.UserNewParams{
-    LinkedAccounts: []privyclient.LinkedAccountInputUnionParam{{
-        OfEmail: &privyclient.LinkedAccountEmailInputParam{
+user, err := client.Users.New(context.Background(), privy.UserNewParams{
+    LinkedAccounts: []privy.LinkedAccountInputUnionParam{{
+        OfEmail: &privy.LinkedAccountEmailInputParam{
             Address: "user@example.com",
-            Type:    privyclient.LinkedAccountEmailInputTypeEmail,
+            Type:    privy.LinkedAccountEmailInputTypeEmail,
         },
     }},
 })
 ```
 
 ### Looking Up Users
+
 Find users by various identifiers:
+
 ```go
 // By email
-user, err := client.Users.GetByEmailAddress(ctx, privyclient.UserGetByEmailAddressParams{
+user, err := client.Users.GetByEmailAddress(ctx, privy.UserGetByEmailAddressParams{
     Address: "user@example.com",
 })
 
@@ -207,27 +210,46 @@ user, err := client.Users.Get(ctx, "user_id")
 ## Wallet Operations
 
 ### Creating Wallets
+
 ```go
-wallet, err := client.Wallets.New(context.Background(), privyclient.WalletNewParams{
-    ChainType: privyclient.WalletNewParamsChainTypeEthereum,
+wallet, err := client.Wallets.New(context.Background(), privy.WalletNewParams{
+    ChainType: privy.WalletNewParamsChainTypeEthereum,
     OwnerID:   "user_id_or_key_quorum_id",
 })
 ```
 
 ### Signing Operations
+
 ```go
 // Sign a message
-signature, err := client.Wallets.SignMessage(ctx, "wallet_id",
-    privyclient.WalletSignMessageParams{
-        Message: "Hello, blockchain!",
-    })
+data, err := client.Wallets.Ethereum.SignMessage(ctx, wallet.id, "Hello, blockchain!")
+fmt.Printf("Signature: %s\n", data.Signature)
 
-// Execute RPC call
+// Execute an RPC call
 result, err := client.Wallets.Rpc(ctx, "wallet_id",
-    privyclient.WalletRpcParams{
+    privy.WalletRpcParams{
         Method: "eth_sendTransaction",
         Params: []interface{}{...},
     })
-```
 
-### TODO: Showcase 7702 and sign user operation convenience functions
+// Sign a 7702 authorization
+data, err := client.Wallets.Ethereum.Sign7702Authorization(ctx, wallet.id,
+  EthereumSign7702AuthorizationRpcInputParamsParam{
+    ChainID: EthereumSign7702AuthorizationRpcInputParamsChainIDUnionParam{
+      OfInt: param.NewOpt[int64](11155111), // Sepolia
+    },
+    Contract: "0x1234567890123456789012345678901234567890",
+  })
+
+// Sign a user operation
+data, err := client.Wallets.Ethereum.SignUserOperation(ctx, wallet.id,
+  EthereumSignUserOperationRpcInputParamsParam{
+    ChainID: EthereumSign7702AuthorizationRpcInputParamsChainIDUnionParam{
+      OfInt: param.NewOpt[int64](11155111), // Sepolia
+    },
+    Contract: "0x1234567890123456789012345678901234567890",
+  UserOperation: EthereumSignUserOperationRpcInputParamsUserOperationParam{
+      // ...
+    },
+  })
+```
