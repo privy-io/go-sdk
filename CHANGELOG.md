@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.0.3 (2026-02-11)
+
+Full Changelog: [v0.0.2...v0.0.3](https://github.com/privy-io/go-sdk/compare/v0.0.2...v0.0.3)
+
+### Bug Fixes
+
+* **encoder:** correctly serialize NullStruct ([2814dff](https://github.com/privy-io/go-sdk/commit/2814dff3b9b3a7fe94a9a995ed8cd46e940a6d3b))
+
+
+### Chores
+
+* fix non public method names ([53bb4d7](https://github.com/privy-io/go-sdk/commit/53bb4d7635256f4938ae5917b94cd987b128f36b))
+
 ## 0.0.2 (2026-02-11)
 
 Full Changelog: [v0.0.1...v0.0.2](https://github.com/privy-io/go-sdk/compare/v0.0.1...v0.0.2)
