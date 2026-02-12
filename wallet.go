@@ -94,7 +94,7 @@ func (r *WalletService) ListAutoPaging(ctx context.Context, query WalletListPara
 }
 
 // Initialize a wallet import. Complete by submitting the import.
-func (r *WalletService) _InitImport(ctx context.Context, body Wallet_InitImportParams, opts ...option.RequestOption) (res *WalletInitImportResponse, err error) {
+func (r *WalletService) InitImport(ctx context.Context, body WalletInitImportParams, opts ...option.RequestOption) (res *WalletInitImportResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/wallets/import/init"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
@@ -102,7 +102,7 @@ func (r *WalletService) _InitImport(ctx context.Context, body Wallet_InitImportP
 }
 
 // Submit a wallet import request.
-func (r *WalletService) _SubmitImport(ctx context.Context, body Wallet_SubmitImportParams, opts ...option.RequestOption) (res *Wallet, err error) {
+func (r *WalletService) SubmitImport(ctx context.Context, body WalletSubmitImportParams, opts ...option.RequestOption) (res *Wallet, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/wallets/import/submit"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
@@ -3137,7 +3137,7 @@ func (r WalletListParams) URLQuery() (v url.Values, err error) {
 	})
 }
 
-type Wallet_InitImportParams struct {
+type WalletInitImportParams struct {
 
 	//
 	// Request body variants
@@ -3145,18 +3145,18 @@ type Wallet_InitImportParams struct {
 
 	// This field is a request body variant, only one variant field can be set. The
 	// input for HD wallets.
-	OfHD *Wallet_InitImportParamsBodyHD `json:",inline"`
+	OfHD *WalletInitImportParamsBodyHD `json:",inline"`
 	// This field is a request body variant, only one variant field can be set. The
 	// input for private key wallets.
-	OfPrivateKey *Wallet_InitImportParamsBodyPrivateKey `json:",inline"`
+	OfPrivateKey *WalletInitImportParamsBodyPrivateKey `json:",inline"`
 
 	paramObj
 }
 
-func (u Wallet_InitImportParams) MarshalJSON() ([]byte, error) {
+func (u WalletInitImportParams) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfHD, u.OfPrivateKey)
 }
-func (r *Wallet_InitImportParams) UnmarshalJSON(data []byte) error {
+func (r *WalletInitImportParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -3164,7 +3164,7 @@ func (r *Wallet_InitImportParams) UnmarshalJSON(data []byte) error {
 //
 // The properties Address, ChainType, EncryptionType, EntropyType, Index are
 // required.
-type Wallet_InitImportParamsBodyHD struct {
+type WalletInitImportParamsBodyHD struct {
 	// The address of the wallet to import.
 	Address string `json:"address,required"`
 	// The chain type of the wallet to import. Currently supports `ethereum` and
@@ -3185,19 +3185,19 @@ type Wallet_InitImportParamsBodyHD struct {
 	paramObj
 }
 
-func (r Wallet_InitImportParamsBodyHD) MarshalJSON() (data []byte, err error) {
-	type shadow Wallet_InitImportParamsBodyHD
+func (r WalletInitImportParamsBodyHD) MarshalJSON() (data []byte, err error) {
+	type shadow WalletInitImportParamsBodyHD
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *Wallet_InitImportParamsBodyHD) UnmarshalJSON(data []byte) error {
+func (r *WalletInitImportParamsBodyHD) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 func init() {
-	apijson.RegisterFieldValidator[Wallet_InitImportParamsBodyHD](
+	apijson.RegisterFieldValidator[WalletInitImportParamsBodyHD](
 		"chain_type", "ethereum", "solana",
 	)
-	apijson.RegisterFieldValidator[Wallet_InitImportParamsBodyHD](
+	apijson.RegisterFieldValidator[WalletInitImportParamsBodyHD](
 		"encryption_type", "HPKE",
 	)
 }
@@ -3205,7 +3205,7 @@ func init() {
 // The input for private key wallets.
 //
 // The properties Address, ChainType, EncryptionType, EntropyType are required.
-type Wallet_InitImportParamsBodyPrivateKey struct {
+type WalletInitImportParamsBodyPrivateKey struct {
 	// The address of the wallet to import.
 	Address string `json:"address,required"`
 	// The chain type of the wallet to import. Currently supports `ethereum` and
@@ -3222,57 +3222,57 @@ type Wallet_InitImportParamsBodyPrivateKey struct {
 	paramObj
 }
 
-func (r Wallet_InitImportParamsBodyPrivateKey) MarshalJSON() (data []byte, err error) {
-	type shadow Wallet_InitImportParamsBodyPrivateKey
+func (r WalletInitImportParamsBodyPrivateKey) MarshalJSON() (data []byte, err error) {
+	type shadow WalletInitImportParamsBodyPrivateKey
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *Wallet_InitImportParamsBodyPrivateKey) UnmarshalJSON(data []byte) error {
+func (r *WalletInitImportParamsBodyPrivateKey) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 func init() {
-	apijson.RegisterFieldValidator[Wallet_InitImportParamsBodyPrivateKey](
+	apijson.RegisterFieldValidator[WalletInitImportParamsBodyPrivateKey](
 		"chain_type", "ethereum", "solana",
 	)
-	apijson.RegisterFieldValidator[Wallet_InitImportParamsBodyPrivateKey](
+	apijson.RegisterFieldValidator[WalletInitImportParamsBodyPrivateKey](
 		"encryption_type", "HPKE",
 	)
 }
 
-type Wallet_SubmitImportParams struct {
-	Wallet            Wallet_SubmitImportParamsWalletUnion        `json:"wallet,omitzero,required"`
-	OwnerID           param.Opt[string]                           `json:"owner_id,omitzero" format:"cuid2"`
-	Owner             Wallet_SubmitImportParamsOwnerUnion         `json:"owner,omitzero"`
-	AdditionalSigners []Wallet_SubmitImportParamsAdditionalSigner `json:"additional_signers,omitzero"`
-	PolicyIDs         []string                                    `json:"policy_ids,omitzero" format:"cuid2"`
+type WalletSubmitImportParams struct {
+	Wallet            WalletSubmitImportParamsWalletUnion        `json:"wallet,omitzero,required"`
+	OwnerID           param.Opt[string]                          `json:"owner_id,omitzero" format:"cuid2"`
+	Owner             WalletSubmitImportParamsOwnerUnion         `json:"owner,omitzero"`
+	AdditionalSigners []WalletSubmitImportParamsAdditionalSigner `json:"additional_signers,omitzero"`
+	PolicyIDs         []string                                   `json:"policy_ids,omitzero" format:"cuid2"`
 	paramObj
 }
 
-func (r Wallet_SubmitImportParams) MarshalJSON() (data []byte, err error) {
-	type shadow Wallet_SubmitImportParams
+func (r WalletSubmitImportParams) MarshalJSON() (data []byte, err error) {
+	type shadow WalletSubmitImportParams
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *Wallet_SubmitImportParams) UnmarshalJSON(data []byte) error {
+func (r *WalletSubmitImportParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type Wallet_SubmitImportParamsWalletUnion struct {
-	OfHD         *Wallet_SubmitImportParamsWalletHD         `json:",omitzero,inline"`
-	OfPrivateKey *Wallet_SubmitImportParamsWalletPrivateKey `json:",omitzero,inline"`
+type WalletSubmitImportParamsWalletUnion struct {
+	OfHD         *WalletSubmitImportParamsWalletHD         `json:",omitzero,inline"`
+	OfPrivateKey *WalletSubmitImportParamsWalletPrivateKey `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u Wallet_SubmitImportParamsWalletUnion) MarshalJSON() ([]byte, error) {
+func (u WalletSubmitImportParamsWalletUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfHD, u.OfPrivateKey)
 }
-func (u *Wallet_SubmitImportParamsWalletUnion) UnmarshalJSON(data []byte) error {
+func (u *WalletSubmitImportParamsWalletUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *Wallet_SubmitImportParamsWalletUnion) asAny() any {
+func (u *WalletSubmitImportParamsWalletUnion) asAny() any {
 	if !param.IsOmitted(u.OfHD) {
 		return u.OfHD
 	} else if !param.IsOmitted(u.OfPrivateKey) {
@@ -3282,7 +3282,7 @@ func (u *Wallet_SubmitImportParamsWalletUnion) asAny() any {
 }
 
 // Returns a pointer to the underlying variant's property, if present.
-func (u Wallet_SubmitImportParamsWalletUnion) GetIndex() *int64 {
+func (u WalletSubmitImportParamsWalletUnion) GetIndex() *int64 {
 	if vt := u.OfHD; vt != nil {
 		return &vt.Index
 	}
@@ -3290,7 +3290,7 @@ func (u Wallet_SubmitImportParamsWalletUnion) GetIndex() *int64 {
 }
 
 // Returns a pointer to the underlying variant's property, if present.
-func (u Wallet_SubmitImportParamsWalletUnion) GetAddress() *string {
+func (u WalletSubmitImportParamsWalletUnion) GetAddress() *string {
 	if vt := u.OfHD; vt != nil {
 		return (*string)(&vt.Address)
 	} else if vt := u.OfPrivateKey; vt != nil {
@@ -3300,7 +3300,7 @@ func (u Wallet_SubmitImportParamsWalletUnion) GetAddress() *string {
 }
 
 // Returns a pointer to the underlying variant's property, if present.
-func (u Wallet_SubmitImportParamsWalletUnion) GetChainType() *string {
+func (u WalletSubmitImportParamsWalletUnion) GetChainType() *string {
 	if vt := u.OfHD; vt != nil {
 		return (*string)(&vt.ChainType)
 	} else if vt := u.OfPrivateKey; vt != nil {
@@ -3310,7 +3310,7 @@ func (u Wallet_SubmitImportParamsWalletUnion) GetChainType() *string {
 }
 
 // Returns a pointer to the underlying variant's property, if present.
-func (u Wallet_SubmitImportParamsWalletUnion) GetCiphertext() *string {
+func (u WalletSubmitImportParamsWalletUnion) GetCiphertext() *string {
 	if vt := u.OfHD; vt != nil {
 		return (*string)(&vt.Ciphertext)
 	} else if vt := u.OfPrivateKey; vt != nil {
@@ -3320,7 +3320,7 @@ func (u Wallet_SubmitImportParamsWalletUnion) GetCiphertext() *string {
 }
 
 // Returns a pointer to the underlying variant's property, if present.
-func (u Wallet_SubmitImportParamsWalletUnion) GetEncapsulatedKey() *string {
+func (u WalletSubmitImportParamsWalletUnion) GetEncapsulatedKey() *string {
 	if vt := u.OfHD; vt != nil {
 		return (*string)(&vt.EncapsulatedKey)
 	} else if vt := u.OfPrivateKey; vt != nil {
@@ -3330,7 +3330,7 @@ func (u Wallet_SubmitImportParamsWalletUnion) GetEncapsulatedKey() *string {
 }
 
 // Returns a pointer to the underlying variant's property, if present.
-func (u Wallet_SubmitImportParamsWalletUnion) GetEncryptionType() *string {
+func (u WalletSubmitImportParamsWalletUnion) GetEncryptionType() *string {
 	if vt := u.OfHD; vt != nil {
 		return (*string)(&vt.EncryptionType)
 	} else if vt := u.OfPrivateKey; vt != nil {
@@ -3340,7 +3340,7 @@ func (u Wallet_SubmitImportParamsWalletUnion) GetEncryptionType() *string {
 }
 
 // Returns a pointer to the underlying variant's property, if present.
-func (u Wallet_SubmitImportParamsWalletUnion) GetEntropyType() *string {
+func (u WalletSubmitImportParamsWalletUnion) GetEntropyType() *string {
 	if vt := u.OfHD; vt != nil {
 		return (*string)(&vt.EntropyType)
 	} else if vt := u.OfPrivateKey; vt != nil {
@@ -3350,7 +3350,7 @@ func (u Wallet_SubmitImportParamsWalletUnion) GetEntropyType() *string {
 }
 
 // Returns a pointer to the underlying variant's HpkeConfig property, if present.
-func (u Wallet_SubmitImportParamsWalletUnion) GetHpkeConfig() *HpkeImportConfigParam {
+func (u WalletSubmitImportParamsWalletUnion) GetHpkeConfig() *HpkeImportConfigParam {
 	if vt := u.OfHD; vt != nil {
 		return &vt.HpkeConfig
 	} else if vt := u.OfPrivateKey; vt != nil {
@@ -3360,16 +3360,16 @@ func (u Wallet_SubmitImportParamsWalletUnion) GetHpkeConfig() *HpkeImportConfigP
 }
 
 func init() {
-	apijson.RegisterUnion[Wallet_SubmitImportParamsWalletUnion](
+	apijson.RegisterUnion[WalletSubmitImportParamsWalletUnion](
 		"entropy_type",
-		apijson.Discriminator[Wallet_SubmitImportParamsWalletHD]("hd"),
-		apijson.Discriminator[Wallet_SubmitImportParamsWalletPrivateKey]("private-key"),
+		apijson.Discriminator[WalletSubmitImportParamsWalletHD]("hd"),
+		apijson.Discriminator[WalletSubmitImportParamsWalletPrivateKey]("private-key"),
 	)
 }
 
 // The properties Address, ChainType, Ciphertext, EncapsulatedKey, EncryptionType,
 // EntropyType, Index are required.
-type Wallet_SubmitImportParamsWalletHD struct {
+type WalletSubmitImportParamsWalletHD struct {
 	// The address of the wallet to import.
 	Address string `json:"address,required"`
 	// The chain type of the wallet to import. Currently supports `ethereum` and
@@ -3399,26 +3399,26 @@ type Wallet_SubmitImportParamsWalletHD struct {
 	paramObj
 }
 
-func (r Wallet_SubmitImportParamsWalletHD) MarshalJSON() (data []byte, err error) {
-	type shadow Wallet_SubmitImportParamsWalletHD
+func (r WalletSubmitImportParamsWalletHD) MarshalJSON() (data []byte, err error) {
+	type shadow WalletSubmitImportParamsWalletHD
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *Wallet_SubmitImportParamsWalletHD) UnmarshalJSON(data []byte) error {
+func (r *WalletSubmitImportParamsWalletHD) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 func init() {
-	apijson.RegisterFieldValidator[Wallet_SubmitImportParamsWalletHD](
+	apijson.RegisterFieldValidator[WalletSubmitImportParamsWalletHD](
 		"chain_type", "ethereum", "solana",
 	)
-	apijson.RegisterFieldValidator[Wallet_SubmitImportParamsWalletHD](
+	apijson.RegisterFieldValidator[WalletSubmitImportParamsWalletHD](
 		"encryption_type", "HPKE",
 	)
 }
 
 // The properties Address, ChainType, Ciphertext, EncapsulatedKey, EncryptionType,
 // EntropyType are required.
-type Wallet_SubmitImportParamsWalletPrivateKey struct {
+type WalletSubmitImportParamsWalletPrivateKey struct {
 	// The address of the wallet to import.
 	Address string `json:"address,required"`
 	// The chain type of the wallet to import. Currently supports `ethereum` and
@@ -3444,88 +3444,88 @@ type Wallet_SubmitImportParamsWalletPrivateKey struct {
 	paramObj
 }
 
-func (r Wallet_SubmitImportParamsWalletPrivateKey) MarshalJSON() (data []byte, err error) {
-	type shadow Wallet_SubmitImportParamsWalletPrivateKey
+func (r WalletSubmitImportParamsWalletPrivateKey) MarshalJSON() (data []byte, err error) {
+	type shadow WalletSubmitImportParamsWalletPrivateKey
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *Wallet_SubmitImportParamsWalletPrivateKey) UnmarshalJSON(data []byte) error {
+func (r *WalletSubmitImportParamsWalletPrivateKey) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 func init() {
-	apijson.RegisterFieldValidator[Wallet_SubmitImportParamsWalletPrivateKey](
+	apijson.RegisterFieldValidator[WalletSubmitImportParamsWalletPrivateKey](
 		"chain_type", "ethereum", "solana",
 	)
-	apijson.RegisterFieldValidator[Wallet_SubmitImportParamsWalletPrivateKey](
+	apijson.RegisterFieldValidator[WalletSubmitImportParamsWalletPrivateKey](
 		"encryption_type", "HPKE",
 	)
 }
 
 // The property SignerID is required.
-type Wallet_SubmitImportParamsAdditionalSigner struct {
+type WalletSubmitImportParamsAdditionalSigner struct {
 	SignerID          string   `json:"signer_id,required" format:"cuid2"`
 	OverridePolicyIDs []string `json:"override_policy_ids,omitzero" format:"cuid2"`
 	paramObj
 }
 
-func (r Wallet_SubmitImportParamsAdditionalSigner) MarshalJSON() (data []byte, err error) {
-	type shadow Wallet_SubmitImportParamsAdditionalSigner
+func (r WalletSubmitImportParamsAdditionalSigner) MarshalJSON() (data []byte, err error) {
+	type shadow WalletSubmitImportParamsAdditionalSigner
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *Wallet_SubmitImportParamsAdditionalSigner) UnmarshalJSON(data []byte) error {
+func (r *WalletSubmitImportParamsAdditionalSigner) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type Wallet_SubmitImportParamsOwnerUnion struct {
-	OfWallet_SubmitImportsOwnerUserID    *Wallet_SubmitImportParamsOwnerUserID    `json:",omitzero,inline"`
-	OfWallet_SubmitImportsOwnerPublicKey *Wallet_SubmitImportParamsOwnerPublicKey `json:",omitzero,inline"`
+type WalletSubmitImportParamsOwnerUnion struct {
+	OfWalletSubmitImportsOwnerUserID    *WalletSubmitImportParamsOwnerUserID    `json:",omitzero,inline"`
+	OfWalletSubmitImportsOwnerPublicKey *WalletSubmitImportParamsOwnerPublicKey `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u Wallet_SubmitImportParamsOwnerUnion) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfWallet_SubmitImportsOwnerUserID, u.OfWallet_SubmitImportsOwnerPublicKey)
+func (u WalletSubmitImportParamsOwnerUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfWalletSubmitImportsOwnerUserID, u.OfWalletSubmitImportsOwnerPublicKey)
 }
-func (u *Wallet_SubmitImportParamsOwnerUnion) UnmarshalJSON(data []byte) error {
+func (u *WalletSubmitImportParamsOwnerUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *Wallet_SubmitImportParamsOwnerUnion) asAny() any {
-	if !param.IsOmitted(u.OfWallet_SubmitImportsOwnerUserID) {
-		return u.OfWallet_SubmitImportsOwnerUserID
-	} else if !param.IsOmitted(u.OfWallet_SubmitImportsOwnerPublicKey) {
-		return u.OfWallet_SubmitImportsOwnerPublicKey
+func (u *WalletSubmitImportParamsOwnerUnion) asAny() any {
+	if !param.IsOmitted(u.OfWalletSubmitImportsOwnerUserID) {
+		return u.OfWalletSubmitImportsOwnerUserID
+	} else if !param.IsOmitted(u.OfWalletSubmitImportsOwnerPublicKey) {
+		return u.OfWalletSubmitImportsOwnerPublicKey
 	}
 	return nil
 }
 
 // The property UserID is required.
-type Wallet_SubmitImportParamsOwnerUserID struct {
+type WalletSubmitImportParamsOwnerUserID struct {
 	UserID string `json:"user_id,required"`
 	paramObj
 }
 
-func (r Wallet_SubmitImportParamsOwnerUserID) MarshalJSON() (data []byte, err error) {
-	type shadow Wallet_SubmitImportParamsOwnerUserID
+func (r WalletSubmitImportParamsOwnerUserID) MarshalJSON() (data []byte, err error) {
+	type shadow WalletSubmitImportParamsOwnerUserID
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *Wallet_SubmitImportParamsOwnerUserID) UnmarshalJSON(data []byte) error {
+func (r *WalletSubmitImportParamsOwnerUserID) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 // The property PublicKey is required.
-type Wallet_SubmitImportParamsOwnerPublicKey struct {
+type WalletSubmitImportParamsOwnerPublicKey struct {
 	PublicKey string `json:"public_key,required"`
 	paramObj
 }
 
-func (r Wallet_SubmitImportParamsOwnerPublicKey) MarshalJSON() (data []byte, err error) {
-	type shadow Wallet_SubmitImportParamsOwnerPublicKey
+func (r WalletSubmitImportParamsOwnerPublicKey) MarshalJSON() (data []byte, err error) {
+	type shadow WalletSubmitImportParamsOwnerPublicKey
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *Wallet_SubmitImportParamsOwnerPublicKey) UnmarshalJSON(data []byte) error {
+func (r *WalletSubmitImportParamsOwnerPublicKey) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
