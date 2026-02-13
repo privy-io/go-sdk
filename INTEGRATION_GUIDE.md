@@ -98,11 +98,16 @@ result, err := client.Wallets.Rpc(
     context.Background(),
     "wallet-id",
     privy.WalletRpcParams{
-        Method:  "eth_signTypedData_v4",
-        Params:  privy.WalletRpcParamsParamsUnion{OfTypedDataSign: &privy.TypedDataSignParams{...}},
-        ChainID: "1",
+        OfEthSignTypedDataV4: &privy.EthereumSignTypedDataRpcInput{
+            Method: privy.EthereumSignTypedDataRpcInputMethodEthSignTypedDataV4,
+            Params: privy.EthereumSignTypedDataRpcInputParams{
+                TypedData: privy.EthereumSignTypedDataRpcInputParamsTypedData{
+                    // ...
+                },
+            },
+        },
     },
-    WithAuthorizationContext(&authorization.AuthorizationContext{
+    privy.WithAuthorizationContext(&authorization.AuthorizationContext{
         UserJwts: []string{jwt},
     }),
 )
