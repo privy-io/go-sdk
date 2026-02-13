@@ -20,9 +20,9 @@ func TestUsers(t *testing.T) {
 			customUserID := fmt.Sprintf("test-user-%d", time.Now().UnixNano())
 
 			user, err := client.Users.New(ctx, UserNewParams{
-				LinkedAccounts: []LinkedAccountInputUnionParam{
+				LinkedAccounts: []LinkedAccountInputUnion{
 					{
-						OfCustomAuth: &LinkedAccountCustomJwtInputParam{
+						OfCustomAuth: &LinkedAccountCustomJwtInput{
 							Type:         LinkedAccountCustomJwtInputTypeCustomAuth,
 							CustomUserID: customUserID,
 						},

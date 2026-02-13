@@ -22,10 +22,10 @@ func newPrivyEthereumWalletService(walletService *PrivyWalletService) *PrivyEthe
 func (s *PrivyEthereumWalletService) Sign7702Authorization(
 	ctx context.Context,
 	walletID string,
-	params EthereumSign7702AuthorizationRpcInputParamsParam,
+	params EthereumSign7702AuthorizationRpcInputParams,
 	opts ...RpcOption,
 ) (*EthereumSign7702AuthorizationRpcResponseData, error) {
-	input := EthereumSign7702AuthorizationRpcInputParam{
+	input := EthereumSign7702AuthorizationRpcInput{
 		Method: EthereumSign7702AuthorizationRpcInputMethodEthSign7702Authorization,
 		Params: params,
 	}
@@ -51,10 +51,10 @@ func (s *PrivyEthereumWalletService) Sign7702Authorization(
 func (s *PrivyEthereumWalletService) SignUserOperation(
 	ctx context.Context,
 	walletID string,
-	params EthereumSignUserOperationRpcInputParamsParam,
+	params EthereumSignUserOperationRpcInputParams,
 	opts ...RpcOption,
 ) (*EthereumSignUserOperationRpcResponseData, error) {
-	input := EthereumSignUserOperationRpcInputParam{
+	input := EthereumSignUserOperationRpcInput{
 		Method: EthereumSignUserOperationRpcInputMethodEthSignUserOperation,
 		Params: params,
 	}
@@ -80,10 +80,10 @@ func (s *PrivyEthereumWalletService) SignUserOperation(
 func (s *PrivyEthereumWalletService) SignSecp256k1(
 	ctx context.Context,
 	walletID string,
-	params EthereumSecp256k1SignRpcInputParamsParam,
+	params EthereumSecp256k1SignRpcInputParams,
 	opts ...RpcOption,
 ) (*EthereumSecp256k1SignRpcResponseData, error) {
-	input := EthereumSecp256k1SignRpcInputParam{
+	input := EthereumSecp256k1SignRpcInput{
 		Method: EthereumSecp256k1SignRpcInputMethodSecp256k1Sign,
 		Params: params,
 	}
@@ -147,9 +147,9 @@ func (s *PrivyEthereumWalletService) signMessage(
 	encoding EthereumPersonalSignRpcInputParamsEncoding,
 	opts ...RpcOption,
 ) (*EthereumPersonalSignRpcResponseData, error) {
-	input := EthereumPersonalSignRpcInputParam{
+	input := EthereumPersonalSignRpcInput{
 		Method: EthereumPersonalSignRpcInputMethodPersonalSign,
-		Params: EthereumPersonalSignRpcInputParamsParam{
+		Params: EthereumPersonalSignRpcInputParams{
 			Message:  message,
 			Encoding: encoding,
 		},
@@ -176,10 +176,10 @@ func (s *PrivyEthereumWalletService) signMessage(
 func (s *PrivyEthereumWalletService) SignTypedData(
 	ctx context.Context,
 	walletID string,
-	params EthereumSignTypedDataRpcInputParamsParam,
+	params EthereumSignTypedDataRpcInputParams,
 	opts ...RpcOption,
 ) (*EthereumSignTypedDataRpcResponseData, error) {
-	input := EthereumSignTypedDataRpcInputParam{
+	input := EthereumSignTypedDataRpcInput{
 		Method: EthereumSignTypedDataRpcInputMethodEthSignTypedDataV4,
 		Params: params,
 	}
@@ -205,10 +205,10 @@ func (s *PrivyEthereumWalletService) SignTypedData(
 func (s *PrivyEthereumWalletService) SignTransaction(
 	ctx context.Context,
 	walletID string,
-	params EthereumSignTransactionRpcInputParamsParam,
+	params EthereumSignTransactionRpcInputParams,
 	opts ...RpcOption,
 ) (*EthereumSignTransactionRpcResponseData, error) {
-	input := EthereumSignTransactionRpcInputParam{
+	input := EthereumSignTransactionRpcInput{
 		Method: EthereumSignTransactionRpcInputMethodEthSignTransaction,
 		Params: params,
 	}
@@ -235,10 +235,10 @@ func (s *PrivyEthereumWalletService) SendTransaction(
 	ctx context.Context,
 	walletID string,
 	caip2 string,
-	params EthereumSendTransactionRpcInputParamsParam,
+	params EthereumSendTransactionRpcInputParams,
 	opts ...RpcOption,
 ) (*EthereumSendTransactionRpcResponseData, error) {
-	input := EthereumSendTransactionRpcInputParam{
+	input := EthereumSendTransactionRpcInput{
 		Caip2:  caip2,
 		Method: EthereumSendTransactionRpcInputMethodEthSendTransaction,
 		Params: params,
