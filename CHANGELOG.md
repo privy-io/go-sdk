@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.1.0 (2026-02-13)
+
+Full Changelog: [v0.0.3...v0.1.0](https://github.com/privy-io/go-sdk/compare/v0.0.3...v0.1.0)
+
+### ⚠ BREAKING CHANGES
+
+* adjusts to remove_params_suffix flag ([#46](https://github.com/privy-io/go-sdk/issues/46))
+
+### Features
+
+* **api:** sets go config flag remove_params_suffix ([6a286f5](https://github.com/privy-io/go-sdk/commit/6a286f51e0f2ba57df047cd85ad711b4f6fe7bd8))
+
+
+### Bug Fixes
+
+* adjusts to remove_params_suffix flag ([#46](https://github.com/privy-io/go-sdk/issues/46)) ([04a6a58](https://github.com/privy-io/go-sdk/commit/04a6a581e5c9432b91cdc615a23931a6efffb3f2))
+
 ## 0.0.3 (2026-02-11)
 
 Full Changelog: [v0.0.2...v0.0.3](https://github.com/privy-io/go-sdk/compare/v0.0.2...v0.0.3)

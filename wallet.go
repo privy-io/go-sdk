@@ -65,7 +65,7 @@ func (r *WalletService) Update(ctx context.Context, walletID string, params Wall
 		err = errors.New("missing required wallet_id parameter")
 		return
 	}
-	path := fmt.Sprintf("v1/wallets/%s", walletID)
+	path := fmt.Sprintf("v1/wallets/%s", url.PathEscape(walletID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, params, &res, opts...)
 	return
 }
@@ -127,7 +127,7 @@ func (r *WalletService) Export(ctx context.Context, walletID string, params Wall
 		err = errors.New("missing required wallet_id parameter")
 		return
 	}
-	path := fmt.Sprintf("v1/wallets/%s/export", walletID)
+	path := fmt.Sprintf("v1/wallets/%s/export", url.PathEscape(walletID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return
 }
@@ -139,7 +139,7 @@ func (r *WalletService) Get(ctx context.Context, walletID string, opts ...option
 		err = errors.New("missing required wallet_id parameter")
 		return
 	}
-	path := fmt.Sprintf("v1/wallets/%s", walletID)
+	path := fmt.Sprintf("v1/wallets/%s", url.PathEscape(walletID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return
 }
@@ -157,7 +157,7 @@ func (r *WalletService) RawSign(ctx context.Context, walletID string, params Wal
 		err = errors.New("missing required wallet_id parameter")
 		return
 	}
-	path := fmt.Sprintf("v1/wallets/%s/raw_sign", walletID)
+	path := fmt.Sprintf("v1/wallets/%s/raw_sign", url.PathEscape(walletID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return
 }
@@ -175,7 +175,7 @@ func (r *WalletService) Rpc(ctx context.Context, walletID string, params WalletR
 		err = errors.New("missing required wallet_id parameter")
 		return
 	}
-	path := fmt.Sprintf("v1/wallets/%s/rpc", walletID)
+	path := fmt.Sprintf("v1/wallets/%s/rpc", url.PathEscape(walletID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return
 }
@@ -290,7 +290,7 @@ const (
 // Optional HPKE configuration for wallet import decryption. These parameters allow
 // importing wallets encrypted by external providers that use different HPKE
 // configurations.
-type HpkeImportConfigParam struct {
+type HpkeImportConfig struct {
 	// Additional Authenticated Data (AAD) used during encryption. Should be
 	// base64-encoded bytes.
 	Aad param.Opt[string] `json:"aad,omitzero"`
@@ -305,11 +305,11 @@ type HpkeImportConfigParam struct {
 	paramObj
 }
 
-func (r HpkeImportConfigParam) MarshalJSON() (data []byte, err error) {
-	type shadow HpkeImportConfigParam
+func (r HpkeImportConfig) MarshalJSON() (data []byte, err error) {
+	type shadow HpkeImportConfig
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *HpkeImportConfigParam) UnmarshalJSON(data []byte) error {
+func (r *HpkeImportConfig) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -334,21 +334,21 @@ const (
 // Executes the EVM `personal_sign` RPC (EIP-191) to sign a message.
 //
 // The properties Method, Params are required.
-type EthereumPersonalSignRpcInputParam struct {
+type EthereumPersonalSignRpcInput struct {
 	// Any of "personal_sign".
-	Method  EthereumPersonalSignRpcInputMethod      `json:"method,omitzero,required"`
-	Params  EthereumPersonalSignRpcInputParamsParam `json:"params,omitzero,required"`
-	Address param.Opt[string]                       `json:"address,omitzero"`
+	Method  EthereumPersonalSignRpcInputMethod `json:"method,omitzero,required"`
+	Params  EthereumPersonalSignRpcInputParams `json:"params,omitzero,required"`
+	Address param.Opt[string]                  `json:"address,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumPersonalSignRpcInputChainType `json:"chain_type,omitzero"`
 	paramObj
 }
 
-func (r EthereumPersonalSignRpcInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumPersonalSignRpcInputParam
+func (r EthereumPersonalSignRpcInput) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumPersonalSignRpcInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *EthereumPersonalSignRpcInputParam) UnmarshalJSON(data []byte) error {
+func (r *EthereumPersonalSignRpcInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -359,18 +359,18 @@ const (
 )
 
 // The properties Encoding, Message are required.
-type EthereumPersonalSignRpcInputParamsParam struct {
+type EthereumPersonalSignRpcInputParams struct {
 	// Any of "utf-8", "hex".
 	Encoding EthereumPersonalSignRpcInputParamsEncoding `json:"encoding,omitzero,required"`
 	Message  string                                     `json:"message,required"`
 	paramObj
 }
 
-func (r EthereumPersonalSignRpcInputParamsParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumPersonalSignRpcInputParamsParam
+func (r EthereumPersonalSignRpcInputParams) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumPersonalSignRpcInputParams
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *EthereumPersonalSignRpcInputParamsParam) UnmarshalJSON(data []byte) error {
+func (r *EthereumPersonalSignRpcInputParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -390,21 +390,21 @@ const (
 // Executes the EVM `eth_signTransaction` RPC to sign a transaction.
 //
 // The properties Method, Params are required.
-type EthereumSignTransactionRpcInputParam struct {
+type EthereumSignTransactionRpcInput struct {
 	// Any of "eth_signTransaction".
-	Method  EthereumSignTransactionRpcInputMethod      `json:"method,omitzero,required"`
-	Params  EthereumSignTransactionRpcInputParamsParam `json:"params,omitzero,required"`
-	Address param.Opt[string]                          `json:"address,omitzero"`
+	Method  EthereumSignTransactionRpcInputMethod `json:"method,omitzero,required"`
+	Params  EthereumSignTransactionRpcInputParams `json:"params,omitzero,required"`
+	Address param.Opt[string]                     `json:"address,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumSignTransactionRpcInputChainType `json:"chain_type,omitzero"`
 	paramObj
 }
 
-func (r EthereumSignTransactionRpcInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumSignTransactionRpcInputParam
+func (r EthereumSignTransactionRpcInput) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSignTransactionRpcInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *EthereumSignTransactionRpcInputParam) UnmarshalJSON(data []byte) error {
+func (r *EthereumSignTransactionRpcInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -415,292 +415,211 @@ const (
 )
 
 // The property Transaction is required.
-type EthereumSignTransactionRpcInputParamsParam struct {
-	Transaction EthereumSignTransactionRpcInputParamsTransactionParam `json:"transaction,omitzero,required"`
+type EthereumSignTransactionRpcInputParams struct {
+	Transaction EthereumSignTransactionRpcInputParamsTransaction `json:"transaction,omitzero,required"`
 	paramObj
 }
 
-func (r EthereumSignTransactionRpcInputParamsParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumSignTransactionRpcInputParamsParam
+func (r EthereumSignTransactionRpcInputParams) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSignTransactionRpcInputParams
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *EthereumSignTransactionRpcInputParamsParam) UnmarshalJSON(data []byte) error {
+func (r *EthereumSignTransactionRpcInputParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type EthereumSignTransactionRpcInputParamsTransactionParam struct {
-	Data                 param.Opt[string]                                                              `json:"data,omitzero"`
-	From                 param.Opt[string]                                                              `json:"from,omitzero"`
-	To                   param.Opt[string]                                                              `json:"to,omitzero"`
-	AuthorizationList    []EthereumSignTransactionRpcInputParamsTransactionAuthorizationListParam       `json:"authorization_list,omitzero"`
-	ChainID              EthereumSignTransactionRpcInputParamsTransactionChainIDUnionParam              `json:"chain_id,omitzero"`
-	GasLimit             EthereumSignTransactionRpcInputParamsTransactionGasLimitUnionParam             `json:"gas_limit,omitzero"`
-	GasPrice             EthereumSignTransactionRpcInputParamsTransactionGasPriceUnionParam             `json:"gas_price,omitzero"`
-	MaxFeePerGas         EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnionParam         `json:"max_fee_per_gas,omitzero"`
-	MaxPriorityFeePerGas EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionParam `json:"max_priority_fee_per_gas,omitzero"`
-	Nonce                EthereumSignTransactionRpcInputParamsTransactionNonceUnionParam                `json:"nonce,omitzero"`
+type EthereumSignTransactionRpcInputParamsTransaction struct {
+	Data                 param.Opt[string]                                                         `json:"data,omitzero"`
+	From                 param.Opt[string]                                                         `json:"from,omitzero"`
+	To                   param.Opt[string]                                                         `json:"to,omitzero"`
+	AuthorizationList    []EthereumSignTransactionRpcInputParamsTransactionAuthorizationList       `json:"authorization_list,omitzero"`
+	ChainID              EthereumSignTransactionRpcInputParamsTransactionChainIDUnion              `json:"chain_id,omitzero"`
+	GasLimit             EthereumSignTransactionRpcInputParamsTransactionGasLimitUnion             `json:"gas_limit,omitzero"`
+	GasPrice             EthereumSignTransactionRpcInputParamsTransactionGasPriceUnion             `json:"gas_price,omitzero"`
+	MaxFeePerGas         EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnion         `json:"max_fee_per_gas,omitzero"`
+	MaxPriorityFeePerGas EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnion `json:"max_priority_fee_per_gas,omitzero"`
+	Nonce                EthereumSignTransactionRpcInputParamsTransactionNonceUnion                `json:"nonce,omitzero"`
 	// Any of 0, 1, 2, 4.
-	Type  float64                                                         `json:"type,omitzero"`
-	Value EthereumSignTransactionRpcInputParamsTransactionValueUnionParam `json:"value,omitzero"`
+	Type  float64                                                    `json:"type,omitzero"`
+	Value EthereumSignTransactionRpcInputParamsTransactionValueUnion `json:"value,omitzero"`
 	paramObj
 }
 
-func (r EthereumSignTransactionRpcInputParamsTransactionParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumSignTransactionRpcInputParamsTransactionParam
+func (r EthereumSignTransactionRpcInputParamsTransaction) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSignTransactionRpcInputParamsTransaction
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *EthereumSignTransactionRpcInputParamsTransactionParam) UnmarshalJSON(data []byte) error {
+func (r *EthereumSignTransactionRpcInputParamsTransaction) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 func init() {
-	apijson.RegisterFieldValidator[EthereumSignTransactionRpcInputParamsTransactionParam](
+	apijson.RegisterFieldValidator[EthereumSignTransactionRpcInputParamsTransaction](
 		"type", 0, 1, 2, 4,
 	)
 }
 
 // The properties ChainID, Contract, Nonce, R, S, YParity are required.
-type EthereumSignTransactionRpcInputParamsTransactionAuthorizationListParam struct {
-	ChainID  EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionParam `json:"chain_id,omitzero,required"`
-	Contract string                                                                             `json:"contract,required"`
-	Nonce    EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnionParam   `json:"nonce,omitzero,required"`
-	R        string                                                                             `json:"r,required"`
-	S        string                                                                             `json:"s,required"`
-	YParity  float64                                                                            `json:"y_parity,required"`
+type EthereumSignTransactionRpcInputParamsTransactionAuthorizationList struct {
+	ChainID  EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnion `json:"chain_id,omitzero,required"`
+	Contract string                                                                        `json:"contract,required"`
+	Nonce    EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnion   `json:"nonce,omitzero,required"`
+	R        string                                                                        `json:"r,required"`
+	S        string                                                                        `json:"s,required"`
+	YParity  float64                                                                       `json:"y_parity,required"`
 	paramObj
 }
 
-func (r EthereumSignTransactionRpcInputParamsTransactionAuthorizationListParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumSignTransactionRpcInputParamsTransactionAuthorizationListParam
+func (r EthereumSignTransactionRpcInputParamsTransactionAuthorizationList) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSignTransactionRpcInputParamsTransactionAuthorizationList
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *EthereumSignTransactionRpcInputParamsTransactionAuthorizationListParam) UnmarshalJSON(data []byte) error {
+func (r *EthereumSignTransactionRpcInputParamsTransactionAuthorizationList) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionParam struct {
+type EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnion struct {
 	OfString param.Opt[string] `json:",omitzero,inline"`
 	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionParam) MarshalJSON() ([]byte, error) {
+func (u EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfString, u.OfInt)
 }
-func (u *EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionParam) UnmarshalJSON(data []byte) error {
+func (u *EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfInt) {
-		return &u.OfInt.Value
-	}
-	return nil
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnionParam struct {
+type EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnion struct {
 	OfString param.Opt[string] `json:",omitzero,inline"`
 	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnionParam) MarshalJSON() ([]byte, error) {
+func (u EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfString, u.OfInt)
 }
-func (u *EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnionParam) UnmarshalJSON(data []byte) error {
+func (u *EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfInt) {
-		return &u.OfInt.Value
-	}
-	return nil
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type EthereumSignTransactionRpcInputParamsTransactionChainIDUnionParam struct {
+type EthereumSignTransactionRpcInputParamsTransactionChainIDUnion struct {
 	OfString param.Opt[string] `json:",omitzero,inline"`
 	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u EthereumSignTransactionRpcInputParamsTransactionChainIDUnionParam) MarshalJSON() ([]byte, error) {
+func (u EthereumSignTransactionRpcInputParamsTransactionChainIDUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfString, u.OfInt)
 }
-func (u *EthereumSignTransactionRpcInputParamsTransactionChainIDUnionParam) UnmarshalJSON(data []byte) error {
+func (u *EthereumSignTransactionRpcInputParamsTransactionChainIDUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *EthereumSignTransactionRpcInputParamsTransactionChainIDUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfInt) {
-		return &u.OfInt.Value
-	}
-	return nil
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type EthereumSignTransactionRpcInputParamsTransactionGasLimitUnionParam struct {
+type EthereumSignTransactionRpcInputParamsTransactionGasLimitUnion struct {
 	OfString param.Opt[string] `json:",omitzero,inline"`
 	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u EthereumSignTransactionRpcInputParamsTransactionGasLimitUnionParam) MarshalJSON() ([]byte, error) {
+func (u EthereumSignTransactionRpcInputParamsTransactionGasLimitUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfString, u.OfInt)
 }
-func (u *EthereumSignTransactionRpcInputParamsTransactionGasLimitUnionParam) UnmarshalJSON(data []byte) error {
+func (u *EthereumSignTransactionRpcInputParamsTransactionGasLimitUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *EthereumSignTransactionRpcInputParamsTransactionGasLimitUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfInt) {
-		return &u.OfInt.Value
-	}
-	return nil
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type EthereumSignTransactionRpcInputParamsTransactionGasPriceUnionParam struct {
+type EthereumSignTransactionRpcInputParamsTransactionGasPriceUnion struct {
 	OfString param.Opt[string] `json:",omitzero,inline"`
 	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u EthereumSignTransactionRpcInputParamsTransactionGasPriceUnionParam) MarshalJSON() ([]byte, error) {
+func (u EthereumSignTransactionRpcInputParamsTransactionGasPriceUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfString, u.OfInt)
 }
-func (u *EthereumSignTransactionRpcInputParamsTransactionGasPriceUnionParam) UnmarshalJSON(data []byte) error {
+func (u *EthereumSignTransactionRpcInputParamsTransactionGasPriceUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *EthereumSignTransactionRpcInputParamsTransactionGasPriceUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfInt) {
-		return &u.OfInt.Value
-	}
-	return nil
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnionParam struct {
+type EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnion struct {
 	OfString param.Opt[string] `json:",omitzero,inline"`
 	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnionParam) MarshalJSON() ([]byte, error) {
+func (u EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfString, u.OfInt)
 }
-func (u *EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnionParam) UnmarshalJSON(data []byte) error {
+func (u *EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfInt) {
-		return &u.OfInt.Value
-	}
-	return nil
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionParam struct {
+type EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnion struct {
 	OfString param.Opt[string] `json:",omitzero,inline"`
 	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionParam) MarshalJSON() ([]byte, error) {
+func (u EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfString, u.OfInt)
 }
-func (u *EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionParam) UnmarshalJSON(data []byte) error {
+func (u *EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfInt) {
-		return &u.OfInt.Value
-	}
-	return nil
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type EthereumSignTransactionRpcInputParamsTransactionNonceUnionParam struct {
+type EthereumSignTransactionRpcInputParamsTransactionNonceUnion struct {
 	OfString param.Opt[string] `json:",omitzero,inline"`
 	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u EthereumSignTransactionRpcInputParamsTransactionNonceUnionParam) MarshalJSON() ([]byte, error) {
+func (u EthereumSignTransactionRpcInputParamsTransactionNonceUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfString, u.OfInt)
 }
-func (u *EthereumSignTransactionRpcInputParamsTransactionNonceUnionParam) UnmarshalJSON(data []byte) error {
+func (u *EthereumSignTransactionRpcInputParamsTransactionNonceUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *EthereumSignTransactionRpcInputParamsTransactionNonceUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfInt) {
-		return &u.OfInt.Value
-	}
-	return nil
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type EthereumSignTransactionRpcInputParamsTransactionValueUnionParam struct {
+type EthereumSignTransactionRpcInputParamsTransactionValueUnion struct {
 	OfString param.Opt[string] `json:",omitzero,inline"`
 	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u EthereumSignTransactionRpcInputParamsTransactionValueUnionParam) MarshalJSON() ([]byte, error) {
+func (u EthereumSignTransactionRpcInputParamsTransactionValueUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfString, u.OfInt)
 }
-func (u *EthereumSignTransactionRpcInputParamsTransactionValueUnionParam) UnmarshalJSON(data []byte) error {
+func (u *EthereumSignTransactionRpcInputParamsTransactionValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *EthereumSignTransactionRpcInputParamsTransactionValueUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfInt) {
-		return &u.OfInt.Value
-	}
-	return nil
 }
 
 type EthereumSignTransactionRpcInputChainType string
@@ -712,23 +631,23 @@ const (
 // Executes the EVM `eth_sendTransaction` RPC to sign and broadcast a transaction.
 //
 // The properties Caip2, Method, Params are required.
-type EthereumSendTransactionRpcInputParam struct {
+type EthereumSendTransactionRpcInput struct {
 	Caip2 string `json:"caip2,required"`
 	// Any of "eth_sendTransaction".
-	Method  EthereumSendTransactionRpcInputMethod      `json:"method,omitzero,required"`
-	Params  EthereumSendTransactionRpcInputParamsParam `json:"params,omitzero,required"`
-	Address param.Opt[string]                          `json:"address,omitzero"`
-	Sponsor param.Opt[bool]                            `json:"sponsor,omitzero"`
+	Method  EthereumSendTransactionRpcInputMethod `json:"method,omitzero,required"`
+	Params  EthereumSendTransactionRpcInputParams `json:"params,omitzero,required"`
+	Address param.Opt[string]                     `json:"address,omitzero"`
+	Sponsor param.Opt[bool]                       `json:"sponsor,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumSendTransactionRpcInputChainType `json:"chain_type,omitzero"`
 	paramObj
 }
 
-func (r EthereumSendTransactionRpcInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumSendTransactionRpcInputParam
+func (r EthereumSendTransactionRpcInput) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSendTransactionRpcInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *EthereumSendTransactionRpcInputParam) UnmarshalJSON(data []byte) error {
+func (r *EthereumSendTransactionRpcInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -739,292 +658,211 @@ const (
 )
 
 // The property Transaction is required.
-type EthereumSendTransactionRpcInputParamsParam struct {
-	Transaction EthereumSendTransactionRpcInputParamsTransactionParam `json:"transaction,omitzero,required"`
+type EthereumSendTransactionRpcInputParams struct {
+	Transaction EthereumSendTransactionRpcInputParamsTransaction `json:"transaction,omitzero,required"`
 	paramObj
 }
 
-func (r EthereumSendTransactionRpcInputParamsParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumSendTransactionRpcInputParamsParam
+func (r EthereumSendTransactionRpcInputParams) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSendTransactionRpcInputParams
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *EthereumSendTransactionRpcInputParamsParam) UnmarshalJSON(data []byte) error {
+func (r *EthereumSendTransactionRpcInputParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type EthereumSendTransactionRpcInputParamsTransactionParam struct {
-	Data                 param.Opt[string]                                                              `json:"data,omitzero"`
-	From                 param.Opt[string]                                                              `json:"from,omitzero"`
-	To                   param.Opt[string]                                                              `json:"to,omitzero"`
-	AuthorizationList    []EthereumSendTransactionRpcInputParamsTransactionAuthorizationListParam       `json:"authorization_list,omitzero"`
-	ChainID              EthereumSendTransactionRpcInputParamsTransactionChainIDUnionParam              `json:"chain_id,omitzero"`
-	GasLimit             EthereumSendTransactionRpcInputParamsTransactionGasLimitUnionParam             `json:"gas_limit,omitzero"`
-	GasPrice             EthereumSendTransactionRpcInputParamsTransactionGasPriceUnionParam             `json:"gas_price,omitzero"`
-	MaxFeePerGas         EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnionParam         `json:"max_fee_per_gas,omitzero"`
-	MaxPriorityFeePerGas EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionParam `json:"max_priority_fee_per_gas,omitzero"`
-	Nonce                EthereumSendTransactionRpcInputParamsTransactionNonceUnionParam                `json:"nonce,omitzero"`
+type EthereumSendTransactionRpcInputParamsTransaction struct {
+	Data                 param.Opt[string]                                                         `json:"data,omitzero"`
+	From                 param.Opt[string]                                                         `json:"from,omitzero"`
+	To                   param.Opt[string]                                                         `json:"to,omitzero"`
+	AuthorizationList    []EthereumSendTransactionRpcInputParamsTransactionAuthorizationList       `json:"authorization_list,omitzero"`
+	ChainID              EthereumSendTransactionRpcInputParamsTransactionChainIDUnion              `json:"chain_id,omitzero"`
+	GasLimit             EthereumSendTransactionRpcInputParamsTransactionGasLimitUnion             `json:"gas_limit,omitzero"`
+	GasPrice             EthereumSendTransactionRpcInputParamsTransactionGasPriceUnion             `json:"gas_price,omitzero"`
+	MaxFeePerGas         EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnion         `json:"max_fee_per_gas,omitzero"`
+	MaxPriorityFeePerGas EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnion `json:"max_priority_fee_per_gas,omitzero"`
+	Nonce                EthereumSendTransactionRpcInputParamsTransactionNonceUnion                `json:"nonce,omitzero"`
 	// Any of 0, 1, 2, 4.
-	Type  float64                                                         `json:"type,omitzero"`
-	Value EthereumSendTransactionRpcInputParamsTransactionValueUnionParam `json:"value,omitzero"`
+	Type  float64                                                    `json:"type,omitzero"`
+	Value EthereumSendTransactionRpcInputParamsTransactionValueUnion `json:"value,omitzero"`
 	paramObj
 }
 
-func (r EthereumSendTransactionRpcInputParamsTransactionParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumSendTransactionRpcInputParamsTransactionParam
+func (r EthereumSendTransactionRpcInputParamsTransaction) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSendTransactionRpcInputParamsTransaction
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *EthereumSendTransactionRpcInputParamsTransactionParam) UnmarshalJSON(data []byte) error {
+func (r *EthereumSendTransactionRpcInputParamsTransaction) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 func init() {
-	apijson.RegisterFieldValidator[EthereumSendTransactionRpcInputParamsTransactionParam](
+	apijson.RegisterFieldValidator[EthereumSendTransactionRpcInputParamsTransaction](
 		"type", 0, 1, 2, 4,
 	)
 }
 
 // The properties ChainID, Contract, Nonce, R, S, YParity are required.
-type EthereumSendTransactionRpcInputParamsTransactionAuthorizationListParam struct {
-	ChainID  EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionParam `json:"chain_id,omitzero,required"`
-	Contract string                                                                             `json:"contract,required"`
-	Nonce    EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnionParam   `json:"nonce,omitzero,required"`
-	R        string                                                                             `json:"r,required"`
-	S        string                                                                             `json:"s,required"`
-	YParity  float64                                                                            `json:"y_parity,required"`
+type EthereumSendTransactionRpcInputParamsTransactionAuthorizationList struct {
+	ChainID  EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnion `json:"chain_id,omitzero,required"`
+	Contract string                                                                        `json:"contract,required"`
+	Nonce    EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnion   `json:"nonce,omitzero,required"`
+	R        string                                                                        `json:"r,required"`
+	S        string                                                                        `json:"s,required"`
+	YParity  float64                                                                       `json:"y_parity,required"`
 	paramObj
 }
 
-func (r EthereumSendTransactionRpcInputParamsTransactionAuthorizationListParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumSendTransactionRpcInputParamsTransactionAuthorizationListParam
+func (r EthereumSendTransactionRpcInputParamsTransactionAuthorizationList) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSendTransactionRpcInputParamsTransactionAuthorizationList
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *EthereumSendTransactionRpcInputParamsTransactionAuthorizationListParam) UnmarshalJSON(data []byte) error {
+func (r *EthereumSendTransactionRpcInputParamsTransactionAuthorizationList) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionParam struct {
+type EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnion struct {
 	OfString param.Opt[string] `json:",omitzero,inline"`
 	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionParam) MarshalJSON() ([]byte, error) {
+func (u EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfString, u.OfInt)
 }
-func (u *EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionParam) UnmarshalJSON(data []byte) error {
+func (u *EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfInt) {
-		return &u.OfInt.Value
-	}
-	return nil
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnionParam struct {
+type EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnion struct {
 	OfString param.Opt[string] `json:",omitzero,inline"`
 	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnionParam) MarshalJSON() ([]byte, error) {
+func (u EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfString, u.OfInt)
 }
-func (u *EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnionParam) UnmarshalJSON(data []byte) error {
+func (u *EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfInt) {
-		return &u.OfInt.Value
-	}
-	return nil
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type EthereumSendTransactionRpcInputParamsTransactionChainIDUnionParam struct {
+type EthereumSendTransactionRpcInputParamsTransactionChainIDUnion struct {
 	OfString param.Opt[string] `json:",omitzero,inline"`
 	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u EthereumSendTransactionRpcInputParamsTransactionChainIDUnionParam) MarshalJSON() ([]byte, error) {
+func (u EthereumSendTransactionRpcInputParamsTransactionChainIDUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfString, u.OfInt)
 }
-func (u *EthereumSendTransactionRpcInputParamsTransactionChainIDUnionParam) UnmarshalJSON(data []byte) error {
+func (u *EthereumSendTransactionRpcInputParamsTransactionChainIDUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *EthereumSendTransactionRpcInputParamsTransactionChainIDUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfInt) {
-		return &u.OfInt.Value
-	}
-	return nil
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type EthereumSendTransactionRpcInputParamsTransactionGasLimitUnionParam struct {
+type EthereumSendTransactionRpcInputParamsTransactionGasLimitUnion struct {
 	OfString param.Opt[string] `json:",omitzero,inline"`
 	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u EthereumSendTransactionRpcInputParamsTransactionGasLimitUnionParam) MarshalJSON() ([]byte, error) {
+func (u EthereumSendTransactionRpcInputParamsTransactionGasLimitUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfString, u.OfInt)
 }
-func (u *EthereumSendTransactionRpcInputParamsTransactionGasLimitUnionParam) UnmarshalJSON(data []byte) error {
+func (u *EthereumSendTransactionRpcInputParamsTransactionGasLimitUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *EthereumSendTransactionRpcInputParamsTransactionGasLimitUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfInt) {
-		return &u.OfInt.Value
-	}
-	return nil
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type EthereumSendTransactionRpcInputParamsTransactionGasPriceUnionParam struct {
+type EthereumSendTransactionRpcInputParamsTransactionGasPriceUnion struct {
 	OfString param.Opt[string] `json:",omitzero,inline"`
 	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u EthereumSendTransactionRpcInputParamsTransactionGasPriceUnionParam) MarshalJSON() ([]byte, error) {
+func (u EthereumSendTransactionRpcInputParamsTransactionGasPriceUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfString, u.OfInt)
 }
-func (u *EthereumSendTransactionRpcInputParamsTransactionGasPriceUnionParam) UnmarshalJSON(data []byte) error {
+func (u *EthereumSendTransactionRpcInputParamsTransactionGasPriceUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *EthereumSendTransactionRpcInputParamsTransactionGasPriceUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfInt) {
-		return &u.OfInt.Value
-	}
-	return nil
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnionParam struct {
+type EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnion struct {
 	OfString param.Opt[string] `json:",omitzero,inline"`
 	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnionParam) MarshalJSON() ([]byte, error) {
+func (u EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfString, u.OfInt)
 }
-func (u *EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnionParam) UnmarshalJSON(data []byte) error {
+func (u *EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfInt) {
-		return &u.OfInt.Value
-	}
-	return nil
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionParam struct {
+type EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnion struct {
 	OfString param.Opt[string] `json:",omitzero,inline"`
 	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionParam) MarshalJSON() ([]byte, error) {
+func (u EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfString, u.OfInt)
 }
-func (u *EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionParam) UnmarshalJSON(data []byte) error {
+func (u *EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfInt) {
-		return &u.OfInt.Value
-	}
-	return nil
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type EthereumSendTransactionRpcInputParamsTransactionNonceUnionParam struct {
+type EthereumSendTransactionRpcInputParamsTransactionNonceUnion struct {
 	OfString param.Opt[string] `json:",omitzero,inline"`
 	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u EthereumSendTransactionRpcInputParamsTransactionNonceUnionParam) MarshalJSON() ([]byte, error) {
+func (u EthereumSendTransactionRpcInputParamsTransactionNonceUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfString, u.OfInt)
 }
-func (u *EthereumSendTransactionRpcInputParamsTransactionNonceUnionParam) UnmarshalJSON(data []byte) error {
+func (u *EthereumSendTransactionRpcInputParamsTransactionNonceUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *EthereumSendTransactionRpcInputParamsTransactionNonceUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfInt) {
-		return &u.OfInt.Value
-	}
-	return nil
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type EthereumSendTransactionRpcInputParamsTransactionValueUnionParam struct {
+type EthereumSendTransactionRpcInputParamsTransactionValueUnion struct {
 	OfString param.Opt[string] `json:",omitzero,inline"`
 	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u EthereumSendTransactionRpcInputParamsTransactionValueUnionParam) MarshalJSON() ([]byte, error) {
+func (u EthereumSendTransactionRpcInputParamsTransactionValueUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfString, u.OfInt)
 }
-func (u *EthereumSendTransactionRpcInputParamsTransactionValueUnionParam) UnmarshalJSON(data []byte) error {
+func (u *EthereumSendTransactionRpcInputParamsTransactionValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *EthereumSendTransactionRpcInputParamsTransactionValueUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfInt) {
-		return &u.OfInt.Value
-	}
-	return nil
 }
 
 type EthereumSendTransactionRpcInputChainType string
@@ -1037,21 +875,21 @@ const (
 // object.
 //
 // The properties Method, Params are required.
-type EthereumSignTypedDataRpcInputParam struct {
+type EthereumSignTypedDataRpcInput struct {
 	// Any of "eth_signTypedData_v4".
-	Method  EthereumSignTypedDataRpcInputMethod      `json:"method,omitzero,required"`
-	Params  EthereumSignTypedDataRpcInputParamsParam `json:"params,omitzero,required"`
-	Address param.Opt[string]                        `json:"address,omitzero"`
+	Method  EthereumSignTypedDataRpcInputMethod `json:"method,omitzero,required"`
+	Params  EthereumSignTypedDataRpcInputParams `json:"params,omitzero,required"`
+	Address param.Opt[string]                   `json:"address,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumSignTypedDataRpcInputChainType `json:"chain_type,omitzero"`
 	paramObj
 }
 
-func (r EthereumSignTypedDataRpcInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumSignTypedDataRpcInputParam
+func (r EthereumSignTypedDataRpcInput) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSignTypedDataRpcInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *EthereumSignTypedDataRpcInputParam) UnmarshalJSON(data []byte) error {
+func (r *EthereumSignTypedDataRpcInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -1062,48 +900,48 @@ const (
 )
 
 // The property TypedData is required.
-type EthereumSignTypedDataRpcInputParamsParam struct {
-	TypedData EthereumSignTypedDataRpcInputParamsTypedDataParam `json:"typed_data,omitzero,required"`
+type EthereumSignTypedDataRpcInputParams struct {
+	TypedData EthereumSignTypedDataRpcInputParamsTypedData `json:"typed_data,omitzero,required"`
 	paramObj
 }
 
-func (r EthereumSignTypedDataRpcInputParamsParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumSignTypedDataRpcInputParamsParam
+func (r EthereumSignTypedDataRpcInputParams) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSignTypedDataRpcInputParams
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *EthereumSignTypedDataRpcInputParamsParam) UnmarshalJSON(data []byte) error {
+func (r *EthereumSignTypedDataRpcInputParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 // The properties Domain, Message, PrimaryType, Types are required.
-type EthereumSignTypedDataRpcInputParamsTypedDataParam struct {
-	Domain      map[string]any                                                     `json:"domain,omitzero,required"`
-	Message     map[string]any                                                     `json:"message,omitzero,required"`
-	PrimaryType string                                                             `json:"primary_type,required"`
-	Types       map[string][]EthereumSignTypedDataRpcInputParamsTypedDataTypeParam `json:"types,omitzero,required"`
+type EthereumSignTypedDataRpcInputParamsTypedData struct {
+	Domain      map[string]any                                                `json:"domain,omitzero,required"`
+	Message     map[string]any                                                `json:"message,omitzero,required"`
+	PrimaryType string                                                        `json:"primary_type,required"`
+	Types       map[string][]EthereumSignTypedDataRpcInputParamsTypedDataType `json:"types,omitzero,required"`
 	paramObj
 }
 
-func (r EthereumSignTypedDataRpcInputParamsTypedDataParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumSignTypedDataRpcInputParamsTypedDataParam
+func (r EthereumSignTypedDataRpcInputParamsTypedData) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSignTypedDataRpcInputParamsTypedData
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *EthereumSignTypedDataRpcInputParamsTypedDataParam) UnmarshalJSON(data []byte) error {
+func (r *EthereumSignTypedDataRpcInputParamsTypedData) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 // The properties Name, Type are required.
-type EthereumSignTypedDataRpcInputParamsTypedDataTypeParam struct {
+type EthereumSignTypedDataRpcInputParamsTypedDataType struct {
 	Name string `json:"name,required"`
 	Type string `json:"type,required"`
 	paramObj
 }
 
-func (r EthereumSignTypedDataRpcInputParamsTypedDataTypeParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumSignTypedDataRpcInputParamsTypedDataTypeParam
+func (r EthereumSignTypedDataRpcInputParamsTypedDataType) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSignTypedDataRpcInputParamsTypedDataType
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *EthereumSignTypedDataRpcInputParamsTypedDataTypeParam) UnmarshalJSON(data []byte) error {
+func (r *EthereumSignTypedDataRpcInputParamsTypedDataType) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -1116,21 +954,21 @@ const (
 // Executes an RPC method to hash and sign a UserOperation.
 //
 // The properties Method, Params are required.
-type EthereumSignUserOperationRpcInputParam struct {
+type EthereumSignUserOperationRpcInput struct {
 	// Any of "eth_signUserOperation".
-	Method  EthereumSignUserOperationRpcInputMethod      `json:"method,omitzero,required"`
-	Params  EthereumSignUserOperationRpcInputParamsParam `json:"params,omitzero,required"`
-	Address param.Opt[string]                            `json:"address,omitzero"`
+	Method  EthereumSignUserOperationRpcInputMethod `json:"method,omitzero,required"`
+	Params  EthereumSignUserOperationRpcInputParams `json:"params,omitzero,required"`
+	Address param.Opt[string]                       `json:"address,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumSignUserOperationRpcInputChainType `json:"chain_type,omitzero"`
 	paramObj
 }
 
-func (r EthereumSignUserOperationRpcInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumSignUserOperationRpcInputParam
+func (r EthereumSignUserOperationRpcInput) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSignUserOperationRpcInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *EthereumSignUserOperationRpcInputParam) UnmarshalJSON(data []byte) error {
+func (r *EthereumSignUserOperationRpcInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -1141,51 +979,42 @@ const (
 )
 
 // The properties ChainID, Contract, UserOperation are required.
-type EthereumSignUserOperationRpcInputParamsParam struct {
-	ChainID       EthereumSignUserOperationRpcInputParamsChainIDUnionParam  `json:"chain_id,omitzero,required"`
-	Contract      string                                                    `json:"contract,required"`
-	UserOperation EthereumSignUserOperationRpcInputParamsUserOperationParam `json:"user_operation,omitzero,required"`
+type EthereumSignUserOperationRpcInputParams struct {
+	ChainID       EthereumSignUserOperationRpcInputParamsChainIDUnion  `json:"chain_id,omitzero,required"`
+	Contract      string                                               `json:"contract,required"`
+	UserOperation EthereumSignUserOperationRpcInputParamsUserOperation `json:"user_operation,omitzero,required"`
 	paramObj
 }
 
-func (r EthereumSignUserOperationRpcInputParamsParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumSignUserOperationRpcInputParamsParam
+func (r EthereumSignUserOperationRpcInputParams) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSignUserOperationRpcInputParams
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *EthereumSignUserOperationRpcInputParamsParam) UnmarshalJSON(data []byte) error {
+func (r *EthereumSignUserOperationRpcInputParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type EthereumSignUserOperationRpcInputParamsChainIDUnionParam struct {
+type EthereumSignUserOperationRpcInputParamsChainIDUnion struct {
 	OfString param.Opt[string] `json:",omitzero,inline"`
 	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u EthereumSignUserOperationRpcInputParamsChainIDUnionParam) MarshalJSON() ([]byte, error) {
+func (u EthereumSignUserOperationRpcInputParamsChainIDUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfString, u.OfInt)
 }
-func (u *EthereumSignUserOperationRpcInputParamsChainIDUnionParam) UnmarshalJSON(data []byte) error {
+func (u *EthereumSignUserOperationRpcInputParamsChainIDUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *EthereumSignUserOperationRpcInputParamsChainIDUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfInt) {
-		return &u.OfInt.Value
-	}
-	return nil
 }
 
 // The properties CallData, CallGasLimit, MaxFeePerGas, MaxPriorityFeePerGas,
 // Nonce, Paymaster, PaymasterData, PaymasterPostOpGasLimit,
 // PaymasterVerificationGasLimit, PreVerificationGas, Sender, VerificationGasLimit
 // are required.
-type EthereumSignUserOperationRpcInputParamsUserOperationParam struct {
+type EthereumSignUserOperationRpcInputParamsUserOperation struct {
 	CallData                      string `json:"call_data,required"`
 	CallGasLimit                  string `json:"call_gas_limit,required"`
 	MaxFeePerGas                  string `json:"max_fee_per_gas,required"`
@@ -1201,11 +1030,11 @@ type EthereumSignUserOperationRpcInputParamsUserOperationParam struct {
 	paramObj
 }
 
-func (r EthereumSignUserOperationRpcInputParamsUserOperationParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumSignUserOperationRpcInputParamsUserOperationParam
+func (r EthereumSignUserOperationRpcInputParamsUserOperation) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSignUserOperationRpcInputParamsUserOperation
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *EthereumSignUserOperationRpcInputParamsUserOperationParam) UnmarshalJSON(data []byte) error {
+func (r *EthereumSignUserOperationRpcInputParamsUserOperation) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -1218,21 +1047,21 @@ const (
 // Signs an EIP-7702 authorization.
 //
 // The properties Method, Params are required.
-type EthereumSign7702AuthorizationRpcInputParam struct {
+type EthereumSign7702AuthorizationRpcInput struct {
 	// Any of "eth_sign7702Authorization".
-	Method  EthereumSign7702AuthorizationRpcInputMethod      `json:"method,omitzero,required"`
-	Params  EthereumSign7702AuthorizationRpcInputParamsParam `json:"params,omitzero,required"`
-	Address param.Opt[string]                                `json:"address,omitzero"`
+	Method  EthereumSign7702AuthorizationRpcInputMethod `json:"method,omitzero,required"`
+	Params  EthereumSign7702AuthorizationRpcInputParams `json:"params,omitzero,required"`
+	Address param.Opt[string]                           `json:"address,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumSign7702AuthorizationRpcInputChainType `json:"chain_type,omitzero"`
 	paramObj
 }
 
-func (r EthereumSign7702AuthorizationRpcInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumSign7702AuthorizationRpcInputParam
+func (r EthereumSign7702AuthorizationRpcInput) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSign7702AuthorizationRpcInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *EthereumSign7702AuthorizationRpcInputParam) UnmarshalJSON(data []byte) error {
+func (r *EthereumSign7702AuthorizationRpcInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -1243,69 +1072,51 @@ const (
 )
 
 // The properties ChainID, Contract are required.
-type EthereumSign7702AuthorizationRpcInputParamsParam struct {
-	ChainID  EthereumSign7702AuthorizationRpcInputParamsChainIDUnionParam `json:"chain_id,omitzero,required"`
-	Contract string                                                       `json:"contract,required"`
-	Nonce    EthereumSign7702AuthorizationRpcInputParamsNonceUnionParam   `json:"nonce,omitzero"`
+type EthereumSign7702AuthorizationRpcInputParams struct {
+	ChainID  EthereumSign7702AuthorizationRpcInputParamsChainIDUnion `json:"chain_id,omitzero,required"`
+	Contract string                                                  `json:"contract,required"`
+	Nonce    EthereumSign7702AuthorizationRpcInputParamsNonceUnion   `json:"nonce,omitzero"`
 	paramObj
 }
 
-func (r EthereumSign7702AuthorizationRpcInputParamsParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumSign7702AuthorizationRpcInputParamsParam
+func (r EthereumSign7702AuthorizationRpcInputParams) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSign7702AuthorizationRpcInputParams
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *EthereumSign7702AuthorizationRpcInputParamsParam) UnmarshalJSON(data []byte) error {
+func (r *EthereumSign7702AuthorizationRpcInputParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type EthereumSign7702AuthorizationRpcInputParamsChainIDUnionParam struct {
+type EthereumSign7702AuthorizationRpcInputParamsChainIDUnion struct {
 	OfString param.Opt[string] `json:",omitzero,inline"`
 	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u EthereumSign7702AuthorizationRpcInputParamsChainIDUnionParam) MarshalJSON() ([]byte, error) {
+func (u EthereumSign7702AuthorizationRpcInputParamsChainIDUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfString, u.OfInt)
 }
-func (u *EthereumSign7702AuthorizationRpcInputParamsChainIDUnionParam) UnmarshalJSON(data []byte) error {
+func (u *EthereumSign7702AuthorizationRpcInputParamsChainIDUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *EthereumSign7702AuthorizationRpcInputParamsChainIDUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfInt) {
-		return &u.OfInt.Value
-	}
-	return nil
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type EthereumSign7702AuthorizationRpcInputParamsNonceUnionParam struct {
+type EthereumSign7702AuthorizationRpcInputParamsNonceUnion struct {
 	OfString param.Opt[string] `json:",omitzero,inline"`
 	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u EthereumSign7702AuthorizationRpcInputParamsNonceUnionParam) MarshalJSON() ([]byte, error) {
+func (u EthereumSign7702AuthorizationRpcInputParamsNonceUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfString, u.OfInt)
 }
-func (u *EthereumSign7702AuthorizationRpcInputParamsNonceUnionParam) UnmarshalJSON(data []byte) error {
+func (u *EthereumSign7702AuthorizationRpcInputParamsNonceUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *EthereumSign7702AuthorizationRpcInputParamsNonceUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfInt) {
-		return &u.OfInt.Value
-	}
-	return nil
 }
 
 type EthereumSign7702AuthorizationRpcInputChainType string
@@ -1317,21 +1128,21 @@ const (
 // Signs a raw hash on the secp256k1 curve.
 //
 // The properties Method, Params are required.
-type EthereumSecp256k1SignRpcInputParam struct {
+type EthereumSecp256k1SignRpcInput struct {
 	// Any of "secp256k1_sign".
-	Method  EthereumSecp256k1SignRpcInputMethod      `json:"method,omitzero,required"`
-	Params  EthereumSecp256k1SignRpcInputParamsParam `json:"params,omitzero,required"`
-	Address param.Opt[string]                        `json:"address,omitzero"`
+	Method  EthereumSecp256k1SignRpcInputMethod `json:"method,omitzero,required"`
+	Params  EthereumSecp256k1SignRpcInputParams `json:"params,omitzero,required"`
+	Address param.Opt[string]                   `json:"address,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumSecp256k1SignRpcInputChainType `json:"chain_type,omitzero"`
 	paramObj
 }
 
-func (r EthereumSecp256k1SignRpcInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumSecp256k1SignRpcInputParam
+func (r EthereumSecp256k1SignRpcInput) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSecp256k1SignRpcInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *EthereumSecp256k1SignRpcInputParam) UnmarshalJSON(data []byte) error {
+func (r *EthereumSecp256k1SignRpcInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -1342,16 +1153,16 @@ const (
 )
 
 // The property Hash is required.
-type EthereumSecp256k1SignRpcInputParamsParam struct {
+type EthereumSecp256k1SignRpcInputParams struct {
 	Hash string `json:"hash,required"`
 	paramObj
 }
 
-func (r EthereumSecp256k1SignRpcInputParamsParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumSecp256k1SignRpcInputParamsParam
+func (r EthereumSecp256k1SignRpcInputParams) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSecp256k1SignRpcInputParams
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *EthereumSecp256k1SignRpcInputParamsParam) UnmarshalJSON(data []byte) error {
+func (r *EthereumSecp256k1SignRpcInputParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -1364,21 +1175,21 @@ const (
 // Executes the SVM `signTransaction` RPC to sign a transaction.
 //
 // The properties Method, Params are required.
-type SolanaSignTransactionRpcInputParam struct {
+type SolanaSignTransactionRpcInput struct {
 	// Any of "signTransaction".
-	Method  SolanaSignTransactionRpcInputMethod      `json:"method,omitzero,required"`
-	Params  SolanaSignTransactionRpcInputParamsParam `json:"params,omitzero,required"`
-	Address param.Opt[string]                        `json:"address,omitzero"`
+	Method  SolanaSignTransactionRpcInputMethod `json:"method,omitzero,required"`
+	Params  SolanaSignTransactionRpcInputParams `json:"params,omitzero,required"`
+	Address param.Opt[string]                   `json:"address,omitzero"`
 	// Any of "solana".
 	ChainType SolanaSignTransactionRpcInputChainType `json:"chain_type,omitzero"`
 	paramObj
 }
 
-func (r SolanaSignTransactionRpcInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow SolanaSignTransactionRpcInputParam
+func (r SolanaSignTransactionRpcInput) MarshalJSON() (data []byte, err error) {
+	type shadow SolanaSignTransactionRpcInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *SolanaSignTransactionRpcInputParam) UnmarshalJSON(data []byte) error {
+func (r *SolanaSignTransactionRpcInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -1389,23 +1200,23 @@ const (
 )
 
 // The properties Encoding, Transaction are required.
-type SolanaSignTransactionRpcInputParamsParam struct {
+type SolanaSignTransactionRpcInputParams struct {
 	// Any of "base64".
 	Encoding    string `json:"encoding,omitzero,required"`
 	Transaction string `json:"transaction,required"`
 	paramObj
 }
 
-func (r SolanaSignTransactionRpcInputParamsParam) MarshalJSON() (data []byte, err error) {
-	type shadow SolanaSignTransactionRpcInputParamsParam
+func (r SolanaSignTransactionRpcInputParams) MarshalJSON() (data []byte, err error) {
+	type shadow SolanaSignTransactionRpcInputParams
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *SolanaSignTransactionRpcInputParamsParam) UnmarshalJSON(data []byte) error {
+func (r *SolanaSignTransactionRpcInputParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 func init() {
-	apijson.RegisterFieldValidator[SolanaSignTransactionRpcInputParamsParam](
+	apijson.RegisterFieldValidator[SolanaSignTransactionRpcInputParams](
 		"encoding", "base64",
 	)
 }
@@ -1420,23 +1231,23 @@ const (
 // transaction.
 //
 // The properties Caip2, Method, Params are required.
-type SolanaSignAndSendTransactionRpcInputParam struct {
+type SolanaSignAndSendTransactionRpcInput struct {
 	Caip2 string `json:"caip2,required"`
 	// Any of "signAndSendTransaction".
-	Method  SolanaSignAndSendTransactionRpcInputMethod      `json:"method,omitzero,required"`
-	Params  SolanaSignAndSendTransactionRpcInputParamsParam `json:"params,omitzero,required"`
-	Address param.Opt[string]                               `json:"address,omitzero"`
-	Sponsor param.Opt[bool]                                 `json:"sponsor,omitzero"`
+	Method  SolanaSignAndSendTransactionRpcInputMethod `json:"method,omitzero,required"`
+	Params  SolanaSignAndSendTransactionRpcInputParams `json:"params,omitzero,required"`
+	Address param.Opt[string]                          `json:"address,omitzero"`
+	Sponsor param.Opt[bool]                            `json:"sponsor,omitzero"`
 	// Any of "solana".
 	ChainType SolanaSignAndSendTransactionRpcInputChainType `json:"chain_type,omitzero"`
 	paramObj
 }
 
-func (r SolanaSignAndSendTransactionRpcInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow SolanaSignAndSendTransactionRpcInputParam
+func (r SolanaSignAndSendTransactionRpcInput) MarshalJSON() (data []byte, err error) {
+	type shadow SolanaSignAndSendTransactionRpcInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *SolanaSignAndSendTransactionRpcInputParam) UnmarshalJSON(data []byte) error {
+func (r *SolanaSignAndSendTransactionRpcInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -1447,23 +1258,23 @@ const (
 )
 
 // The properties Encoding, Transaction are required.
-type SolanaSignAndSendTransactionRpcInputParamsParam struct {
+type SolanaSignAndSendTransactionRpcInputParams struct {
 	// Any of "base64".
 	Encoding    string `json:"encoding,omitzero,required"`
 	Transaction string `json:"transaction,required"`
 	paramObj
 }
 
-func (r SolanaSignAndSendTransactionRpcInputParamsParam) MarshalJSON() (data []byte, err error) {
-	type shadow SolanaSignAndSendTransactionRpcInputParamsParam
+func (r SolanaSignAndSendTransactionRpcInputParams) MarshalJSON() (data []byte, err error) {
+	type shadow SolanaSignAndSendTransactionRpcInputParams
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *SolanaSignAndSendTransactionRpcInputParamsParam) UnmarshalJSON(data []byte) error {
+func (r *SolanaSignAndSendTransactionRpcInputParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 func init() {
-	apijson.RegisterFieldValidator[SolanaSignAndSendTransactionRpcInputParamsParam](
+	apijson.RegisterFieldValidator[SolanaSignAndSendTransactionRpcInputParams](
 		"encoding", "base64",
 	)
 }
@@ -1477,21 +1288,21 @@ const (
 // Executes the SVM `signMessage` RPC to sign a message.
 //
 // The properties Method, Params are required.
-type SolanaSignMessageRpcInputParam struct {
+type SolanaSignMessageRpcInput struct {
 	// Any of "signMessage".
-	Method  SolanaSignMessageRpcInputMethod      `json:"method,omitzero,required"`
-	Params  SolanaSignMessageRpcInputParamsParam `json:"params,omitzero,required"`
-	Address param.Opt[string]                    `json:"address,omitzero"`
+	Method  SolanaSignMessageRpcInputMethod `json:"method,omitzero,required"`
+	Params  SolanaSignMessageRpcInputParams `json:"params,omitzero,required"`
+	Address param.Opt[string]               `json:"address,omitzero"`
 	// Any of "solana".
 	ChainType SolanaSignMessageRpcInputChainType `json:"chain_type,omitzero"`
 	paramObj
 }
 
-func (r SolanaSignMessageRpcInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow SolanaSignMessageRpcInputParam
+func (r SolanaSignMessageRpcInput) MarshalJSON() (data []byte, err error) {
+	type shadow SolanaSignMessageRpcInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *SolanaSignMessageRpcInputParam) UnmarshalJSON(data []byte) error {
+func (r *SolanaSignMessageRpcInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -1502,23 +1313,23 @@ const (
 )
 
 // The properties Encoding, Message are required.
-type SolanaSignMessageRpcInputParamsParam struct {
+type SolanaSignMessageRpcInputParams struct {
 	// Any of "base64".
 	Encoding string `json:"encoding,omitzero,required"`
 	Message  string `json:"message,required"`
 	paramObj
 }
 
-func (r SolanaSignMessageRpcInputParamsParam) MarshalJSON() (data []byte, err error) {
-	type shadow SolanaSignMessageRpcInputParamsParam
+func (r SolanaSignMessageRpcInputParams) MarshalJSON() (data []byte, err error) {
+	type shadow SolanaSignMessageRpcInputParams
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *SolanaSignMessageRpcInputParamsParam) UnmarshalJSON(data []byte) error {
+func (r *SolanaSignMessageRpcInputParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 func init() {
-	apijson.RegisterFieldValidator[SolanaSignMessageRpcInputParamsParam](
+	apijson.RegisterFieldValidator[SolanaSignMessageRpcInputParams](
 		"encoding", "base64",
 	)
 }
@@ -2964,15 +2775,6 @@ func (u *WalletNewParamsOwnerUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *WalletNewParamsOwnerUnion) asAny() any {
-	if !param.IsOmitted(u.OfPublicKeyOwner) {
-		return u.OfPublicKeyOwner
-	} else if !param.IsOmitted(u.OfUserOwner) {
-		return u.OfUserOwner
-	}
-	return nil
-}
-
 // The P-256 public key of the owner of the resource, in base64-encoded DER format.
 // If you provide this, do not specify an owner_id as it will be generated
 // automatically.
@@ -3065,15 +2867,6 @@ func (u WalletUpdateParamsOwnerUnion) MarshalJSON() ([]byte, error) {
 }
 func (u *WalletUpdateParamsOwnerUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *WalletUpdateParamsOwnerUnion) asAny() any {
-	if !param.IsOmitted(u.OfPublicKeyOwner) {
-		return u.OfPublicKeyOwner
-	} else if !param.IsOmitted(u.OfUserOwner) {
-		return u.OfUserOwner
-	}
-	return nil
 }
 
 // The P-256 public key of the owner of the resource, in base64-encoded DER format.
@@ -3272,93 +3065,6 @@ func (u *WalletSubmitImportParamsWalletUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *WalletSubmitImportParamsWalletUnion) asAny() any {
-	if !param.IsOmitted(u.OfHD) {
-		return u.OfHD
-	} else if !param.IsOmitted(u.OfPrivateKey) {
-		return u.OfPrivateKey
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u WalletSubmitImportParamsWalletUnion) GetIndex() *int64 {
-	if vt := u.OfHD; vt != nil {
-		return &vt.Index
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u WalletSubmitImportParamsWalletUnion) GetAddress() *string {
-	if vt := u.OfHD; vt != nil {
-		return (*string)(&vt.Address)
-	} else if vt := u.OfPrivateKey; vt != nil {
-		return (*string)(&vt.Address)
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u WalletSubmitImportParamsWalletUnion) GetChainType() *string {
-	if vt := u.OfHD; vt != nil {
-		return (*string)(&vt.ChainType)
-	} else if vt := u.OfPrivateKey; vt != nil {
-		return (*string)(&vt.ChainType)
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u WalletSubmitImportParamsWalletUnion) GetCiphertext() *string {
-	if vt := u.OfHD; vt != nil {
-		return (*string)(&vt.Ciphertext)
-	} else if vt := u.OfPrivateKey; vt != nil {
-		return (*string)(&vt.Ciphertext)
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u WalletSubmitImportParamsWalletUnion) GetEncapsulatedKey() *string {
-	if vt := u.OfHD; vt != nil {
-		return (*string)(&vt.EncapsulatedKey)
-	} else if vt := u.OfPrivateKey; vt != nil {
-		return (*string)(&vt.EncapsulatedKey)
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u WalletSubmitImportParamsWalletUnion) GetEncryptionType() *string {
-	if vt := u.OfHD; vt != nil {
-		return (*string)(&vt.EncryptionType)
-	} else if vt := u.OfPrivateKey; vt != nil {
-		return (*string)(&vt.EncryptionType)
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u WalletSubmitImportParamsWalletUnion) GetEntropyType() *string {
-	if vt := u.OfHD; vt != nil {
-		return (*string)(&vt.EntropyType)
-	} else if vt := u.OfPrivateKey; vt != nil {
-		return (*string)(&vt.EntropyType)
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's HpkeConfig property, if present.
-func (u WalletSubmitImportParamsWalletUnion) GetHpkeConfig() *HpkeImportConfigParam {
-	if vt := u.OfHD; vt != nil {
-		return &vt.HpkeConfig
-	} else if vt := u.OfPrivateKey; vt != nil {
-		return &vt.HpkeConfig
-	}
-	return nil
-}
-
 func init() {
 	apijson.RegisterUnion[WalletSubmitImportParamsWalletUnion](
 		"entropy_type",
@@ -3391,7 +3097,7 @@ type WalletSubmitImportParamsWalletHD struct {
 	// Optional HPKE configuration for wallet import decryption. These parameters allow
 	// importing wallets encrypted by external providers that use different HPKE
 	// configurations.
-	HpkeConfig HpkeImportConfigParam `json:"hpke_config,omitzero"`
+	HpkeConfig HpkeImportConfig `json:"hpke_config,omitzero"`
 	// The entropy type of the wallet to import.
 	//
 	// This field can be elided, and will marshal its zero value as "hd".
@@ -3438,7 +3144,7 @@ type WalletSubmitImportParamsWalletPrivateKey struct {
 	// Optional HPKE configuration for wallet import decryption. These parameters allow
 	// importing wallets encrypted by external providers that use different HPKE
 	// configurations.
-	HpkeConfig HpkeImportConfigParam `json:"hpke_config,omitzero"`
+	HpkeConfig HpkeImportConfig `json:"hpke_config,omitzero"`
 	// This field can be elided, and will marshal its zero value as "private-key".
 	EntropyType constant.PrivateKey `json:"entropy_type,required"`
 	paramObj
@@ -3490,15 +3196,6 @@ func (u WalletSubmitImportParamsOwnerUnion) MarshalJSON() ([]byte, error) {
 }
 func (u *WalletSubmitImportParamsOwnerUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *WalletSubmitImportParamsOwnerUnion) asAny() any {
-	if !param.IsOmitted(u.OfWalletSubmitImportsOwnerUserID) {
-		return u.OfWalletSubmitImportsOwnerUserID
-	} else if !param.IsOmitted(u.OfWalletSubmitImportsOwnerPublicKey) {
-		return u.OfWalletSubmitImportsOwnerPublicKey
-	}
-	return nil
 }
 
 // The property UserID is required.
@@ -3623,15 +3320,6 @@ func (u *WalletRawSignParamsParamsUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *WalletRawSignParamsParamsUnion) asAny() any {
-	if !param.IsOmitted(u.OfHash) {
-		return u.OfHash
-	} else if !param.IsOmitted(u.OfBytes) {
-		return u.OfBytes
-	}
-	return nil
-}
-
 // Sign a pre-computed hash
 //
 // The property Hash is required.
@@ -3691,36 +3379,36 @@ type WalletRpcParams struct {
 
 	// This field is a request body variant, only one variant field can be set.
 	// Executes the EVM `personal_sign` RPC (EIP-191) to sign a message.
-	OfPersonalSign *EthereumPersonalSignRpcInputParam `json:",inline"`
+	OfPersonalSign *EthereumPersonalSignRpcInput `json:",inline"`
 	// This field is a request body variant, only one variant field can be set.
 	// Executes the EVM `eth_signTypedData_v4` RPC (EIP-712) to sign a typed data
 	// object.
-	OfEthSignTypedDataV4 *EthereumSignTypedDataRpcInputParam `json:",inline"`
+	OfEthSignTypedDataV4 *EthereumSignTypedDataRpcInput `json:",inline"`
 	// This field is a request body variant, only one variant field can be set.
 	// Executes the EVM `eth_signTransaction` RPC to sign a transaction.
-	OfEthSignTransaction *EthereumSignTransactionRpcInputParam `json:",inline"`
+	OfEthSignTransaction *EthereumSignTransactionRpcInput `json:",inline"`
 	// This field is a request body variant, only one variant field can be set.
 	// Executes an RPC method to hash and sign a UserOperation.
-	OfEthSignUserOperation *EthereumSignUserOperationRpcInputParam `json:",inline"`
+	OfEthSignUserOperation *EthereumSignUserOperationRpcInput `json:",inline"`
 	// This field is a request body variant, only one variant field can be set.
 	// Executes the EVM `eth_sendTransaction` RPC to sign and broadcast a transaction.
-	OfEthSendTransaction *EthereumSendTransactionRpcInputParam `json:",inline"`
+	OfEthSendTransaction *EthereumSendTransactionRpcInput `json:",inline"`
 	// This field is a request body variant, only one variant field can be set. Signs
 	// an EIP-7702 authorization.
-	OfEthSign7702Authorization *EthereumSign7702AuthorizationRpcInputParam `json:",inline"`
+	OfEthSign7702Authorization *EthereumSign7702AuthorizationRpcInput `json:",inline"`
 	// This field is a request body variant, only one variant field can be set. Signs a
 	// raw hash on the secp256k1 curve.
-	OfSecp256k1Sign *EthereumSecp256k1SignRpcInputParam `json:",inline"`
+	OfSecp256k1Sign *EthereumSecp256k1SignRpcInput `json:",inline"`
 	// This field is a request body variant, only one variant field can be set.
 	// Executes the SVM `signMessage` RPC to sign a message.
-	OfSignMessage *SolanaSignMessageRpcInputParam `json:",inline"`
+	OfSignMessage *SolanaSignMessageRpcInput `json:",inline"`
 	// This field is a request body variant, only one variant field can be set.
 	// Executes the SVM `signTransaction` RPC to sign a transaction.
-	OfSignTransaction *SolanaSignTransactionRpcInputParam `json:",inline"`
+	OfSignTransaction *SolanaSignTransactionRpcInput `json:",inline"`
 	// This field is a request body variant, only one variant field can be set.
 	// Executes the SVM `signAndSendTransaction` RPC to sign and broadcast a
 	// transaction.
-	OfSignAndSendTransaction *SolanaSignAndSendTransactionRpcInputParam `json:",inline"`
+	OfSignAndSendTransaction *SolanaSignAndSendTransactionRpcInput `json:",inline"`
 
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.

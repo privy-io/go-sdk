@@ -174,7 +174,7 @@ func TestWalletSubmitImportWithOptionalParams(t *testing.T) {
 				Ciphertext:      "PRoRXygG+YYSDBXjCopNYZmx8Z6nvdl1D0lpePTYZdZI2VGfK+LkFt+GlEJqdoi9",
 				EncapsulatedKey: "BOhR6xITDt5THJawHHJKrKdI9CBr2M/SDWzZZAaOW4gCMsSpC65U007WyKiwuuOVAo1BNm4YgcBBROuMmyIZXZk=",
 				EncryptionType:  "HPKE",
-				HpkeConfig: privyclient.HpkeImportConfigParam{
+				HpkeConfig: privyclient.HpkeImportConfig{
 					Aad:           privyclient.String("aad"),
 					AeadAlgorithm: privyclient.HpkeImportConfigAeadAlgorithmChacha20Poly1305,
 					Info:          privyclient.String("info"),
@@ -340,46 +340,46 @@ func TestWalletRpcWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"wallet_id",
 		privyclient.WalletRpcParams{
-			OfEthSendTransaction: &privyclient.EthereumSendTransactionRpcInputParam{
+			OfEthSendTransaction: &privyclient.EthereumSendTransactionRpcInput{
 				Caip2:  "eip155:8453",
 				Method: privyclient.EthereumSendTransactionRpcInputMethodEthSendTransaction,
-				Params: privyclient.EthereumSendTransactionRpcInputParamsParam{
-					Transaction: privyclient.EthereumSendTransactionRpcInputParamsTransactionParam{
-						AuthorizationList: []privyclient.EthereumSendTransactionRpcInputParamsTransactionAuthorizationListParam{{
-							ChainID: privyclient.EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionParam{
+				Params: privyclient.EthereumSendTransactionRpcInputParams{
+					Transaction: privyclient.EthereumSendTransactionRpcInputParamsTransaction{
+						AuthorizationList: []privyclient.EthereumSendTransactionRpcInputParamsTransactionAuthorizationList{{
+							ChainID: privyclient.EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnion{
 								OfString: privyclient.String("string"),
 							},
 							Contract: "contract",
-							Nonce: privyclient.EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnionParam{
+							Nonce: privyclient.EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnion{
 								OfString: privyclient.String("string"),
 							},
 							R:       "r",
 							S:       "s",
 							YParity: 0,
 						}},
-						ChainID: privyclient.EthereumSendTransactionRpcInputParamsTransactionChainIDUnionParam{
+						ChainID: privyclient.EthereumSendTransactionRpcInputParamsTransactionChainIDUnion{
 							OfString: privyclient.String("string"),
 						},
 						Data: privyclient.String("data"),
 						From: privyclient.String("from"),
-						GasLimit: privyclient.EthereumSendTransactionRpcInputParamsTransactionGasLimitUnionParam{
+						GasLimit: privyclient.EthereumSendTransactionRpcInputParamsTransactionGasLimitUnion{
 							OfString: privyclient.String("string"),
 						},
-						GasPrice: privyclient.EthereumSendTransactionRpcInputParamsTransactionGasPriceUnionParam{
+						GasPrice: privyclient.EthereumSendTransactionRpcInputParamsTransactionGasPriceUnion{
 							OfString: privyclient.String("string"),
 						},
-						MaxFeePerGas: privyclient.EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnionParam{
+						MaxFeePerGas: privyclient.EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnion{
 							OfString: privyclient.String("string"),
 						},
-						MaxPriorityFeePerGas: privyclient.EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionParam{
+						MaxPriorityFeePerGas: privyclient.EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnion{
 							OfString: privyclient.String("string"),
 						},
-						Nonce: privyclient.EthereumSendTransactionRpcInputParamsTransactionNonceUnionParam{
+						Nonce: privyclient.EthereumSendTransactionRpcInputParamsTransactionNonceUnion{
 							OfString: privyclient.String("string"),
 						},
 						To:   privyclient.String("0x0000000000000000000000000000000000000000"),
 						Type: 0,
-						Value: privyclient.EthereumSendTransactionRpcInputParamsTransactionValueUnionParam{
+						Value: privyclient.EthereumSendTransactionRpcInputParamsTransactionValueUnion{
 							OfInt: privyclient.Int(1),
 						},
 					},

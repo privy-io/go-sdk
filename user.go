@@ -79,7 +79,7 @@ func (r *UserService) Delete(ctx context.Context, userID string, opts ...option.
 		err = errors.New("missing required user_id parameter")
 		return
 	}
-	path := fmt.Sprintf("v1/users/%s", userID)
+	path := fmt.Sprintf("v1/users/%s", url.PathEscape(userID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
 	return
 }
@@ -91,7 +91,7 @@ func (r *UserService) Get(ctx context.Context, userID string, opts ...option.Req
 		err = errors.New("missing required user_id parameter")
 		return
 	}
-	path := fmt.Sprintf("v1/users/%s", userID)
+	path := fmt.Sprintf("v1/users/%s", url.PathEscape(userID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return
 }
@@ -199,7 +199,7 @@ func (r *UserService) PregenerateWallets(ctx context.Context, userID string, bod
 		err = errors.New("missing required user_id parameter")
 		return
 	}
-	path := fmt.Sprintf("v1/users/%s/wallets", userID)
+	path := fmt.Sprintf("v1/users/%s/wallets", url.PathEscape(userID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
 }
@@ -219,7 +219,7 @@ func (r *UserService) SetCustomMetadata(ctx context.Context, userID string, body
 		err = errors.New("missing required user_id parameter")
 		return
 	}
-	path := fmt.Sprintf("v1/users/%s/custom_metadata", userID)
+	path := fmt.Sprintf("v1/users/%s/custom_metadata", url.PathEscape(userID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
 }
@@ -231,7 +231,7 @@ func (r *UserService) UnlinkLinkedAccount(ctx context.Context, userID string, bo
 		err = errors.New("missing required user_id parameter")
 		return
 	}
-	path := fmt.Sprintf("v1/users/%s/accounts/unlink", userID)
+	path := fmt.Sprintf("v1/users/%s/accounts/unlink", url.PathEscape(userID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
 }
@@ -2018,21 +2018,10 @@ func (u *CustomMetadataItemUnionParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *CustomMetadataItemUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfFloat) {
-		return &u.OfFloat.Value
-	} else if !param.IsOmitted(u.OfBool) {
-		return &u.OfBool.Value
-	}
-	return nil
-}
-
 // The payload for importing a wallet account.
 //
 // The properties Address, ChainType, Type are required.
-type LinkedAccountWalletInputParam struct {
+type LinkedAccountWalletInput struct {
 	Address string `json:"address,required"`
 	// Any of "ethereum", "solana".
 	ChainType LinkedAccountWalletInputChainType `json:"chain_type,omitzero,required"`
@@ -2041,11 +2030,11 @@ type LinkedAccountWalletInputParam struct {
 	paramObj
 }
 
-func (r LinkedAccountWalletInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountWalletInputParam
+func (r LinkedAccountWalletInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountWalletInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *LinkedAccountWalletInputParam) UnmarshalJSON(data []byte) error {
+func (r *LinkedAccountWalletInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2065,18 +2054,18 @@ const (
 // The payload for importing an email account.
 //
 // The properties Address, Type are required.
-type LinkedAccountEmailInputParam struct {
+type LinkedAccountEmailInput struct {
 	Address string `json:"address,required" format:"email"`
 	// Any of "email".
 	Type LinkedAccountEmailInputType `json:"type,omitzero,required"`
 	paramObj
 }
 
-func (r LinkedAccountEmailInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountEmailInputParam
+func (r LinkedAccountEmailInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountEmailInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *LinkedAccountEmailInputParam) UnmarshalJSON(data []byte) error {
+func (r *LinkedAccountEmailInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2089,18 +2078,18 @@ const (
 // The payload for importing a phone account.
 //
 // The properties Number, Type are required.
-type LinkedAccountPhoneInputParam struct {
+type LinkedAccountPhoneInput struct {
 	Number string `json:"number,required"`
 	// Any of "phone".
 	Type LinkedAccountPhoneInputType `json:"type,omitzero,required"`
 	paramObj
 }
 
-func (r LinkedAccountPhoneInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountPhoneInputParam
+func (r LinkedAccountPhoneInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountPhoneInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *LinkedAccountPhoneInputParam) UnmarshalJSON(data []byte) error {
+func (r *LinkedAccountPhoneInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2113,7 +2102,7 @@ const (
 // The payload for importing a Google account.
 //
 // The properties Email, Name, Subject, Type are required.
-type LinkedAccountGoogleInputParam struct {
+type LinkedAccountGoogleInput struct {
 	Email   string `json:"email,required" format:"email"`
 	Name    string `json:"name,required"`
 	Subject string `json:"subject,required"`
@@ -2122,11 +2111,11 @@ type LinkedAccountGoogleInputParam struct {
 	paramObj
 }
 
-func (r LinkedAccountGoogleInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountGoogleInputParam
+func (r LinkedAccountGoogleInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountGoogleInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *LinkedAccountGoogleInputParam) UnmarshalJSON(data []byte) error {
+func (r *LinkedAccountGoogleInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2139,7 +2128,7 @@ const (
 // The payload for importing a Twitter account.
 //
 // The properties Name, Subject, Type, Username are required.
-type LinkedAccountTwitterInputParam struct {
+type LinkedAccountTwitterInput struct {
 	Name    string `json:"name,required"`
 	Subject string `json:"subject,required"`
 	// Any of "twitter_oauth".
@@ -2149,11 +2138,11 @@ type LinkedAccountTwitterInputParam struct {
 	paramObj
 }
 
-func (r LinkedAccountTwitterInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountTwitterInputParam
+func (r LinkedAccountTwitterInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountTwitterInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *LinkedAccountTwitterInputParam) UnmarshalJSON(data []byte) error {
+func (r *LinkedAccountTwitterInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2166,7 +2155,7 @@ const (
 // The payload for importing a Discord account.
 //
 // The properties Subject, Type, Username are required.
-type LinkedAccountDiscordInputParam struct {
+type LinkedAccountDiscordInput struct {
 	Subject string `json:"subject,required"`
 	// Any of "discord_oauth".
 	Type     LinkedAccountDiscordInputType `json:"type,omitzero,required"`
@@ -2175,11 +2164,11 @@ type LinkedAccountDiscordInputParam struct {
 	paramObj
 }
 
-func (r LinkedAccountDiscordInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountDiscordInputParam
+func (r LinkedAccountDiscordInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountDiscordInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *LinkedAccountDiscordInputParam) UnmarshalJSON(data []byte) error {
+func (r *LinkedAccountDiscordInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2192,7 +2181,7 @@ const (
 // The payload for importing a Github account.
 //
 // The properties Subject, Type, Username are required.
-type LinkedAccountGitHubInputParam struct {
+type LinkedAccountGitHubInput struct {
 	Subject string `json:"subject,required"`
 	// Any of "github_oauth".
 	Type     LinkedAccountGitHubInputType `json:"type,omitzero,required"`
@@ -2202,11 +2191,11 @@ type LinkedAccountGitHubInputParam struct {
 	paramObj
 }
 
-func (r LinkedAccountGitHubInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountGitHubInputParam
+func (r LinkedAccountGitHubInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountGitHubInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *LinkedAccountGitHubInputParam) UnmarshalJSON(data []byte) error {
+func (r *LinkedAccountGitHubInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2219,7 +2208,7 @@ const (
 // The payload for importing a Spotify account.
 //
 // The properties Subject, Type are required.
-type LinkedAccountSpotifyInputParam struct {
+type LinkedAccountSpotifyInput struct {
 	Subject string `json:"subject,required"`
 	// Any of "spotify_oauth".
 	Type  LinkedAccountSpotifyInputType `json:"type,omitzero,required"`
@@ -2228,11 +2217,11 @@ type LinkedAccountSpotifyInputParam struct {
 	paramObj
 }
 
-func (r LinkedAccountSpotifyInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountSpotifyInputParam
+func (r LinkedAccountSpotifyInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountSpotifyInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *LinkedAccountSpotifyInputParam) UnmarshalJSON(data []byte) error {
+func (r *LinkedAccountSpotifyInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2245,7 +2234,7 @@ const (
 // The payload for importing an Instagram account.
 //
 // The properties Subject, Type, Username are required.
-type LinkedAccountInstagramInputParam struct {
+type LinkedAccountInstagramInput struct {
 	Subject string `json:"subject,required"`
 	// Any of "instagram_oauth".
 	Type     LinkedAccountInstagramInputType `json:"type,omitzero,required"`
@@ -2253,11 +2242,11 @@ type LinkedAccountInstagramInputParam struct {
 	paramObj
 }
 
-func (r LinkedAccountInstagramInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountInstagramInputParam
+func (r LinkedAccountInstagramInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountInstagramInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *LinkedAccountInstagramInputParam) UnmarshalJSON(data []byte) error {
+func (r *LinkedAccountInstagramInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2270,7 +2259,7 @@ const (
 // The payload for importing a Tiktok account.
 //
 // The properties Name, Subject, Type, Username are required.
-type LinkedAccountTiktokInputParam struct {
+type LinkedAccountTiktokInput struct {
 	Name    param.Opt[string] `json:"name,omitzero,required"`
 	Subject string            `json:"subject,required"`
 	// Any of "tiktok_oauth".
@@ -2279,11 +2268,11 @@ type LinkedAccountTiktokInputParam struct {
 	paramObj
 }
 
-func (r LinkedAccountTiktokInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountTiktokInputParam
+func (r LinkedAccountTiktokInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountTiktokInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *LinkedAccountTiktokInputParam) UnmarshalJSON(data []byte) error {
+func (r *LinkedAccountTiktokInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2296,7 +2285,7 @@ const (
 // The payload for importing a LINE account.
 //
 // The properties Subject, Type are required.
-type LinkedAccountLineInputParam struct {
+type LinkedAccountLineInput struct {
 	Subject string `json:"subject,required"`
 	// Any of "line_oauth".
 	Type              LinkedAccountLineInputType `json:"type,omitzero,required"`
@@ -2306,11 +2295,11 @@ type LinkedAccountLineInputParam struct {
 	paramObj
 }
 
-func (r LinkedAccountLineInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountLineInputParam
+func (r LinkedAccountLineInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountLineInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *LinkedAccountLineInputParam) UnmarshalJSON(data []byte) error {
+func (r *LinkedAccountLineInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2323,7 +2312,7 @@ const (
 // The payload for importing a Twitch account.
 //
 // The properties Subject, Type are required.
-type LinkedAccountTwitchInputParam struct {
+type LinkedAccountTwitchInput struct {
 	Subject string `json:"subject,required"`
 	// Any of "twitch_oauth".
 	Type     LinkedAccountTwitchInputType `json:"type,omitzero,required"`
@@ -2331,11 +2320,11 @@ type LinkedAccountTwitchInputParam struct {
 	paramObj
 }
 
-func (r LinkedAccountTwitchInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountTwitchInputParam
+func (r LinkedAccountTwitchInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountTwitchInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *LinkedAccountTwitchInputParam) UnmarshalJSON(data []byte) error {
+func (r *LinkedAccountTwitchInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2348,7 +2337,7 @@ const (
 // The payload for importing an Apple account.
 //
 // The properties Subject, Type are required.
-type LinkedAccountAppleInputParam struct {
+type LinkedAccountAppleInput struct {
 	Subject string `json:"subject,required"`
 	// Any of "apple_oauth".
 	Type  LinkedAccountAppleInputType `json:"type,omitzero,required"`
@@ -2356,11 +2345,11 @@ type LinkedAccountAppleInputParam struct {
 	paramObj
 }
 
-func (r LinkedAccountAppleInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountAppleInputParam
+func (r LinkedAccountAppleInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountAppleInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *LinkedAccountAppleInputParam) UnmarshalJSON(data []byte) error {
+func (r *LinkedAccountAppleInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2373,7 +2362,7 @@ const (
 // The payload for importing a LinkedIn account.
 //
 // The properties Subject, Type are required.
-type LinkedAccountLinkedInInputParam struct {
+type LinkedAccountLinkedInInput struct {
 	Subject string `json:"subject,required"`
 	// Any of "linkedin_oauth".
 	Type       LinkedAccountLinkedInInputType `json:"type,omitzero,required"`
@@ -2383,11 +2372,11 @@ type LinkedAccountLinkedInInputParam struct {
 	paramObj
 }
 
-func (r LinkedAccountLinkedInInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountLinkedInInputParam
+func (r LinkedAccountLinkedInInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountLinkedInInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *LinkedAccountLinkedInInputParam) UnmarshalJSON(data []byte) error {
+func (r *LinkedAccountLinkedInInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2400,7 +2389,7 @@ const (
 // The payload for importing a Farcaster account.
 //
 // The properties Fid, OwnerAddress, Type are required.
-type LinkedAccountFarcasterInputParam struct {
+type LinkedAccountFarcasterInput struct {
 	Fid          int64  `json:"fid,required"`
 	OwnerAddress string `json:"owner_address,required"`
 	// Any of "farcaster".
@@ -2413,11 +2402,11 @@ type LinkedAccountFarcasterInputParam struct {
 	paramObj
 }
 
-func (r LinkedAccountFarcasterInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountFarcasterInputParam
+func (r LinkedAccountFarcasterInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountFarcasterInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *LinkedAccountFarcasterInputParam) UnmarshalJSON(data []byte) error {
+func (r *LinkedAccountFarcasterInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2430,7 +2419,7 @@ const (
 // The payload for importing a Telegram account.
 //
 // The properties TelegramUserID, Type are required.
-type LinkedAccountTelegramInputParam struct {
+type LinkedAccountTelegramInput struct {
 	TelegramUserID string `json:"telegram_user_id,required"`
 	// Any of "telegram".
 	Type      LinkedAccountTelegramInputType `json:"type,omitzero,required"`
@@ -2441,11 +2430,11 @@ type LinkedAccountTelegramInputParam struct {
 	paramObj
 }
 
-func (r LinkedAccountTelegramInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountTelegramInputParam
+func (r LinkedAccountTelegramInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountTelegramInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *LinkedAccountTelegramInputParam) UnmarshalJSON(data []byte) error {
+func (r *LinkedAccountTelegramInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2458,18 +2447,18 @@ const (
 // The payload for importing a Custom JWT account.
 //
 // The properties CustomUserID, Type are required.
-type LinkedAccountCustomJwtInputParam struct {
+type LinkedAccountCustomJwtInput struct {
 	CustomUserID string `json:"custom_user_id,required"`
 	// Any of "custom_auth".
 	Type LinkedAccountCustomJwtInputType `json:"type,omitzero,required"`
 	paramObj
 }
 
-func (r LinkedAccountCustomJwtInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountCustomJwtInputParam
+func (r LinkedAccountCustomJwtInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountCustomJwtInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *LinkedAccountCustomJwtInputParam) UnmarshalJSON(data []byte) error {
+func (r *LinkedAccountCustomJwtInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2483,7 +2472,7 @@ const (
 //
 // The properties CredentialDeviceType, CredentialID, CredentialPublicKey,
 // CredentialUsername, Type are required.
-type LinkedAccountPasskeyInputParam struct {
+type LinkedAccountPasskeyInput struct {
 	// Any of "singleDevice", "multiDevice".
 	CredentialDeviceType LinkedAccountPasskeyInputCredentialDeviceType `json:"credential_device_type,omitzero,required"`
 	CredentialID         string                                        `json:"credential_id,required"`
@@ -2494,11 +2483,11 @@ type LinkedAccountPasskeyInputParam struct {
 	paramObj
 }
 
-func (r LinkedAccountPasskeyInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountPasskeyInputParam
+func (r LinkedAccountPasskeyInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountPasskeyInput
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *LinkedAccountPasskeyInputParam) UnmarshalJSON(data []byte) error {
+func (r *LinkedAccountPasskeyInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2515,126 +2504,126 @@ const (
 	LinkedAccountPasskeyInputTypePasskey LinkedAccountPasskeyInputType = "passkey"
 )
 
-func LinkedAccountInputParamOfWallet(address string, chainType LinkedAccountWalletInputChainType, type_ LinkedAccountWalletInputType) LinkedAccountInputUnionParam {
-	var wallet LinkedAccountWalletInputParam
+func LinkedAccountInputOfWallet(address string, chainType LinkedAccountWalletInputChainType, type_ LinkedAccountWalletInputType) LinkedAccountInputUnion {
+	var wallet LinkedAccountWalletInput
 	wallet.Address = address
 	wallet.ChainType = chainType
 	wallet.Type = type_
-	return LinkedAccountInputUnionParam{OfWallet: &wallet}
+	return LinkedAccountInputUnion{OfWallet: &wallet}
 }
 
-func LinkedAccountInputParamOfEmail(address string) LinkedAccountInputUnionParam {
-	var email LinkedAccountEmailInputParam
+func LinkedAccountInputOfEmail(address string) LinkedAccountInputUnion {
+	var email LinkedAccountEmailInput
 	email.Address = address
-	return LinkedAccountInputUnionParam{OfEmail: &email}
+	return LinkedAccountInputUnion{OfEmail: &email}
 }
 
-func LinkedAccountInputParamOfPhone(number string) LinkedAccountInputUnionParam {
-	var phone LinkedAccountPhoneInputParam
+func LinkedAccountInputOfPhone(number string) LinkedAccountInputUnion {
+	var phone LinkedAccountPhoneInput
 	phone.Number = number
-	return LinkedAccountInputUnionParam{OfPhone: &phone}
+	return LinkedAccountInputUnion{OfPhone: &phone}
 }
 
-func LinkedAccountInputParamOfDiscordOAuth(subject string, type_ LinkedAccountDiscordInputType, username string) LinkedAccountInputUnionParam {
-	var discordOAuth LinkedAccountDiscordInputParam
+func LinkedAccountInputOfDiscordOAuth(subject string, type_ LinkedAccountDiscordInputType, username string) LinkedAccountInputUnion {
+	var discordOAuth LinkedAccountDiscordInput
 	discordOAuth.Subject = subject
 	discordOAuth.Type = type_
 	discordOAuth.Username = username
-	return LinkedAccountInputUnionParam{OfDiscordOAuth: &discordOAuth}
+	return LinkedAccountInputUnion{OfDiscordOAuth: &discordOAuth}
 }
 
-func LinkedAccountInputParamOfGitHubOAuth(subject string, type_ LinkedAccountGitHubInputType, username string) LinkedAccountInputUnionParam {
-	var githubOAuth LinkedAccountGitHubInputParam
+func LinkedAccountInputOfGitHubOAuth(subject string, type_ LinkedAccountGitHubInputType, username string) LinkedAccountInputUnion {
+	var githubOAuth LinkedAccountGitHubInput
 	githubOAuth.Subject = subject
 	githubOAuth.Type = type_
 	githubOAuth.Username = username
-	return LinkedAccountInputUnionParam{OfGitHubOAuth: &githubOAuth}
+	return LinkedAccountInputUnion{OfGitHubOAuth: &githubOAuth}
 }
 
-func LinkedAccountInputParamOfSpotifyOAuth(subject string) LinkedAccountInputUnionParam {
-	var spotifyOAuth LinkedAccountSpotifyInputParam
+func LinkedAccountInputOfSpotifyOAuth(subject string) LinkedAccountInputUnion {
+	var spotifyOAuth LinkedAccountSpotifyInput
 	spotifyOAuth.Subject = subject
-	return LinkedAccountInputUnionParam{OfSpotifyOAuth: &spotifyOAuth}
+	return LinkedAccountInputUnion{OfSpotifyOAuth: &spotifyOAuth}
 }
 
-func LinkedAccountInputParamOfInstagramOAuth(subject string, type_ LinkedAccountInstagramInputType, username string) LinkedAccountInputUnionParam {
-	var instagramOAuth LinkedAccountInstagramInputParam
+func LinkedAccountInputOfInstagramOAuth(subject string, type_ LinkedAccountInstagramInputType, username string) LinkedAccountInputUnion {
+	var instagramOAuth LinkedAccountInstagramInput
 	instagramOAuth.Subject = subject
 	instagramOAuth.Type = type_
 	instagramOAuth.Username = username
-	return LinkedAccountInputUnionParam{OfInstagramOAuth: &instagramOAuth}
+	return LinkedAccountInputUnion{OfInstagramOAuth: &instagramOAuth}
 }
 
-func LinkedAccountInputParamOfLineOAuth(subject string) LinkedAccountInputUnionParam {
-	var lineOAuth LinkedAccountLineInputParam
+func LinkedAccountInputOfLineOAuth(subject string) LinkedAccountInputUnion {
+	var lineOAuth LinkedAccountLineInput
 	lineOAuth.Subject = subject
-	return LinkedAccountInputUnionParam{OfLineOAuth: &lineOAuth}
+	return LinkedAccountInputUnion{OfLineOAuth: &lineOAuth}
 }
 
-func LinkedAccountInputParamOfTwitchOAuth(subject string) LinkedAccountInputUnionParam {
-	var twitchOAuth LinkedAccountTwitchInputParam
+func LinkedAccountInputOfTwitchOAuth(subject string) LinkedAccountInputUnion {
+	var twitchOAuth LinkedAccountTwitchInput
 	twitchOAuth.Subject = subject
-	return LinkedAccountInputUnionParam{OfTwitchOAuth: &twitchOAuth}
+	return LinkedAccountInputUnion{OfTwitchOAuth: &twitchOAuth}
 }
 
-func LinkedAccountInputParamOfAppleOAuth(subject string) LinkedAccountInputUnionParam {
-	var appleOAuth LinkedAccountAppleInputParam
+func LinkedAccountInputOfAppleOAuth(subject string) LinkedAccountInputUnion {
+	var appleOAuth LinkedAccountAppleInput
 	appleOAuth.Subject = subject
-	return LinkedAccountInputUnionParam{OfAppleOAuth: &appleOAuth}
+	return LinkedAccountInputUnion{OfAppleOAuth: &appleOAuth}
 }
 
-func LinkedAccountInputParamOfLinkedinOAuth(subject string) LinkedAccountInputUnionParam {
-	var linkedinOAuth LinkedAccountLinkedInInputParam
+func LinkedAccountInputOfLinkedinOAuth(subject string) LinkedAccountInputUnion {
+	var linkedinOAuth LinkedAccountLinkedInInput
 	linkedinOAuth.Subject = subject
-	return LinkedAccountInputUnionParam{OfLinkedinOAuth: &linkedinOAuth}
+	return LinkedAccountInputUnion{OfLinkedinOAuth: &linkedinOAuth}
 }
 
-func LinkedAccountInputParamOfFarcaster(fid int64, ownerAddress string, type_ LinkedAccountFarcasterInputType) LinkedAccountInputUnionParam {
-	var farcaster LinkedAccountFarcasterInputParam
+func LinkedAccountInputOfFarcaster(fid int64, ownerAddress string, type_ LinkedAccountFarcasterInputType) LinkedAccountInputUnion {
+	var farcaster LinkedAccountFarcasterInput
 	farcaster.Fid = fid
 	farcaster.OwnerAddress = ownerAddress
 	farcaster.Type = type_
-	return LinkedAccountInputUnionParam{OfFarcaster: &farcaster}
+	return LinkedAccountInputUnion{OfFarcaster: &farcaster}
 }
 
-func LinkedAccountInputParamOfTelegram(telegramUserID string) LinkedAccountInputUnionParam {
-	var telegram LinkedAccountTelegramInputParam
+func LinkedAccountInputOfTelegram(telegramUserID string) LinkedAccountInputUnion {
+	var telegram LinkedAccountTelegramInput
 	telegram.TelegramUserID = telegramUserID
-	return LinkedAccountInputUnionParam{OfTelegram: &telegram}
+	return LinkedAccountInputUnion{OfTelegram: &telegram}
 }
 
-func LinkedAccountInputParamOfCustomAuth(customUserID string) LinkedAccountInputUnionParam {
-	var customAuth LinkedAccountCustomJwtInputParam
+func LinkedAccountInputOfCustomAuth(customUserID string) LinkedAccountInputUnion {
+	var customAuth LinkedAccountCustomJwtInput
 	customAuth.CustomUserID = customUserID
-	return LinkedAccountInputUnionParam{OfCustomAuth: &customAuth}
+	return LinkedAccountInputUnion{OfCustomAuth: &customAuth}
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type LinkedAccountInputUnionParam struct {
-	OfWallet         *LinkedAccountWalletInputParam    `json:",omitzero,inline"`
-	OfEmail          *LinkedAccountEmailInputParam     `json:",omitzero,inline"`
-	OfPhone          *LinkedAccountPhoneInputParam     `json:",omitzero,inline"`
-	OfGoogleOAuth    *LinkedAccountGoogleInputParam    `json:",omitzero,inline"`
-	OfTwitterOAuth   *LinkedAccountTwitterInputParam   `json:",omitzero,inline"`
-	OfDiscordOAuth   *LinkedAccountDiscordInputParam   `json:",omitzero,inline"`
-	OfGitHubOAuth    *LinkedAccountGitHubInputParam    `json:",omitzero,inline"`
-	OfSpotifyOAuth   *LinkedAccountSpotifyInputParam   `json:",omitzero,inline"`
-	OfInstagramOAuth *LinkedAccountInstagramInputParam `json:",omitzero,inline"`
-	OfTiktokOAuth    *LinkedAccountTiktokInputParam    `json:",omitzero,inline"`
-	OfLineOAuth      *LinkedAccountLineInputParam      `json:",omitzero,inline"`
-	OfTwitchOAuth    *LinkedAccountTwitchInputParam    `json:",omitzero,inline"`
-	OfAppleOAuth     *LinkedAccountAppleInputParam     `json:",omitzero,inline"`
-	OfLinkedinOAuth  *LinkedAccountLinkedInInputParam  `json:",omitzero,inline"`
-	OfFarcaster      *LinkedAccountFarcasterInputParam `json:",omitzero,inline"`
-	OfTelegram       *LinkedAccountTelegramInputParam  `json:",omitzero,inline"`
-	OfCustomAuth     *LinkedAccountCustomJwtInputParam `json:",omitzero,inline"`
-	OfPasskey        *LinkedAccountPasskeyInputParam   `json:",omitzero,inline"`
+type LinkedAccountInputUnion struct {
+	OfWallet         *LinkedAccountWalletInput    `json:",omitzero,inline"`
+	OfEmail          *LinkedAccountEmailInput     `json:",omitzero,inline"`
+	OfPhone          *LinkedAccountPhoneInput     `json:",omitzero,inline"`
+	OfGoogleOAuth    *LinkedAccountGoogleInput    `json:",omitzero,inline"`
+	OfTwitterOAuth   *LinkedAccountTwitterInput   `json:",omitzero,inline"`
+	OfDiscordOAuth   *LinkedAccountDiscordInput   `json:",omitzero,inline"`
+	OfGitHubOAuth    *LinkedAccountGitHubInput    `json:",omitzero,inline"`
+	OfSpotifyOAuth   *LinkedAccountSpotifyInput   `json:",omitzero,inline"`
+	OfInstagramOAuth *LinkedAccountInstagramInput `json:",omitzero,inline"`
+	OfTiktokOAuth    *LinkedAccountTiktokInput    `json:",omitzero,inline"`
+	OfLineOAuth      *LinkedAccountLineInput      `json:",omitzero,inline"`
+	OfTwitchOAuth    *LinkedAccountTwitchInput    `json:",omitzero,inline"`
+	OfAppleOAuth     *LinkedAccountAppleInput     `json:",omitzero,inline"`
+	OfLinkedinOAuth  *LinkedAccountLinkedInInput  `json:",omitzero,inline"`
+	OfFarcaster      *LinkedAccountFarcasterInput `json:",omitzero,inline"`
+	OfTelegram       *LinkedAccountTelegramInput  `json:",omitzero,inline"`
+	OfCustomAuth     *LinkedAccountCustomJwtInput `json:",omitzero,inline"`
+	OfPasskey        *LinkedAccountPasskeyInput   `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u LinkedAccountInputUnionParam) MarshalJSON() ([]byte, error) {
+func (u LinkedAccountInputUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfWallet,
 		u.OfEmail,
 		u.OfPhone,
@@ -2654,362 +2643,31 @@ func (u LinkedAccountInputUnionParam) MarshalJSON() ([]byte, error) {
 		u.OfCustomAuth,
 		u.OfPasskey)
 }
-func (u *LinkedAccountInputUnionParam) UnmarshalJSON(data []byte) error {
+func (u *LinkedAccountInputUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *LinkedAccountInputUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfWallet) {
-		return u.OfWallet
-	} else if !param.IsOmitted(u.OfEmail) {
-		return u.OfEmail
-	} else if !param.IsOmitted(u.OfPhone) {
-		return u.OfPhone
-	} else if !param.IsOmitted(u.OfGoogleOAuth) {
-		return u.OfGoogleOAuth
-	} else if !param.IsOmitted(u.OfTwitterOAuth) {
-		return u.OfTwitterOAuth
-	} else if !param.IsOmitted(u.OfDiscordOAuth) {
-		return u.OfDiscordOAuth
-	} else if !param.IsOmitted(u.OfGitHubOAuth) {
-		return u.OfGitHubOAuth
-	} else if !param.IsOmitted(u.OfSpotifyOAuth) {
-		return u.OfSpotifyOAuth
-	} else if !param.IsOmitted(u.OfInstagramOAuth) {
-		return u.OfInstagramOAuth
-	} else if !param.IsOmitted(u.OfTiktokOAuth) {
-		return u.OfTiktokOAuth
-	} else if !param.IsOmitted(u.OfLineOAuth) {
-		return u.OfLineOAuth
-	} else if !param.IsOmitted(u.OfTwitchOAuth) {
-		return u.OfTwitchOAuth
-	} else if !param.IsOmitted(u.OfAppleOAuth) {
-		return u.OfAppleOAuth
-	} else if !param.IsOmitted(u.OfLinkedinOAuth) {
-		return u.OfLinkedinOAuth
-	} else if !param.IsOmitted(u.OfFarcaster) {
-		return u.OfFarcaster
-	} else if !param.IsOmitted(u.OfTelegram) {
-		return u.OfTelegram
-	} else if !param.IsOmitted(u.OfCustomAuth) {
-		return u.OfCustomAuth
-	} else if !param.IsOmitted(u.OfPasskey) {
-		return u.OfPasskey
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetChainType() *string {
-	if vt := u.OfWallet; vt != nil {
-		return (*string)(&vt.ChainType)
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetNumber() *string {
-	if vt := u.OfPhone; vt != nil {
-		return &vt.Number
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetVanityName() *string {
-	if vt := u.OfLinkedinOAuth; vt != nil && vt.VanityName.Valid() {
-		return &vt.VanityName.Value
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetFid() *int64 {
-	if vt := u.OfFarcaster; vt != nil {
-		return &vt.Fid
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetOwnerAddress() *string {
-	if vt := u.OfFarcaster; vt != nil {
-		return &vt.OwnerAddress
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetBio() *string {
-	if vt := u.OfFarcaster; vt != nil && vt.Bio.Valid() {
-		return &vt.Bio.Value
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetDisplayName() *string {
-	if vt := u.OfFarcaster; vt != nil && vt.DisplayName.Valid() {
-		return &vt.DisplayName.Value
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetHomepageURL() *string {
-	if vt := u.OfFarcaster; vt != nil && vt.HomepageURL.Valid() {
-		return &vt.HomepageURL.Value
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetTelegramUserID() *string {
-	if vt := u.OfTelegram; vt != nil {
-		return &vt.TelegramUserID
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetFirstName() *string {
-	if vt := u.OfTelegram; vt != nil && vt.FirstName.Valid() {
-		return &vt.FirstName.Value
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetLastName() *string {
-	if vt := u.OfTelegram; vt != nil && vt.LastName.Valid() {
-		return &vt.LastName.Value
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetPhotoURL() *string {
-	if vt := u.OfTelegram; vt != nil && vt.PhotoURL.Valid() {
-		return &vt.PhotoURL.Value
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetCustomUserID() *string {
-	if vt := u.OfCustomAuth; vt != nil {
-		return &vt.CustomUserID
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetCredentialDeviceType() *string {
-	if vt := u.OfPasskey; vt != nil {
-		return (*string)(&vt.CredentialDeviceType)
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetCredentialID() *string {
-	if vt := u.OfPasskey; vt != nil {
-		return &vt.CredentialID
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetCredentialPublicKey() *string {
-	if vt := u.OfPasskey; vt != nil {
-		return &vt.CredentialPublicKey
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetCredentialUsername() *string {
-	if vt := u.OfPasskey; vt != nil {
-		return &vt.CredentialUsername
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetAddress() *string {
-	if vt := u.OfWallet; vt != nil {
-		return (*string)(&vt.Address)
-	} else if vt := u.OfEmail; vt != nil {
-		return (*string)(&vt.Address)
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetType() *string {
-	if vt := u.OfWallet; vt != nil {
-		return (*string)(&vt.Type)
-	} else if vt := u.OfEmail; vt != nil {
-		return (*string)(&vt.Type)
-	} else if vt := u.OfPhone; vt != nil {
-		return (*string)(&vt.Type)
-	} else if vt := u.OfGoogleOAuth; vt != nil {
-		return (*string)(&vt.Type)
-	} else if vt := u.OfTwitterOAuth; vt != nil {
-		return (*string)(&vt.Type)
-	} else if vt := u.OfDiscordOAuth; vt != nil {
-		return (*string)(&vt.Type)
-	} else if vt := u.OfGitHubOAuth; vt != nil {
-		return (*string)(&vt.Type)
-	} else if vt := u.OfSpotifyOAuth; vt != nil {
-		return (*string)(&vt.Type)
-	} else if vt := u.OfInstagramOAuth; vt != nil {
-		return (*string)(&vt.Type)
-	} else if vt := u.OfTiktokOAuth; vt != nil {
-		return (*string)(&vt.Type)
-	} else if vt := u.OfLineOAuth; vt != nil {
-		return (*string)(&vt.Type)
-	} else if vt := u.OfTwitchOAuth; vt != nil {
-		return (*string)(&vt.Type)
-	} else if vt := u.OfAppleOAuth; vt != nil {
-		return (*string)(&vt.Type)
-	} else if vt := u.OfLinkedinOAuth; vt != nil {
-		return (*string)(&vt.Type)
-	} else if vt := u.OfFarcaster; vt != nil {
-		return (*string)(&vt.Type)
-	} else if vt := u.OfTelegram; vt != nil {
-		return (*string)(&vt.Type)
-	} else if vt := u.OfCustomAuth; vt != nil {
-		return (*string)(&vt.Type)
-	} else if vt := u.OfPasskey; vt != nil {
-		return (*string)(&vt.Type)
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetEmail() *string {
-	if vt := u.OfGoogleOAuth; vt != nil {
-		return (*string)(&vt.Email)
-	} else if vt := u.OfDiscordOAuth; vt != nil && vt.Email.Valid() {
-		return &vt.Email.Value
-	} else if vt := u.OfGitHubOAuth; vt != nil && vt.Email.Valid() {
-		return &vt.Email.Value
-	} else if vt := u.OfSpotifyOAuth; vt != nil && vt.Email.Valid() {
-		return &vt.Email.Value
-	} else if vt := u.OfLineOAuth; vt != nil && vt.Email.Valid() {
-		return &vt.Email.Value
-	} else if vt := u.OfAppleOAuth; vt != nil && vt.Email.Valid() {
-		return &vt.Email.Value
-	} else if vt := u.OfLinkedinOAuth; vt != nil && vt.Email.Valid() {
-		return &vt.Email.Value
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetName() *string {
-	if vt := u.OfGoogleOAuth; vt != nil {
-		return (*string)(&vt.Name)
-	} else if vt := u.OfTwitterOAuth; vt != nil {
-		return (*string)(&vt.Name)
-	} else if vt := u.OfGitHubOAuth; vt != nil && vt.Name.Valid() {
-		return &vt.Name.Value
-	} else if vt := u.OfSpotifyOAuth; vt != nil && vt.Name.Valid() {
-		return &vt.Name.Value
-	} else if vt := u.OfTiktokOAuth; vt != nil && vt.Name.Valid() {
-		return &vt.Name.Value
-	} else if vt := u.OfLineOAuth; vt != nil && vt.Name.Valid() {
-		return &vt.Name.Value
-	} else if vt := u.OfLinkedinOAuth; vt != nil && vt.Name.Valid() {
-		return &vt.Name.Value
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetSubject() *string {
-	if vt := u.OfGoogleOAuth; vt != nil {
-		return (*string)(&vt.Subject)
-	} else if vt := u.OfTwitterOAuth; vt != nil {
-		return (*string)(&vt.Subject)
-	} else if vt := u.OfDiscordOAuth; vt != nil {
-		return (*string)(&vt.Subject)
-	} else if vt := u.OfGitHubOAuth; vt != nil {
-		return (*string)(&vt.Subject)
-	} else if vt := u.OfSpotifyOAuth; vt != nil {
-		return (*string)(&vt.Subject)
-	} else if vt := u.OfInstagramOAuth; vt != nil {
-		return (*string)(&vt.Subject)
-	} else if vt := u.OfTiktokOAuth; vt != nil {
-		return (*string)(&vt.Subject)
-	} else if vt := u.OfLineOAuth; vt != nil {
-		return (*string)(&vt.Subject)
-	} else if vt := u.OfTwitchOAuth; vt != nil {
-		return (*string)(&vt.Subject)
-	} else if vt := u.OfAppleOAuth; vt != nil {
-		return (*string)(&vt.Subject)
-	} else if vt := u.OfLinkedinOAuth; vt != nil {
-		return (*string)(&vt.Subject)
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetUsername() *string {
-	if vt := u.OfTwitterOAuth; vt != nil {
-		return (*string)(&vt.Username)
-	} else if vt := u.OfDiscordOAuth; vt != nil {
-		return (*string)(&vt.Username)
-	} else if vt := u.OfGitHubOAuth; vt != nil {
-		return (*string)(&vt.Username)
-	} else if vt := u.OfInstagramOAuth; vt != nil {
-		return (*string)(&vt.Username)
-	} else if vt := u.OfTiktokOAuth; vt != nil {
-		return (*string)(&vt.Username)
-	} else if vt := u.OfTwitchOAuth; vt != nil && vt.Username.Valid() {
-		return &vt.Username.Value
-	} else if vt := u.OfFarcaster; vt != nil && vt.Username.Valid() {
-		return &vt.Username.Value
-	} else if vt := u.OfTelegram; vt != nil && vt.Username.Valid() {
-		return &vt.Username.Value
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u LinkedAccountInputUnionParam) GetProfilePictureURL() *string {
-	if vt := u.OfTwitterOAuth; vt != nil && vt.ProfilePictureURL.Valid() {
-		return &vt.ProfilePictureURL.Value
-	} else if vt := u.OfLineOAuth; vt != nil && vt.ProfilePictureURL.Valid() {
-		return &vt.ProfilePictureURL.Value
-	} else if vt := u.OfFarcaster; vt != nil && vt.ProfilePictureURL.Valid() {
-		return &vt.ProfilePictureURL.Value
-	}
-	return nil
-}
-
 func init() {
-	apijson.RegisterUnion[LinkedAccountInputUnionParam](
+	apijson.RegisterUnion[LinkedAccountInputUnion](
 		"type",
-		apijson.Discriminator[LinkedAccountWalletInputParam]("wallet"),
-		apijson.Discriminator[LinkedAccountEmailInputParam]("email"),
-		apijson.Discriminator[LinkedAccountPhoneInputParam]("phone"),
-		apijson.Discriminator[LinkedAccountGoogleInputParam]("google_oauth"),
-		apijson.Discriminator[LinkedAccountTwitterInputParam]("twitter_oauth"),
-		apijson.Discriminator[LinkedAccountDiscordInputParam]("discord_oauth"),
-		apijson.Discriminator[LinkedAccountGitHubInputParam]("github_oauth"),
-		apijson.Discriminator[LinkedAccountSpotifyInputParam]("spotify_oauth"),
-		apijson.Discriminator[LinkedAccountInstagramInputParam]("instagram_oauth"),
-		apijson.Discriminator[LinkedAccountTiktokInputParam]("tiktok_oauth"),
-		apijson.Discriminator[LinkedAccountLineInputParam]("line_oauth"),
-		apijson.Discriminator[LinkedAccountTwitchInputParam]("twitch_oauth"),
-		apijson.Discriminator[LinkedAccountAppleInputParam]("apple_oauth"),
-		apijson.Discriminator[LinkedAccountLinkedInInputParam]("linkedin_oauth"),
-		apijson.Discriminator[LinkedAccountFarcasterInputParam]("farcaster"),
-		apijson.Discriminator[LinkedAccountTelegramInputParam]("telegram"),
-		apijson.Discriminator[LinkedAccountCustomJwtInputParam]("custom_auth"),
-		apijson.Discriminator[LinkedAccountPasskeyInputParam]("passkey"),
+		apijson.Discriminator[LinkedAccountWalletInput]("wallet"),
+		apijson.Discriminator[LinkedAccountEmailInput]("email"),
+		apijson.Discriminator[LinkedAccountPhoneInput]("phone"),
+		apijson.Discriminator[LinkedAccountGoogleInput]("google_oauth"),
+		apijson.Discriminator[LinkedAccountTwitterInput]("twitter_oauth"),
+		apijson.Discriminator[LinkedAccountDiscordInput]("discord_oauth"),
+		apijson.Discriminator[LinkedAccountGitHubInput]("github_oauth"),
+		apijson.Discriminator[LinkedAccountSpotifyInput]("spotify_oauth"),
+		apijson.Discriminator[LinkedAccountInstagramInput]("instagram_oauth"),
+		apijson.Discriminator[LinkedAccountTiktokInput]("tiktok_oauth"),
+		apijson.Discriminator[LinkedAccountLineInput]("line_oauth"),
+		apijson.Discriminator[LinkedAccountTwitchInput]("twitch_oauth"),
+		apijson.Discriminator[LinkedAccountAppleInput]("apple_oauth"),
+		apijson.Discriminator[LinkedAccountLinkedInInput]("linkedin_oauth"),
+		apijson.Discriminator[LinkedAccountFarcasterInput]("farcaster"),
+		apijson.Discriminator[LinkedAccountTelegramInput]("telegram"),
+		apijson.Discriminator[LinkedAccountCustomJwtInput]("custom_auth"),
+		apijson.Discriminator[LinkedAccountPasskeyInput]("passkey"),
 	)
 }
 
@@ -3162,7 +2820,7 @@ func (r *LinkedMfaMethodUnion) UnmarshalJSON(data []byte) error {
 }
 
 type UserNewParams struct {
-	LinkedAccounts []LinkedAccountInputUnionParam `json:"linked_accounts,omitzero,required"`
+	LinkedAccounts []LinkedAccountInputUnion `json:"linked_accounts,omitzero,required"`
 	// Custom metadata associated with the user.
 	CustomMetadata CustomMetadataParam `json:"custom_metadata,omitzero"`
 	// Wallets to create for the user.
