@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"slices"
 
 	"github.com/privy-io/go-sdk/internal/apijson"
@@ -58,7 +59,7 @@ func (r *PolicyService) Update(ctx context.Context, policyID string, params Poli
 		err = errors.New("missing required policy_id parameter")
 		return
 	}
-	path := fmt.Sprintf("v1/policies/%s", policyID)
+	path := fmt.Sprintf("v1/policies/%s", url.PathEscape(policyID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, params, &res, opts...)
 	return
 }
@@ -73,7 +74,7 @@ func (r *PolicyService) Delete(ctx context.Context, policyID string, body Policy
 		err = errors.New("missing required policy_id parameter")
 		return
 	}
-	path := fmt.Sprintf("v1/policies/%s", policyID)
+	path := fmt.Sprintf("v1/policies/%s", url.PathEscape(policyID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
 	return
 }
@@ -88,7 +89,7 @@ func (r *PolicyService) NewRule(ctx context.Context, policyID string, params Pol
 		err = errors.New("missing required policy_id parameter")
 		return
 	}
-	path := fmt.Sprintf("v1/policies/%s/rules", policyID)
+	path := fmt.Sprintf("v1/policies/%s/rules", url.PathEscape(policyID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return
 }
@@ -107,7 +108,7 @@ func (r *PolicyService) DeleteRule(ctx context.Context, ruleID string, params Po
 		err = errors.New("missing required rule_id parameter")
 		return
 	}
-	path := fmt.Sprintf("v1/policies/%s/rules/%s", params.PolicyID, ruleID)
+	path := fmt.Sprintf("v1/policies/%s/rules/%s", url.PathEscape(params.PolicyID), url.PathEscape(ruleID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
 	return
 }
@@ -119,7 +120,7 @@ func (r *PolicyService) Get(ctx context.Context, policyID string, opts ...option
 		err = errors.New("missing required policy_id parameter")
 		return
 	}
-	path := fmt.Sprintf("v1/policies/%s", policyID)
+	path := fmt.Sprintf("v1/policies/%s", url.PathEscape(policyID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return
 }
@@ -135,7 +136,7 @@ func (r *PolicyService) GetRule(ctx context.Context, ruleID string, query Policy
 		err = errors.New("missing required rule_id parameter")
 		return
 	}
-	path := fmt.Sprintf("v1/policies/%s/rules/%s", query.PolicyID, ruleID)
+	path := fmt.Sprintf("v1/policies/%s/rules/%s", url.PathEscape(query.PolicyID), url.PathEscape(ruleID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return
 }
@@ -154,7 +155,7 @@ func (r *PolicyService) UpdateRule(ctx context.Context, ruleID string, params Po
 		err = errors.New("missing required rule_id parameter")
 		return
 	}
-	path := fmt.Sprintf("v1/policies/%s/rules/%s", params.PolicyID, ruleID)
+	path := fmt.Sprintf("v1/policies/%s/rules/%s", url.PathEscape(params.PolicyID), url.PathEscape(ruleID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, params, &res, opts...)
 	return
 }
@@ -1236,15 +1237,6 @@ func (u *TronTransactionConditionValueUnionParam) UnmarshalJSON(data []byte) err
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *TronTransactionConditionValueUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
-}
-
 // SUI transaction command attributes, enables allowlisting specific command types.
 // Allowed commands: 'TransferObjects', 'SplitCoins', 'MergeCoins'. Only 'eq' and
 // 'in' operators are supported.
@@ -1384,15 +1376,6 @@ func (u *SuiTransactionCommandConditionValueUnionParam) UnmarshalJSON(data []byt
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *SuiTransactionCommandConditionValueUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfSuiCommandName) {
-		return &u.OfSuiCommandName
-	} else if !param.IsOmitted(u.OfSuiCommandNameArray) {
-		return &u.OfSuiCommandNameArray
-	}
-	return nil
-}
-
 // SUI TransferObjects command attributes, including recipient and amount fields.
 type SuiTransferObjectsCommandCondition struct {
 	// Supported fields for SUI TransferObjects command conditions. Only 'recipient'
@@ -1525,15 +1508,6 @@ func (u SuiTransferObjectsCommandConditionValueUnionParam) MarshalJSON() ([]byte
 }
 func (u *SuiTransferObjectsCommandConditionValueUnionParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *SuiTransferObjectsCommandConditionValueUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
 }
 
 type PolicyDeleteResponse struct {
@@ -4408,187 +4382,6 @@ func (u *PolicyNewParamsRuleConditionUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *PolicyNewParamsRuleConditionUnion) asAny() any {
-	if !param.IsOmitted(u.OfEthereumTransaction) {
-		return u.OfEthereumTransaction
-	} else if !param.IsOmitted(u.OfEthereumCalldata) {
-		return u.OfEthereumCalldata
-	} else if !param.IsOmitted(u.OfEthereumTypedDataDomain) {
-		return u.OfEthereumTypedDataDomain
-	} else if !param.IsOmitted(u.OfEthereumTypedDataMessage) {
-		return u.OfEthereumTypedDataMessage
-	} else if !param.IsOmitted(u.OfEthereum7702Authorization) {
-		return u.OfEthereum7702Authorization
-	} else if !param.IsOmitted(u.OfSolanaProgramInstruction) {
-		return u.OfSolanaProgramInstruction
-	} else if !param.IsOmitted(u.OfSolanaSystemProgramInstruction) {
-		return u.OfSolanaSystemProgramInstruction
-	} else if !param.IsOmitted(u.OfSolanaTokenProgramInstruction) {
-		return u.OfSolanaTokenProgramInstruction
-	} else if !param.IsOmitted(u.OfSystem) {
-		return u.OfSystem
-	} else if !param.IsOmitted(u.OfTronTransaction) {
-		return u.OfTronTransaction
-	} else if !param.IsOmitted(u.OfSuiTransactionCommand) {
-		return u.OfSuiTransactionCommand
-	} else if !param.IsOmitted(u.OfSuiTransferObjectsCommand) {
-		return u.OfSuiTransferObjectsCommand
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u PolicyNewParamsRuleConditionUnion) GetAbi() *any {
-	if vt := u.OfEthereumCalldata; vt != nil {
-		return &vt.Abi
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u PolicyNewParamsRuleConditionUnion) GetTypedData() *PolicyNewParamsRuleConditionEthereumTypedDataMessageTypedData {
-	if vt := u.OfEthereumTypedDataMessage; vt != nil {
-		return &vt.TypedData
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u PolicyNewParamsRuleConditionUnion) GetField() *string {
-	if vt := u.OfEthereumTransaction; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfEthereumCalldata; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfEthereumTypedDataDomain; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfEthereumTypedDataMessage; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfEthereum7702Authorization; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSolanaProgramInstruction; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSolanaSystemProgramInstruction; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSolanaTokenProgramInstruction; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSystem; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfTronTransaction; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSuiTransactionCommand; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSuiTransferObjectsCommand; vt != nil {
-		return (*string)(&vt.Field)
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u PolicyNewParamsRuleConditionUnion) GetFieldSource() *string {
-	if vt := u.OfEthereumTransaction; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfEthereumCalldata; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfEthereumTypedDataDomain; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfEthereumTypedDataMessage; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfEthereum7702Authorization; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSolanaProgramInstruction; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSolanaSystemProgramInstruction; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSolanaTokenProgramInstruction; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSystem; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfTronTransaction; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSuiTransactionCommand; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSuiTransferObjectsCommand; vt != nil {
-		return (*string)(&vt.FieldSource)
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u PolicyNewParamsRuleConditionUnion) GetOperator() *string {
-	if vt := u.OfEthereumTransaction; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfEthereumCalldata; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfEthereumTypedDataDomain; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfEthereumTypedDataMessage; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfEthereum7702Authorization; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSolanaProgramInstruction; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSolanaSystemProgramInstruction; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSolanaTokenProgramInstruction; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSystem; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfTronTransaction; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSuiTransactionCommand; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSuiTransferObjectsCommand; vt != nil {
-		return (*string)(&vt.Operator)
-	}
-	return nil
-}
-
-// Returns a subunion which exports methods to access subproperties
-//
-// Or use AsAny() to get the underlying value
-func (u PolicyNewParamsRuleConditionUnion) GetValue() (res policyNewParamsRuleConditionUnionValue) {
-	if vt := u.OfEthereumTransaction; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfEthereumCalldata; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfEthereumTypedDataDomain; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfEthereumTypedDataMessage; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfEthereum7702Authorization; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSolanaProgramInstruction; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSolanaSystemProgramInstruction; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSolanaTokenProgramInstruction; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSystem; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfTronTransaction; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSuiTransactionCommand; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSuiTransferObjectsCommand; vt != nil {
-		res.any = vt.Value.asAny()
-	}
-	return
-}
-
-// Can have the runtime types [*string], [_[]string], [_[]SuiCommandName]
-type policyNewParamsRuleConditionUnionValue struct{ any }
-
-// Use the following switch statement to get the type of the union:
-//
-//	switch u.AsAny().(type) {
-//	case *string:
-//	case *[]string:
-//	case *[]privyclient.SuiCommandName:
-//	default:
-//	    fmt.Errorf("not present")
-//	}
-func (u policyNewParamsRuleConditionUnionValue) AsAny() any { return u.any }
-
 func init() {
 	apijson.RegisterUnion[PolicyNewParamsRuleConditionUnion](
 		"field_source",
@@ -4656,15 +4449,6 @@ func (u *PolicyNewParamsRuleConditionEthereumTransactionValueUnion) UnmarshalJSO
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *PolicyNewParamsRuleConditionEthereumTransactionValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
-}
-
 // The decoded calldata in a smart contract interaction as the smart contract
 // method's parameters. Note that that 'ethereum_calldata' conditions must contain
 // an abi parameter with the JSON ABI of the smart contract.
@@ -4710,15 +4494,6 @@ func (u PolicyNewParamsRuleConditionEthereumCalldataValueUnion) MarshalJSON() ([
 }
 func (u *PolicyNewParamsRuleConditionEthereumCalldataValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *PolicyNewParamsRuleConditionEthereumCalldataValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
 }
 
 // Attributes from the signing domain that will verify the signature.
@@ -4767,15 +4542,6 @@ func (u PolicyNewParamsRuleConditionEthereumTypedDataDomainValueUnion) MarshalJS
 }
 func (u *PolicyNewParamsRuleConditionEthereumTypedDataDomainValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *PolicyNewParamsRuleConditionEthereumTypedDataDomainValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
 }
 
 // 'types' and 'primary_type' attributes of the TypedData JSON object defined in
@@ -4854,15 +4620,6 @@ func (u *PolicyNewParamsRuleConditionEthereumTypedDataMessageValueUnion) Unmarsh
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *PolicyNewParamsRuleConditionEthereumTypedDataMessageValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
-}
-
 // Allowed contract addresses for eth_signAuthorization requests.
 //
 // The properties Field, FieldSource, Operator, Value are required.
@@ -4909,15 +4666,6 @@ func (u PolicyNewParamsRuleConditionEthereum7702AuthorizationValueUnion) Marshal
 }
 func (u *PolicyNewParamsRuleConditionEthereum7702AuthorizationValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *PolicyNewParamsRuleConditionEthereum7702AuthorizationValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
 }
 
 // Solana Program attributes, enables allowlisting Solana Programs.
@@ -4968,15 +4716,6 @@ func (u *PolicyNewParamsRuleConditionSolanaProgramInstructionValueUnion) Unmarsh
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *PolicyNewParamsRuleConditionSolanaProgramInstructionValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
-}
-
 // Solana System Program attributes, including more granular Transfer instruction
 // fields.
 //
@@ -5024,15 +4763,6 @@ func (u PolicyNewParamsRuleConditionSolanaSystemProgramInstructionValueUnion) Ma
 }
 func (u *PolicyNewParamsRuleConditionSolanaSystemProgramInstructionValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *PolicyNewParamsRuleConditionSolanaSystemProgramInstructionValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
 }
 
 // Solana Token Program attributes, including more granular TransferChecked
@@ -5086,15 +4816,6 @@ func (u *PolicyNewParamsRuleConditionSolanaTokenProgramInstructionValueUnion) Un
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *PolicyNewParamsRuleConditionSolanaTokenProgramInstructionValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
-}
-
 // System attributes, including current unix timestamp (in seconds).
 //
 // The properties Field, FieldSource, Operator, Value are required.
@@ -5142,15 +4863,6 @@ func (u *PolicyNewParamsRuleConditionSystemValueUnion) UnmarshalJSON(data []byte
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *PolicyNewParamsRuleConditionSystemValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
-}
-
 // Version of the policy. Currently, 1.0 is the only version.
 type PolicyNewParamsVersion string
 
@@ -5172,15 +4884,6 @@ func (u PolicyNewParamsOwnerUnion) MarshalJSON() ([]byte, error) {
 }
 func (u *PolicyNewParamsOwnerUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *PolicyNewParamsOwnerUnion) asAny() any {
-	if !param.IsOmitted(u.OfPublicKeyOwner) {
-		return u.OfPublicKeyOwner
-	} else if !param.IsOmitted(u.OfUserOwner) {
-		return u.OfUserOwner
-	}
-	return nil
 }
 
 // The P-256 public key of the owner of the resource, in base64-encoded DER format.
@@ -5256,15 +4959,6 @@ func (u PolicyUpdateParamsOwnerUnion) MarshalJSON() ([]byte, error) {
 }
 func (u *PolicyUpdateParamsOwnerUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *PolicyUpdateParamsOwnerUnion) asAny() any {
-	if !param.IsOmitted(u.OfPublicKeyOwner) {
-		return u.OfPublicKeyOwner
-	} else if !param.IsOmitted(u.OfUserOwner) {
-		return u.OfUserOwner
-	}
-	return nil
 }
 
 // The P-256 public key of the owner of the resource, in base64-encoded DER format.
@@ -5376,187 +5070,6 @@ func (u *PolicyUpdateParamsRuleConditionUnion) UnmarshalJSON(data []byte) error 
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *PolicyUpdateParamsRuleConditionUnion) asAny() any {
-	if !param.IsOmitted(u.OfEthereumTransaction) {
-		return u.OfEthereumTransaction
-	} else if !param.IsOmitted(u.OfEthereumCalldata) {
-		return u.OfEthereumCalldata
-	} else if !param.IsOmitted(u.OfEthereumTypedDataDomain) {
-		return u.OfEthereumTypedDataDomain
-	} else if !param.IsOmitted(u.OfEthereumTypedDataMessage) {
-		return u.OfEthereumTypedDataMessage
-	} else if !param.IsOmitted(u.OfEthereum7702Authorization) {
-		return u.OfEthereum7702Authorization
-	} else if !param.IsOmitted(u.OfSolanaProgramInstruction) {
-		return u.OfSolanaProgramInstruction
-	} else if !param.IsOmitted(u.OfSolanaSystemProgramInstruction) {
-		return u.OfSolanaSystemProgramInstruction
-	} else if !param.IsOmitted(u.OfSolanaTokenProgramInstruction) {
-		return u.OfSolanaTokenProgramInstruction
-	} else if !param.IsOmitted(u.OfSystem) {
-		return u.OfSystem
-	} else if !param.IsOmitted(u.OfTronTransaction) {
-		return u.OfTronTransaction
-	} else if !param.IsOmitted(u.OfSuiTransactionCommand) {
-		return u.OfSuiTransactionCommand
-	} else if !param.IsOmitted(u.OfSuiTransferObjectsCommand) {
-		return u.OfSuiTransferObjectsCommand
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u PolicyUpdateParamsRuleConditionUnion) GetAbi() *any {
-	if vt := u.OfEthereumCalldata; vt != nil {
-		return &vt.Abi
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u PolicyUpdateParamsRuleConditionUnion) GetTypedData() *PolicyUpdateParamsRuleConditionEthereumTypedDataMessageTypedData {
-	if vt := u.OfEthereumTypedDataMessage; vt != nil {
-		return &vt.TypedData
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u PolicyUpdateParamsRuleConditionUnion) GetField() *string {
-	if vt := u.OfEthereumTransaction; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfEthereumCalldata; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfEthereumTypedDataDomain; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfEthereumTypedDataMessage; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfEthereum7702Authorization; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSolanaProgramInstruction; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSolanaSystemProgramInstruction; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSolanaTokenProgramInstruction; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSystem; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfTronTransaction; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSuiTransactionCommand; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSuiTransferObjectsCommand; vt != nil {
-		return (*string)(&vt.Field)
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u PolicyUpdateParamsRuleConditionUnion) GetFieldSource() *string {
-	if vt := u.OfEthereumTransaction; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfEthereumCalldata; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfEthereumTypedDataDomain; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfEthereumTypedDataMessage; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfEthereum7702Authorization; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSolanaProgramInstruction; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSolanaSystemProgramInstruction; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSolanaTokenProgramInstruction; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSystem; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfTronTransaction; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSuiTransactionCommand; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSuiTransferObjectsCommand; vt != nil {
-		return (*string)(&vt.FieldSource)
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u PolicyUpdateParamsRuleConditionUnion) GetOperator() *string {
-	if vt := u.OfEthereumTransaction; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfEthereumCalldata; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfEthereumTypedDataDomain; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfEthereumTypedDataMessage; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfEthereum7702Authorization; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSolanaProgramInstruction; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSolanaSystemProgramInstruction; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSolanaTokenProgramInstruction; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSystem; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfTronTransaction; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSuiTransactionCommand; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSuiTransferObjectsCommand; vt != nil {
-		return (*string)(&vt.Operator)
-	}
-	return nil
-}
-
-// Returns a subunion which exports methods to access subproperties
-//
-// Or use AsAny() to get the underlying value
-func (u PolicyUpdateParamsRuleConditionUnion) GetValue() (res policyUpdateParamsRuleConditionUnionValue) {
-	if vt := u.OfEthereumTransaction; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfEthereumCalldata; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfEthereumTypedDataDomain; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfEthereumTypedDataMessage; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfEthereum7702Authorization; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSolanaProgramInstruction; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSolanaSystemProgramInstruction; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSolanaTokenProgramInstruction; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSystem; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfTronTransaction; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSuiTransactionCommand; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSuiTransferObjectsCommand; vt != nil {
-		res.any = vt.Value.asAny()
-	}
-	return
-}
-
-// Can have the runtime types [*string], [_[]string], [_[]SuiCommandName]
-type policyUpdateParamsRuleConditionUnionValue struct{ any }
-
-// Use the following switch statement to get the type of the union:
-//
-//	switch u.AsAny().(type) {
-//	case *string:
-//	case *[]string:
-//	case *[]privyclient.SuiCommandName:
-//	default:
-//	    fmt.Errorf("not present")
-//	}
-func (u policyUpdateParamsRuleConditionUnionValue) AsAny() any { return u.any }
-
 func init() {
 	apijson.RegisterUnion[PolicyUpdateParamsRuleConditionUnion](
 		"field_source",
@@ -5624,15 +5137,6 @@ func (u *PolicyUpdateParamsRuleConditionEthereumTransactionValueUnion) Unmarshal
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *PolicyUpdateParamsRuleConditionEthereumTransactionValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
-}
-
 // The decoded calldata in a smart contract interaction as the smart contract
 // method's parameters. Note that that 'ethereum_calldata' conditions must contain
 // an abi parameter with the JSON ABI of the smart contract.
@@ -5678,15 +5182,6 @@ func (u PolicyUpdateParamsRuleConditionEthereumCalldataValueUnion) MarshalJSON()
 }
 func (u *PolicyUpdateParamsRuleConditionEthereumCalldataValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *PolicyUpdateParamsRuleConditionEthereumCalldataValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
 }
 
 // Attributes from the signing domain that will verify the signature.
@@ -5735,15 +5230,6 @@ func (u PolicyUpdateParamsRuleConditionEthereumTypedDataDomainValueUnion) Marsha
 }
 func (u *PolicyUpdateParamsRuleConditionEthereumTypedDataDomainValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *PolicyUpdateParamsRuleConditionEthereumTypedDataDomainValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
 }
 
 // 'types' and 'primary_type' attributes of the TypedData JSON object defined in
@@ -5822,15 +5308,6 @@ func (u *PolicyUpdateParamsRuleConditionEthereumTypedDataMessageValueUnion) Unma
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *PolicyUpdateParamsRuleConditionEthereumTypedDataMessageValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
-}
-
 // Allowed contract addresses for eth_signAuthorization requests.
 //
 // The properties Field, FieldSource, Operator, Value are required.
@@ -5877,15 +5354,6 @@ func (u PolicyUpdateParamsRuleConditionEthereum7702AuthorizationValueUnion) Mars
 }
 func (u *PolicyUpdateParamsRuleConditionEthereum7702AuthorizationValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *PolicyUpdateParamsRuleConditionEthereum7702AuthorizationValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
 }
 
 // Solana Program attributes, enables allowlisting Solana Programs.
@@ -5936,15 +5404,6 @@ func (u *PolicyUpdateParamsRuleConditionSolanaProgramInstructionValueUnion) Unma
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *PolicyUpdateParamsRuleConditionSolanaProgramInstructionValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
-}
-
 // Solana System Program attributes, including more granular Transfer instruction
 // fields.
 //
@@ -5992,15 +5451,6 @@ func (u PolicyUpdateParamsRuleConditionSolanaSystemProgramInstructionValueUnion)
 }
 func (u *PolicyUpdateParamsRuleConditionSolanaSystemProgramInstructionValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *PolicyUpdateParamsRuleConditionSolanaSystemProgramInstructionValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
 }
 
 // Solana Token Program attributes, including more granular TransferChecked
@@ -6054,15 +5504,6 @@ func (u *PolicyUpdateParamsRuleConditionSolanaTokenProgramInstructionValueUnion)
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *PolicyUpdateParamsRuleConditionSolanaTokenProgramInstructionValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
-}
-
 // System attributes, including current unix timestamp (in seconds).
 //
 // The properties Field, FieldSource, Operator, Value are required.
@@ -6108,15 +5549,6 @@ func (u PolicyUpdateParamsRuleConditionSystemValueUnion) MarshalJSON() ([]byte, 
 }
 func (u *PolicyUpdateParamsRuleConditionSystemValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *PolicyUpdateParamsRuleConditionSystemValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
 }
 
 type PolicyDeleteParams struct {
@@ -6198,187 +5630,6 @@ func (u *PolicyNewRuleParamsConditionUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *PolicyNewRuleParamsConditionUnion) asAny() any {
-	if !param.IsOmitted(u.OfEthereumTransaction) {
-		return u.OfEthereumTransaction
-	} else if !param.IsOmitted(u.OfEthereumCalldata) {
-		return u.OfEthereumCalldata
-	} else if !param.IsOmitted(u.OfEthereumTypedDataDomain) {
-		return u.OfEthereumTypedDataDomain
-	} else if !param.IsOmitted(u.OfEthereumTypedDataMessage) {
-		return u.OfEthereumTypedDataMessage
-	} else if !param.IsOmitted(u.OfEthereum7702Authorization) {
-		return u.OfEthereum7702Authorization
-	} else if !param.IsOmitted(u.OfSolanaProgramInstruction) {
-		return u.OfSolanaProgramInstruction
-	} else if !param.IsOmitted(u.OfSolanaSystemProgramInstruction) {
-		return u.OfSolanaSystemProgramInstruction
-	} else if !param.IsOmitted(u.OfSolanaTokenProgramInstruction) {
-		return u.OfSolanaTokenProgramInstruction
-	} else if !param.IsOmitted(u.OfSystem) {
-		return u.OfSystem
-	} else if !param.IsOmitted(u.OfTronTransaction) {
-		return u.OfTronTransaction
-	} else if !param.IsOmitted(u.OfSuiTransactionCommand) {
-		return u.OfSuiTransactionCommand
-	} else if !param.IsOmitted(u.OfSuiTransferObjectsCommand) {
-		return u.OfSuiTransferObjectsCommand
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u PolicyNewRuleParamsConditionUnion) GetAbi() *any {
-	if vt := u.OfEthereumCalldata; vt != nil {
-		return &vt.Abi
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u PolicyNewRuleParamsConditionUnion) GetTypedData() *PolicyNewRuleParamsConditionEthereumTypedDataMessageTypedData {
-	if vt := u.OfEthereumTypedDataMessage; vt != nil {
-		return &vt.TypedData
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u PolicyNewRuleParamsConditionUnion) GetField() *string {
-	if vt := u.OfEthereumTransaction; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfEthereumCalldata; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfEthereumTypedDataDomain; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfEthereumTypedDataMessage; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfEthereum7702Authorization; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSolanaProgramInstruction; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSolanaSystemProgramInstruction; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSolanaTokenProgramInstruction; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSystem; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfTronTransaction; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSuiTransactionCommand; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSuiTransferObjectsCommand; vt != nil {
-		return (*string)(&vt.Field)
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u PolicyNewRuleParamsConditionUnion) GetFieldSource() *string {
-	if vt := u.OfEthereumTransaction; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfEthereumCalldata; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfEthereumTypedDataDomain; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfEthereumTypedDataMessage; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfEthereum7702Authorization; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSolanaProgramInstruction; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSolanaSystemProgramInstruction; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSolanaTokenProgramInstruction; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSystem; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfTronTransaction; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSuiTransactionCommand; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSuiTransferObjectsCommand; vt != nil {
-		return (*string)(&vt.FieldSource)
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u PolicyNewRuleParamsConditionUnion) GetOperator() *string {
-	if vt := u.OfEthereumTransaction; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfEthereumCalldata; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfEthereumTypedDataDomain; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfEthereumTypedDataMessage; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfEthereum7702Authorization; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSolanaProgramInstruction; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSolanaSystemProgramInstruction; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSolanaTokenProgramInstruction; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSystem; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfTronTransaction; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSuiTransactionCommand; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSuiTransferObjectsCommand; vt != nil {
-		return (*string)(&vt.Operator)
-	}
-	return nil
-}
-
-// Returns a subunion which exports methods to access subproperties
-//
-// Or use AsAny() to get the underlying value
-func (u PolicyNewRuleParamsConditionUnion) GetValue() (res policyNewRuleParamsConditionUnionValue) {
-	if vt := u.OfEthereumTransaction; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfEthereumCalldata; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfEthereumTypedDataDomain; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfEthereumTypedDataMessage; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfEthereum7702Authorization; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSolanaProgramInstruction; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSolanaSystemProgramInstruction; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSolanaTokenProgramInstruction; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSystem; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfTronTransaction; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSuiTransactionCommand; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSuiTransferObjectsCommand; vt != nil {
-		res.any = vt.Value.asAny()
-	}
-	return
-}
-
-// Can have the runtime types [*string], [_[]string], [_[]SuiCommandName]
-type policyNewRuleParamsConditionUnionValue struct{ any }
-
-// Use the following switch statement to get the type of the union:
-//
-//	switch u.AsAny().(type) {
-//	case *string:
-//	case *[]string:
-//	case *[]privyclient.SuiCommandName:
-//	default:
-//	    fmt.Errorf("not present")
-//	}
-func (u policyNewRuleParamsConditionUnionValue) AsAny() any { return u.any }
-
 func init() {
 	apijson.RegisterUnion[PolicyNewRuleParamsConditionUnion](
 		"field_source",
@@ -6446,15 +5697,6 @@ func (u *PolicyNewRuleParamsConditionEthereumTransactionValueUnion) UnmarshalJSO
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *PolicyNewRuleParamsConditionEthereumTransactionValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
-}
-
 // The decoded calldata in a smart contract interaction as the smart contract
 // method's parameters. Note that that 'ethereum_calldata' conditions must contain
 // an abi parameter with the JSON ABI of the smart contract.
@@ -6500,15 +5742,6 @@ func (u PolicyNewRuleParamsConditionEthereumCalldataValueUnion) MarshalJSON() ([
 }
 func (u *PolicyNewRuleParamsConditionEthereumCalldataValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *PolicyNewRuleParamsConditionEthereumCalldataValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
 }
 
 // Attributes from the signing domain that will verify the signature.
@@ -6557,15 +5790,6 @@ func (u PolicyNewRuleParamsConditionEthereumTypedDataDomainValueUnion) MarshalJS
 }
 func (u *PolicyNewRuleParamsConditionEthereumTypedDataDomainValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *PolicyNewRuleParamsConditionEthereumTypedDataDomainValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
 }
 
 // 'types' and 'primary_type' attributes of the TypedData JSON object defined in
@@ -6644,15 +5868,6 @@ func (u *PolicyNewRuleParamsConditionEthereumTypedDataMessageValueUnion) Unmarsh
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *PolicyNewRuleParamsConditionEthereumTypedDataMessageValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
-}
-
 // Allowed contract addresses for eth_signAuthorization requests.
 //
 // The properties Field, FieldSource, Operator, Value are required.
@@ -6699,15 +5914,6 @@ func (u PolicyNewRuleParamsConditionEthereum7702AuthorizationValueUnion) Marshal
 }
 func (u *PolicyNewRuleParamsConditionEthereum7702AuthorizationValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *PolicyNewRuleParamsConditionEthereum7702AuthorizationValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
 }
 
 // Solana Program attributes, enables allowlisting Solana Programs.
@@ -6758,15 +5964,6 @@ func (u *PolicyNewRuleParamsConditionSolanaProgramInstructionValueUnion) Unmarsh
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *PolicyNewRuleParamsConditionSolanaProgramInstructionValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
-}
-
 // Solana System Program attributes, including more granular Transfer instruction
 // fields.
 //
@@ -6814,15 +6011,6 @@ func (u PolicyNewRuleParamsConditionSolanaSystemProgramInstructionValueUnion) Ma
 }
 func (u *PolicyNewRuleParamsConditionSolanaSystemProgramInstructionValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *PolicyNewRuleParamsConditionSolanaSystemProgramInstructionValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
 }
 
 // Solana Token Program attributes, including more granular TransferChecked
@@ -6876,15 +6064,6 @@ func (u *PolicyNewRuleParamsConditionSolanaTokenProgramInstructionValueUnion) Un
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *PolicyNewRuleParamsConditionSolanaTokenProgramInstructionValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
-}
-
 // System attributes, including current unix timestamp (in seconds).
 //
 // The properties Field, FieldSource, Operator, Value are required.
@@ -6930,15 +6109,6 @@ func (u PolicyNewRuleParamsConditionSystemValueUnion) MarshalJSON() ([]byte, err
 }
 func (u *PolicyNewRuleParamsConditionSystemValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *PolicyNewRuleParamsConditionSystemValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
 }
 
 // Method the rule applies to.
@@ -7043,187 +6213,6 @@ func (u *PolicyUpdateRuleParamsConditionUnion) UnmarshalJSON(data []byte) error 
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *PolicyUpdateRuleParamsConditionUnion) asAny() any {
-	if !param.IsOmitted(u.OfEthereumTransaction) {
-		return u.OfEthereumTransaction
-	} else if !param.IsOmitted(u.OfEthereumCalldata) {
-		return u.OfEthereumCalldata
-	} else if !param.IsOmitted(u.OfEthereumTypedDataDomain) {
-		return u.OfEthereumTypedDataDomain
-	} else if !param.IsOmitted(u.OfEthereumTypedDataMessage) {
-		return u.OfEthereumTypedDataMessage
-	} else if !param.IsOmitted(u.OfEthereum7702Authorization) {
-		return u.OfEthereum7702Authorization
-	} else if !param.IsOmitted(u.OfSolanaProgramInstruction) {
-		return u.OfSolanaProgramInstruction
-	} else if !param.IsOmitted(u.OfSolanaSystemProgramInstruction) {
-		return u.OfSolanaSystemProgramInstruction
-	} else if !param.IsOmitted(u.OfSolanaTokenProgramInstruction) {
-		return u.OfSolanaTokenProgramInstruction
-	} else if !param.IsOmitted(u.OfSystem) {
-		return u.OfSystem
-	} else if !param.IsOmitted(u.OfTronTransaction) {
-		return u.OfTronTransaction
-	} else if !param.IsOmitted(u.OfSuiTransactionCommand) {
-		return u.OfSuiTransactionCommand
-	} else if !param.IsOmitted(u.OfSuiTransferObjectsCommand) {
-		return u.OfSuiTransferObjectsCommand
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u PolicyUpdateRuleParamsConditionUnion) GetAbi() *any {
-	if vt := u.OfEthereumCalldata; vt != nil {
-		return &vt.Abi
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u PolicyUpdateRuleParamsConditionUnion) GetTypedData() *PolicyUpdateRuleParamsConditionEthereumTypedDataMessageTypedData {
-	if vt := u.OfEthereumTypedDataMessage; vt != nil {
-		return &vt.TypedData
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u PolicyUpdateRuleParamsConditionUnion) GetField() *string {
-	if vt := u.OfEthereumTransaction; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfEthereumCalldata; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfEthereumTypedDataDomain; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfEthereumTypedDataMessage; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfEthereum7702Authorization; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSolanaProgramInstruction; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSolanaSystemProgramInstruction; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSolanaTokenProgramInstruction; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSystem; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfTronTransaction; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSuiTransactionCommand; vt != nil {
-		return (*string)(&vt.Field)
-	} else if vt := u.OfSuiTransferObjectsCommand; vt != nil {
-		return (*string)(&vt.Field)
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u PolicyUpdateRuleParamsConditionUnion) GetFieldSource() *string {
-	if vt := u.OfEthereumTransaction; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfEthereumCalldata; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfEthereumTypedDataDomain; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfEthereumTypedDataMessage; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfEthereum7702Authorization; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSolanaProgramInstruction; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSolanaSystemProgramInstruction; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSolanaTokenProgramInstruction; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSystem; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfTronTransaction; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSuiTransactionCommand; vt != nil {
-		return (*string)(&vt.FieldSource)
-	} else if vt := u.OfSuiTransferObjectsCommand; vt != nil {
-		return (*string)(&vt.FieldSource)
-	}
-	return nil
-}
-
-// Returns a pointer to the underlying variant's property, if present.
-func (u PolicyUpdateRuleParamsConditionUnion) GetOperator() *string {
-	if vt := u.OfEthereumTransaction; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfEthereumCalldata; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfEthereumTypedDataDomain; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfEthereumTypedDataMessage; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfEthereum7702Authorization; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSolanaProgramInstruction; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSolanaSystemProgramInstruction; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSolanaTokenProgramInstruction; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSystem; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfTronTransaction; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSuiTransactionCommand; vt != nil {
-		return (*string)(&vt.Operator)
-	} else if vt := u.OfSuiTransferObjectsCommand; vt != nil {
-		return (*string)(&vt.Operator)
-	}
-	return nil
-}
-
-// Returns a subunion which exports methods to access subproperties
-//
-// Or use AsAny() to get the underlying value
-func (u PolicyUpdateRuleParamsConditionUnion) GetValue() (res policyUpdateRuleParamsConditionUnionValue) {
-	if vt := u.OfEthereumTransaction; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfEthereumCalldata; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfEthereumTypedDataDomain; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfEthereumTypedDataMessage; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfEthereum7702Authorization; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSolanaProgramInstruction; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSolanaSystemProgramInstruction; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSolanaTokenProgramInstruction; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSystem; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfTronTransaction; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSuiTransactionCommand; vt != nil {
-		res.any = vt.Value.asAny()
-	} else if vt := u.OfSuiTransferObjectsCommand; vt != nil {
-		res.any = vt.Value.asAny()
-	}
-	return
-}
-
-// Can have the runtime types [*string], [_[]string], [_[]SuiCommandName]
-type policyUpdateRuleParamsConditionUnionValue struct{ any }
-
-// Use the following switch statement to get the type of the union:
-//
-//	switch u.AsAny().(type) {
-//	case *string:
-//	case *[]string:
-//	case *[]privyclient.SuiCommandName:
-//	default:
-//	    fmt.Errorf("not present")
-//	}
-func (u policyUpdateRuleParamsConditionUnionValue) AsAny() any { return u.any }
-
 func init() {
 	apijson.RegisterUnion[PolicyUpdateRuleParamsConditionUnion](
 		"field_source",
@@ -7291,15 +6280,6 @@ func (u *PolicyUpdateRuleParamsConditionEthereumTransactionValueUnion) Unmarshal
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *PolicyUpdateRuleParamsConditionEthereumTransactionValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
-}
-
 // The decoded calldata in a smart contract interaction as the smart contract
 // method's parameters. Note that that 'ethereum_calldata' conditions must contain
 // an abi parameter with the JSON ABI of the smart contract.
@@ -7345,15 +6325,6 @@ func (u PolicyUpdateRuleParamsConditionEthereumCalldataValueUnion) MarshalJSON()
 }
 func (u *PolicyUpdateRuleParamsConditionEthereumCalldataValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *PolicyUpdateRuleParamsConditionEthereumCalldataValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
 }
 
 // Attributes from the signing domain that will verify the signature.
@@ -7402,15 +6373,6 @@ func (u PolicyUpdateRuleParamsConditionEthereumTypedDataDomainValueUnion) Marsha
 }
 func (u *PolicyUpdateRuleParamsConditionEthereumTypedDataDomainValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *PolicyUpdateRuleParamsConditionEthereumTypedDataDomainValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
 }
 
 // 'types' and 'primary_type' attributes of the TypedData JSON object defined in
@@ -7489,15 +6451,6 @@ func (u *PolicyUpdateRuleParamsConditionEthereumTypedDataMessageValueUnion) Unma
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *PolicyUpdateRuleParamsConditionEthereumTypedDataMessageValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
-}
-
 // Allowed contract addresses for eth_signAuthorization requests.
 //
 // The properties Field, FieldSource, Operator, Value are required.
@@ -7544,15 +6497,6 @@ func (u PolicyUpdateRuleParamsConditionEthereum7702AuthorizationValueUnion) Mars
 }
 func (u *PolicyUpdateRuleParamsConditionEthereum7702AuthorizationValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *PolicyUpdateRuleParamsConditionEthereum7702AuthorizationValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
 }
 
 // Solana Program attributes, enables allowlisting Solana Programs.
@@ -7603,15 +6547,6 @@ func (u *PolicyUpdateRuleParamsConditionSolanaProgramInstructionValueUnion) Unma
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *PolicyUpdateRuleParamsConditionSolanaProgramInstructionValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
-}
-
 // Solana System Program attributes, including more granular Transfer instruction
 // fields.
 //
@@ -7659,15 +6594,6 @@ func (u PolicyUpdateRuleParamsConditionSolanaSystemProgramInstructionValueUnion)
 }
 func (u *PolicyUpdateRuleParamsConditionSolanaSystemProgramInstructionValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *PolicyUpdateRuleParamsConditionSolanaSystemProgramInstructionValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
 }
 
 // Solana Token Program attributes, including more granular TransferChecked
@@ -7721,15 +6647,6 @@ func (u *PolicyUpdateRuleParamsConditionSolanaTokenProgramInstructionValueUnion)
 	return apijson.UnmarshalRoot(data, u)
 }
 
-func (u *PolicyUpdateRuleParamsConditionSolanaTokenProgramInstructionValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
-}
-
 // System attributes, including current unix timestamp (in seconds).
 //
 // The properties Field, FieldSource, Operator, Value are required.
@@ -7775,15 +6692,6 @@ func (u PolicyUpdateRuleParamsConditionSystemValueUnion) MarshalJSON() ([]byte, 
 }
 func (u *PolicyUpdateRuleParamsConditionSystemValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *PolicyUpdateRuleParamsConditionSystemValueUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
 }
 
 // Method the rule applies to.
