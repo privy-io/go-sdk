@@ -46,8 +46,8 @@ func TestWallets_Ethereum(t *testing.T) {
 		for _, wallet := range wallets {
 			t.Run(wallet.name, func(t *testing.T) {
 				data, err := client.Wallets.Ethereum.Sign7702Authorization(ctx, wallet.id,
-					EthereumSign7702AuthorizationRpcInputParamsParam{
-						ChainID: EthereumSign7702AuthorizationRpcInputParamsChainIDUnionParam{
+					EthereumSign7702AuthorizationRpcInputParams{
+						ChainID: EthereumSign7702AuthorizationRpcInputParamsChainIDUnion{
 							OfInt: param.NewOpt[int64](11155111), // Sepolia
 						},
 						Contract: "0x1234567890123456789012345678901234567890",
@@ -79,12 +79,12 @@ func TestWallets_Ethereum(t *testing.T) {
 		for _, wallet := range wallets {
 			t.Run(wallet.name, func(t *testing.T) {
 				data, err := client.Wallets.Ethereum.SignUserOperation(ctx, wallet.id,
-					EthereumSignUserOperationRpcInputParamsParam{
-						ChainID: EthereumSignUserOperationRpcInputParamsChainIDUnionParam{
+					EthereumSignUserOperationRpcInputParams{
+						ChainID: EthereumSignUserOperationRpcInputParamsChainIDUnion{
 							OfString: param.NewOpt("0x66eee"), // Arbitrum Sepolia
 						},
 						Contract: "0x69007702764179f14F51cdce752f4f775d74E139",
-						UserOperation: EthereumSignUserOperationRpcInputParamsUserOperationParam{
+						UserOperation: EthereumSignUserOperationRpcInputParamsUserOperation{
 							Sender:                        "0xdf1Bff521006396b2dd11725681ebA6998DB37e3",
 							Nonce:                         "0x1000000000000000a",
 							CallData:                      "0x34fcd5be000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000036cbd53842c5426634e7929541ec2318f3dcf7e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000044a9059cbb000000000000000000000000cc9c3d98163f4f6af884e259132e15d6d27a5c57000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000",
@@ -120,7 +120,7 @@ func TestWallets_Ethereum(t *testing.T) {
 			t.Run(wallet.name, func(t *testing.T) {
 				hash := "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
 				data, err := client.Wallets.Ethereum.SignSecp256k1(ctx, wallet.id,
-					EthereumSecp256k1SignRpcInputParamsParam{
+					EthereumSecp256k1SignRpcInputParams{
 						Hash: hash,
 					},
 					WithAuthorizationContext(wallet.authCtx),
@@ -197,8 +197,8 @@ func TestWallets_Ethereum(t *testing.T) {
 		for _, wallet := range wallets {
 			t.Run(wallet.name, func(t *testing.T) {
 				data, err := client.Wallets.Ethereum.SignTypedData(ctx, wallet.id,
-					EthereumSignTypedDataRpcInputParamsParam{
-						TypedData: EthereumSignTypedDataRpcInputParamsTypedDataParam{
+					EthereumSignTypedDataRpcInputParams{
+						TypedData: EthereumSignTypedDataRpcInputParamsTypedData{
 							Domain: map[string]any{
 								"name":              "Test",
 								"version":           "1",
@@ -206,7 +206,7 @@ func TestWallets_Ethereum(t *testing.T) {
 								"verifyingContract": "0x1234567890123456789012345678901234567890",
 							},
 							PrimaryType: "Message",
-							Types: map[string][]EthereumSignTypedDataRpcInputParamsTypedDataTypeParam{
+							Types: map[string][]EthereumSignTypedDataRpcInputParamsTypedDataType{
 								"Message": {
 									{Name: "content", Type: "string"},
 								},
@@ -236,17 +236,17 @@ func TestWallets_Ethereum(t *testing.T) {
 		for _, wallet := range wallets {
 			t.Run(wallet.name, func(t *testing.T) {
 				data, err := client.Wallets.Ethereum.SignTransaction(ctx, wallet.id,
-					EthereumSignTransactionRpcInputParamsParam{
-						Transaction: EthereumSignTransactionRpcInputParamsTransactionParam{
+					EthereumSignTransactionRpcInputParams{
+						Transaction: EthereumSignTransactionRpcInputParamsTransaction{
 							Type: 2,
-							ChainID: EthereumSignTransactionRpcInputParamsTransactionChainIDUnionParam{
+							ChainID: EthereumSignTransactionRpcInputParamsTransactionChainIDUnion{
 								OfInt: param.NewOpt[int64](1),
 							},
 							To: param.NewOpt("0x742d35Cc6634C0532925a3b8D1A8a9ff1e7a7A4C"),
-							Value: EthereumSignTransactionRpcInputParamsTransactionValueUnionParam{
+							Value: EthereumSignTransactionRpcInputParamsTransactionValueUnion{
 								OfString: param.NewOpt("0x1"),
 							},
-							GasLimit: EthereumSignTransactionRpcInputParamsTransactionGasLimitUnionParam{
+							GasLimit: EthereumSignTransactionRpcInputParamsTransactionGasLimitUnion{
 								OfString: param.NewOpt("0x5208"),
 							},
 							Data: param.NewOpt("0x"),
@@ -275,13 +275,13 @@ func TestWallets_Ethereum(t *testing.T) {
 			t.Run(wallet.name, func(t *testing.T) {
 				data, err := client.Wallets.Ethereum.SendTransaction(ctx, wallet.id,
 					"eip155:11155111", // Sepolia
-					EthereumSendTransactionRpcInputParamsParam{
-						Transaction: EthereumSendTransactionRpcInputParamsTransactionParam{
+					EthereumSendTransactionRpcInputParams{
+						Transaction: EthereumSendTransactionRpcInputParamsTransaction{
 							To: param.NewOpt("0x429c8e85D3A18F9F0a64a7A851777e24D591485C"),
-							Value: EthereumSendTransactionRpcInputParamsTransactionValueUnionParam{
+							Value: EthereumSendTransactionRpcInputParamsTransactionValueUnion{
 								OfString: param.NewOpt("0x1"), // 1 wei
 							},
-							ChainID: EthereumSendTransactionRpcInputParamsTransactionChainIDUnionParam{
+							ChainID: EthereumSendTransactionRpcInputParamsTransactionChainIDUnion{
 								OfInt: param.NewOpt[int64](11155111), // Sepolia
 							},
 						},

@@ -98,11 +98,16 @@ result, err := client.Wallets.Rpc(
     context.Background(),
     "wallet-id",
     privy.WalletRpcParams{
-        Method:  "eth_signTypedData_v4",
-        Params:  privy.WalletRpcParamsParamsUnion{OfTypedDataSign: &privy.TypedDataSignParams{...}},
-        ChainID: "1",
+        OfEthSignTypedDataV4: &privy.EthereumSignTypedDataRpcInput{
+            Method: privy.EthereumSignTypedDataRpcInputMethodEthSignTypedDataV4,
+            Params: privy.EthereumSignTypedDataRpcInputParams{
+                TypedData: privy.EthereumSignTypedDataRpcInputParamsTypedData{
+                    // ...
+                },
+            },
+        },
     },
-    WithAuthorizationContext(&authorization.AuthorizationContext{
+    privy.WithAuthorizationContext(&authorization.AuthorizationContext{
         UserJwts: []string{jwt},
     }),
 )
@@ -182,8 +187,8 @@ if err != nil {
 
 ```go
 user, err := client.Users.New(context.Background(), privy.UserNewParams{
-    LinkedAccounts: []privy.LinkedAccountInputUnionParam{{
-        OfEmail: &privy.LinkedAccountEmailInputParam{
+    LinkedAccounts: []privy.LinkedAccountInputUnion{{
+        OfEmail: &privy.LinkedAccountEmailInput{
             Address: "user@example.com",
             Type:    privy.LinkedAccountEmailInputTypeEmail,
         },
@@ -234,8 +239,8 @@ result, err := client.Wallets.Rpc(ctx, "wallet_id",
 
 // Sign a 7702 authorization
 data, err := client.Wallets.Ethereum.Sign7702Authorization(ctx, wallet.id,
-  EthereumSign7702AuthorizationRpcInputParamsParam{
-    ChainID: EthereumSign7702AuthorizationRpcInputParamsChainIDUnionParam{
+  EthereumSign7702AuthorizationRpcInputParams{
+    ChainID: EthereumSign7702AuthorizationRpcInputParamsChainIDUnion{
       OfInt: param.NewOpt[int64](11155111), // Sepolia
     },
     Contract: "0x1234567890123456789012345678901234567890",
@@ -243,12 +248,12 @@ data, err := client.Wallets.Ethereum.Sign7702Authorization(ctx, wallet.id,
 
 // Sign a user operation
 data, err := client.Wallets.Ethereum.SignUserOperation(ctx, wallet.id,
-  EthereumSignUserOperationRpcInputParamsParam{
-    ChainID: EthereumSign7702AuthorizationRpcInputParamsChainIDUnionParam{
+  EthereumSignUserOperationRpcInputParams{
+    ChainID: EthereumSignUserOperationRpcInputParamsChainIDUnion{
       OfInt: param.NewOpt[int64](11155111), // Sepolia
     },
     Contract: "0x1234567890123456789012345678901234567890",
-  UserOperation: EthereumSignUserOperationRpcInputParamsUserOperationParam{
+    UserOperation: EthereumSignUserOperationRpcInputParamsUserOperation{
       // ...
     },
   })
