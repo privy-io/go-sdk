@@ -2,37 +2,11 @@ package e2e_test
 
 import (
 	"context"
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
-	"crypto/x509"
-	"encoding/base64"
 	"testing"
 
 	. "github.com/privy-io/go-sdk"
 	"github.com/privy-io/go-sdk/authorization"
 )
-
-func generateKeyPair(t *testing.T) (string, string) {
-	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	if err != nil {
-		t.Fatalf("failed to generate P-256 key: %v", err)
-	}
-
-	pkcs8, err := x509.MarshalPKCS8PrivateKey(key)
-	if err != nil {
-		t.Fatalf("failed to marshal key to PKCS8: %v", err)
-	}
-
-	spki, err := x509.MarshalPKIXPublicKey(&key.PublicKey)
-	if err != nil {
-		t.Fatalf("failed to marshal public key to SPKI: %v", err)
-	}
-
-	pk := base64.StdEncoding.EncodeToString(spki)
-	sk := base64.StdEncoding.EncodeToString(pkcs8)
-	return pk, sk
-}
 
 func createKeyQuorum(t *testing.T, ctx context.Context, client *PrivyClient, params KeyQuorumNewParams, auth authorization.AuthorizationContext) *KeyQuorum {
 	keyQuorum, err := client.KeyQuorums.New(ctx, params)
@@ -74,19 +48,25 @@ func TestKeyQuorums(t *testing.T) {
 	client := newTestClient(t)
 	ctx := context.Background()
 
-	pk1, sk1 := generateKeyPair(t)
-	pk2, sk2 := generateKeyPair(t)
+	pair1, err := authorization.GenerateP256KeyPair()
+	if err != nil {
+		t.Fatalf("failed to generate key pair: %v", err)
+	}
+	pair2, err := authorization.GenerateP256KeyPair()
+	if err != nil {
+		t.Fatalf("failed to generate key pair: %v", err)
+	}
 
 	kq1 := createKeyQuorum(t, ctx, client, KeyQuorumNewParams{
 		DisplayName: String("test-key-quorum"),
-		PublicKeys:  []string{pk1, pk2},
+		PublicKeys:  []string{pair1.PublicKey, pair2.PublicKey},
 	}, authorization.AuthorizationContext{
-		PrivateKeys: []string{sk1, sk2},
+		PrivateKeys: []string{pair1.PrivateKey, pair2.PrivateKey},
 	})
 
 	t.Run("Update", func(t *testing.T) {
 		authCtx := &authorization.AuthorizationContext{
-			PrivateKeys: []string{sk1, sk2},
+			PrivateKeys: []string{pair1.PrivateKey, pair2.PrivateKey},
 		}
 
 		// Call Update with authorization

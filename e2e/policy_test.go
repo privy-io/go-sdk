@@ -88,7 +88,10 @@ func TestPolicies(t *testing.T) {
 	client := newTestClient(t)
 	ctx := context.Background()
 
-	pk1, sk1 := generateKeyPair(t)
+	pair, err := authorization.GenerateP256KeyPair()
+	if err != nil {
+		t.Fatalf("failed to generate key pair: %v", err)
+	}
 
 	policy := createPolicy(t, ctx, client, PolicyNewParams{
 		Name:      "go-sdk-test-policy",
@@ -97,11 +100,11 @@ func TestPolicies(t *testing.T) {
 		Rules:     []PolicyNewParamsRule{},
 		Owner: PolicyNewParamsOwnerUnion{
 			OfPublicKeyOwner: &PolicyNewParamsOwnerPublicKeyOwner{
-				PublicKey: pk1,
+				PublicKey: pair.PublicKey,
 			},
 		},
 	}, authorization.AuthorizationContext{
-		PrivateKeys: []string{sk1},
+		PrivateKeys: []string{pair.PrivateKey},
 	})
 
 	if policy.ChainType != PolicyChainTypeEthereum {
@@ -110,7 +113,7 @@ func TestPolicies(t *testing.T) {
 
 	t.Run("Update", func(t *testing.T) {
 		authCtx := &authorization.AuthorizationContext{
-			PrivateKeys: []string{sk1},
+			PrivateKeys: []string{pair.PrivateKey},
 		}
 
 		result, err := client.Policies.Update(
@@ -149,9 +152,12 @@ func TestPolicyRules(t *testing.T) {
 	client := newTestClient(t)
 	ctx := context.Background()
 
-	pk1, sk1 := generateKeyPair(t)
+	pair, err := authorization.GenerateP256KeyPair()
+	if err != nil {
+		t.Fatalf("failed to generate key pair: %v", err)
+	}
 	authCtx := authorization.AuthorizationContext{
-		PrivateKeys: []string{sk1},
+		PrivateKeys: []string{pair.PrivateKey},
 	}
 
 	policy := createPolicy(t, ctx, client, PolicyNewParams{
@@ -161,7 +167,7 @@ func TestPolicyRules(t *testing.T) {
 		Rules:     []PolicyNewParamsRule{},
 		Owner: PolicyNewParamsOwnerUnion{
 			OfPublicKeyOwner: &PolicyNewParamsOwnerPublicKeyOwner{
-				PublicKey: pk1,
+				PublicKey: pair.PublicKey,
 			},
 		},
 	}, authCtx)
