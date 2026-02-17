@@ -44,7 +44,7 @@ func (r *WalletBalanceService) Get(ctx context.Context, walletID string, query W
 		err = errors.New("missing required wallet_id parameter")
 		return
 	}
-	path := fmt.Sprintf("v1/wallets/%s/balance", walletID)
+	path := fmt.Sprintf("v1/wallets/%s/balance", url.PathEscape(walletID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return
 }
@@ -121,15 +121,6 @@ type WalletBalanceGetParamsTokenUnion struct {
 	paramUnion
 }
 
-func (u *WalletBalanceGetParamsTokenUnion) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfStringArray) {
-		return &u.OfStringArray
-	}
-	return nil
-}
-
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
@@ -139,15 +130,6 @@ type WalletBalanceGetParamsAssetUnion struct {
 	OfWalletBalanceGetsAssetString         param.Opt[string] `query:",omitzero,inline"`
 	OfWalletBalanceGetsAssetArrayItemArray []string          `query:",omitzero,inline"`
 	paramUnion
-}
-
-func (u *WalletBalanceGetParamsAssetUnion) asAny() any {
-	if !param.IsOmitted(u.OfWalletBalanceGetsAssetString) {
-		return &u.OfWalletBalanceGetsAssetString
-	} else if !param.IsOmitted(u.OfWalletBalanceGetsAssetArrayItemArray) {
-		return &u.OfWalletBalanceGetsAssetArrayItemArray
-	}
-	return nil
 }
 
 type WalletBalanceGetParamsAssetString string
@@ -171,15 +153,6 @@ type WalletBalanceGetParamsChainUnion struct {
 	OfWalletBalanceGetsChainString         param.Opt[string] `query:",omitzero,inline"`
 	OfWalletBalanceGetsChainArrayItemArray []string          `query:",omitzero,inline"`
 	paramUnion
-}
-
-func (u *WalletBalanceGetParamsChainUnion) asAny() any {
-	if !param.IsOmitted(u.OfWalletBalanceGetsChainString) {
-		return &u.OfWalletBalanceGetsChainString
-	} else if !param.IsOmitted(u.OfWalletBalanceGetsChainArrayItemArray) {
-		return &u.OfWalletBalanceGetsChainArrayItemArray
-	}
-	return nil
 }
 
 type WalletBalanceGetParamsChainString string

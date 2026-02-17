@@ -28,8 +28,8 @@ func TestUserNewWithOptionalParams(t *testing.T) {
 		option.WithAppSecret("My App Secret"),
 	)
 	_, err := client.Users.New(context.TODO(), privyclient.UserNewParams{
-		LinkedAccounts: []privyclient.LinkedAccountInputUnionParam{{
-			OfEmail: &privyclient.LinkedAccountEmailInputParam{
+		LinkedAccounts: []privyclient.LinkedAccountInputUnion{{
+			OfEmail: &privyclient.LinkedAccountEmailInput{
 				Address: "tom.bombadill@privy.io",
 				Type:    privyclient.LinkedAccountEmailInputTypeEmail,
 			},

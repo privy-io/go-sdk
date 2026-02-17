@@ -25,9 +25,9 @@ func (s *PrivySolanaWalletService) SignMessage(
 	message string,
 	opts ...RpcOption,
 ) (*SolanaSignMessageRpcResponseData, error) {
-	input := SolanaSignMessageRpcInputParam{
+	input := SolanaSignMessageRpcInput{
 		Method: SolanaSignMessageRpcInputMethodSignMessage,
-		Params: SolanaSignMessageRpcInputParamsParam{
+		Params: SolanaSignMessageRpcInputParams{
 			Message:  message,
 			Encoding: "base64",
 		},
@@ -65,10 +65,10 @@ func (s *PrivySolanaWalletService) SignMessageBytes(
 func (s *PrivySolanaWalletService) SignTransaction(
 	ctx context.Context,
 	walletID string,
-	params SolanaSignTransactionRpcInputParamsParam,
+	params SolanaSignTransactionRpcInputParams,
 	opts ...RpcOption,
 ) (*SolanaSignTransactionRpcResponseData, error) {
-	input := SolanaSignTransactionRpcInputParam{
+	input := SolanaSignTransactionRpcInput{
 		Method: SolanaSignTransactionRpcInputMethodSignTransaction,
 		Params: params,
 	}
@@ -98,7 +98,7 @@ func (s *PrivySolanaWalletService) SignTransactionBytes(
 	transaction []byte,
 	opts ...RpcOption,
 ) (*SolanaSignTransactionRpcResponseData, error) {
-	params := SolanaSignTransactionRpcInputParamsParam{
+	params := SolanaSignTransactionRpcInputParams{
 		Transaction: base64.StdEncoding.EncodeToString(transaction),
 		Encoding:    "base64",
 	}
@@ -111,10 +111,10 @@ func (s *PrivySolanaWalletService) SignAndSendTransaction(
 	ctx context.Context,
 	walletID string,
 	caip2 string,
-	params SolanaSignAndSendTransactionRpcInputParamsParam,
+	params SolanaSignAndSendTransactionRpcInputParams,
 	opts ...RpcOption,
 ) (*SolanaSignAndSendTransactionRpcResponseData, error) {
-	input := SolanaSignAndSendTransactionRpcInputParam{
+	input := SolanaSignAndSendTransactionRpcInput{
 		Caip2:  caip2,
 		Method: SolanaSignAndSendTransactionRpcInputMethodSignAndSendTransaction,
 		Params: params,
@@ -146,7 +146,7 @@ func (s *PrivySolanaWalletService) SignAndSendTransactionBytes(
 	transaction []byte,
 	opts ...RpcOption,
 ) (*SolanaSignAndSendTransactionRpcResponseData, error) {
-	params := SolanaSignAndSendTransactionRpcInputParamsParam{
+	params := SolanaSignAndSendTransactionRpcInputParams{
 		Transaction: base64.StdEncoding.EncodeToString(transaction),
 		Encoding:    "base64",
 	}
