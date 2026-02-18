@@ -19,7 +19,7 @@ type PrivyClientOptions struct {
 
 	// APIUrl is the base URL for the Privy API (optional).
 	// If not provided, defaults to the production environment.
-	// Use "https://auth.staging.privy.io" for staging.
+	// Use "https://api.staging.privy.io" for staging.
 	APIUrl string
 
 	// LogLevel sets the verbosity of SDK logging (optional).
@@ -35,7 +35,7 @@ type PrivyClientOptions struct {
 //	client := privyclient.NewPrivyClient(privyclient.PrivyClientOptions{
 //	    AppID:     "my-app-id",
 //	    AppSecret: "my-app-secret",
-//	    APIUrl:    "https://auth.staging.privy.io", // optional
+//	    APIUrl:    "https://api.staging.privy.io", // optional
 //	})
 type PrivyClient struct {
 	client Client
@@ -68,7 +68,7 @@ type PrivyClient struct {
 //	client := privyclient.NewPrivyClient(privyclient.PrivyClientOptions{
 //	    AppID:     "my-app-id",
 //	    AppSecret: "my-app-secret",
-//	    APIUrl:    "https://auth.staging.privy.io",
+//	    APIUrl:    "https://api.staging.privy.io",
 //	})
 //
 // With logging enabled:

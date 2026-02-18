@@ -25,7 +25,7 @@ func newTestClient(t *testing.T) *PrivyClient {
 	opts := PrivyClientOptions{
 		AppID:     appId,
 		AppSecret: appSecret,
-		APIUrl:    "https://auth.staging.privy.io",
+		APIUrl:    "https://api.staging.privy.io",
 	}
 	if os.Getenv("TEST_DEBUG_LOGS") != "" {
 		opts.LogLevel = LogLevelVerbose

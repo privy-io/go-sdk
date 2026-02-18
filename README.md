@@ -17,7 +17,7 @@ It is generated with [Stainless](https://www.stainless.com/).
 
 ```go
 import (
-	"github.com/privy-io/go-sdk" // imported as privyclient
+ "github.com/privy-io/go-sdk" // imported as privyclient
 )
 ```
 
@@ -37,6 +37,8 @@ go get -u 'github.com/privy-io/go-sdk@v0.0.4'
 
 This library requires Go 1.23+.
 
+- Privy App ID and App Secret (available in your [Privy dashboard](https://dashboard.privy.io))
+
 ### Dependency Note
 
 To maintain compatibility with Go 1.23, this SDK pins `golang.org/x/crypto` to version `v0.41.0`. This version is affected by three known vulnerabilities:
@@ -53,34 +55,220 @@ To maintain compatibility with Go 1.23, this SDK pins `golang.org/x/crypto` to v
 package main
 
 import (
-	"context"
-	"fmt"
+ "context"
+ "fmt"
 
-	privy "github.com/privy-io/go-sdk"
+ privy "github.com/privy-io/go-sdk"
 )
 
 func main() {
-	client := privy.NewPrivyClient(privy.PrivyClientOptions{
-		AppID:     "My App ID",
-		AppSecret: "My App Secret",
-		// APIUrl: "https://auth.staging.privy.io", // optional, defaults to production
-	})
-	wallet, err := client.Wallets.Get(context.TODO(), "wallet_id")
-	if err != nil {
-		panic(err.Error())
-	}
-	fmt.Printf("%+v\n", wallet.ID)
+ client := privy.NewPrivyClient(privy.PrivyClientOptions{
+  AppID:     "My App ID",
+  AppSecret: "My App Secret",
+  // APIUrl:   "https://api.staging.privy.io", // optional, defaults to production
+  // LogLevel: privy.LogLevelInfo,               // optional: LogLevelNone, LogLevelError, LogLevelInfo, LogLevelDebug, LogLevelVerbose
+ })
+ wallet, err := client.Wallets.Get(context.TODO(), "wallet_id")
+ if err != nil {
+  panic(err.Error())
+ }
+ fmt.Printf("%+v\n", wallet.ID)
 }
 
 ```
 
 ### Client Entry Point
 
-This SDK provides two client types:
+**`NewPrivyClient()`** is the main entrypoint for the Privy Go SDK. Once initialized, you can access multiple services that represent different parts of the Privy API:
 
-- **`NewPrivyClient()`**: Main entrypoint for the Privy Go SDK, exposing Privy APIs and
-  and convenience methods. 
+- **Users** - Manage user accounts and linked identities
+- **Wallets** - Create and manage embedded wallets across multiple chains
+- **Policies** - Define authorization rules for wallet operations
+- **KeyQuorums** - Manage multi-signature wallet configurations
+- **JwtExchange** - Exchange user JWTs for authorization keys
+- **Transactions** - Access transaction-related functionality
 
+### User Management
+
+#### Creating Users
+
+```go
+user, err := client.Users.New(context.Background(), privy.UserNewParams{
+    LinkedAccounts: []privy.LinkedAccountInputUnion{{
+        OfEmail: &privy.LinkedAccountEmailInput{
+            Address: "user@example.com",
+            Type:    privy.LinkedAccountEmailInputTypeEmail,
+        },
+    }},
+})
+```
+
+#### Looking Up Users
+
+Find users by various identifiers:
+
+```go
+// By email
+user, err := client.Users.GetByEmailAddress(ctx, privy.UserGetByEmailAddressParams{
+    Address: "user@example.com",
+})
+
+// By user ID
+user, err := client.Users.Get(ctx, "user_id")
+```
+
+### Wallet Operations
+
+#### Creating Wallets
+
+```go
+wallet, err := client.Wallets.New(context.Background(), privy.WalletNewParams{
+    ChainType: privy.WalletChainTypeEthereum,
+    OwnerID:   privy.String("user_id_or_key_quorum_id"),
+})
+```
+
+#### Signing Operations
+
+```go
+// Sign a message
+data, err := client.Wallets.Ethereum.SignMessage(ctx, wallet.ID, "Hello, blockchain!")
+fmt.Printf("Signature: %s\n", data.Signature)
+
+// Sign a 7702 authorization
+data, err := client.Wallets.Ethereum.Sign7702Authorization(ctx, wallet.ID,
+    privy.EthereumSign7702AuthorizationRpcInputParams{
+        ChainID: privy.EthereumSign7702AuthorizationRpcInputParamsChainIDUnion{
+            OfInt: privy.Int(11155111), // Sepolia
+        },
+        Contract: "0x1234567890123456789012345678901234567890",
+    })
+
+// Sign a user operation
+data, err := client.Wallets.Ethereum.SignUserOperation(ctx, wallet.ID,
+    privy.EthereumSignUserOperationRpcInputParams{
+        ChainID: privy.EthereumSignUserOperationRpcInputParamsChainIDUnion{
+            OfInt: privy.Int(11155111), // Sepolia
+        },
+        Contract: "0x1234567890123456789012345678901234567890",
+        UserOperation: privy.EthereumSignUserOperationRpcInputParamsUserOperation{
+            // ...
+        },
+    })
+```
+
+### Authorization Context & Signatures
+
+When updating resources like wallets, policies, or key quorums, requests [must be signed](https://docs.privy.io/controls/authorization-keys/using-owners/sign/overview) by the resource owner. The SDK exposes utilities to simplify this authorization flow.
+
+#### AuthorizationContext
+
+`AuthorizationContext` contains credentials used for signing authorization requests. It can be passed into methods that require owner authorization.
+
+```go
+import "github.com/privy-io/go-sdk/authorization"
+
+authCtx := authorization.AuthorizationContext{
+    // Option 1: Use private keys directly
+    PrivateKeys: []string{"base64-encoded-pkcs8-p256-key"},
+
+    // Option 2: Use user JWTs (automatically exchanged for auth keys)
+    UserJwts: []string{"user-jwt-token"},
+
+    // Option 3: Use pre-computed signatures
+    Signatures: []string{"base64-signature"},
+
+    // Option 4: Use external signers (e.g., KMS, hardware wallets)
+    Signers: []authorization.AuthorizationSigner{customSigner},
+}
+```
+
+#### SDK Convenience Functions
+
+Some SDK methods accept an `AuthorizationContext` and handle all authorization steps automatically:
+
+- Build the signature input from request parameters
+- Format the request payload for signing
+- Generate signatures from all credentials in the authorization context
+- Set the authorization signature header on the request
+
+```go
+result, err := client.Wallets.Rpc(
+    context.Background(),
+    "wallet-id",
+    privy.WalletRpcParams{
+        OfEthSignTypedDataV4: &privy.EthereumSignTypedDataRpcInput{
+            Method: privy.EthereumSignTypedDataRpcInputMethodEthSignTypedDataV4,
+            Params: privy.EthereumSignTypedDataRpcInputParams{
+                TypedData: privy.EthereumSignTypedDataRpcInputParamsTypedData{
+                    // ...
+                },
+            },
+        },
+    },
+    privy.WithAuthorizationContext(&authorization.AuthorizationContext{
+        UserJwts: []string{jwt},
+    }),
+)
+if err != nil {
+    panic(err)
+}
+```
+
+#### Generating Signatures Manually
+
+If the SDK doesn't have a convenience function for a particular action, you can build the signature input and generate the authorization signature directly.
+
+```go
+authCtx := authorization.AuthorizationContext{
+    PrivateKeys: []string{
+        "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg...", // base64-encoded PKCS8 P-256 key
+    },
+    UserJwts: []string{
+        "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9...", // automatically exchanged for auth keys
+    },
+}
+
+input := authorization.WalletApiRequestSignatureInput{
+    Version: 1,
+    Method:  "POST",
+    URL:     "https://api.privy.io/v1/wallets/{wallet_ID}/rpc",
+    Body:    params,
+    Headers: headers,
+}
+
+signatures, err := authorization.GenerateAuthorizationSignaturesForRequest(
+    ctx,
+    authCtx,
+    input,
+    client.JwtExchange, // For JWT exchange
+)
+```
+
+#### Formatting Requests for External Signing
+
+To sign a request yourself through an external service (like a KMS), use `FormatRequestForAuthorizationSignature` to generate the signature payload. You can then pass the returned payload to a signing service to generate a P256 signature.
+
+```go
+input := authorization.WalletApiRequestSignatureInput{
+    Version: 1,
+    Method:  "POST",
+    URL:     "https://api.privy.io/v1/wallets/{wallet_ID}/rpc",
+    Body:    params,
+    Headers: headers,
+}
+
+payload, err := authorization.FormatRequestForAuthorizationSignature(input)
+if err != nil {
+    panic(err)
+}
+```
+
+**Key requirements:**
+
+- Private keys must be base64-encoded PKCS8-formatted P-256 keys
+- Payloads are hashed with SHA-256 before signing
+- Signatures use ECDSA with DER encoding
 
 ### Request fields
 
@@ -99,16 +287,16 @@ The `param.IsOmitted(any)` function can confirm the presence of any `omitzero` f
 
 ```go
 p := privyclient.ExampleParams{
-	ID:   "id_xxx",                  // required property
-	Name: privyclient.String("..."), // optional property
+ ID:   "id_xxx",                  // required property
+ Name: privyclient.String("..."), // optional property
 
-	Point: privyclient.Point{
-		X: 0,                  // required field will serialize as 0
-		Y: privyclient.Int(1), // optional field will serialize as 1
-		// ... omitted non-required fields will not be serialized
-	},
+ Point: privyclient.Point{
+  X: 0,                  // required field will serialize as 0
+  Y: privyclient.Int(1), // optional field will serialize as 1
+  // ... omitted non-required fields will not be serialized
+ },
 
-	Origin: privyclient.Origin{}, // the zero value of [Origin] is considered omitted
+ Origin: privyclient.Origin{}, // the zero value of [Origin] is considered omitted
 }
 ```
 
@@ -133,7 +321,7 @@ To send a custom value instead of a struct, use `param.Override[T](value)`.
 // In cases where the API specifies a given type,
 // but you want to send something else, use [SetExtraFields]:
 p.SetExtraFields(map[string]any{
-	"x": 0.01, // send "x" as a float instead of int
+ "x": 0.01, // send "x" as a float instead of int
 })
 
 // Send a number instead of an object
@@ -151,22 +339,22 @@ These methods return a mutable pointer to the underlying data, if present.
 ```go
 // Only one field can be non-zero, use param.IsOmitted() to check if a field is set
 type AnimalUnionParam struct {
-	OfCat *Cat `json:",omitzero,inline`
-	OfDog *Dog `json:",omitzero,inline`
+ OfCat *Cat `json:",omitzero,inline`
+ OfDog *Dog `json:",omitzero,inline`
 }
 
 animal := AnimalUnionParam{
-	OfCat: &Cat{
-		Name: "Whiskers",
-		Owner: PersonParam{
-			Address: AddressParam{Street: "3333 Coyote Hill Rd", Zip: 0},
-		},
-	},
+ OfCat: &Cat{
+  Name: "Whiskers",
+  Owner: PersonParam{
+   Address: AddressParam{Street: "3333 Coyote Hill Rd", Zip: 0},
+  },
+ },
 }
 
 // Mutating a field
 if address := animal.GetOwner().GetAddress(); address != nil {
-	address.ZipCode = 94304
+ address.ZipCode = 94304
 }
 ```
 
@@ -178,15 +366,15 @@ each property.
 
 ```go
 type Animal struct {
-	Name   string `json:"name,nullable"`
-	Owners int    `json:"owners"`
-	Age    int    `json:"age"`
-	JSON   struct {
-		Name        respjson.Field
-		Owner       respjson.Field
-		Age         respjson.Field
-		ExtraFields map[string]respjson.Field
-	} `json:"-"`
+ Name   string `json:"name,nullable"`
+ Owners int    `json:"owners"`
+ Age    int    `json:"age"`
+ JSON   struct {
+  Name        respjson.Field
+  Owner       respjson.Field
+  Age         respjson.Field
+  ExtraFields map[string]respjson.Field
+ } `json:"-"`
 }
 ```
 
@@ -242,23 +430,23 @@ the properties but prefixed with `Of` and feature the tag `json:"...,inline"`.
 
 ```go
 type AnimalUnion struct {
-	// From variants [Dog], [Cat]
-	Owner Person `json:"owner"`
-	// From variant [Dog]
-	DogBreed string `json:"dog_breed"`
-	// From variant [Cat]
-	CatBreed string `json:"cat_breed"`
-	// ...
+ // From variants [Dog], [Cat]
+ Owner Person `json:"owner"`
+ // From variant [Dog]
+ DogBreed string `json:"dog_breed"`
+ // From variant [Cat]
+ CatBreed string `json:"cat_breed"`
+ // ...
 
-	JSON struct {
-		Owner respjson.Field
-		// ...
-	} `json:"-"`
+ JSON struct {
+  Owner respjson.Field
+  // ...
+ } `json:"-"`
 }
 
 // If animal variant
 if animal.Owner.Address.ZipCode == "" {
-	panic("missing zip code")
+ panic("missing zip code")
 }
 
 // Switch on the variant
@@ -266,7 +454,7 @@ switch variant := animal.AsAny().(type) {
 case Dog:
 case Cat:
 default:
-	panic("unexpected type")
+ panic("unexpected type")
 }
 ```
 
@@ -279,15 +467,15 @@ requests. For example:
 
 ```go
 client := privyclient.NewClient(
-	// Adds a header to every request made by the client
-	option.WithHeader("X-Some-Header", "custom_header_info"),
+ // Adds a header to every request made by the client
+ option.WithHeader("X-Some-Header", "custom_header_info"),
 )
 
 client.Wallets.Get(context.TODO(), ...,
-	// Override the header
-	option.WithHeader("X-Some-Header", "some_other_custom_header_info"),
-	// Add an undocumented field to the request body, using sjson syntax
-	option.WithJSONSet("some.json.path", map[string]string{"my": "object"}),
+ // Override the header
+ option.WithHeader("X-Some-Header", "some_other_custom_header_info"),
+ // Add an undocumented field to the request body, using sjson syntax
+ option.WithJSONSet("some.json.path", map[string]string{"my": "object"}),
 )
 ```
 
@@ -305,11 +493,11 @@ You can use `.ListAutoPaging()` methods to iterate through items across all page
 iter := client.Wallets.ListAutoPaging(context.TODO(), privyclient.WalletListParams{})
 // Automatically fetches more pages as needed.
 for iter.Next() {
-	wallet := iter.Current()
-	fmt.Printf("%+v\n", wallet)
+ wallet := iter.Current()
+ fmt.Printf("%+v\n", wallet)
 }
 if err := iter.Err(); err != nil {
-	panic(err.Error())
+ panic(err.Error())
 }
 ```
 
@@ -319,13 +507,13 @@ with additional helper methods like `.GetNextPage()`, e.g.:
 ```go
 page, err := client.Wallets.List(context.TODO(), privyclient.WalletListParams{})
 for page != nil {
-	for _, wallet := range page.Data {
-		fmt.Printf("%+v\n", wallet)
-	}
-	page, err = page.GetNextPage()
+ for _, wallet := range page.Data {
+  fmt.Printf("%+v\n", wallet)
+ }
+ page, err = page.GetNextPage()
 }
 if err != nil {
-	panic(err.Error())
+ panic(err.Error())
 }
 ```
 
@@ -341,12 +529,12 @@ To handle errors, we recommend that you use the `errors.As` pattern:
 ```go
 _, err := client.Wallets.Get(context.TODO(), "wallet_id")
 if err != nil {
-	var apierr *privyclient.Error
-	if errors.As(err, &apierr) {
-		println(string(apierr.DumpRequest(true)))  // Prints the serialized HTTP request
-		println(string(apierr.DumpResponse(true))) // Prints the serialized HTTP response
-	}
-	panic(err.Error()) // GET "/v1/wallets/{wallet_id}": 400 Bad Request { ... }
+ var apierr *privyclient.Error
+ if errors.As(err, &apierr) {
+  println(string(apierr.DumpRequest(true)))  // Prints the serialized HTTP request
+  println(string(apierr.DumpResponse(true))) // Prints the serialized HTTP response
+ }
+ panic(err.Error()) // GET "/v1/wallets/{wallet_id}": 400 Bad Request { ... }
 }
 ```
 
@@ -365,10 +553,10 @@ To set a per-retry timeout, use `option.WithRequestTimeout()`.
 ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 defer cancel()
 client.Wallets.Get(
-	ctx,
-	"wallet_id",
-	// This sets the per-retry timeout
-	option.WithRequestTimeout(20*time.Second),
+ ctx,
+ "wallet_id",
+ // This sets the per-retry timeout
+ option.WithRequestTimeout(20*time.Second),
 )
 ```
 
@@ -396,14 +584,14 @@ You can use the `WithMaxRetries` option to configure or disable this:
 ```go
 // Configure the default for all requests:
 client := privyclient.NewClient(
-	option.WithMaxRetries(0), // default is 2
+ option.WithMaxRetries(0), // default is 2
 )
 
 // Override per-request:
 client.Wallets.Get(
-	context.TODO(),
-	"wallet_id",
-	option.WithMaxRetries(5),
+ context.TODO(),
+ "wallet_id",
+ option.WithMaxRetries(5),
 )
 ```
 
@@ -416,12 +604,12 @@ you need to examine response headers, status codes, or other details.
 // Create a variable to store the HTTP response
 var response *http.Response
 wallet, err := client.Wallets.Get(
-	context.TODO(),
-	"wallet_id",
-	option.WithResponseInto(&response),
+ context.TODO(),
+ "wallet_id",
+ option.WithResponseInto(&response),
 )
 if err != nil {
-	// handle error
+ // handle error
 }
 fmt.Printf("%+v\n", wallet)
 
@@ -485,22 +673,22 @@ middleware to requests.
 
 ```go
 func Logger(req *http.Request, next option.MiddlewareNext) (res *http.Response, err error) {
-	// Before the request
-	start := time.Now()
-	LogReq(req)
+ // Before the request
+ start := time.Now()
+ LogReq(req)
 
-	// Forward the request to the next handler
-	res, err = next(req)
+ // Forward the request to the next handler
+ res, err = next(req)
 
-	// Handle stuff after the request
-	end := time.Now()
-	LogRes(res, err, start - end)
+ // Handle stuff after the request
+ end := time.Now()
+ LogRes(res, err, start - end)
 
     return res, err
 }
 
 client := privyclient.NewClient(
-	option.WithMiddleware(Logger),
+ option.WithMiddleware(Logger),
 )
 ```
 
