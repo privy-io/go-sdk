@@ -41,7 +41,7 @@ func NewPolicyService(opts ...option.RequestOption) (r PolicyService) {
 // Create a new policy.
 func (r *PolicyService) New(ctx context.Context, params PolicyNewParams, opts ...option.RequestOption) (res *Policy, err error) {
 	if !param.IsOmitted(params.PrivyIdempotencyKey) {
-		opts = append(opts, option.WithHeader("privy-idempotency-key", fmt.Sprintf("%s", params.PrivyIdempotencyKey.Value)))
+		opts = append(opts, option.WithHeader("privy-idempotency-key", fmt.Sprintf("%v", params.PrivyIdempotencyKey.Value)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/policies"
@@ -52,7 +52,7 @@ func (r *PolicyService) New(ctx context.Context, params PolicyNewParams, opts ..
 // Update a policy by policy ID.
 func (r *PolicyService) Update(ctx context.Context, policyID string, params PolicyUpdateParams, opts ...option.RequestOption) (res *Policy, err error) {
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
-		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%s", params.PrivyAuthorizationSignature.Value)))
+		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if policyID == "" {
@@ -67,7 +67,7 @@ func (r *PolicyService) Update(ctx context.Context, policyID string, params Poli
 // Delete a policy by policy ID.
 func (r *PolicyService) Delete(ctx context.Context, policyID string, body PolicyDeleteParams, opts ...option.RequestOption) (res *PolicyDeleteResponse, err error) {
 	if !param.IsOmitted(body.PrivyAuthorizationSignature) {
-		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%s", body.PrivyAuthorizationSignature.Value)))
+		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", body.PrivyAuthorizationSignature.Value)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if policyID == "" {
@@ -82,7 +82,7 @@ func (r *PolicyService) Delete(ctx context.Context, policyID string, body Policy
 // Create a new rule for a policy.
 func (r *PolicyService) NewRule(ctx context.Context, policyID string, params PolicyNewRuleParams, opts ...option.RequestOption) (res *PolicyNewRuleResponse, err error) {
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
-		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%s", params.PrivyAuthorizationSignature.Value)))
+		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if policyID == "" {
@@ -97,7 +97,7 @@ func (r *PolicyService) NewRule(ctx context.Context, policyID string, params Pol
 // Delete a rule by policy ID and rule ID.
 func (r *PolicyService) DeleteRule(ctx context.Context, ruleID string, params PolicyDeleteRuleParams, opts ...option.RequestOption) (res *PolicyDeleteRuleResponse, err error) {
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
-		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%s", params.PrivyAuthorizationSignature.Value)))
+		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if params.PolicyID == "" {
@@ -144,7 +144,7 @@ func (r *PolicyService) GetRule(ctx context.Context, ruleID string, query Policy
 // Update a rule by policy ID and rule ID.
 func (r *PolicyService) UpdateRule(ctx context.Context, ruleID string, params PolicyUpdateRuleParams, opts ...option.RequestOption) (res *PolicyUpdateRuleResponse, err error) {
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
-		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%s", params.PrivyAuthorizationSignature.Value)))
+		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if params.PolicyID == "" {
