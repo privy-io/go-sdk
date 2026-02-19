@@ -47,7 +47,7 @@ func NewWalletService(opts ...option.RequestOption) (r WalletService) {
 // Creates a new wallet on the requested chain and for the requested owner.
 func (r *WalletService) New(ctx context.Context, params WalletNewParams, opts ...option.RequestOption) (res *Wallet, err error) {
 	if !param.IsOmitted(params.PrivyIdempotencyKey) {
-		opts = append(opts, option.WithHeader("privy-idempotency-key", fmt.Sprintf("%s", params.PrivyIdempotencyKey.Value)))
+		opts = append(opts, option.WithHeader("privy-idempotency-key", fmt.Sprintf("%v", params.PrivyIdempotencyKey.Value)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/wallets"
@@ -58,7 +58,7 @@ func (r *WalletService) New(ctx context.Context, params WalletNewParams, opts ..
 // Update a wallet's policies or authorization key configuration.
 func (r *WalletService) Update(ctx context.Context, walletID string, params WalletUpdateParams, opts ...option.RequestOption) (res *Wallet, err error) {
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
-		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%s", params.PrivyAuthorizationSignature.Value)))
+		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if walletID == "" {
@@ -120,7 +120,7 @@ func (r *WalletService) AuthenticateWithJwt(ctx context.Context, body WalletAuth
 // Export a wallet's private key
 func (r *WalletService) Export(ctx context.Context, walletID string, params WalletExportParams, opts ...option.RequestOption) (res *WalletExportResponse, err error) {
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
-		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%s", params.PrivyAuthorizationSignature.Value)))
+		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if walletID == "" {
@@ -147,10 +147,10 @@ func (r *WalletService) Get(ctx context.Context, walletID string, opts ...option
 // Sign a message with a wallet by wallet ID.
 func (r *WalletService) RawSign(ctx context.Context, walletID string, params WalletRawSignParams, opts ...option.RequestOption) (res *WalletRawSignResponse, err error) {
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
-		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%s", params.PrivyAuthorizationSignature.Value)))
+		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
 	}
 	if !param.IsOmitted(params.PrivyIdempotencyKey) {
-		opts = append(opts, option.WithHeader("privy-idempotency-key", fmt.Sprintf("%s", params.PrivyIdempotencyKey.Value)))
+		opts = append(opts, option.WithHeader("privy-idempotency-key", fmt.Sprintf("%v", params.PrivyIdempotencyKey.Value)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if walletID == "" {
@@ -165,10 +165,10 @@ func (r *WalletService) RawSign(ctx context.Context, walletID string, params Wal
 // Sign a message or transaction with a wallet by wallet ID.
 func (r *WalletService) Rpc(ctx context.Context, walletID string, params WalletRpcParams, opts ...option.RequestOption) (res *WalletRpcResponseUnion, err error) {
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
-		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%s", params.PrivyAuthorizationSignature.Value)))
+		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
 	}
 	if !param.IsOmitted(params.PrivyIdempotencyKey) {
-		opts = append(opts, option.WithHeader("privy-idempotency-key", fmt.Sprintf("%s", params.PrivyIdempotencyKey.Value)))
+		opts = append(opts, option.WithHeader("privy-idempotency-key", fmt.Sprintf("%v", params.PrivyIdempotencyKey.Value)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if walletID == "" {
