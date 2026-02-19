@@ -93,7 +93,7 @@ func main() {
 #### Creating Users
 
 ```go
-user, err := client.Users.New(context.Background(), privy.UserNewParams{
+user, err := client.Users.New(context.TODO(), privy.UserNewParams{
     LinkedAccounts: []privy.LinkedAccountInputUnion{{
         OfEmail: &privy.LinkedAccountEmailInput{
             Address: "user@example.com",
@@ -122,7 +122,7 @@ user, err := client.Users.Get(ctx, "user_id")
 #### Creating Wallets
 
 ```go
-wallet, err := client.Wallets.New(context.Background(), privy.WalletNewParams{
+wallet, err := client.Wallets.New(context.TODO(), privy.WalletNewParams{
     ChainType: privy.WalletChainTypeEthereum,
     OwnerID:   privy.String("user_id_or_key_quorum_id"),
 })
@@ -194,7 +194,7 @@ Some SDK methods accept an `AuthorizationContext` and handle all authorization s
 
 ```go
 result, err := client.Wallets.Rpc(
-    context.Background(),
+    context.TODO(),
     "wallet-id",
     privy.WalletRpcParams{
         OfEthSignTypedDataV4: &privy.EthereumSignTypedDataRpcInput{
@@ -550,7 +550,7 @@ To set a per-retry timeout, use `option.WithRequestTimeout()`.
 
 ```go
 // This sets the timeout for the request, including all the retries.
-ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Minute)
 defer cancel()
 client.Wallets.Get(
  ctx,
@@ -637,7 +637,7 @@ var (
     // or a model defined in this library.
     result *http.Response
 )
-err := client.Post(context.Background(), "/unspecified", params, &result)
+err := client.Post(context.TODO(), "/unspecified", params, &result)
 if err != nil {
     …
 }
@@ -655,7 +655,7 @@ params := FooNewParams{
         FirstName: privyclient.String("John"),
     },
 }
-client.Foo.New(context.Background(), params, option.WithJSONSet("data.last_name", "Doe"))
+client.Foo.New(context.TODO(), params, option.WithJSONSet("data.last_name", "Doe"))
 ```
 
 #### Undocumented response properties
