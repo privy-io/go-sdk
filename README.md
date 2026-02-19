@@ -1,4 +1,4 @@
-# Privy API Go API Library
+# Privy API Go library
 
 <!-- x-release-please-start-version -->
 
@@ -39,7 +39,7 @@ This library requires Go 1.23+.
 
 - Privy App ID and App Secret (available in your [Privy dashboard](https://dashboard.privy.io))
 
-### Dependency Note
+### Dependency note
 
 To maintain compatibility with Go 1.23, this SDK pins `golang.org/x/crypto` to version `v0.41.0`. This version is affected by three known vulnerabilities:
 
@@ -77,7 +77,7 @@ func main() {
 
 ```
 
-### Client Entry Point
+### Client entry point
 
 **`NewPrivyClient()`** is the main entrypoint for the Privy Go SDK. Once initialized, you can access multiple services that represent different parts of the Privy API:
 
@@ -88,9 +88,9 @@ func main() {
 - **JwtExchange** - Exchange user JWTs for authorization keys
 - **Transactions** - Access transaction-related functionality
 
-### User Management
+### User management
 
-#### Creating Users
+#### Creating users
 
 ```go
 user, err := client.Users.New(context.TODO(), privy.UserNewParams{
@@ -103,7 +103,7 @@ user, err := client.Users.New(context.TODO(), privy.UserNewParams{
 })
 ```
 
-#### Looking Up Users
+#### Looking up users
 
 Find users by various identifiers:
 
@@ -117,9 +117,9 @@ user, err := client.Users.GetByEmailAddress(ctx, privy.UserGetByEmailAddressPara
 user, err := client.Users.Get(ctx, "user_id")
 ```
 
-### Wallet Operations
+### Wallet operations
 
-#### Creating Wallets
+#### Creating wallets
 
 ```go
 wallet, err := client.Wallets.New(context.TODO(), privy.WalletNewParams{
@@ -128,7 +128,7 @@ wallet, err := client.Wallets.New(context.TODO(), privy.WalletNewParams{
 })
 ```
 
-#### Signing Operations
+#### Signing operations
 
 ```go
 // Sign a message
@@ -157,7 +157,7 @@ data, err := client.Wallets.Ethereum.SignUserOperation(ctx, wallet.ID,
     })
 ```
 
-### Authorization Context & Signatures
+### Authorization context and signatures
 
 When updating resources like wallets, policies, or key quorums, requests [must be signed](https://docs.privy.io/controls/authorization-keys/using-owners/sign/overview) by the resource owner. The SDK exposes utilities to simplify this authorization flow.
 
@@ -183,7 +183,7 @@ authCtx := authorization.AuthorizationContext{
 }
 ```
 
-#### SDK Convenience Functions
+#### SDK convenience functions
 
 Some SDK methods accept an `AuthorizationContext` and handle all authorization steps automatically:
 
@@ -215,7 +215,7 @@ if err != nil {
 }
 ```
 
-#### Generating Signatures Manually
+#### Generating signatures manually
 
 If the SDK doesn't have a convenience function for a particular action, you can build the signature input and generate the authorization signature directly.
 
@@ -245,7 +245,7 @@ signatures, err := authorization.GenerateAuthorizationSignaturesForRequest(
 )
 ```
 
-#### Formatting Requests for External Signing
+#### Formatting requests for external signing
 
 To sign a request yourself through an external service (like a KMS), use `FormatRequestForAuthorizationSignature` to generate the signature payload. You can then pass the returned payload to a signing service to generate a P256 signature.
 
@@ -419,7 +419,7 @@ present in the SDK.
 body := res.JSON.ExtraFields["my_unexpected_field"].Raw()
 ```
 
-### Response Unions
+### Response unions
 
 In responses, unions are represented by a flattened struct containing all possible fields from each of the
 object variants.
