@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.1.0 (2026-02-19)
+
+Full Changelog: [v0.0.4...v0.1.0](https://github.com/privy-io/go-sdk/compare/v0.0.4...v0.1.0)
+
+### Features
+
+* **api:** api update ([bf7189e](https://github.com/privy-io/go-sdk/commit/bf7189e953fcc0c291d6a10932305218f42d1c3a))
+
+
+### Bug Fixes
+
+* **client:** use correct format specifier for header serialization ([0f7ebbb](https://github.com/privy-io/go-sdk/commit/0f7ebbbba624923ac2a0ac469a7df11f507601c4))
+
+
+### Documentation
+
+* consolidates INTEGRATION_GUIDE and README ([#51](https://github.com/privy-io/go-sdk/issues/51)) ([1675943](https://github.com/privy-io/go-sdk/commit/167594347b95d13129b28a22b7189d9698dedac2))
+
 ## 0.0.4 (2026-02-17)
 
 Full Changelog: [v0.0.3...v0.0.4](https://github.com/privy-io/go-sdk/compare/v0.0.3...v0.0.4)
