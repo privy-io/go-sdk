@@ -749,7 +749,7 @@ func (r *PolicyRuleConditionEthereumTypedDataMessageValueUnion) UnmarshalJSON(da
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Allowed contract addresses for eth_signAuthorization requests.
+// Allowed contract addresses for eth_sign7702Authorization requests.
 type PolicyRuleConditionEthereum7702Authorization struct {
 	// Any of "contract".
 	Field       string                             `json:"field,required"`
@@ -2095,7 +2095,7 @@ func (r *PolicyNewRuleResponseConditionEthereumTypedDataMessageValueUnion) Unmar
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Allowed contract addresses for eth_signAuthorization requests.
+// Allowed contract addresses for eth_sign7702Authorization requests.
 type PolicyNewRuleResponseConditionEthereum7702Authorization struct {
 	// Any of "contract".
 	Field       string                             `json:"field,required"`
@@ -3017,7 +3017,7 @@ func (r *PolicyGetRuleResponseConditionEthereumTypedDataMessageValueUnion) Unmar
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Allowed contract addresses for eth_signAuthorization requests.
+// Allowed contract addresses for eth_sign7702Authorization requests.
 type PolicyGetRuleResponseConditionEthereum7702Authorization struct {
 	// Any of "contract".
 	Field       string                             `json:"field,required"`
@@ -3927,7 +3927,7 @@ func (r *PolicyUpdateRuleResponseConditionEthereumTypedDataMessageValueUnion) Un
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Allowed contract addresses for eth_signAuthorization requests.
+// Allowed contract addresses for eth_sign7702Authorization requests.
 type PolicyUpdateRuleResponseConditionEthereum7702Authorization struct {
 	// Any of "contract".
 	Field       string                             `json:"field,required"`
@@ -4620,7 +4620,7 @@ func (u *PolicyNewParamsRuleConditionEthereumTypedDataMessageValueUnion) Unmarsh
 	return apijson.UnmarshalRoot(data, u)
 }
 
-// Allowed contract addresses for eth_signAuthorization requests.
+// Allowed contract addresses for eth_sign7702Authorization requests.
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyNewParamsRuleConditionEthereum7702Authorization struct {
@@ -5308,7 +5308,7 @@ func (u *PolicyUpdateParamsRuleConditionEthereumTypedDataMessageValueUnion) Unma
 	return apijson.UnmarshalRoot(data, u)
 }
 
-// Allowed contract addresses for eth_signAuthorization requests.
+// Allowed contract addresses for eth_sign7702Authorization requests.
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyUpdateParamsRuleConditionEthereum7702Authorization struct {
@@ -5868,7 +5868,7 @@ func (u *PolicyNewRuleParamsConditionEthereumTypedDataMessageValueUnion) Unmarsh
 	return apijson.UnmarshalRoot(data, u)
 }
 
-// Allowed contract addresses for eth_signAuthorization requests.
+// Allowed contract addresses for eth_sign7702Authorization requests.
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyNewRuleParamsConditionEthereum7702Authorization struct {
@@ -6451,7 +6451,7 @@ func (u *PolicyUpdateRuleParamsConditionEthereumTypedDataMessageValueUnion) Unma
 	return apijson.UnmarshalRoot(data, u)
 }
 
-// Allowed contract addresses for eth_signAuthorization requests.
+// Allowed contract addresses for eth_sign7702Authorization requests.
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyUpdateRuleParamsConditionEthereum7702Authorization struct {
