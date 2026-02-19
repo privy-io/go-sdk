@@ -48,7 +48,7 @@ func TestWallets_Ethereum(t *testing.T) {
 				data, err := client.Wallets.Ethereum.Sign7702Authorization(ctx, wallet.id,
 					EthereumSign7702AuthorizationRpcInputParams{
 						ChainID: EthereumSign7702AuthorizationRpcInputParamsChainIDUnion{
-							OfInt: param.NewOpt[int64](11155111), // Sepolia
+							OfInt: Int(11155111), // Sepolia
 						},
 						Contract: "0x1234567890123456789012345678901234567890",
 					},
@@ -240,7 +240,7 @@ func TestWallets_Ethereum(t *testing.T) {
 						Transaction: EthereumSignTransactionRpcInputParamsTransaction{
 							Type: 2,
 							ChainID: EthereumSignTransactionRpcInputParamsTransactionChainIDUnion{
-								OfInt: param.NewOpt[int64](1),
+								OfInt: Int(1),
 							},
 							To: param.NewOpt("0x742d35Cc6634C0532925a3b8D1A8a9ff1e7a7A4C"),
 							Value: EthereumSignTransactionRpcInputParamsTransactionValueUnion{
@@ -282,7 +282,7 @@ func TestWallets_Ethereum(t *testing.T) {
 								OfString: param.NewOpt("0x1"), // 1 wei
 							},
 							ChainID: EthereumSendTransactionRpcInputParamsTransactionChainIDUnion{
-								OfInt: param.NewOpt[int64](11155111), // Sepolia
+								OfInt: Int(11155111), // Sepolia
 							},
 						},
 					},
