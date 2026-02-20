@@ -14,7 +14,7 @@ import (
 )
 
 func TestKeyQuorumNewWithOptionalParams(t *testing.T) {
-	t.Skip("Prism tests are disabled")
+	t.Skip("Mock server tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -30,6 +30,7 @@ func TestKeyQuorumNewWithOptionalParams(t *testing.T) {
 	_, err := client.KeyQuorums.New(context.TODO(), privyclient.KeyQuorumNewParams{
 		AuthorizationThreshold: privyclient.Float(1),
 		DisplayName:            privyclient.String("Prod key quorum"),
+		KeyQuorumIDs:           []string{"string"},
 		PublicKeys:             []string{"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEx4aoeD72yykviK+f/ckqE2CItVIG\n1rCnvC3/XZ1HgpOcMEMialRmTrqIK4oZlYd1RfxU3za/C9yjhboIuoPD3g==", "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAErzZtQr/bMIh3Y8f9ZqseB9i/AfjQ\nhu+agbNqXcJy/TfoNqvc/Y3Mh7gIZ8ZLXQEykycx4mYSpqrxp1lBKqsZDQ=="},
 		UserIDs:                []string{"string"},
 	})
@@ -43,7 +44,7 @@ func TestKeyQuorumNewWithOptionalParams(t *testing.T) {
 }
 
 func TestKeyQuorumUpdateWithOptionalParams(t *testing.T) {
-	t.Skip("Prism tests are disabled")
+	t.Skip("Mock server tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -62,6 +63,7 @@ func TestKeyQuorumUpdateWithOptionalParams(t *testing.T) {
 		privyclient.KeyQuorumUpdateParams{
 			AuthorizationThreshold:      privyclient.Float(1),
 			DisplayName:                 privyclient.String("Prod key quorum"),
+			KeyQuorumIDs:                []string{"string"},
 			PublicKeys:                  []string{"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEx4aoeD72yykviK+f/ckqE2CItVIG\n1rCnvC3/XZ1HgpOcMEMialRmTrqIK4oZlYd1RfxU3za/C9yjhboIuoPD3g=="},
 			UserIDs:                     []string{"string"},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
@@ -77,7 +79,7 @@ func TestKeyQuorumUpdateWithOptionalParams(t *testing.T) {
 }
 
 func TestKeyQuorumDeleteWithOptionalParams(t *testing.T) {
-	t.Skip("Prism tests are disabled")
+	t.Skip("Mock server tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -107,7 +109,7 @@ func TestKeyQuorumDeleteWithOptionalParams(t *testing.T) {
 }
 
 func TestKeyQuorumGet(t *testing.T) {
-	t.Skip("Prism tests are disabled")
+	t.Skip("Mock server tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL

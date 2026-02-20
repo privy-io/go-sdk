@@ -18,18 +18,40 @@ func ValueOf[T Constant[T]]() T {
 	return t.Default()
 }
 
+type AppleOAuth string                     // Always "apple_oauth"
+type CustomAuth string                     // Always "custom_auth"
+type DiscordOAuth string                   // Always "discord_oauth"
+type Email string                          // Always "email"
 type Ethereum7702Authorization string      // Always "ethereum_7702_authorization"
 type EthereumCalldata string               // Always "ethereum_calldata"
 type EthereumTransaction string            // Always "ethereum_transaction"
 type EthereumTypedDataDomain string        // Always "ethereum_typed_data_domain"
 type EthereumTypedDataMessage string       // Always "ethereum_typed_data_message"
+type Farcaster string                      // Always "farcaster"
+type GitHubOAuth string                    // Always "github_oauth"
+type GoogleOAuth string                    // Always "google_oauth"
 type HD string                             // Always "hd"
+type InstagramOAuth string                 // Always "instagram_oauth"
+type LineOAuth string                      // Always "line_oauth"
+type LinkedinOAuth string                  // Always "linkedin_oauth"
+type Passkey string                        // Always "passkey"
+type Phone string                          // Always "phone"
 type PrivateKey string                     // Always "private-key"
 type SolanaProgramInstruction string       // Always "solana_program_instruction"
 type SolanaSystemProgramInstruction string // Always "solana_system_program_instruction"
 type SolanaTokenProgramInstruction string  // Always "solana_token_program_instruction"
+type SpotifyOAuth string                   // Always "spotify_oauth"
 type System string                         // Always "system"
+type Telegram string                       // Always "telegram"
+type TiktokOAuth string                    // Always "tiktok_oauth"
+type TwitchOAuth string                    // Always "twitch_oauth"
+type TwitterOAuth string                   // Always "twitter_oauth"
+type Wallet string                         // Always "wallet"
 
+func (c AppleOAuth) Default() AppleOAuth     { return "apple_oauth" }
+func (c CustomAuth) Default() CustomAuth     { return "custom_auth" }
+func (c DiscordOAuth) Default() DiscordOAuth { return "discord_oauth" }
+func (c Email) Default() Email               { return "email" }
 func (c Ethereum7702Authorization) Default() Ethereum7702Authorization {
 	return "ethereum_7702_authorization"
 }
@@ -41,8 +63,16 @@ func (c EthereumTypedDataDomain) Default() EthereumTypedDataDomain {
 func (c EthereumTypedDataMessage) Default() EthereumTypedDataMessage {
 	return "ethereum_typed_data_message"
 }
-func (c HD) Default() HD                 { return "hd" }
-func (c PrivateKey) Default() PrivateKey { return "private-key" }
+func (c Farcaster) Default() Farcaster           { return "farcaster" }
+func (c GitHubOAuth) Default() GitHubOAuth       { return "github_oauth" }
+func (c GoogleOAuth) Default() GoogleOAuth       { return "google_oauth" }
+func (c HD) Default() HD                         { return "hd" }
+func (c InstagramOAuth) Default() InstagramOAuth { return "instagram_oauth" }
+func (c LineOAuth) Default() LineOAuth           { return "line_oauth" }
+func (c LinkedinOAuth) Default() LinkedinOAuth   { return "linkedin_oauth" }
+func (c Passkey) Default() Passkey               { return "passkey" }
+func (c Phone) Default() Phone                   { return "phone" }
+func (c PrivateKey) Default() PrivateKey         { return "private-key" }
 func (c SolanaProgramInstruction) Default() SolanaProgramInstruction {
 	return "solana_program_instruction"
 }
@@ -52,19 +82,43 @@ func (c SolanaSystemProgramInstruction) Default() SolanaSystemProgramInstruction
 func (c SolanaTokenProgramInstruction) Default() SolanaTokenProgramInstruction {
 	return "solana_token_program_instruction"
 }
-func (c System) Default() System { return "system" }
+func (c SpotifyOAuth) Default() SpotifyOAuth { return "spotify_oauth" }
+func (c System) Default() System             { return "system" }
+func (c Telegram) Default() Telegram         { return "telegram" }
+func (c TiktokOAuth) Default() TiktokOAuth   { return "tiktok_oauth" }
+func (c TwitchOAuth) Default() TwitchOAuth   { return "twitch_oauth" }
+func (c TwitterOAuth) Default() TwitterOAuth { return "twitter_oauth" }
+func (c Wallet) Default() Wallet             { return "wallet" }
 
+func (c AppleOAuth) MarshalJSON() ([]byte, error)                     { return marshalString(c) }
+func (c CustomAuth) MarshalJSON() ([]byte, error)                     { return marshalString(c) }
+func (c DiscordOAuth) MarshalJSON() ([]byte, error)                   { return marshalString(c) }
+func (c Email) MarshalJSON() ([]byte, error)                          { return marshalString(c) }
 func (c Ethereum7702Authorization) MarshalJSON() ([]byte, error)      { return marshalString(c) }
 func (c EthereumCalldata) MarshalJSON() ([]byte, error)               { return marshalString(c) }
 func (c EthereumTransaction) MarshalJSON() ([]byte, error)            { return marshalString(c) }
 func (c EthereumTypedDataDomain) MarshalJSON() ([]byte, error)        { return marshalString(c) }
 func (c EthereumTypedDataMessage) MarshalJSON() ([]byte, error)       { return marshalString(c) }
+func (c Farcaster) MarshalJSON() ([]byte, error)                      { return marshalString(c) }
+func (c GitHubOAuth) MarshalJSON() ([]byte, error)                    { return marshalString(c) }
+func (c GoogleOAuth) MarshalJSON() ([]byte, error)                    { return marshalString(c) }
 func (c HD) MarshalJSON() ([]byte, error)                             { return marshalString(c) }
+func (c InstagramOAuth) MarshalJSON() ([]byte, error)                 { return marshalString(c) }
+func (c LineOAuth) MarshalJSON() ([]byte, error)                      { return marshalString(c) }
+func (c LinkedinOAuth) MarshalJSON() ([]byte, error)                  { return marshalString(c) }
+func (c Passkey) MarshalJSON() ([]byte, error)                        { return marshalString(c) }
+func (c Phone) MarshalJSON() ([]byte, error)                          { return marshalString(c) }
 func (c PrivateKey) MarshalJSON() ([]byte, error)                     { return marshalString(c) }
 func (c SolanaProgramInstruction) MarshalJSON() ([]byte, error)       { return marshalString(c) }
 func (c SolanaSystemProgramInstruction) MarshalJSON() ([]byte, error) { return marshalString(c) }
 func (c SolanaTokenProgramInstruction) MarshalJSON() ([]byte, error)  { return marshalString(c) }
+func (c SpotifyOAuth) MarshalJSON() ([]byte, error)                   { return marshalString(c) }
 func (c System) MarshalJSON() ([]byte, error)                         { return marshalString(c) }
+func (c Telegram) MarshalJSON() ([]byte, error)                       { return marshalString(c) }
+func (c TiktokOAuth) MarshalJSON() ([]byte, error)                    { return marshalString(c) }
+func (c TwitchOAuth) MarshalJSON() ([]byte, error)                    { return marshalString(c) }
+func (c TwitterOAuth) MarshalJSON() ([]byte, error)                   { return marshalString(c) }
+func (c Wallet) MarshalJSON() ([]byte, error)                         { return marshalString(c) }
 
 type constant[T any] interface {
 	Constant[T]

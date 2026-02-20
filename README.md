@@ -28,7 +28,7 @@ Or to pin the version:
 <!-- x-release-please-start-version -->
 
 ```sh
-go get -u 'github.com/privy-io/go-sdk@v0.1.0'
+go get -u 'github.com/privy-io/go-sdk@v0.1.1'
 ```
 
 <!-- x-release-please-end -->
@@ -94,12 +94,9 @@ func main() {
 
 ```go
 user, err := client.Users.New(context.TODO(), privy.UserNewParams{
-    LinkedAccounts: []privy.LinkedAccountInputUnion{{
-        OfEmail: &privy.LinkedAccountEmailInput{
-            Address: "user@example.com",
-            Type:    privy.LinkedAccountEmailInputTypeEmail,
-        },
-    }},
+    LinkedAccounts: []privy.LinkedAccountInputUnion{
+        {OfEmail: &privy.LinkedAccountEmailInput{Address: "user@example.com"}},
+    },
 })
 ```
 
