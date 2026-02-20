@@ -25,7 +25,7 @@ func TestUsage(t *testing.T) {
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	t.Skip("Prism tests are disabled")
+	t.Skip("Mock server tests are disabled")
 	wallet, err := client.Wallets.Get(context.TODO(), "wallet_id")
 	if err != nil {
 		t.Fatalf("err should be nil: %s", err.Error())
