@@ -94,12 +94,9 @@ func main() {
 
 ```go
 user, err := client.Users.New(context.TODO(), privy.UserNewParams{
-    LinkedAccounts: []privy.LinkedAccountInputUnion{{
-        OfEmail: &privy.LinkedAccountEmailInput{
-            Address: "user@example.com",
-            Type:    privy.LinkedAccountEmailInputTypeEmail,
-        },
-    }},
+    LinkedAccounts: []privy.LinkedAccountInputUnion{
+        {OfEmail: &privy.LinkedAccountEmailInput{Address: "user@example.com"}},
+    },
 })
 ```
 

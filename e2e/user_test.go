@@ -21,12 +21,7 @@ func TestUsers(t *testing.T) {
 
 			user, err := client.Users.New(ctx, UserNewParams{
 				LinkedAccounts: []LinkedAccountInputUnion{
-					{
-						OfCustomAuth: &LinkedAccountCustomJwtInput{
-							Type:         LinkedAccountCustomJwtInputTypeCustomAuth,
-							CustomUserID: customUserID,
-						},
-					},
+					{OfCustomAuth: &LinkedAccountCustomJwtInput{CustomUserID: customUserID}},
 				},
 				Wallets: []UserNewParamsWallet{
 					{ChainType: WalletChainTypeEthereum},
