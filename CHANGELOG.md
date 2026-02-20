@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.1.1 (2026-02-20)
+
+Full Changelog: [v0.1.0...v0.1.1](https://github.com/privy-io/go-sdk/compare/v0.1.0...v0.1.1)
+
+### Features
+
+* **api:** api update ([7e1e6b5](https://github.com/privy-io/go-sdk/commit/7e1e6b5845e7351c28be2fd74fb91de99983a924))
+* **api:** transform LinkedAccountXYZInput type to const ([192d3db](https://github.com/privy-io/go-sdk/commit/192d3dbc53f3b1dd5f89995d6405066bf7e63421))
+* removes linked account input utils ([#53](https://github.com/privy-io/go-sdk/issues/53)) ([7913c07](https://github.com/privy-io/go-sdk/commit/7913c07a92dea874b266b026634d7e897640b655))
+
+
+### Bug Fixes
+
+* allow canceling a request while it is waiting to retry ([11a6b35](https://github.com/privy-io/go-sdk/commit/11a6b350700d203e35cea4e2e2db1966836a3e32))
+
+
+### Chores
+
+* **internal:** remove mock server code ([4ae32dd](https://github.com/privy-io/go-sdk/commit/4ae32dd0cf4c654046780c73789e8786fa3e3d90))
+* update mock server docs ([d6a63d0](https://github.com/privy-io/go-sdk/commit/d6a63d079b18c2878c82c585997e63a838dec361))
+
 ## 0.1.0 (2026-02-19)
 
 Full Changelog: [v0.0.4...v0.1.0](https://github.com/privy-io/go-sdk/compare/v0.0.4...v0.1.0)
