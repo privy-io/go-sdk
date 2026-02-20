@@ -26,7 +26,7 @@ func TestAutoPagination(t *testing.T) {
 		option.WithAppSecret("My App Secret"),
 	)
 	iter := client.Wallets.ListAutoPaging(context.TODO(), privyclient.WalletListParams{})
-	// Prism mock isn't going to give us real pagination
+	// The mock server isn't going to give us real pagination
 	for i := 0; i < 3 && iter.Next(); i++ {
 		wallet := iter.Current()
 		t.Logf("%+v\n", wallet.ID)
