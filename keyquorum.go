@@ -91,13 +91,16 @@ type KeyQuorum struct {
 	AuthorizationKeys      []KeyQuorumAuthorizationKey `json:"authorization_keys,required"`
 	AuthorizationThreshold float64                     `json:"authorization_threshold"`
 	DisplayName            string                      `json:"display_name"`
-	UserIDs                []string                    `json:"user_ids"`
+	// List of child key quorum IDs that are members of this key quorum.
+	KeyQuorumIDs []string `json:"key_quorum_ids"`
+	UserIDs      []string `json:"user_ids"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID                     respjson.Field
 		AuthorizationKeys      respjson.Field
 		AuthorizationThreshold respjson.Field
 		DisplayName            respjson.Field
+		KeyQuorumIDs           respjson.Field
 		UserIDs                respjson.Field
 		ExtraFields            map[string]respjson.Field
 		raw                    string
@@ -150,6 +153,9 @@ type KeyQuorumNewParams struct {
 	// or equal to total number of key quorum members.
 	AuthorizationThreshold param.Opt[float64] `json:"authorization_threshold,omitzero"`
 	DisplayName            param.Opt[string]  `json:"display_name,omitzero"`
+	// List of key quorum IDs that should be members of this key quorum. Key quorums
+	// can only be nested 1 level deep.
+	KeyQuorumIDs []string `json:"key_quorum_ids,omitzero"`
 	// List of P-256 public keys of the keys that should be authorized to sign on the
 	// key quorum, in base64-encoded DER format.
 	PublicKeys []string `json:"public_keys,omitzero"`
@@ -175,6 +181,9 @@ type KeyQuorumUpdateParams struct {
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.
 	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
+	// List of key quorum IDs that should be members of this key quorum. Key quorums
+	// can only be nested 1 level deep.
+	KeyQuorumIDs []string `json:"key_quorum_ids,omitzero"`
 	// List of P-256 public keys of the keys that should be authorized to sign on the
 	// key quorum, in base64-encoded DER format.
 	PublicKeys []string `json:"public_keys,omitzero"`
