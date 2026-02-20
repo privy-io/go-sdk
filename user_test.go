@@ -31,7 +31,6 @@ func TestUserNewWithOptionalParams(t *testing.T) {
 		LinkedAccounts: []privyclient.LinkedAccountInputUnion{{
 			OfEmail: &privyclient.LinkedAccountEmailInput{
 				Address: "tom.bombadill@privy.io",
-				Type:    privyclient.LinkedAccountEmailInputTypeEmail,
 			},
 		}},
 		CustomMetadata: privyclient.CustomMetadataParam{
