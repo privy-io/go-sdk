@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.2 (2026-02-22)
+
+Full Changelog: [v0.1.1...v0.1.2](https://github.com/privy-io/go-sdk/compare/v0.1.1...v0.1.2)
+
+### Bug Fixes
+
+* **internal:** skip tests that depend on mock server ([8abf34c](https://github.com/privy-io/go-sdk/commit/8abf34cf83f37229ca7a6634cbc346b0fa5dfbb7))
+
 ## 0.1.1 (2026-02-20)
 
 Full Changelog: [v0.1.0...v0.1.1](https://github.com/privy-io/go-sdk/compare/v0.1.0...v0.1.1)
