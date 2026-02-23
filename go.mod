@@ -3,6 +3,7 @@ module github.com/privy-io/go-sdk
 go 1.23.0
 
 require (
+	github.com/btcsuite/btcd/btcutil v1.1.6
 	github.com/cloudflare/circl v1.6.3
 	github.com/cyberphone/json-canonicalization v0.0.0-20241213102144-19d51d7fe467
 	github.com/golang-jwt/jwt/v5 v5.3.1

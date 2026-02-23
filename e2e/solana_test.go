@@ -1,47 +1,32 @@
 package e2e_test
 
 import (
-	"context"
 	"crypto/ed25519"
 	"encoding/base64"
-	"os"
 	"testing"
 
+	"github.com/btcsuite/btcd/btcutil/base58"
 	. "github.com/privy-io/go-sdk"
-	"github.com/privy-io/go-sdk/authorization"
 )
+
+// verifySolanaSignature verifies an ed25519 signature against a Solana wallet's
+// base58-encoded public key address.
+func verifySolanaSignature(t *testing.T, address string, message, signature []byte) {
+	t.Helper()
+	pubKey := base58.Decode(address)
+	if len(pubKey) != ed25519.PublicKeySize {
+		t.Fatalf("unexpected public key length %d (expected %d)", len(pubKey), ed25519.PublicKeySize)
+	}
+	if !ed25519.Verify(pubKey, message, signature) {
+		t.Error("signature verification failed")
+	}
+}
 
 func TestWallets_Solana(t *testing.T) {
 	client := newTestClient(t)
-	ctx := context.Background()
-	jwt := generateTestJWT(t)
-	sk := os.Getenv("P256_PRIVATE_KEY")
-
-	wallets := []struct {
-		name      string
-		id        string
-		publicKey string // base64-encoded ed25519 public key
-		authCtx   *authorization.AuthorizationContext
-	}{
-		{
-			name:      "Ownerless",
-			id:        os.Getenv("OWNERLESS_SOLANA_WALLET_ID"),
-			publicKey: os.Getenv("OWNERLESS_SOLANA_WALLET_PUBLIC_KEY"),
-			authCtx:   nil, // no authorization context for ownerless
-		},
-		{
-			name:      "KeyOwned",
-			id:        os.Getenv("P256_OWNED_SOLANA_WALLET_ID"),
-			publicKey: os.Getenv("P256_OWNED_SOLANA_WALLET_PUBLIC_KEY"),
-			authCtx:   &authorization.AuthorizationContext{PrivateKeys: []string{sk}},
-		},
-		{
-			name:      "UserOwned",
-			id:        os.Getenv("USER_OWNED_SOLANA_WALLET_ID"),
-			publicKey: os.Getenv("USER_OWNED_SOLANA_WALLET_PUBLIC_KEY"),
-			authCtx:   &authorization.AuthorizationContext{UserJwts: []string{jwt}},
-		},
-	}
+	res := setupTestWalletResources(t, client)
+	ctx := res.ctx
+	wallets := res.createTestWallets(t, WalletChainTypeSolana)
 
 	t.Run("SignMessage", func(t *testing.T) {
 		messageBytes := []byte("Hello, world!")
@@ -64,18 +49,11 @@ func TestWallets_Solana(t *testing.T) {
 					t.Errorf("expected encoding to be base64, got %s", data.Encoding)
 				}
 
-				// Verify the signature
-				pubKey, err := base64.StdEncoding.DecodeString(wallet.publicKey)
-				if err != nil {
-					t.Fatalf("failed to decode public key: %v", err)
-				}
 				sig, err := base64.StdEncoding.DecodeString(data.Signature)
 				if err != nil {
 					t.Fatalf("failed to decode signature: %v", err)
 				}
-				if !ed25519.Verify(pubKey, messageBytes, sig) {
-					t.Error("signature verification failed")
-				}
+				verifySolanaSignature(t, wallet.address, messageBytes, sig)
 			})
 		}
 	})
@@ -100,18 +78,11 @@ func TestWallets_Solana(t *testing.T) {
 					t.Errorf("expected encoding to be base64, got %s", data.Encoding)
 				}
 
-				// Verify the signature
-				pubKey, err := base64.StdEncoding.DecodeString(wallet.publicKey)
-				if err != nil {
-					t.Fatalf("failed to decode public key: %v", err)
-				}
 				sig, err := base64.StdEncoding.DecodeString(data.Signature)
 				if err != nil {
 					t.Fatalf("failed to decode signature: %v", err)
 				}
-				if !ed25519.Verify(pubKey, messageBytes, sig) {
-					t.Error("signature verification failed")
-				}
+				verifySolanaSignature(t, wallet.address, messageBytes, sig)
 			})
 		}
 	})
