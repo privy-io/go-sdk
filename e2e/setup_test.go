@@ -50,10 +50,11 @@ type testWalletResources struct {
 
 // testWallet holds a wallet's details and authorization context for testing.
 type testWallet struct {
-	name    string
-	id      string
-	address string
-	authCtx *authorization.AuthorizationContext
+	name      string
+	id        string
+	address   string
+	publicKey string
+	authCtx   *authorization.AuthorizationContext
 }
 
 // setupTestWalletResources creates shared test resources on demand:
@@ -174,10 +175,11 @@ func (r *testWalletResources) createTestWallets(t *testing.T, chainType WalletCh
 		}
 
 		wallets = append(wallets, testWallet{
-			name:    cfg.name,
-			id:      wallet.ID,
-			address: wallet.Address,
-			authCtx: cfg.authCtx,
+			name:      cfg.name,
+			id:        wallet.ID,
+			address:   wallet.Address,
+			publicKey: wallet.PublicKey,
+			authCtx:   cfg.authCtx,
 		})
 	}
 

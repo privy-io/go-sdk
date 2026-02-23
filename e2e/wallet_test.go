@@ -1,11 +1,17 @@
 package e2e_test
 
 import (
+	"crypto/ed25519"
+	"encoding/hex"
+	"strings"
 	"testing"
 
+	"github.com/btcsuite/btcd/btcec/v2"
+	"github.com/btcsuite/btcd/btcutil/base58"
 	. "github.com/privy-io/go-sdk"
 	"github.com/privy-io/go-sdk/authorization"
 	"github.com/privy-io/go-sdk/packages/param"
+	"golang.org/x/crypto/sha3"
 )
 
 func TestWallets(t *testing.T) {
@@ -141,6 +147,82 @@ func TestWallets(t *testing.T) {
 
 		if result2.ID != walletID {
 			t.Errorf("expected wallet ID %s, got %s", walletID, result2.ID)
+		}
+	})
+
+	t.Run("Export", func(t *testing.T) {
+		chainTypes := []struct {
+			name  string
+			value WalletChainType
+		}{
+			{name: "Ethereum", value: WalletChainTypeEthereum},
+			{name: "Solana", value: WalletChainTypeSolana},
+			{name: "Tron", value: WalletChainTypeTron},
+		}
+
+		for _, chainType := range chainTypes {
+			t.Run(chainType.name, func(t *testing.T) {
+				wallets := res.createTestWallets(t, chainType.value)
+				for _, wallet := range wallets {
+					if wallet.authCtx == nil {
+						continue // ownerless wallets cannot be exported
+					}
+					t.Run(wallet.name, func(t *testing.T) {
+						result, err := client.Wallets.Export(
+							ctx,
+							wallet.id,
+							WithAuthorizationContext(wallet.authCtx),
+						)
+						if err != nil {
+							t.Fatalf("failed to export wallet: %v", err)
+						}
+
+						if result.PrivateKey == "" {
+							t.Error("expected private key to be non-empty")
+						}
+
+						if chainType.value == WalletChainTypeEthereum {
+							hexKey := strings.TrimPrefix(result.PrivateKey, "0x")
+							privKeyBytes, err := hex.DecodeString(hexKey)
+							if err != nil {
+								t.Fatalf("failed to decode private key hex: %v", err)
+							}
+							_, pubKey := btcec.PrivKeyFromBytes(privKeyBytes)
+							pubKeyBytes := pubKey.SerializeUncompressed()
+							hasher := sha3.NewLegacyKeccak256()
+							hasher.Write(pubKeyBytes[1:])
+							hash := hasher.Sum(nil)
+							derivedAddress := "0x" + hex.EncodeToString(hash[len(hash)-20:])
+							if !strings.EqualFold(derivedAddress, wallet.address) {
+								t.Errorf("expected derived address %s to match wallet address %s", derivedAddress, wallet.address)
+							}
+						}
+
+						if chainType.value == WalletChainTypeSolana {
+							privKeyBytes := base58.Decode(result.PrivateKey)
+							privKey := ed25519.PrivateKey(privKeyBytes)
+							pubKey := privKey.Public().(ed25519.PublicKey)
+							derivedAddress := base58.Encode(pubKey)
+							if derivedAddress != wallet.address {
+								t.Errorf("expected derived address %s to match wallet address %s", derivedAddress, wallet.address)
+							}
+						}
+
+						if chainType.value == WalletChainTypeTron {
+							hexKey := strings.TrimPrefix(result.PrivateKey, "0x")
+							privKeyBytes, err := hex.DecodeString(hexKey)
+							if err != nil {
+								t.Fatalf("failed to decode private key hex: %v", err)
+							}
+							_, pubKey := btcec.PrivKeyFromBytes(privKeyBytes)
+							derivedPubKey := hex.EncodeToString(pubKey.SerializeCompressed())
+							if derivedPubKey != wallet.publicKey {
+								t.Errorf("expected derived public key %s to match wallet public key %s", derivedPubKey, wallet.publicKey)
+							}
+						}
+					})
+				}
+			})
 		}
 	})
 
