@@ -223,4 +223,8 @@ Response Types:
 
 # Webhooks
 
+# Accounts
+
 # Yield
+
+# Intents
