@@ -91,7 +91,7 @@ type KeyQuorum struct {
 	AuthorizationKeys      []KeyQuorumAuthorizationKey `json:"authorization_keys,required"`
 	AuthorizationThreshold float64                     `json:"authorization_threshold"`
 	DisplayName            string                      `json:"display_name"`
-	// List of child key quorum IDs that are members of this key quorum.
+	// List of nested key quorum IDs that are members of this key quorum.
 	KeyQuorumIDs []string `json:"key_quorum_ids"`
 	UserIDs      []string `json:"user_ids"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
