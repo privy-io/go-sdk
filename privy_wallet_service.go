@@ -2,9 +2,12 @@ package privyclient
 
 import (
 	"context"
+	"encoding/base64"
+	"fmt"
 	"strings"
 
 	"github.com/privy-io/go-sdk/authorization"
+	"github.com/privy-io/go-sdk/internal/hpke"
 	"github.com/privy-io/go-sdk/internal/jwtexchange"
 	"github.com/privy-io/go-sdk/packages/param"
 )
@@ -238,4 +241,90 @@ func (s *PrivyWalletService) RawSign(
 
 	// Call the underlying service
 	return s.WalletService.RawSign(ctx, walletID, params)
+}
+
+// WalletExportResult contains the decrypted private key from a wallet export operation.
+type WalletExportResult struct {
+	// PrivateKey is the decrypted wallet private key.
+	PrivateKey string
+}
+
+// Export exports a wallet's private key, handling HPKE key exchange automatically
+// for an end-to-end encrypted flow.
+//
+// This method wraps the generated WalletService.Export and handles:
+//   - Generating an ephemeral HPKE keypair for encryption
+//   - Building the authorization signature from an AuthorizationContext
+//   - Decrypting the response to extract the plaintext private key
+//
+// Parameters:
+//   - ctx: Context for cancellation and timeouts
+//   - walletID: The wallet ID to export
+//   - opts: use WithAuthorizationContext for owned wallets
+func (s *PrivyWalletService) Export(
+	ctx context.Context,
+	walletID string,
+	opts ...RpcOption,
+) (*WalletExportResult, error) {
+	options := applyRpcOptions(opts)
+
+	recipient, err := hpke.NewHpkeRecipient()
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate HPKE keypair: %w", err)
+	}
+
+	params := WalletExportParams{
+		EncryptionType:     WalletExportParamsEncryptionTypeHpke,
+		RecipientPublicKey: base64.StdEncoding.EncodeToString(recipient.PublicKeySpki),
+	}
+
+	if options.AuthorizationContext != nil {
+		headers := map[string]string{
+			"privy-app-id": s.appID,
+		}
+
+		sigInput := authorization.WalletApiRequestSignatureInput{
+			Version: 1,
+			Method:  "POST",
+			URL:     s.baseURL + "/v1/wallets/" + walletID + "/export",
+			Body:    params,
+			Headers: headers,
+		}
+
+		signatures, err := authorization.GenerateAuthorizationSignaturesForRequest(
+			ctx,
+			*options.AuthorizationContext,
+			sigInput,
+			s.jwtExchanger,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(signatures) > 0 {
+			params.PrivyAuthorizationSignature = param.NewOpt(strings.Join(signatures, ","))
+		}
+	}
+
+	response, err := s.WalletService.Export(ctx, walletID, params)
+	if err != nil {
+		return nil, err
+	}
+
+	encapKey, err := base64.StdEncoding.DecodeString(response.EncapsulatedKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode encapsulated key: %w", err)
+	}
+
+	ciphertext, err := base64.StdEncoding.DecodeString(response.Ciphertext)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode ciphertext: %w", err)
+	}
+
+	plaintext, err := recipient.Decrypt(encapKey, ciphertext)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt exported key: %w", err)
+	}
+
+	return &WalletExportResult{PrivateKey: string(plaintext)}, nil
 }
