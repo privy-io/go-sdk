@@ -28,7 +28,7 @@ Or to pin the version:
 <!-- x-release-please-start-version -->
 
 ```sh
-go get -u 'github.com/privy-io/go-sdk@v0.1.1'
+go get -u 'github.com/privy-io/go-sdk@v0.2.0'
 ```
 
 <!-- x-release-please-end -->
