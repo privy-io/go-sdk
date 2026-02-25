@@ -184,28 +184,28 @@ func (r *WalletService) Rpc(ctx context.Context, walletID string, params WalletR
 type Wallet struct {
 	// Unique ID of the wallet. This will be the primary identifier when using the
 	// wallet in the future.
-	ID string `json:"id,required"`
+	ID string `json:"id" api:"required"`
 	// Additional signers for the wallet.
-	AdditionalSigners []WalletAdditionalSigner `json:"additional_signers,required"`
+	AdditionalSigners []WalletAdditionalSigner `json:"additional_signers" api:"required"`
 	// Address of the wallet.
-	Address string `json:"address,required"`
+	Address string `json:"address" api:"required"`
 	// The wallet chain types.
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
 	// "tron", "bitcoin-segwit", "near", "ton", "starknet", "spark".
-	ChainType WalletChainType `json:"chain_type,required"`
+	ChainType WalletChainType `json:"chain_type" api:"required"`
 	// Unix timestamp of when the wallet was created in milliseconds.
-	CreatedAt float64 `json:"created_at,required"`
+	CreatedAt float64 `json:"created_at" api:"required"`
 	// Unix timestamp of when the wallet was exported in milliseconds, if the wallet
 	// was exported.
-	ExportedAt float64 `json:"exported_at,required"`
+	ExportedAt float64 `json:"exported_at" api:"required"`
 	// Unix timestamp of when the wallet was imported in milliseconds, if the wallet
 	// was imported.
-	ImportedAt float64 `json:"imported_at,required"`
+	ImportedAt float64 `json:"imported_at" api:"required"`
 	// The key quorum ID of the owner of the wallet.
-	OwnerID string `json:"owner_id,required"`
+	OwnerID string `json:"owner_id" api:"required"`
 	// List of policy IDs for policies that are enforced on the wallet.
-	PolicyIDs []string `json:"policy_ids,required"`
+	PolicyIDs []string `json:"policy_ids" api:"required"`
 	// The compressed, raw public key for the wallet along the chain cryptographic
 	// curve.
 	PublicKey string `json:"public_key"`
@@ -233,7 +233,7 @@ func (r *Wallet) UnmarshalJSON(data []byte) error {
 }
 
 type WalletAdditionalSigner struct {
-	SignerID string `json:"signer_id,required" format:"cuid2"`
+	SignerID string `json:"signer_id" api:"required" format:"cuid2"`
 	// The array of policy IDs that will be applied to wallet requests. If specified,
 	// this will override the base policy IDs set on the wallet.
 	OverridePolicyIDs []string `json:"override_policy_ids" format:"cuid2"`
@@ -336,8 +336,8 @@ const (
 // The properties Method, Params are required.
 type EthereumPersonalSignRpcInput struct {
 	// Any of "personal_sign".
-	Method  EthereumPersonalSignRpcInputMethod `json:"method,omitzero,required"`
-	Params  EthereumPersonalSignRpcInputParams `json:"params,omitzero,required"`
+	Method  EthereumPersonalSignRpcInputMethod `json:"method,omitzero" api:"required"`
+	Params  EthereumPersonalSignRpcInputParams `json:"params,omitzero" api:"required"`
 	Address param.Opt[string]                  `json:"address,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumPersonalSignRpcInputChainType `json:"chain_type,omitzero"`
@@ -361,8 +361,8 @@ const (
 // The properties Encoding, Message are required.
 type EthereumPersonalSignRpcInputParams struct {
 	// Any of "utf-8", "hex".
-	Encoding EthereumPersonalSignRpcInputParamsEncoding `json:"encoding,omitzero,required"`
-	Message  string                                     `json:"message,required"`
+	Encoding EthereumPersonalSignRpcInputParamsEncoding `json:"encoding,omitzero" api:"required"`
+	Message  string                                     `json:"message" api:"required"`
 	paramObj
 }
 
@@ -392,8 +392,8 @@ const (
 // The properties Method, Params are required.
 type EthereumSignTransactionRpcInput struct {
 	// Any of "eth_signTransaction".
-	Method  EthereumSignTransactionRpcInputMethod `json:"method,omitzero,required"`
-	Params  EthereumSignTransactionRpcInputParams `json:"params,omitzero,required"`
+	Method  EthereumSignTransactionRpcInputMethod `json:"method,omitzero" api:"required"`
+	Params  EthereumSignTransactionRpcInputParams `json:"params,omitzero" api:"required"`
 	Address param.Opt[string]                     `json:"address,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumSignTransactionRpcInputChainType `json:"chain_type,omitzero"`
@@ -416,7 +416,7 @@ const (
 
 // The property Transaction is required.
 type EthereumSignTransactionRpcInputParams struct {
-	Transaction EthereumSignTransactionRpcInputParamsTransaction `json:"transaction,omitzero,required"`
+	Transaction EthereumSignTransactionRpcInputParamsTransaction `json:"transaction,omitzero" api:"required"`
 	paramObj
 }
 
@@ -461,12 +461,12 @@ func init() {
 
 // The properties ChainID, Contract, Nonce, R, S, YParity are required.
 type EthereumSignTransactionRpcInputParamsTransactionAuthorizationList struct {
-	ChainID  EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnion `json:"chain_id,omitzero,required"`
-	Contract string                                                                        `json:"contract,required"`
-	Nonce    EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnion   `json:"nonce,omitzero,required"`
-	R        string                                                                        `json:"r,required"`
-	S        string                                                                        `json:"s,required"`
-	YParity  float64                                                                       `json:"y_parity,required"`
+	ChainID  EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnion `json:"chain_id,omitzero" api:"required"`
+	Contract string                                                                        `json:"contract" api:"required"`
+	Nonce    EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnion   `json:"nonce,omitzero" api:"required"`
+	R        string                                                                        `json:"r" api:"required"`
+	S        string                                                                        `json:"s" api:"required"`
+	YParity  float64                                                                       `json:"y_parity" api:"required"`
 	paramObj
 }
 
@@ -632,10 +632,10 @@ const (
 //
 // The properties Caip2, Method, Params are required.
 type EthereumSendTransactionRpcInput struct {
-	Caip2 string `json:"caip2,required"`
+	Caip2 string `json:"caip2" api:"required"`
 	// Any of "eth_sendTransaction".
-	Method  EthereumSendTransactionRpcInputMethod `json:"method,omitzero,required"`
-	Params  EthereumSendTransactionRpcInputParams `json:"params,omitzero,required"`
+	Method  EthereumSendTransactionRpcInputMethod `json:"method,omitzero" api:"required"`
+	Params  EthereumSendTransactionRpcInputParams `json:"params,omitzero" api:"required"`
 	Address param.Opt[string]                     `json:"address,omitzero"`
 	Sponsor param.Opt[bool]                       `json:"sponsor,omitzero"`
 	// Any of "ethereum".
@@ -659,7 +659,7 @@ const (
 
 // The property Transaction is required.
 type EthereumSendTransactionRpcInputParams struct {
-	Transaction EthereumSendTransactionRpcInputParamsTransaction `json:"transaction,omitzero,required"`
+	Transaction EthereumSendTransactionRpcInputParamsTransaction `json:"transaction,omitzero" api:"required"`
 	paramObj
 }
 
@@ -704,12 +704,12 @@ func init() {
 
 // The properties ChainID, Contract, Nonce, R, S, YParity are required.
 type EthereumSendTransactionRpcInputParamsTransactionAuthorizationList struct {
-	ChainID  EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnion `json:"chain_id,omitzero,required"`
-	Contract string                                                                        `json:"contract,required"`
-	Nonce    EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnion   `json:"nonce,omitzero,required"`
-	R        string                                                                        `json:"r,required"`
-	S        string                                                                        `json:"s,required"`
-	YParity  float64                                                                       `json:"y_parity,required"`
+	ChainID  EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnion `json:"chain_id,omitzero" api:"required"`
+	Contract string                                                                        `json:"contract" api:"required"`
+	Nonce    EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnion   `json:"nonce,omitzero" api:"required"`
+	R        string                                                                        `json:"r" api:"required"`
+	S        string                                                                        `json:"s" api:"required"`
+	YParity  float64                                                                       `json:"y_parity" api:"required"`
 	paramObj
 }
 
@@ -877,8 +877,8 @@ const (
 // The properties Method, Params are required.
 type EthereumSignTypedDataRpcInput struct {
 	// Any of "eth_signTypedData_v4".
-	Method  EthereumSignTypedDataRpcInputMethod `json:"method,omitzero,required"`
-	Params  EthereumSignTypedDataRpcInputParams `json:"params,omitzero,required"`
+	Method  EthereumSignTypedDataRpcInputMethod `json:"method,omitzero" api:"required"`
+	Params  EthereumSignTypedDataRpcInputParams `json:"params,omitzero" api:"required"`
 	Address param.Opt[string]                   `json:"address,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumSignTypedDataRpcInputChainType `json:"chain_type,omitzero"`
@@ -901,7 +901,7 @@ const (
 
 // The property TypedData is required.
 type EthereumSignTypedDataRpcInputParams struct {
-	TypedData EthereumSignTypedDataRpcInputParamsTypedData `json:"typed_data,omitzero,required"`
+	TypedData EthereumSignTypedDataRpcInputParamsTypedData `json:"typed_data,omitzero" api:"required"`
 	paramObj
 }
 
@@ -915,10 +915,10 @@ func (r *EthereumSignTypedDataRpcInputParams) UnmarshalJSON(data []byte) error {
 
 // The properties Domain, Message, PrimaryType, Types are required.
 type EthereumSignTypedDataRpcInputParamsTypedData struct {
-	Domain      map[string]any                                                `json:"domain,omitzero,required"`
-	Message     map[string]any                                                `json:"message,omitzero,required"`
-	PrimaryType string                                                        `json:"primary_type,required"`
-	Types       map[string][]EthereumSignTypedDataRpcInputParamsTypedDataType `json:"types,omitzero,required"`
+	Domain      map[string]any                                                `json:"domain,omitzero" api:"required"`
+	Message     map[string]any                                                `json:"message,omitzero" api:"required"`
+	PrimaryType string                                                        `json:"primary_type" api:"required"`
+	Types       map[string][]EthereumSignTypedDataRpcInputParamsTypedDataType `json:"types,omitzero" api:"required"`
 	paramObj
 }
 
@@ -932,8 +932,8 @@ func (r *EthereumSignTypedDataRpcInputParamsTypedData) UnmarshalJSON(data []byte
 
 // The properties Name, Type are required.
 type EthereumSignTypedDataRpcInputParamsTypedDataType struct {
-	Name string `json:"name,required"`
-	Type string `json:"type,required"`
+	Name string `json:"name" api:"required"`
+	Type string `json:"type" api:"required"`
 	paramObj
 }
 
@@ -956,8 +956,8 @@ const (
 // The properties Method, Params are required.
 type EthereumSignUserOperationRpcInput struct {
 	// Any of "eth_signUserOperation".
-	Method  EthereumSignUserOperationRpcInputMethod `json:"method,omitzero,required"`
-	Params  EthereumSignUserOperationRpcInputParams `json:"params,omitzero,required"`
+	Method  EthereumSignUserOperationRpcInputMethod `json:"method,omitzero" api:"required"`
+	Params  EthereumSignUserOperationRpcInputParams `json:"params,omitzero" api:"required"`
 	Address param.Opt[string]                       `json:"address,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumSignUserOperationRpcInputChainType `json:"chain_type,omitzero"`
@@ -980,9 +980,9 @@ const (
 
 // The properties ChainID, Contract, UserOperation are required.
 type EthereumSignUserOperationRpcInputParams struct {
-	ChainID       EthereumSignUserOperationRpcInputParamsChainIDUnion  `json:"chain_id,omitzero,required"`
-	Contract      string                                               `json:"contract,required"`
-	UserOperation EthereumSignUserOperationRpcInputParamsUserOperation `json:"user_operation,omitzero,required"`
+	ChainID       EthereumSignUserOperationRpcInputParamsChainIDUnion  `json:"chain_id,omitzero" api:"required"`
+	Contract      string                                               `json:"contract" api:"required"`
+	UserOperation EthereumSignUserOperationRpcInputParamsUserOperation `json:"user_operation,omitzero" api:"required"`
 	paramObj
 }
 
@@ -1015,18 +1015,18 @@ func (u *EthereumSignUserOperationRpcInputParamsChainIDUnion) UnmarshalJSON(data
 // PaymasterVerificationGasLimit, PreVerificationGas, Sender, VerificationGasLimit
 // are required.
 type EthereumSignUserOperationRpcInputParamsUserOperation struct {
-	CallData                      string `json:"call_data,required"`
-	CallGasLimit                  string `json:"call_gas_limit,required"`
-	MaxFeePerGas                  string `json:"max_fee_per_gas,required"`
-	MaxPriorityFeePerGas          string `json:"max_priority_fee_per_gas,required"`
-	Nonce                         string `json:"nonce,required"`
-	Paymaster                     string `json:"paymaster,required"`
-	PaymasterData                 string `json:"paymaster_data,required"`
-	PaymasterPostOpGasLimit       string `json:"paymaster_post_op_gas_limit,required"`
-	PaymasterVerificationGasLimit string `json:"paymaster_verification_gas_limit,required"`
-	PreVerificationGas            string `json:"pre_verification_gas,required"`
-	Sender                        string `json:"sender,required"`
-	VerificationGasLimit          string `json:"verification_gas_limit,required"`
+	CallData                      string `json:"call_data" api:"required"`
+	CallGasLimit                  string `json:"call_gas_limit" api:"required"`
+	MaxFeePerGas                  string `json:"max_fee_per_gas" api:"required"`
+	MaxPriorityFeePerGas          string `json:"max_priority_fee_per_gas" api:"required"`
+	Nonce                         string `json:"nonce" api:"required"`
+	Paymaster                     string `json:"paymaster" api:"required"`
+	PaymasterData                 string `json:"paymaster_data" api:"required"`
+	PaymasterPostOpGasLimit       string `json:"paymaster_post_op_gas_limit" api:"required"`
+	PaymasterVerificationGasLimit string `json:"paymaster_verification_gas_limit" api:"required"`
+	PreVerificationGas            string `json:"pre_verification_gas" api:"required"`
+	Sender                        string `json:"sender" api:"required"`
+	VerificationGasLimit          string `json:"verification_gas_limit" api:"required"`
 	paramObj
 }
 
@@ -1049,8 +1049,8 @@ const (
 // The properties Method, Params are required.
 type EthereumSign7702AuthorizationRpcInput struct {
 	// Any of "eth_sign7702Authorization".
-	Method  EthereumSign7702AuthorizationRpcInputMethod `json:"method,omitzero,required"`
-	Params  EthereumSign7702AuthorizationRpcInputParams `json:"params,omitzero,required"`
+	Method  EthereumSign7702AuthorizationRpcInputMethod `json:"method,omitzero" api:"required"`
+	Params  EthereumSign7702AuthorizationRpcInputParams `json:"params,omitzero" api:"required"`
 	Address param.Opt[string]                           `json:"address,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumSign7702AuthorizationRpcInputChainType `json:"chain_type,omitzero"`
@@ -1073,8 +1073,8 @@ const (
 
 // The properties ChainID, Contract are required.
 type EthereumSign7702AuthorizationRpcInputParams struct {
-	ChainID  EthereumSign7702AuthorizationRpcInputParamsChainIDUnion `json:"chain_id,omitzero,required"`
-	Contract string                                                  `json:"contract,required"`
+	ChainID  EthereumSign7702AuthorizationRpcInputParamsChainIDUnion `json:"chain_id,omitzero" api:"required"`
+	Contract string                                                  `json:"contract" api:"required"`
 	Nonce    EthereumSign7702AuthorizationRpcInputParamsNonceUnion   `json:"nonce,omitzero"`
 	paramObj
 }
@@ -1130,8 +1130,8 @@ const (
 // The properties Method, Params are required.
 type EthereumSecp256k1SignRpcInput struct {
 	// Any of "secp256k1_sign".
-	Method  EthereumSecp256k1SignRpcInputMethod `json:"method,omitzero,required"`
-	Params  EthereumSecp256k1SignRpcInputParams `json:"params,omitzero,required"`
+	Method  EthereumSecp256k1SignRpcInputMethod `json:"method,omitzero" api:"required"`
+	Params  EthereumSecp256k1SignRpcInputParams `json:"params,omitzero" api:"required"`
 	Address param.Opt[string]                   `json:"address,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumSecp256k1SignRpcInputChainType `json:"chain_type,omitzero"`
@@ -1154,7 +1154,7 @@ const (
 
 // The property Hash is required.
 type EthereumSecp256k1SignRpcInputParams struct {
-	Hash string `json:"hash,required"`
+	Hash string `json:"hash" api:"required"`
 	paramObj
 }
 
@@ -1177,8 +1177,8 @@ const (
 // The properties Method, Params are required.
 type SolanaSignTransactionRpcInput struct {
 	// Any of "signTransaction".
-	Method  SolanaSignTransactionRpcInputMethod `json:"method,omitzero,required"`
-	Params  SolanaSignTransactionRpcInputParams `json:"params,omitzero,required"`
+	Method  SolanaSignTransactionRpcInputMethod `json:"method,omitzero" api:"required"`
+	Params  SolanaSignTransactionRpcInputParams `json:"params,omitzero" api:"required"`
 	Address param.Opt[string]                   `json:"address,omitzero"`
 	// Any of "solana".
 	ChainType SolanaSignTransactionRpcInputChainType `json:"chain_type,omitzero"`
@@ -1202,8 +1202,8 @@ const (
 // The properties Encoding, Transaction are required.
 type SolanaSignTransactionRpcInputParams struct {
 	// Any of "base64".
-	Encoding    string `json:"encoding,omitzero,required"`
-	Transaction string `json:"transaction,required"`
+	Encoding    string `json:"encoding,omitzero" api:"required"`
+	Transaction string `json:"transaction" api:"required"`
 	paramObj
 }
 
@@ -1232,10 +1232,10 @@ const (
 //
 // The properties Caip2, Method, Params are required.
 type SolanaSignAndSendTransactionRpcInput struct {
-	Caip2 string `json:"caip2,required"`
+	Caip2 string `json:"caip2" api:"required"`
 	// Any of "signAndSendTransaction".
-	Method  SolanaSignAndSendTransactionRpcInputMethod `json:"method,omitzero,required"`
-	Params  SolanaSignAndSendTransactionRpcInputParams `json:"params,omitzero,required"`
+	Method  SolanaSignAndSendTransactionRpcInputMethod `json:"method,omitzero" api:"required"`
+	Params  SolanaSignAndSendTransactionRpcInputParams `json:"params,omitzero" api:"required"`
 	Address param.Opt[string]                          `json:"address,omitzero"`
 	Sponsor param.Opt[bool]                            `json:"sponsor,omitzero"`
 	// Any of "solana".
@@ -1260,8 +1260,8 @@ const (
 // The properties Encoding, Transaction are required.
 type SolanaSignAndSendTransactionRpcInputParams struct {
 	// Any of "base64".
-	Encoding    string `json:"encoding,omitzero,required"`
-	Transaction string `json:"transaction,required"`
+	Encoding    string `json:"encoding,omitzero" api:"required"`
+	Transaction string `json:"transaction" api:"required"`
 	paramObj
 }
 
@@ -1290,8 +1290,8 @@ const (
 // The properties Method, Params are required.
 type SolanaSignMessageRpcInput struct {
 	// Any of "signMessage".
-	Method  SolanaSignMessageRpcInputMethod `json:"method,omitzero,required"`
-	Params  SolanaSignMessageRpcInputParams `json:"params,omitzero,required"`
+	Method  SolanaSignMessageRpcInputMethod `json:"method,omitzero" api:"required"`
+	Params  SolanaSignMessageRpcInputParams `json:"params,omitzero" api:"required"`
 	Address param.Opt[string]               `json:"address,omitzero"`
 	// Any of "solana".
 	ChainType SolanaSignMessageRpcInputChainType `json:"chain_type,omitzero"`
@@ -1315,8 +1315,8 @@ const (
 // The properties Encoding, Message are required.
 type SolanaSignMessageRpcInputParams struct {
 	// Any of "base64".
-	Encoding string `json:"encoding,omitzero,required"`
-	Message  string `json:"message,required"`
+	Encoding string `json:"encoding,omitzero" api:"required"`
+	Message  string `json:"message" api:"required"`
 	paramObj
 }
 
@@ -1342,9 +1342,9 @@ const (
 
 // Response to the EVM `eth_signTransaction` RPC.
 type EthereumSignTransactionRpcResponse struct {
-	Data EthereumSignTransactionRpcResponseData `json:"data,required"`
+	Data EthereumSignTransactionRpcResponseData `json:"data" api:"required"`
 	// Any of "eth_signTransaction".
-	Method EthereumSignTransactionRpcResponseMethod `json:"method,required"`
+	Method EthereumSignTransactionRpcResponseMethod `json:"method" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Data        respjson.Field
@@ -1362,8 +1362,8 @@ func (r *EthereumSignTransactionRpcResponse) UnmarshalJSON(data []byte) error {
 
 type EthereumSignTransactionRpcResponseData struct {
 	// Any of "rlp".
-	Encoding          string `json:"encoding,required"`
-	SignedTransaction string `json:"signed_transaction,required"`
+	Encoding          string `json:"encoding" api:"required"`
+	SignedTransaction string `json:"signed_transaction" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Encoding          respjson.Field
@@ -1387,9 +1387,9 @@ const (
 
 // Response to the EVM `eth_sendTransaction` RPC.
 type EthereumSendTransactionRpcResponse struct {
-	Data EthereumSendTransactionRpcResponseData `json:"data,required"`
+	Data EthereumSendTransactionRpcResponseData `json:"data" api:"required"`
 	// Any of "eth_sendTransaction".
-	Method EthereumSendTransactionRpcResponseMethod `json:"method,required"`
+	Method EthereumSendTransactionRpcResponseMethod `json:"method" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Data        respjson.Field
@@ -1406,8 +1406,8 @@ func (r *EthereumSendTransactionRpcResponse) UnmarshalJSON(data []byte) error {
 }
 
 type EthereumSendTransactionRpcResponseData struct {
-	Caip2              string                                                   `json:"caip2,required"`
-	Hash               string                                                   `json:"hash,required"`
+	Caip2              string                                                   `json:"caip2" api:"required"`
+	Hash               string                                                   `json:"hash" api:"required"`
 	TransactionID      string                                                   `json:"transaction_id"`
 	TransactionRequest EthereumSendTransactionRpcResponseDataTransactionRequest `json:"transaction_request"`
 	UserOperationHash  string                                                   `json:"user_operation_hash"`
@@ -1469,12 +1469,12 @@ func (r *EthereumSendTransactionRpcResponseDataTransactionRequest) UnmarshalJSON
 }
 
 type EthereumSendTransactionRpcResponseDataTransactionRequestAuthorizationList struct {
-	ChainID  EthereumSendTransactionRpcResponseDataTransactionRequestAuthorizationListChainIDUnion `json:"chain_id,required"`
-	Contract string                                                                                `json:"contract,required"`
-	Nonce    EthereumSendTransactionRpcResponseDataTransactionRequestAuthorizationListNonceUnion   `json:"nonce,required"`
-	R        string                                                                                `json:"r,required"`
-	S        string                                                                                `json:"s,required"`
-	YParity  float64                                                                               `json:"y_parity,required"`
+	ChainID  EthereumSendTransactionRpcResponseDataTransactionRequestAuthorizationListChainIDUnion `json:"chain_id" api:"required"`
+	Contract string                                                                                `json:"contract" api:"required"`
+	Nonce    EthereumSendTransactionRpcResponseDataTransactionRequestAuthorizationListNonceUnion   `json:"nonce" api:"required"`
+	R        string                                                                                `json:"r" api:"required"`
+	S        string                                                                                `json:"s" api:"required"`
+	YParity  float64                                                                               `json:"y_parity" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ChainID     respjson.Field
@@ -1846,9 +1846,9 @@ const (
 
 // Response to the EVM `personal_sign` RPC.
 type EthereumPersonalSignRpcResponse struct {
-	Data EthereumPersonalSignRpcResponseData `json:"data,required"`
+	Data EthereumPersonalSignRpcResponseData `json:"data" api:"required"`
 	// Any of "personal_sign".
-	Method EthereumPersonalSignRpcResponseMethod `json:"method,required"`
+	Method EthereumPersonalSignRpcResponseMethod `json:"method" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Data        respjson.Field
@@ -1866,8 +1866,8 @@ func (r *EthereumPersonalSignRpcResponse) UnmarshalJSON(data []byte) error {
 
 type EthereumPersonalSignRpcResponseData struct {
 	// Any of "hex".
-	Encoding  string `json:"encoding,required"`
-	Signature string `json:"signature,required"`
+	Encoding  string `json:"encoding" api:"required"`
+	Signature string `json:"signature" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Encoding    respjson.Field
@@ -1891,9 +1891,9 @@ const (
 
 // Response to the EVM `eth_signTypedData_v4` RPC.
 type EthereumSignTypedDataRpcResponse struct {
-	Data EthereumSignTypedDataRpcResponseData `json:"data,required"`
+	Data EthereumSignTypedDataRpcResponseData `json:"data" api:"required"`
 	// Any of "eth_signTypedData_v4".
-	Method EthereumSignTypedDataRpcResponseMethod `json:"method,required"`
+	Method EthereumSignTypedDataRpcResponseMethod `json:"method" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Data        respjson.Field
@@ -1911,8 +1911,8 @@ func (r *EthereumSignTypedDataRpcResponse) UnmarshalJSON(data []byte) error {
 
 type EthereumSignTypedDataRpcResponseData struct {
 	// Any of "hex".
-	Encoding  string `json:"encoding,required"`
-	Signature string `json:"signature,required"`
+	Encoding  string `json:"encoding" api:"required"`
+	Signature string `json:"signature" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Encoding    respjson.Field
@@ -1936,9 +1936,9 @@ const (
 
 // Response to the EVM `eth_signUserOperation` RPC.
 type EthereumSignUserOperationRpcResponse struct {
-	Data EthereumSignUserOperationRpcResponseData `json:"data,required"`
+	Data EthereumSignUserOperationRpcResponseData `json:"data" api:"required"`
 	// Any of "eth_signUserOperation".
-	Method EthereumSignUserOperationRpcResponseMethod `json:"method,required"`
+	Method EthereumSignUserOperationRpcResponseMethod `json:"method" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Data        respjson.Field
@@ -1956,8 +1956,8 @@ func (r *EthereumSignUserOperationRpcResponse) UnmarshalJSON(data []byte) error 
 
 type EthereumSignUserOperationRpcResponseData struct {
 	// Any of "hex".
-	Encoding  string `json:"encoding,required"`
-	Signature string `json:"signature,required"`
+	Encoding  string `json:"encoding" api:"required"`
+	Signature string `json:"signature" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Encoding    respjson.Field
@@ -1981,9 +1981,9 @@ const (
 
 // Response to the EVM `eth_sign7702Authorization` RPC.
 type EthereumSign7702AuthorizationRpcResponse struct {
-	Data EthereumSign7702AuthorizationRpcResponseData `json:"data,required"`
+	Data EthereumSign7702AuthorizationRpcResponseData `json:"data" api:"required"`
 	// Any of "eth_sign7702Authorization".
-	Method EthereumSign7702AuthorizationRpcResponseMethod `json:"method,required"`
+	Method EthereumSign7702AuthorizationRpcResponseMethod `json:"method" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Data        respjson.Field
@@ -2000,7 +2000,7 @@ func (r *EthereumSign7702AuthorizationRpcResponse) UnmarshalJSON(data []byte) er
 }
 
 type EthereumSign7702AuthorizationRpcResponseData struct {
-	Authorization EthereumSign7702AuthorizationRpcResponseDataAuthorization `json:"authorization,required"`
+	Authorization EthereumSign7702AuthorizationRpcResponseDataAuthorization `json:"authorization" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Authorization respjson.Field
@@ -2016,12 +2016,12 @@ func (r *EthereumSign7702AuthorizationRpcResponseData) UnmarshalJSON(data []byte
 }
 
 type EthereumSign7702AuthorizationRpcResponseDataAuthorization struct {
-	ChainID  EthereumSign7702AuthorizationRpcResponseDataAuthorizationChainIDUnion `json:"chain_id,required"`
-	Contract string                                                                `json:"contract,required"`
-	Nonce    EthereumSign7702AuthorizationRpcResponseDataAuthorizationNonceUnion   `json:"nonce,required"`
-	R        string                                                                `json:"r,required"`
-	S        string                                                                `json:"s,required"`
-	YParity  float64                                                               `json:"y_parity,required"`
+	ChainID  EthereumSign7702AuthorizationRpcResponseDataAuthorizationChainIDUnion `json:"chain_id" api:"required"`
+	Contract string                                                                `json:"contract" api:"required"`
+	Nonce    EthereumSign7702AuthorizationRpcResponseDataAuthorizationNonceUnion   `json:"nonce" api:"required"`
+	R        string                                                                `json:"r" api:"required"`
+	S        string                                                                `json:"s" api:"required"`
+	YParity  float64                                                               `json:"y_parity" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ChainID     respjson.Field
@@ -2127,9 +2127,9 @@ const (
 
 // Response to the EVM `secp256k1_sign` RPC.
 type EthereumSecp256k1SignRpcResponse struct {
-	Data EthereumSecp256k1SignRpcResponseData `json:"data,required"`
+	Data EthereumSecp256k1SignRpcResponseData `json:"data" api:"required"`
 	// Any of "secp256k1_sign".
-	Method EthereumSecp256k1SignRpcResponseMethod `json:"method,required"`
+	Method EthereumSecp256k1SignRpcResponseMethod `json:"method" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Data        respjson.Field
@@ -2147,8 +2147,8 @@ func (r *EthereumSecp256k1SignRpcResponse) UnmarshalJSON(data []byte) error {
 
 type EthereumSecp256k1SignRpcResponseData struct {
 	// Any of "hex".
-	Encoding  string `json:"encoding,required"`
-	Signature string `json:"signature,required"`
+	Encoding  string `json:"encoding" api:"required"`
+	Signature string `json:"signature" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Encoding    respjson.Field
@@ -2172,9 +2172,9 @@ const (
 
 // Response to the SVM `signTransaction` RPC.
 type SolanaSignTransactionRpcResponse struct {
-	Data SolanaSignTransactionRpcResponseData `json:"data,required"`
+	Data SolanaSignTransactionRpcResponseData `json:"data" api:"required"`
 	// Any of "signTransaction".
-	Method SolanaSignTransactionRpcResponseMethod `json:"method,required"`
+	Method SolanaSignTransactionRpcResponseMethod `json:"method" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Data        respjson.Field
@@ -2192,8 +2192,8 @@ func (r *SolanaSignTransactionRpcResponse) UnmarshalJSON(data []byte) error {
 
 type SolanaSignTransactionRpcResponseData struct {
 	// Any of "base64".
-	Encoding          string `json:"encoding,required"`
-	SignedTransaction string `json:"signed_transaction,required"`
+	Encoding          string `json:"encoding" api:"required"`
+	SignedTransaction string `json:"signed_transaction" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Encoding          respjson.Field
@@ -2217,9 +2217,9 @@ const (
 
 // Response to the SVM `signAndSendTransaction` RPC.
 type SolanaSignAndSendTransactionRpcResponse struct {
-	Data SolanaSignAndSendTransactionRpcResponseData `json:"data,required"`
+	Data SolanaSignAndSendTransactionRpcResponseData `json:"data" api:"required"`
 	// Any of "signAndSendTransaction".
-	Method SolanaSignAndSendTransactionRpcResponseMethod `json:"method,required"`
+	Method SolanaSignAndSendTransactionRpcResponseMethod `json:"method" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Data        respjson.Field
@@ -2236,8 +2236,8 @@ func (r *SolanaSignAndSendTransactionRpcResponse) UnmarshalJSON(data []byte) err
 }
 
 type SolanaSignAndSendTransactionRpcResponseData struct {
-	Caip2         string `json:"caip2,required"`
-	Hash          string `json:"hash,required"`
+	Caip2         string `json:"caip2" api:"required"`
+	Hash          string `json:"hash" api:"required"`
 	TransactionID string `json:"transaction_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -2263,9 +2263,9 @@ const (
 
 // Response to the SVM `signMessage` RPC.
 type SolanaSignMessageRpcResponse struct {
-	Data SolanaSignMessageRpcResponseData `json:"data,required"`
+	Data SolanaSignMessageRpcResponseData `json:"data" api:"required"`
 	// Any of "signMessage".
-	Method SolanaSignMessageRpcResponseMethod `json:"method,required"`
+	Method SolanaSignMessageRpcResponseMethod `json:"method" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Data        respjson.Field
@@ -2283,8 +2283,8 @@ func (r *SolanaSignMessageRpcResponse) UnmarshalJSON(data []byte) error {
 
 type SolanaSignMessageRpcResponseData struct {
 	// Any of "base64".
-	Encoding  string `json:"encoding,required"`
-	Signature string `json:"signature,required"`
+	Encoding  string `json:"encoding" api:"required"`
+	Signature string `json:"signature" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Encoding    respjson.Field
@@ -2308,11 +2308,11 @@ const (
 
 type WalletInitImportResponse struct {
 	// The base64-encoded encryption public key to encrypt the wallet entropy with.
-	EncryptionPublicKey string `json:"encryption_public_key,required"`
+	EncryptionPublicKey string `json:"encryption_public_key" api:"required"`
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
 	//
 	// Any of "HPKE".
-	EncryptionType WalletInitImportResponseEncryptionType `json:"encryption_type,required"`
+	EncryptionType WalletInitImportResponseEncryptionType `json:"encryption_type" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		EncryptionPublicKey respjson.Field
@@ -2375,10 +2375,10 @@ func (r *WalletAuthenticateWithJwtResponseUnion) UnmarshalJSON(data []byte) erro
 
 type WalletAuthenticateWithJwtResponseWithEncryption struct {
 	// The encrypted authorization key data.
-	EncryptedAuthorizationKey WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey `json:"encrypted_authorization_key,required"`
+	EncryptedAuthorizationKey WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey `json:"encrypted_authorization_key" api:"required"`
 	// The expiration time of the authorization key in seconds since the epoch.
-	ExpiresAt float64  `json:"expires_at,required"`
-	Wallets   []Wallet `json:"wallets,required"`
+	ExpiresAt float64  `json:"expires_at" api:"required"`
+	Wallets   []Wallet `json:"wallets" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		EncryptedAuthorizationKey respjson.Field
@@ -2399,14 +2399,14 @@ func (r *WalletAuthenticateWithJwtResponseWithEncryption) UnmarshalJSON(data []b
 type WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey struct {
 	// The encrypted authorization key corresponding to the user's current
 	// authentication session.
-	Ciphertext string `json:"ciphertext,required"`
+	Ciphertext string `json:"ciphertext" api:"required"`
 	// Base64-encoded ephemeral public key used in the HPKE encryption process.
 	// Required for decryption.
-	EncapsulatedKey string `json:"encapsulated_key,required"`
+	EncapsulatedKey string `json:"encapsulated_key" api:"required"`
 	// The encryption type used. Currently only supports HPKE.
 	//
 	// Any of "HPKE".
-	EncryptionType string `json:"encryption_type,required"`
+	EncryptionType string `json:"encryption_type" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Ciphertext      respjson.Field
@@ -2427,10 +2427,10 @@ func (r *WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKe
 
 type WalletAuthenticateWithJwtResponseWithoutEncryption struct {
 	// The raw authorization key data.
-	AuthorizationKey string `json:"authorization_key,required"`
+	AuthorizationKey string `json:"authorization_key" api:"required"`
 	// The expiration time of the authorization key in seconds since the epoch.
-	ExpiresAt float64  `json:"expires_at,required"`
-	Wallets   []Wallet `json:"wallets,required"`
+	ExpiresAt float64  `json:"expires_at" api:"required"`
+	Wallets   []Wallet `json:"wallets" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		AuthorizationKey respjson.Field
@@ -2449,14 +2449,14 @@ func (r *WalletAuthenticateWithJwtResponseWithoutEncryption) UnmarshalJSON(data 
 
 type WalletExportResponse struct {
 	// The encrypted private key.
-	Ciphertext string `json:"ciphertext,required"`
+	Ciphertext string `json:"ciphertext" api:"required"`
 	// The base64-encoded encapsulated key that was generated during encryption, for
 	// use during decryption.
-	EncapsulatedKey string `json:"encapsulated_key,required"`
+	EncapsulatedKey string `json:"encapsulated_key" api:"required"`
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
 	//
 	// Any of "HPKE".
-	EncryptionType WalletExportResponseEncryptionType `json:"encryption_type,required"`
+	EncryptionType WalletExportResponseEncryptionType `json:"encryption_type" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Ciphertext      respjson.Field
@@ -2481,9 +2481,9 @@ const (
 )
 
 type WalletRawSignResponse struct {
-	Data WalletRawSignResponseData `json:"data,required"`
+	Data WalletRawSignResponseData `json:"data" api:"required"`
 	// Any of "raw_sign".
-	Method WalletRawSignResponseMethod `json:"method,required"`
+	Method WalletRawSignResponseMethod `json:"method" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Data        respjson.Field
@@ -2501,8 +2501,8 @@ func (r *WalletRawSignResponse) UnmarshalJSON(data []byte) error {
 
 type WalletRawSignResponseData struct {
 	// Any of "hex".
-	Encoding  string `json:"encoding,required"`
-	Signature string `json:"signature,required"`
+	Encoding  string `json:"encoding" api:"required"`
+	Signature string `json:"signature" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Encoding    respjson.Field
@@ -2715,7 +2715,7 @@ type WalletNewParams struct {
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
 	// "tron", "bitcoin-segwit", "near", "ton", "starknet", "spark".
-	ChainType WalletChainType `json:"chain_type,omitzero,required"`
+	ChainType WalletChainType `json:"chain_type,omitzero" api:"required"`
 	// The key quorum ID to set as the owner of the resource. If you provide this, do
 	// not specify an owner.
 	OwnerID param.Opt[string] `json:"owner_id,omitzero"`
@@ -2744,7 +2744,7 @@ func (r *WalletNewParams) UnmarshalJSON(data []byte) error {
 
 // The property SignerID is required.
 type WalletNewParamsAdditionalSigner struct {
-	SignerID string `json:"signer_id,required" format:"cuid2"`
+	SignerID string `json:"signer_id" api:"required" format:"cuid2"`
 	// The array of policy IDs that will be applied to wallet requests. If specified,
 	// this will override the base policy IDs set on the wallet.
 	OverridePolicyIDs []string `json:"override_policy_ids,omitzero" format:"cuid2"`
@@ -2781,7 +2781,7 @@ func (u *WalletNewParamsOwnerUnion) UnmarshalJSON(data []byte) error {
 //
 // The property PublicKey is required.
 type WalletNewParamsOwnerPublicKeyOwner struct {
-	PublicKey string `json:"public_key,required"`
+	PublicKey string `json:"public_key" api:"required"`
 	paramObj
 }
 
@@ -2799,7 +2799,7 @@ func (r *WalletNewParamsOwnerPublicKeyOwner) UnmarshalJSON(data []byte) error {
 //
 // The property UserID is required.
 type WalletNewParamsOwnerUserOwner struct {
-	UserID string `json:"user_id,required"`
+	UserID string `json:"user_id" api:"required"`
 	paramObj
 }
 
@@ -2838,7 +2838,7 @@ func (r *WalletUpdateParams) UnmarshalJSON(data []byte) error {
 
 // The property SignerID is required.
 type WalletUpdateParamsAdditionalSigner struct {
-	SignerID string `json:"signer_id,required" format:"cuid2"`
+	SignerID string `json:"signer_id" api:"required" format:"cuid2"`
 	// The array of policy IDs that will be applied to wallet requests. If specified,
 	// this will override the base policy IDs set on the wallet.
 	OverridePolicyIDs []string `json:"override_policy_ids,omitzero" format:"cuid2"`
@@ -2875,7 +2875,7 @@ func (u *WalletUpdateParamsOwnerUnion) UnmarshalJSON(data []byte) error {
 //
 // The property PublicKey is required.
 type WalletUpdateParamsOwnerPublicKeyOwner struct {
-	PublicKey string `json:"public_key,required"`
+	PublicKey string `json:"public_key" api:"required"`
 	paramObj
 }
 
@@ -2893,7 +2893,7 @@ func (r *WalletUpdateParamsOwnerPublicKeyOwner) UnmarshalJSON(data []byte) error
 //
 // The property UserID is required.
 type WalletUpdateParamsOwnerUserOwner struct {
-	UserID string `json:"user_id,required"`
+	UserID string `json:"user_id" api:"required"`
 	paramObj
 }
 
@@ -2959,22 +2959,22 @@ func (r *WalletInitImportParams) UnmarshalJSON(data []byte) error {
 // required.
 type WalletInitImportParamsBodyHD struct {
 	// The address of the wallet to import.
-	Address string `json:"address,required"`
+	Address string `json:"address" api:"required"`
 	// The chain type of the wallet to import. Currently supports `ethereum` and
 	// `solana`.
 	//
 	// Any of "ethereum", "solana".
-	ChainType string `json:"chain_type,omitzero,required"`
+	ChainType string `json:"chain_type,omitzero" api:"required"`
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
 	//
 	// Any of "HPKE".
-	EncryptionType string `json:"encryption_type,omitzero,required"`
+	EncryptionType string `json:"encryption_type,omitzero" api:"required"`
 	// The index of the wallet to import.
-	Index int64 `json:"index,required"`
+	Index int64 `json:"index" api:"required"`
 	// The entropy type of the wallet to import.
 	//
 	// This field can be elided, and will marshal its zero value as "hd".
-	EntropyType constant.HD `json:"entropy_type,required"`
+	EntropyType constant.HD `json:"entropy_type" api:"required"`
 	paramObj
 }
 
@@ -3000,18 +3000,18 @@ func init() {
 // The properties Address, ChainType, EncryptionType, EntropyType are required.
 type WalletInitImportParamsBodyPrivateKey struct {
 	// The address of the wallet to import.
-	Address string `json:"address,required"`
+	Address string `json:"address" api:"required"`
 	// The chain type of the wallet to import. Currently supports `ethereum` and
 	// `solana`.
 	//
 	// Any of "ethereum", "solana".
-	ChainType string `json:"chain_type,omitzero,required"`
+	ChainType string `json:"chain_type,omitzero" api:"required"`
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
 	//
 	// Any of "HPKE".
-	EncryptionType string `json:"encryption_type,omitzero,required"`
+	EncryptionType string `json:"encryption_type,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as "private-key".
-	EntropyType constant.PrivateKey `json:"entropy_type,required"`
+	EntropyType constant.PrivateKey `json:"entropy_type" api:"required"`
 	paramObj
 }
 
@@ -3033,7 +3033,7 @@ func init() {
 }
 
 type WalletSubmitImportParams struct {
-	Wallet            WalletSubmitImportParamsWalletUnion        `json:"wallet,omitzero,required"`
+	Wallet            WalletSubmitImportParamsWalletUnion        `json:"wallet,omitzero" api:"required"`
 	OwnerID           param.Opt[string]                          `json:"owner_id,omitzero" format:"cuid2"`
 	Owner             WalletSubmitImportParamsOwnerUnion         `json:"owner,omitzero"`
 	AdditionalSigners []WalletSubmitImportParamsAdditionalSigner `json:"additional_signers,omitzero"`
@@ -3077,23 +3077,23 @@ func init() {
 // EntropyType, Index are required.
 type WalletSubmitImportParamsWalletHD struct {
 	// The address of the wallet to import.
-	Address string `json:"address,required"`
+	Address string `json:"address" api:"required"`
 	// The chain type of the wallet to import. Currently supports `ethereum` and
 	// `solana`.
 	//
 	// Any of "ethereum", "solana".
-	ChainType string `json:"chain_type,omitzero,required"`
+	ChainType string `json:"chain_type,omitzero" api:"required"`
 	// The encrypted entropy of the wallet to import.
-	Ciphertext string `json:"ciphertext,required"`
+	Ciphertext string `json:"ciphertext" api:"required"`
 	// The base64-encoded encapsulated key that was generated during encryption, for
 	// use during decryption inside the TEE.
-	EncapsulatedKey string `json:"encapsulated_key,required"`
+	EncapsulatedKey string `json:"encapsulated_key" api:"required"`
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
 	//
 	// Any of "HPKE".
-	EncryptionType string `json:"encryption_type,omitzero,required"`
+	EncryptionType string `json:"encryption_type,omitzero" api:"required"`
 	// The index of the wallet to import.
-	Index int64 `json:"index,required"`
+	Index int64 `json:"index" api:"required"`
 	// Optional HPKE configuration for wallet import decryption. These parameters allow
 	// importing wallets encrypted by external providers that use different HPKE
 	// configurations.
@@ -3101,7 +3101,7 @@ type WalletSubmitImportParamsWalletHD struct {
 	// The entropy type of the wallet to import.
 	//
 	// This field can be elided, and will marshal its zero value as "hd".
-	EntropyType constant.HD `json:"entropy_type,required"`
+	EntropyType constant.HD `json:"entropy_type" api:"required"`
 	paramObj
 }
 
@@ -3126,27 +3126,27 @@ func init() {
 // EntropyType are required.
 type WalletSubmitImportParamsWalletPrivateKey struct {
 	// The address of the wallet to import.
-	Address string `json:"address,required"`
+	Address string `json:"address" api:"required"`
 	// The chain type of the wallet to import. Currently supports `ethereum` and
 	// `solana`.
 	//
 	// Any of "ethereum", "solana".
-	ChainType string `json:"chain_type,omitzero,required"`
+	ChainType string `json:"chain_type,omitzero" api:"required"`
 	// The encrypted entropy of the wallet to import.
-	Ciphertext string `json:"ciphertext,required"`
+	Ciphertext string `json:"ciphertext" api:"required"`
 	// The base64-encoded encapsulated key that was generated during encryption, for
 	// use during decryption inside the TEE.
-	EncapsulatedKey string `json:"encapsulated_key,required"`
+	EncapsulatedKey string `json:"encapsulated_key" api:"required"`
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
 	//
 	// Any of "HPKE".
-	EncryptionType string `json:"encryption_type,omitzero,required"`
+	EncryptionType string `json:"encryption_type,omitzero" api:"required"`
 	// Optional HPKE configuration for wallet import decryption. These parameters allow
 	// importing wallets encrypted by external providers that use different HPKE
 	// configurations.
 	HpkeConfig HpkeImportConfig `json:"hpke_config,omitzero"`
 	// This field can be elided, and will marshal its zero value as "private-key".
-	EntropyType constant.PrivateKey `json:"entropy_type,required"`
+	EntropyType constant.PrivateKey `json:"entropy_type" api:"required"`
 	paramObj
 }
 
@@ -3169,7 +3169,7 @@ func init() {
 
 // The property SignerID is required.
 type WalletSubmitImportParamsAdditionalSigner struct {
-	SignerID          string   `json:"signer_id,required" format:"cuid2"`
+	SignerID          string   `json:"signer_id" api:"required" format:"cuid2"`
 	OverridePolicyIDs []string `json:"override_policy_ids,omitzero" format:"cuid2"`
 	paramObj
 }
@@ -3200,7 +3200,7 @@ func (u *WalletSubmitImportParamsOwnerUnion) UnmarshalJSON(data []byte) error {
 
 // The property UserID is required.
 type WalletSubmitImportParamsOwnerUserID struct {
-	UserID string `json:"user_id,required"`
+	UserID string `json:"user_id" api:"required"`
 	paramObj
 }
 
@@ -3214,7 +3214,7 @@ func (r *WalletSubmitImportParamsOwnerUserID) UnmarshalJSON(data []byte) error {
 
 // The property PublicKey is required.
 type WalletSubmitImportParamsOwnerPublicKey struct {
-	PublicKey string `json:"public_key,required"`
+	PublicKey string `json:"public_key" api:"required"`
 	paramObj
 }
 
@@ -3228,7 +3228,7 @@ func (r *WalletSubmitImportParamsOwnerPublicKey) UnmarshalJSON(data []byte) erro
 
 type WalletAuthenticateWithJwtParams struct {
 	// The user's JWT, to be used to authenticate the user.
-	UserJwt string `json:"user_jwt,required"`
+	UserJwt string `json:"user_jwt" api:"required"`
 	// The public key of your ECDH keypair, in base64-encoded, SPKI-format, whose
 	// private key will be able to decrypt the session key.
 	RecipientPublicKey param.Opt[string] `json:"recipient_public_key,omitzero"`
@@ -3260,9 +3260,9 @@ type WalletExportParams struct {
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
 	//
 	// Any of "HPKE".
-	EncryptionType WalletExportParamsEncryptionType `json:"encryption_type,omitzero,required"`
+	EncryptionType WalletExportParamsEncryptionType `json:"encryption_type,omitzero" api:"required"`
 	// The base64-encoded encryption public key to encrypt the wallet private key with.
-	RecipientPublicKey string `json:"recipient_public_key,required"`
+	RecipientPublicKey string `json:"recipient_public_key" api:"required"`
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.
 	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
@@ -3286,7 +3286,7 @@ const (
 
 type WalletRawSignParams struct {
 	// Sign a pre-computed hash
-	Params WalletRawSignParamsParamsUnion `json:"params,omitzero,required"`
+	Params WalletRawSignParamsParamsUnion `json:"params,omitzero" api:"required"`
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.
 	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
@@ -3325,7 +3325,7 @@ func (u *WalletRawSignParamsParamsUnion) UnmarshalJSON(data []byte) error {
 // The property Hash is required.
 type WalletRawSignParamsParamsHash struct {
 	// The hash to sign. Must start with `0x`.
-	Hash string `json:"hash,required"`
+	Hash string `json:"hash" api:"required"`
 	paramObj
 }
 
@@ -3342,15 +3342,15 @@ func (r *WalletRawSignParamsParamsHash) UnmarshalJSON(data []byte) error {
 // The properties Bytes, Encoding, HashFunction are required.
 type WalletRawSignParamsParamsBytes struct {
 	// The bytes to hash and sign.
-	Bytes string `json:"bytes,required"`
+	Bytes string `json:"bytes" api:"required"`
 	// The encoding scheme for the bytes.
 	//
 	// Any of "utf-8", "hex", "base64".
-	Encoding string `json:"encoding,omitzero,required"`
+	Encoding string `json:"encoding,omitzero" api:"required"`
 	// The hash function to hash the bytes.
 	//
 	// Any of "keccak256", "sha256", "blake2b256".
-	HashFunction string `json:"hash_function,omitzero,required"`
+	HashFunction string `json:"hash_function,omitzero" api:"required"`
 	paramObj
 }
 

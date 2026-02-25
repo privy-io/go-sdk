@@ -1,46 +1,17 @@
 package e2e_test
 
 import (
-	"context"
-	"os"
 	"testing"
 
 	. "github.com/privy-io/go-sdk"
-	"github.com/privy-io/go-sdk/authorization"
 	"github.com/privy-io/go-sdk/packages/param"
 )
 
 func TestWallets_Ethereum(t *testing.T) {
 	client := newTestClient(t)
-	ctx := context.Background()
-	jwt := generateTestJWT(t)
-	sk := os.Getenv("P256_PRIVATE_KEY")
-
-	wallets := []struct {
-		name    string
-		id      string
-		address string
-		authCtx *authorization.AuthorizationContext
-	}{
-		{
-			name:    "Ownerless",
-			id:      os.Getenv("OWNERLESS_ETHEREUM_WALLET_ID"),
-			address: os.Getenv("OWNERLESS_ETHEREUM_WALLET_ADDRESS"),
-			authCtx: nil, // no authorization context for ownerless
-		},
-		{
-			name:    "KeyOwned",
-			id:      os.Getenv("P256_OWNED_ETHEREUM_WALLET_ID"),
-			address: os.Getenv("P256_OWNED_ETHEREUM_WALLET_ADDRESS"),
-			authCtx: &authorization.AuthorizationContext{PrivateKeys: []string{sk}},
-		},
-		{
-			name:    "UserOwned",
-			id:      os.Getenv("USER_OWNED_ETHEREUM_WALLET_ID"),
-			address: os.Getenv("USER_OWNED_ETHEREUM_WALLET_ADDRESS"),
-			authCtx: &authorization.AuthorizationContext{UserJwts: []string{jwt}},
-		},
-	}
+	res := setupTestWalletResources(t, client)
+	ctx := res.ctx
+	wallets := res.createTestWallets(t, WalletChainTypeEthereum)
 
 	t.Run("Sign7702Authorization", func(t *testing.T) {
 		for _, wallet := range wallets {

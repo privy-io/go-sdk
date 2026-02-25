@@ -164,22 +164,22 @@ func (r *PolicyService) UpdateRule(ctx context.Context, ruleID string, params Po
 type Policy struct {
 	// Unique ID of the created policy. This will be the primary identifier when using
 	// the policy in the future.
-	ID string `json:"id,required"`
+	ID string `json:"id" api:"required"`
 	// The chain type the policy applies to.
 	//
 	// Any of "ethereum", "solana", "tron", "sui".
-	ChainType PolicyChainType `json:"chain_type,required"`
+	ChainType PolicyChainType `json:"chain_type" api:"required"`
 	// Unix timestamp of when the policy was created in milliseconds.
-	CreatedAt float64 `json:"created_at,required"`
+	CreatedAt float64 `json:"created_at" api:"required"`
 	// Name to assign to policy.
-	Name string `json:"name,required"`
+	Name string `json:"name" api:"required"`
 	// The key quorum ID of the owner of the policy.
-	OwnerID string       `json:"owner_id,required" format:"cuid2"`
-	Rules   []PolicyRule `json:"rules,required"`
+	OwnerID string       `json:"owner_id" api:"required" format:"cuid2"`
+	Rules   []PolicyRule `json:"rules" api:"required"`
 	// Version of the policy. Currently, 1.0 is the only version.
 	//
 	// Any of "1.0".
-	Version PolicyVersion `json:"version,required"`
+	Version PolicyVersion `json:"version" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID          respjson.Field
@@ -213,19 +213,19 @@ const (
 // A rule that defines the conditions and action to take if the conditions are
 // true.
 type PolicyRule struct {
-	ID string `json:"id,required"`
+	ID string `json:"id" api:"required"`
 	// Action to take if the conditions are true.
 	//
 	// Any of "ALLOW", "DENY".
-	Action     string                     `json:"action,required"`
-	Conditions []PolicyRuleConditionUnion `json:"conditions,required"`
+	Action     string                     `json:"action" api:"required"`
+	Conditions []PolicyRuleConditionUnion `json:"conditions" api:"required"`
 	// Method the rule applies to.
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "eth_sign7702Authorization", "signTransaction",
 	// "signAndSendTransaction", "exportPrivateKey", "signTransactionBytes", "\*".
-	Method string `json:"method,required"`
-	Name   string `json:"name,required"`
+	Method string `json:"method" api:"required"`
+	Name   string `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID          respjson.Field
@@ -467,11 +467,11 @@ func (r *PolicyRuleConditionUnionValue) UnmarshalJSON(data []byte) error {
 // eth_sendTransaction request.
 type PolicyRuleConditionEthereumTransaction struct {
 	// Any of "to", "value", "chain_id".
-	Field       string                       `json:"field,required"`
-	FieldSource constant.EthereumTransaction `json:"field_source,required"`
+	Field       string                       `json:"field" api:"required"`
+	FieldSource constant.EthereumTransaction `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                           `json:"operator,required"`
-	Value    PolicyRuleConditionEthereumTransactionValueUnion `json:"value,required"`
+	Operator string                                           `json:"operator" api:"required"`
+	Value    PolicyRuleConditionEthereumTransactionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -529,12 +529,12 @@ func (r *PolicyRuleConditionEthereumTransactionValueUnion) UnmarshalJSON(data []
 // method's parameters. Note that that 'ethereum_calldata' conditions must contain
 // an abi parameter with the JSON ABI of the smart contract.
 type PolicyRuleConditionEthereumCalldata struct {
-	Abi         any                       `json:"abi,required"`
-	Field       string                    `json:"field,required"`
-	FieldSource constant.EthereumCalldata `json:"field_source,required"`
+	Abi         any                       `json:"abi" api:"required"`
+	Field       string                    `json:"field" api:"required"`
+	FieldSource constant.EthereumCalldata `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                        `json:"operator,required"`
-	Value    PolicyRuleConditionEthereumCalldataValueUnion `json:"value,required"`
+	Operator string                                        `json:"operator" api:"required"`
+	Value    PolicyRuleConditionEthereumCalldataValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Abi         respjson.Field
@@ -592,11 +592,11 @@ func (r *PolicyRuleConditionEthereumCalldataValueUnion) UnmarshalJSON(data []byt
 // Attributes from the signing domain that will verify the signature.
 type PolicyRuleConditionEthereumTypedDataDomain struct {
 	// Any of "chainId", "verifyingContract".
-	Field       string                           `json:"field,required"`
-	FieldSource constant.EthereumTypedDataDomain `json:"field_source,required"`
+	Field       string                           `json:"field" api:"required"`
+	FieldSource constant.EthereumTypedDataDomain `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                               `json:"operator,required"`
-	Value    PolicyRuleConditionEthereumTypedDataDomainValueUnion `json:"value,required"`
+	Operator string                                               `json:"operator" api:"required"`
+	Value    PolicyRuleConditionEthereumTypedDataDomainValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -653,12 +653,12 @@ func (r *PolicyRuleConditionEthereumTypedDataDomainValueUnion) UnmarshalJSON(dat
 // 'types' and 'primary_type' attributes of the TypedData JSON object defined in
 // EIP-712.
 type PolicyRuleConditionEthereumTypedDataMessage struct {
-	Field       string                            `json:"field,required"`
-	FieldSource constant.EthereumTypedDataMessage `json:"field_source,required"`
+	Field       string                            `json:"field" api:"required"`
+	FieldSource constant.EthereumTypedDataMessage `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator  string                                                `json:"operator,required"`
-	TypedData PolicyRuleConditionEthereumTypedDataMessageTypedData  `json:"typed_data,required"`
-	Value     PolicyRuleConditionEthereumTypedDataMessageValueUnion `json:"value,required"`
+	Operator  string                                                `json:"operator" api:"required"`
+	TypedData PolicyRuleConditionEthereumTypedDataMessageTypedData  `json:"typed_data" api:"required"`
+	Value     PolicyRuleConditionEthereumTypedDataMessageValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -678,8 +678,8 @@ func (r *PolicyRuleConditionEthereumTypedDataMessage) UnmarshalJSON(data []byte)
 }
 
 type PolicyRuleConditionEthereumTypedDataMessageTypedData struct {
-	PrimaryType string                                                                `json:"primary_type,required"`
-	Types       map[string][]PolicyRuleConditionEthereumTypedDataMessageTypedDataType `json:"types,required"`
+	PrimaryType string                                                                `json:"primary_type" api:"required"`
+	Types       map[string][]PolicyRuleConditionEthereumTypedDataMessageTypedDataType `json:"types" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		PrimaryType respjson.Field
@@ -696,8 +696,8 @@ func (r *PolicyRuleConditionEthereumTypedDataMessageTypedData) UnmarshalJSON(dat
 }
 
 type PolicyRuleConditionEthereumTypedDataMessageTypedDataType struct {
-	Name string `json:"name,required"`
-	Type string `json:"type,required"`
+	Name string `json:"name" api:"required"`
+	Type string `json:"type" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Name        respjson.Field
@@ -752,11 +752,11 @@ func (r *PolicyRuleConditionEthereumTypedDataMessageValueUnion) UnmarshalJSON(da
 // Allowed contract addresses for eth_sign7702Authorization requests.
 type PolicyRuleConditionEthereum7702Authorization struct {
 	// Any of "contract".
-	Field       string                             `json:"field,required"`
-	FieldSource constant.Ethereum7702Authorization `json:"field_source,required"`
+	Field       string                             `json:"field" api:"required"`
+	FieldSource constant.Ethereum7702Authorization `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                 `json:"operator,required"`
-	Value    PolicyRuleConditionEthereum7702AuthorizationValueUnion `json:"value,required"`
+	Operator string                                                 `json:"operator" api:"required"`
+	Value    PolicyRuleConditionEthereum7702AuthorizationValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -813,11 +813,11 @@ func (r *PolicyRuleConditionEthereum7702AuthorizationValueUnion) UnmarshalJSON(d
 // Solana Program attributes, enables allowlisting Solana Programs.
 type PolicyRuleConditionSolanaProgramInstruction struct {
 	// Any of "programId".
-	Field       string                            `json:"field,required"`
-	FieldSource constant.SolanaProgramInstruction `json:"field_source,required"`
+	Field       string                            `json:"field" api:"required"`
+	FieldSource constant.SolanaProgramInstruction `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                `json:"operator,required"`
-	Value    PolicyRuleConditionSolanaProgramInstructionValueUnion `json:"value,required"`
+	Operator string                                                `json:"operator" api:"required"`
+	Value    PolicyRuleConditionSolanaProgramInstructionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -875,11 +875,11 @@ func (r *PolicyRuleConditionSolanaProgramInstructionValueUnion) UnmarshalJSON(da
 // fields.
 type PolicyRuleConditionSolanaSystemProgramInstruction struct {
 	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
-	Field       string                                  `json:"field,required"`
-	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source,required"`
+	Field       string                                  `json:"field" api:"required"`
+	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                      `json:"operator,required"`
-	Value    PolicyRuleConditionSolanaSystemProgramInstructionValueUnion `json:"value,required"`
+	Operator string                                                      `json:"operator" api:"required"`
+	Value    PolicyRuleConditionSolanaSystemProgramInstructionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -941,11 +941,11 @@ type PolicyRuleConditionSolanaTokenProgramInstruction struct {
 	// Any of "instructionName", "TransferChecked.source",
 	// "TransferChecked.destination", "TransferChecked.authority",
 	// "TransferChecked.amount", "TransferChecked.mint".
-	Field       string                                 `json:"field,required"`
-	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source,required"`
+	Field       string                                 `json:"field" api:"required"`
+	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                     `json:"operator,required"`
-	Value    PolicyRuleConditionSolanaTokenProgramInstructionValueUnion `json:"value,required"`
+	Operator string                                                     `json:"operator" api:"required"`
+	Value    PolicyRuleConditionSolanaTokenProgramInstructionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -1004,11 +1004,11 @@ func (r *PolicyRuleConditionSolanaTokenProgramInstructionValueUnion) UnmarshalJS
 // System attributes, including current unix timestamp (in seconds).
 type PolicyRuleConditionSystem struct {
 	// Any of "current_unix_timestamp".
-	Field       string          `json:"field,required"`
-	FieldSource constant.System `json:"field_source,required"`
+	Field       string          `json:"field" api:"required"`
+	FieldSource constant.System `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                              `json:"operator,required"`
-	Value    PolicyRuleConditionSystemValueUnion `json:"value,required"`
+	Operator string                              `json:"operator" api:"required"`
+	Value    PolicyRuleConditionSystemValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -1095,12 +1095,12 @@ type TronTransactionCondition struct {
 	// Any of "TransferContract.to_address", "TransferContract.amount",
 	// "TriggerSmartContract.contract_address", "TriggerSmartContract.call_value",
 	// "TriggerSmartContract.token_id", "TriggerSmartContract.call_token_value".
-	Field TronTransactionConditionField `json:"field,required"`
+	Field TronTransactionConditionField `json:"field" api:"required"`
 	// Any of "tron_transaction".
-	FieldSource TronTransactionConditionFieldSource `json:"field_source,required"`
+	FieldSource TronTransactionConditionFieldSource `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator TronTransactionConditionOperator   `json:"operator,required"`
-	Value    TronTransactionConditionValueUnion `json:"value,required"`
+	Operator TronTransactionConditionOperator   `json:"operator" api:"required"`
+	Value    TronTransactionConditionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -1204,12 +1204,12 @@ type TronTransactionConditionParam struct {
 	// Any of "TransferContract.to_address", "TransferContract.amount",
 	// "TriggerSmartContract.contract_address", "TriggerSmartContract.call_value",
 	// "TriggerSmartContract.token_id", "TriggerSmartContract.call_token_value".
-	Field TronTransactionConditionField `json:"field,omitzero,required"`
+	Field TronTransactionConditionField `json:"field,omitzero" api:"required"`
 	// Any of "tron_transaction".
-	FieldSource TronTransactionConditionFieldSource `json:"field_source,omitzero,required"`
+	FieldSource TronTransactionConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator TronTransactionConditionOperator        `json:"operator,omitzero,required"`
-	Value    TronTransactionConditionValueUnionParam `json:"value,omitzero,required"`
+	Operator TronTransactionConditionOperator        `json:"operator,omitzero" api:"required"`
+	Value    TronTransactionConditionValueUnionParam `json:"value,omitzero" api:"required"`
 	paramObj
 }
 
@@ -1242,17 +1242,17 @@ func (u *TronTransactionConditionValueUnionParam) UnmarshalJSON(data []byte) err
 // 'in' operators are supported.
 type SuiTransactionCommandCondition struct {
 	// Any of "commandName".
-	Field SuiTransactionCommandConditionField `json:"field,required"`
+	Field SuiTransactionCommandConditionField `json:"field" api:"required"`
 	// Any of "sui_transaction_command".
-	FieldSource SuiTransactionCommandConditionFieldSource `json:"field_source,required"`
+	FieldSource SuiTransactionCommandConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for SUI transaction command conditions. Only 'eq' and 'in' are
 	// supported for command names.
 	//
 	// Any of "eq", "in".
-	Operator SuiTransactionCommandOperator `json:"operator,required"`
+	Operator SuiTransactionCommandOperator `json:"operator" api:"required"`
 	// Command name(s) to match. Must be one of: 'TransferObjects', 'SplitCoins',
 	// 'MergeCoins'
-	Value SuiTransactionCommandConditionValueUnion `json:"value,required"`
+	Value SuiTransactionCommandConditionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -1337,17 +1337,17 @@ func (r *SuiTransactionCommandConditionValueUnion) UnmarshalJSON(data []byte) er
 // The properties Field, FieldSource, Operator, Value are required.
 type SuiTransactionCommandConditionParam struct {
 	// Any of "commandName".
-	Field SuiTransactionCommandConditionField `json:"field,omitzero,required"`
+	Field SuiTransactionCommandConditionField `json:"field,omitzero" api:"required"`
 	// Any of "sui_transaction_command".
-	FieldSource SuiTransactionCommandConditionFieldSource `json:"field_source,omitzero,required"`
+	FieldSource SuiTransactionCommandConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for SUI transaction command conditions. Only 'eq' and 'in' are
 	// supported for command names.
 	//
 	// Any of "eq", "in".
-	Operator SuiTransactionCommandOperator `json:"operator,omitzero,required"`
+	Operator SuiTransactionCommandOperator `json:"operator,omitzero" api:"required"`
 	// Command name(s) to match. Must be one of: 'TransferObjects', 'SplitCoins',
 	// 'MergeCoins'
-	Value SuiTransactionCommandConditionValueUnionParam `json:"value,omitzero,required"`
+	Value SuiTransactionCommandConditionValueUnionParam `json:"value,omitzero" api:"required"`
 	paramObj
 }
 
@@ -1382,12 +1382,12 @@ type SuiTransferObjectsCommandCondition struct {
 	// and 'amount' are supported.
 	//
 	// Any of "recipient", "amount".
-	Field SuiTransferObjectsCommandField `json:"field,required"`
+	Field SuiTransferObjectsCommandField `json:"field" api:"required"`
 	// Any of "sui_transfer_objects_command".
-	FieldSource SuiTransferObjectsCommandConditionFieldSource `json:"field_source,required"`
+	FieldSource SuiTransferObjectsCommandConditionFieldSource `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator SuiTransferObjectsCommandConditionOperator   `json:"operator,required"`
-	Value    SuiTransferObjectsCommandConditionValueUnion `json:"value,required"`
+	Operator SuiTransferObjectsCommandConditionOperator   `json:"operator" api:"required"`
+	Value    SuiTransferObjectsCommandConditionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -1477,12 +1477,12 @@ type SuiTransferObjectsCommandConditionParam struct {
 	// and 'amount' are supported.
 	//
 	// Any of "recipient", "amount".
-	Field SuiTransferObjectsCommandField `json:"field,omitzero,required"`
+	Field SuiTransferObjectsCommandField `json:"field,omitzero" api:"required"`
 	// Any of "sui_transfer_objects_command".
-	FieldSource SuiTransferObjectsCommandConditionFieldSource `json:"field_source,omitzero,required"`
+	FieldSource SuiTransferObjectsCommandConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator SuiTransferObjectsCommandConditionOperator        `json:"operator,omitzero,required"`
-	Value    SuiTransferObjectsCommandConditionValueUnionParam `json:"value,omitzero,required"`
+	Operator SuiTransferObjectsCommandConditionOperator        `json:"operator,omitzero" api:"required"`
+	Value    SuiTransferObjectsCommandConditionValueUnionParam `json:"value,omitzero" api:"required"`
 	paramObj
 }
 
@@ -1512,7 +1512,7 @@ func (u *SuiTransferObjectsCommandConditionValueUnionParam) UnmarshalJSON(data [
 
 type PolicyDeleteResponse struct {
 	// Whether the policy was deleted successfully.
-	Success bool `json:"success,required"`
+	Success bool `json:"success" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Success     respjson.Field
@@ -1530,19 +1530,19 @@ func (r *PolicyDeleteResponse) UnmarshalJSON(data []byte) error {
 // A rule that defines the conditions and action to take if the conditions are
 // true.
 type PolicyNewRuleResponse struct {
-	ID string `json:"id,required"`
+	ID string `json:"id" api:"required"`
 	// Action to take if the conditions are true.
 	//
 	// Any of "ALLOW", "DENY".
-	Action     PolicyNewRuleResponseAction           `json:"action,required"`
-	Conditions []PolicyNewRuleResponseConditionUnion `json:"conditions,required"`
+	Action     PolicyNewRuleResponseAction           `json:"action" api:"required"`
+	Conditions []PolicyNewRuleResponseConditionUnion `json:"conditions" api:"required"`
 	// Method the rule applies to.
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "eth_sign7702Authorization", "signTransaction",
 	// "signAndSendTransaction", "exportPrivateKey", "signTransactionBytes", "\*".
-	Method PolicyNewRuleResponseMethod `json:"method,required"`
-	Name   string                      `json:"name,required"`
+	Method PolicyNewRuleResponseMethod `json:"method" api:"required"`
+	Name   string                      `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID          respjson.Field
@@ -1803,11 +1803,11 @@ func (r *PolicyNewRuleResponseConditionUnionValue) UnmarshalJSON(data []byte) er
 // eth_sendTransaction request.
 type PolicyNewRuleResponseConditionEthereumTransaction struct {
 	// Any of "to", "value", "chain_id".
-	Field       string                       `json:"field,required"`
-	FieldSource constant.EthereumTransaction `json:"field_source,required"`
+	Field       string                       `json:"field" api:"required"`
+	FieldSource constant.EthereumTransaction `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                      `json:"operator,required"`
-	Value    PolicyNewRuleResponseConditionEthereumTransactionValueUnion `json:"value,required"`
+	Operator string                                                      `json:"operator" api:"required"`
+	Value    PolicyNewRuleResponseConditionEthereumTransactionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -1867,12 +1867,12 @@ func (r *PolicyNewRuleResponseConditionEthereumTransactionValueUnion) UnmarshalJ
 // method's parameters. Note that that 'ethereum_calldata' conditions must contain
 // an abi parameter with the JSON ABI of the smart contract.
 type PolicyNewRuleResponseConditionEthereumCalldata struct {
-	Abi         any                       `json:"abi,required"`
-	Field       string                    `json:"field,required"`
-	FieldSource constant.EthereumCalldata `json:"field_source,required"`
+	Abi         any                       `json:"abi" api:"required"`
+	Field       string                    `json:"field" api:"required"`
+	FieldSource constant.EthereumCalldata `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                   `json:"operator,required"`
-	Value    PolicyNewRuleResponseConditionEthereumCalldataValueUnion `json:"value,required"`
+	Operator string                                                   `json:"operator" api:"required"`
+	Value    PolicyNewRuleResponseConditionEthereumCalldataValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Abi         respjson.Field
@@ -1930,11 +1930,11 @@ func (r *PolicyNewRuleResponseConditionEthereumCalldataValueUnion) UnmarshalJSON
 // Attributes from the signing domain that will verify the signature.
 type PolicyNewRuleResponseConditionEthereumTypedDataDomain struct {
 	// Any of "chainId", "verifyingContract".
-	Field       string                           `json:"field,required"`
-	FieldSource constant.EthereumTypedDataDomain `json:"field_source,required"`
+	Field       string                           `json:"field" api:"required"`
+	FieldSource constant.EthereumTypedDataDomain `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                          `json:"operator,required"`
-	Value    PolicyNewRuleResponseConditionEthereumTypedDataDomainValueUnion `json:"value,required"`
+	Operator string                                                          `json:"operator" api:"required"`
+	Value    PolicyNewRuleResponseConditionEthereumTypedDataDomainValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -1993,12 +1993,12 @@ func (r *PolicyNewRuleResponseConditionEthereumTypedDataDomainValueUnion) Unmars
 // 'types' and 'primary_type' attributes of the TypedData JSON object defined in
 // EIP-712.
 type PolicyNewRuleResponseConditionEthereumTypedDataMessage struct {
-	Field       string                            `json:"field,required"`
-	FieldSource constant.EthereumTypedDataMessage `json:"field_source,required"`
+	Field       string                            `json:"field" api:"required"`
+	FieldSource constant.EthereumTypedDataMessage `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator  string                                                           `json:"operator,required"`
-	TypedData PolicyNewRuleResponseConditionEthereumTypedDataMessageTypedData  `json:"typed_data,required"`
-	Value     PolicyNewRuleResponseConditionEthereumTypedDataMessageValueUnion `json:"value,required"`
+	Operator  string                                                           `json:"operator" api:"required"`
+	TypedData PolicyNewRuleResponseConditionEthereumTypedDataMessageTypedData  `json:"typed_data" api:"required"`
+	Value     PolicyNewRuleResponseConditionEthereumTypedDataMessageValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -2018,8 +2018,8 @@ func (r *PolicyNewRuleResponseConditionEthereumTypedDataMessage) UnmarshalJSON(d
 }
 
 type PolicyNewRuleResponseConditionEthereumTypedDataMessageTypedData struct {
-	PrimaryType string                                                                           `json:"primary_type,required"`
-	Types       map[string][]PolicyNewRuleResponseConditionEthereumTypedDataMessageTypedDataType `json:"types,required"`
+	PrimaryType string                                                                           `json:"primary_type" api:"required"`
+	Types       map[string][]PolicyNewRuleResponseConditionEthereumTypedDataMessageTypedDataType `json:"types" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		PrimaryType respjson.Field
@@ -2038,8 +2038,8 @@ func (r *PolicyNewRuleResponseConditionEthereumTypedDataMessageTypedData) Unmars
 }
 
 type PolicyNewRuleResponseConditionEthereumTypedDataMessageTypedDataType struct {
-	Name string `json:"name,required"`
-	Type string `json:"type,required"`
+	Name string `json:"name" api:"required"`
+	Type string `json:"type" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Name        respjson.Field
@@ -2098,11 +2098,11 @@ func (r *PolicyNewRuleResponseConditionEthereumTypedDataMessageValueUnion) Unmar
 // Allowed contract addresses for eth_sign7702Authorization requests.
 type PolicyNewRuleResponseConditionEthereum7702Authorization struct {
 	// Any of "contract".
-	Field       string                             `json:"field,required"`
-	FieldSource constant.Ethereum7702Authorization `json:"field_source,required"`
+	Field       string                             `json:"field" api:"required"`
+	FieldSource constant.Ethereum7702Authorization `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                            `json:"operator,required"`
-	Value    PolicyNewRuleResponseConditionEthereum7702AuthorizationValueUnion `json:"value,required"`
+	Operator string                                                            `json:"operator" api:"required"`
+	Value    PolicyNewRuleResponseConditionEthereum7702AuthorizationValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -2161,11 +2161,11 @@ func (r *PolicyNewRuleResponseConditionEthereum7702AuthorizationValueUnion) Unma
 // Solana Program attributes, enables allowlisting Solana Programs.
 type PolicyNewRuleResponseConditionSolanaProgramInstruction struct {
 	// Any of "programId".
-	Field       string                            `json:"field,required"`
-	FieldSource constant.SolanaProgramInstruction `json:"field_source,required"`
+	Field       string                            `json:"field" api:"required"`
+	FieldSource constant.SolanaProgramInstruction `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                           `json:"operator,required"`
-	Value    PolicyNewRuleResponseConditionSolanaProgramInstructionValueUnion `json:"value,required"`
+	Operator string                                                           `json:"operator" api:"required"`
+	Value    PolicyNewRuleResponseConditionSolanaProgramInstructionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -2225,11 +2225,11 @@ func (r *PolicyNewRuleResponseConditionSolanaProgramInstructionValueUnion) Unmar
 // fields.
 type PolicyNewRuleResponseConditionSolanaSystemProgramInstruction struct {
 	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
-	Field       string                                  `json:"field,required"`
-	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source,required"`
+	Field       string                                  `json:"field" api:"required"`
+	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                                 `json:"operator,required"`
-	Value    PolicyNewRuleResponseConditionSolanaSystemProgramInstructionValueUnion `json:"value,required"`
+	Operator string                                                                 `json:"operator" api:"required"`
+	Value    PolicyNewRuleResponseConditionSolanaSystemProgramInstructionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -2293,11 +2293,11 @@ type PolicyNewRuleResponseConditionSolanaTokenProgramInstruction struct {
 	// Any of "instructionName", "TransferChecked.source",
 	// "TransferChecked.destination", "TransferChecked.authority",
 	// "TransferChecked.amount", "TransferChecked.mint".
-	Field       string                                 `json:"field,required"`
-	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source,required"`
+	Field       string                                 `json:"field" api:"required"`
+	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                                `json:"operator,required"`
-	Value    PolicyNewRuleResponseConditionSolanaTokenProgramInstructionValueUnion `json:"value,required"`
+	Operator string                                                                `json:"operator" api:"required"`
+	Value    PolicyNewRuleResponseConditionSolanaTokenProgramInstructionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -2358,11 +2358,11 @@ func (r *PolicyNewRuleResponseConditionSolanaTokenProgramInstructionValueUnion) 
 // System attributes, including current unix timestamp (in seconds).
 type PolicyNewRuleResponseConditionSystem struct {
 	// Any of "current_unix_timestamp".
-	Field       string          `json:"field,required"`
-	FieldSource constant.System `json:"field_source,required"`
+	Field       string          `json:"field" api:"required"`
+	FieldSource constant.System `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                         `json:"operator,required"`
-	Value    PolicyNewRuleResponseConditionSystemValueUnion `json:"value,required"`
+	Operator string                                         `json:"operator" api:"required"`
+	Value    PolicyNewRuleResponseConditionSystemValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -2434,7 +2434,7 @@ const (
 
 type PolicyDeleteRuleResponse struct {
 	// Whether the rule was deleted successfully.
-	Success bool `json:"success,required"`
+	Success bool `json:"success" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Success     respjson.Field
@@ -2452,19 +2452,19 @@ func (r *PolicyDeleteRuleResponse) UnmarshalJSON(data []byte) error {
 // A rule that defines the conditions and action to take if the conditions are
 // true.
 type PolicyGetRuleResponse struct {
-	ID string `json:"id,required"`
+	ID string `json:"id" api:"required"`
 	// Action to take if the conditions are true.
 	//
 	// Any of "ALLOW", "DENY".
-	Action     PolicyGetRuleResponseAction           `json:"action,required"`
-	Conditions []PolicyGetRuleResponseConditionUnion `json:"conditions,required"`
+	Action     PolicyGetRuleResponseAction           `json:"action" api:"required"`
+	Conditions []PolicyGetRuleResponseConditionUnion `json:"conditions" api:"required"`
 	// Method the rule applies to.
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "eth_sign7702Authorization", "signTransaction",
 	// "signAndSendTransaction", "exportPrivateKey", "signTransactionBytes", "\*".
-	Method PolicyGetRuleResponseMethod `json:"method,required"`
-	Name   string                      `json:"name,required"`
+	Method PolicyGetRuleResponseMethod `json:"method" api:"required"`
+	Name   string                      `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID          respjson.Field
@@ -2725,11 +2725,11 @@ func (r *PolicyGetRuleResponseConditionUnionValue) UnmarshalJSON(data []byte) er
 // eth_sendTransaction request.
 type PolicyGetRuleResponseConditionEthereumTransaction struct {
 	// Any of "to", "value", "chain_id".
-	Field       string                       `json:"field,required"`
-	FieldSource constant.EthereumTransaction `json:"field_source,required"`
+	Field       string                       `json:"field" api:"required"`
+	FieldSource constant.EthereumTransaction `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                      `json:"operator,required"`
-	Value    PolicyGetRuleResponseConditionEthereumTransactionValueUnion `json:"value,required"`
+	Operator string                                                      `json:"operator" api:"required"`
+	Value    PolicyGetRuleResponseConditionEthereumTransactionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -2789,12 +2789,12 @@ func (r *PolicyGetRuleResponseConditionEthereumTransactionValueUnion) UnmarshalJ
 // method's parameters. Note that that 'ethereum_calldata' conditions must contain
 // an abi parameter with the JSON ABI of the smart contract.
 type PolicyGetRuleResponseConditionEthereumCalldata struct {
-	Abi         any                       `json:"abi,required"`
-	Field       string                    `json:"field,required"`
-	FieldSource constant.EthereumCalldata `json:"field_source,required"`
+	Abi         any                       `json:"abi" api:"required"`
+	Field       string                    `json:"field" api:"required"`
+	FieldSource constant.EthereumCalldata `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                   `json:"operator,required"`
-	Value    PolicyGetRuleResponseConditionEthereumCalldataValueUnion `json:"value,required"`
+	Operator string                                                   `json:"operator" api:"required"`
+	Value    PolicyGetRuleResponseConditionEthereumCalldataValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Abi         respjson.Field
@@ -2852,11 +2852,11 @@ func (r *PolicyGetRuleResponseConditionEthereumCalldataValueUnion) UnmarshalJSON
 // Attributes from the signing domain that will verify the signature.
 type PolicyGetRuleResponseConditionEthereumTypedDataDomain struct {
 	// Any of "chainId", "verifyingContract".
-	Field       string                           `json:"field,required"`
-	FieldSource constant.EthereumTypedDataDomain `json:"field_source,required"`
+	Field       string                           `json:"field" api:"required"`
+	FieldSource constant.EthereumTypedDataDomain `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                          `json:"operator,required"`
-	Value    PolicyGetRuleResponseConditionEthereumTypedDataDomainValueUnion `json:"value,required"`
+	Operator string                                                          `json:"operator" api:"required"`
+	Value    PolicyGetRuleResponseConditionEthereumTypedDataDomainValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -2915,12 +2915,12 @@ func (r *PolicyGetRuleResponseConditionEthereumTypedDataDomainValueUnion) Unmars
 // 'types' and 'primary_type' attributes of the TypedData JSON object defined in
 // EIP-712.
 type PolicyGetRuleResponseConditionEthereumTypedDataMessage struct {
-	Field       string                            `json:"field,required"`
-	FieldSource constant.EthereumTypedDataMessage `json:"field_source,required"`
+	Field       string                            `json:"field" api:"required"`
+	FieldSource constant.EthereumTypedDataMessage `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator  string                                                           `json:"operator,required"`
-	TypedData PolicyGetRuleResponseConditionEthereumTypedDataMessageTypedData  `json:"typed_data,required"`
-	Value     PolicyGetRuleResponseConditionEthereumTypedDataMessageValueUnion `json:"value,required"`
+	Operator  string                                                           `json:"operator" api:"required"`
+	TypedData PolicyGetRuleResponseConditionEthereumTypedDataMessageTypedData  `json:"typed_data" api:"required"`
+	Value     PolicyGetRuleResponseConditionEthereumTypedDataMessageValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -2940,8 +2940,8 @@ func (r *PolicyGetRuleResponseConditionEthereumTypedDataMessage) UnmarshalJSON(d
 }
 
 type PolicyGetRuleResponseConditionEthereumTypedDataMessageTypedData struct {
-	PrimaryType string                                                                           `json:"primary_type,required"`
-	Types       map[string][]PolicyGetRuleResponseConditionEthereumTypedDataMessageTypedDataType `json:"types,required"`
+	PrimaryType string                                                                           `json:"primary_type" api:"required"`
+	Types       map[string][]PolicyGetRuleResponseConditionEthereumTypedDataMessageTypedDataType `json:"types" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		PrimaryType respjson.Field
@@ -2960,8 +2960,8 @@ func (r *PolicyGetRuleResponseConditionEthereumTypedDataMessageTypedData) Unmars
 }
 
 type PolicyGetRuleResponseConditionEthereumTypedDataMessageTypedDataType struct {
-	Name string `json:"name,required"`
-	Type string `json:"type,required"`
+	Name string `json:"name" api:"required"`
+	Type string `json:"type" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Name        respjson.Field
@@ -3020,11 +3020,11 @@ func (r *PolicyGetRuleResponseConditionEthereumTypedDataMessageValueUnion) Unmar
 // Allowed contract addresses for eth_sign7702Authorization requests.
 type PolicyGetRuleResponseConditionEthereum7702Authorization struct {
 	// Any of "contract".
-	Field       string                             `json:"field,required"`
-	FieldSource constant.Ethereum7702Authorization `json:"field_source,required"`
+	Field       string                             `json:"field" api:"required"`
+	FieldSource constant.Ethereum7702Authorization `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                            `json:"operator,required"`
-	Value    PolicyGetRuleResponseConditionEthereum7702AuthorizationValueUnion `json:"value,required"`
+	Operator string                                                            `json:"operator" api:"required"`
+	Value    PolicyGetRuleResponseConditionEthereum7702AuthorizationValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -3083,11 +3083,11 @@ func (r *PolicyGetRuleResponseConditionEthereum7702AuthorizationValueUnion) Unma
 // Solana Program attributes, enables allowlisting Solana Programs.
 type PolicyGetRuleResponseConditionSolanaProgramInstruction struct {
 	// Any of "programId".
-	Field       string                            `json:"field,required"`
-	FieldSource constant.SolanaProgramInstruction `json:"field_source,required"`
+	Field       string                            `json:"field" api:"required"`
+	FieldSource constant.SolanaProgramInstruction `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                           `json:"operator,required"`
-	Value    PolicyGetRuleResponseConditionSolanaProgramInstructionValueUnion `json:"value,required"`
+	Operator string                                                           `json:"operator" api:"required"`
+	Value    PolicyGetRuleResponseConditionSolanaProgramInstructionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -3147,11 +3147,11 @@ func (r *PolicyGetRuleResponseConditionSolanaProgramInstructionValueUnion) Unmar
 // fields.
 type PolicyGetRuleResponseConditionSolanaSystemProgramInstruction struct {
 	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
-	Field       string                                  `json:"field,required"`
-	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source,required"`
+	Field       string                                  `json:"field" api:"required"`
+	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                                 `json:"operator,required"`
-	Value    PolicyGetRuleResponseConditionSolanaSystemProgramInstructionValueUnion `json:"value,required"`
+	Operator string                                                                 `json:"operator" api:"required"`
+	Value    PolicyGetRuleResponseConditionSolanaSystemProgramInstructionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -3215,11 +3215,11 @@ type PolicyGetRuleResponseConditionSolanaTokenProgramInstruction struct {
 	// Any of "instructionName", "TransferChecked.source",
 	// "TransferChecked.destination", "TransferChecked.authority",
 	// "TransferChecked.amount", "TransferChecked.mint".
-	Field       string                                 `json:"field,required"`
-	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source,required"`
+	Field       string                                 `json:"field" api:"required"`
+	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                                `json:"operator,required"`
-	Value    PolicyGetRuleResponseConditionSolanaTokenProgramInstructionValueUnion `json:"value,required"`
+	Operator string                                                                `json:"operator" api:"required"`
+	Value    PolicyGetRuleResponseConditionSolanaTokenProgramInstructionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -3280,11 +3280,11 @@ func (r *PolicyGetRuleResponseConditionSolanaTokenProgramInstructionValueUnion) 
 // System attributes, including current unix timestamp (in seconds).
 type PolicyGetRuleResponseConditionSystem struct {
 	// Any of "current_unix_timestamp".
-	Field       string          `json:"field,required"`
-	FieldSource constant.System `json:"field_source,required"`
+	Field       string          `json:"field" api:"required"`
+	FieldSource constant.System `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                         `json:"operator,required"`
-	Value    PolicyGetRuleResponseConditionSystemValueUnion `json:"value,required"`
+	Operator string                                         `json:"operator" api:"required"`
+	Value    PolicyGetRuleResponseConditionSystemValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -3355,19 +3355,19 @@ const (
 )
 
 type PolicyUpdateRuleResponse struct {
-	ID string `json:"id,required"`
+	ID string `json:"id" api:"required"`
 	// Action to take if the conditions are true.
 	//
 	// Any of "ALLOW", "DENY".
-	Action     PolicyUpdateRuleResponseAction           `json:"action,required"`
-	Conditions []PolicyUpdateRuleResponseConditionUnion `json:"conditions,required"`
+	Action     PolicyUpdateRuleResponseAction           `json:"action" api:"required"`
+	Conditions []PolicyUpdateRuleResponseConditionUnion `json:"conditions" api:"required"`
 	// Method the rule applies to.
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "eth_sign7702Authorization", "signTransaction",
 	// "signAndSendTransaction", "exportPrivateKey", "signTransactionBytes", "\*".
-	Method PolicyUpdateRuleResponseMethod `json:"method,required"`
-	Name   string                         `json:"name,required"`
+	Method PolicyUpdateRuleResponseMethod `json:"method" api:"required"`
+	Name   string                         `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID          respjson.Field
@@ -3631,11 +3631,11 @@ func (r *PolicyUpdateRuleResponseConditionUnionValue) UnmarshalJSON(data []byte)
 // eth_sendTransaction request.
 type PolicyUpdateRuleResponseConditionEthereumTransaction struct {
 	// Any of "to", "value", "chain_id".
-	Field       string                       `json:"field,required"`
-	FieldSource constant.EthereumTransaction `json:"field_source,required"`
+	Field       string                       `json:"field" api:"required"`
+	FieldSource constant.EthereumTransaction `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                         `json:"operator,required"`
-	Value    PolicyUpdateRuleResponseConditionEthereumTransactionValueUnion `json:"value,required"`
+	Operator string                                                         `json:"operator" api:"required"`
+	Value    PolicyUpdateRuleResponseConditionEthereumTransactionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -3695,12 +3695,12 @@ func (r *PolicyUpdateRuleResponseConditionEthereumTransactionValueUnion) Unmarsh
 // method's parameters. Note that that 'ethereum_calldata' conditions must contain
 // an abi parameter with the JSON ABI of the smart contract.
 type PolicyUpdateRuleResponseConditionEthereumCalldata struct {
-	Abi         any                       `json:"abi,required"`
-	Field       string                    `json:"field,required"`
-	FieldSource constant.EthereumCalldata `json:"field_source,required"`
+	Abi         any                       `json:"abi" api:"required"`
+	Field       string                    `json:"field" api:"required"`
+	FieldSource constant.EthereumCalldata `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                      `json:"operator,required"`
-	Value    PolicyUpdateRuleResponseConditionEthereumCalldataValueUnion `json:"value,required"`
+	Operator string                                                      `json:"operator" api:"required"`
+	Value    PolicyUpdateRuleResponseConditionEthereumCalldataValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Abi         respjson.Field
@@ -3760,11 +3760,11 @@ func (r *PolicyUpdateRuleResponseConditionEthereumCalldataValueUnion) UnmarshalJ
 // Attributes from the signing domain that will verify the signature.
 type PolicyUpdateRuleResponseConditionEthereumTypedDataDomain struct {
 	// Any of "chainId", "verifyingContract".
-	Field       string                           `json:"field,required"`
-	FieldSource constant.EthereumTypedDataDomain `json:"field_source,required"`
+	Field       string                           `json:"field" api:"required"`
+	FieldSource constant.EthereumTypedDataDomain `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                             `json:"operator,required"`
-	Value    PolicyUpdateRuleResponseConditionEthereumTypedDataDomainValueUnion `json:"value,required"`
+	Operator string                                                             `json:"operator" api:"required"`
+	Value    PolicyUpdateRuleResponseConditionEthereumTypedDataDomainValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -3823,12 +3823,12 @@ func (r *PolicyUpdateRuleResponseConditionEthereumTypedDataDomainValueUnion) Unm
 // 'types' and 'primary_type' attributes of the TypedData JSON object defined in
 // EIP-712.
 type PolicyUpdateRuleResponseConditionEthereumTypedDataMessage struct {
-	Field       string                            `json:"field,required"`
-	FieldSource constant.EthereumTypedDataMessage `json:"field_source,required"`
+	Field       string                            `json:"field" api:"required"`
+	FieldSource constant.EthereumTypedDataMessage `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator  string                                                              `json:"operator,required"`
-	TypedData PolicyUpdateRuleResponseConditionEthereumTypedDataMessageTypedData  `json:"typed_data,required"`
-	Value     PolicyUpdateRuleResponseConditionEthereumTypedDataMessageValueUnion `json:"value,required"`
+	Operator  string                                                              `json:"operator" api:"required"`
+	TypedData PolicyUpdateRuleResponseConditionEthereumTypedDataMessageTypedData  `json:"typed_data" api:"required"`
+	Value     PolicyUpdateRuleResponseConditionEthereumTypedDataMessageValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -3850,8 +3850,8 @@ func (r *PolicyUpdateRuleResponseConditionEthereumTypedDataMessage) UnmarshalJSO
 }
 
 type PolicyUpdateRuleResponseConditionEthereumTypedDataMessageTypedData struct {
-	PrimaryType string                                                                              `json:"primary_type,required"`
-	Types       map[string][]PolicyUpdateRuleResponseConditionEthereumTypedDataMessageTypedDataType `json:"types,required"`
+	PrimaryType string                                                                              `json:"primary_type" api:"required"`
+	Types       map[string][]PolicyUpdateRuleResponseConditionEthereumTypedDataMessageTypedDataType `json:"types" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		PrimaryType respjson.Field
@@ -3870,8 +3870,8 @@ func (r *PolicyUpdateRuleResponseConditionEthereumTypedDataMessageTypedData) Unm
 }
 
 type PolicyUpdateRuleResponseConditionEthereumTypedDataMessageTypedDataType struct {
-	Name string `json:"name,required"`
-	Type string `json:"type,required"`
+	Name string `json:"name" api:"required"`
+	Type string `json:"type" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Name        respjson.Field
@@ -3930,11 +3930,11 @@ func (r *PolicyUpdateRuleResponseConditionEthereumTypedDataMessageValueUnion) Un
 // Allowed contract addresses for eth_sign7702Authorization requests.
 type PolicyUpdateRuleResponseConditionEthereum7702Authorization struct {
 	// Any of "contract".
-	Field       string                             `json:"field,required"`
-	FieldSource constant.Ethereum7702Authorization `json:"field_source,required"`
+	Field       string                             `json:"field" api:"required"`
+	FieldSource constant.Ethereum7702Authorization `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                               `json:"operator,required"`
-	Value    PolicyUpdateRuleResponseConditionEthereum7702AuthorizationValueUnion `json:"value,required"`
+	Operator string                                                               `json:"operator" api:"required"`
+	Value    PolicyUpdateRuleResponseConditionEthereum7702AuthorizationValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -3995,11 +3995,11 @@ func (r *PolicyUpdateRuleResponseConditionEthereum7702AuthorizationValueUnion) U
 // Solana Program attributes, enables allowlisting Solana Programs.
 type PolicyUpdateRuleResponseConditionSolanaProgramInstruction struct {
 	// Any of "programId".
-	Field       string                            `json:"field,required"`
-	FieldSource constant.SolanaProgramInstruction `json:"field_source,required"`
+	Field       string                            `json:"field" api:"required"`
+	FieldSource constant.SolanaProgramInstruction `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                              `json:"operator,required"`
-	Value    PolicyUpdateRuleResponseConditionSolanaProgramInstructionValueUnion `json:"value,required"`
+	Operator string                                                              `json:"operator" api:"required"`
+	Value    PolicyUpdateRuleResponseConditionSolanaProgramInstructionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -4061,11 +4061,11 @@ func (r *PolicyUpdateRuleResponseConditionSolanaProgramInstructionValueUnion) Un
 // fields.
 type PolicyUpdateRuleResponseConditionSolanaSystemProgramInstruction struct {
 	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
-	Field       string                                  `json:"field,required"`
-	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source,required"`
+	Field       string                                  `json:"field" api:"required"`
+	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                                    `json:"operator,required"`
-	Value    PolicyUpdateRuleResponseConditionSolanaSystemProgramInstructionValueUnion `json:"value,required"`
+	Operator string                                                                    `json:"operator" api:"required"`
+	Value    PolicyUpdateRuleResponseConditionSolanaSystemProgramInstructionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -4129,11 +4129,11 @@ type PolicyUpdateRuleResponseConditionSolanaTokenProgramInstruction struct {
 	// Any of "instructionName", "TransferChecked.source",
 	// "TransferChecked.destination", "TransferChecked.authority",
 	// "TransferChecked.amount", "TransferChecked.mint".
-	Field       string                                 `json:"field,required"`
-	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source,required"`
+	Field       string                                 `json:"field" api:"required"`
+	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                                   `json:"operator,required"`
-	Value    PolicyUpdateRuleResponseConditionSolanaTokenProgramInstructionValueUnion `json:"value,required"`
+	Operator string                                                                   `json:"operator" api:"required"`
+	Value    PolicyUpdateRuleResponseConditionSolanaTokenProgramInstructionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -4194,11 +4194,11 @@ func (r *PolicyUpdateRuleResponseConditionSolanaTokenProgramInstructionValueUnio
 // System attributes, including current unix timestamp (in seconds).
 type PolicyUpdateRuleResponseConditionSystem struct {
 	// Any of "current_unix_timestamp".
-	Field       string          `json:"field,required"`
-	FieldSource constant.System `json:"field_source,required"`
+	Field       string          `json:"field" api:"required"`
+	FieldSource constant.System `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                            `json:"operator,required"`
-	Value    PolicyUpdateRuleResponseConditionSystemValueUnion `json:"value,required"`
+	Operator string                                            `json:"operator" api:"required"`
+	Value    PolicyUpdateRuleResponseConditionSystemValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -4272,14 +4272,14 @@ type PolicyNewParams struct {
 	// The chain type the policy applies to.
 	//
 	// Any of "ethereum", "solana", "tron", "sui".
-	ChainType PolicyNewParamsChainType `json:"chain_type,omitzero,required"`
+	ChainType PolicyNewParamsChainType `json:"chain_type,omitzero" api:"required"`
 	// Name to assign to policy.
-	Name  string                `json:"name,required"`
-	Rules []PolicyNewParamsRule `json:"rules,omitzero,required"`
+	Name  string                `json:"name" api:"required"`
+	Rules []PolicyNewParamsRule `json:"rules,omitzero" api:"required"`
 	// Version of the policy. Currently, 1.0 is the only version.
 	//
 	// Any of "1.0".
-	Version PolicyNewParamsVersion `json:"version,omitzero,required"`
+	Version PolicyNewParamsVersion `json:"version,omitzero" api:"required"`
 	OwnerID param.Opt[string]      `json:"owner_id,omitzero"`
 	// Idempotency keys ensure API requests are executed only once within a 24-hour
 	// window.
@@ -4316,15 +4316,15 @@ type PolicyNewParamsRule struct {
 	// Action to take if the conditions are true.
 	//
 	// Any of "ALLOW", "DENY".
-	Action     string                              `json:"action,omitzero,required"`
-	Conditions []PolicyNewParamsRuleConditionUnion `json:"conditions,omitzero,required"`
+	Action     string                              `json:"action,omitzero" api:"required"`
+	Conditions []PolicyNewParamsRuleConditionUnion `json:"conditions,omitzero" api:"required"`
 	// Method the rule applies to.
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "eth_sign7702Authorization", "signTransaction",
 	// "signAndSendTransaction", "exportPrivateKey", "signTransactionBytes", "\*".
-	Method string `json:"method,omitzero,required"`
-	Name   string `json:"name,required"`
+	Method string `json:"method,omitzero" api:"required"`
+	Name   string `json:"name" api:"required"`
 	paramObj
 }
 
@@ -4406,13 +4406,13 @@ func init() {
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyNewParamsRuleConditionEthereumTransaction struct {
 	// Any of "to", "value", "chain_id".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                    `json:"operator,omitzero,required"`
-	Value    PolicyNewParamsRuleConditionEthereumTransactionValueUnion `json:"value,omitzero,required"`
+	Operator string                                                    `json:"operator,omitzero" api:"required"`
+	Value    PolicyNewParamsRuleConditionEthereumTransactionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_transaction".
-	FieldSource constant.EthereumTransaction `json:"field_source,required"`
+	FieldSource constant.EthereumTransaction `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -4455,14 +4455,14 @@ func (u *PolicyNewParamsRuleConditionEthereumTransactionValueUnion) UnmarshalJSO
 //
 // The properties Abi, Field, FieldSource, Operator, Value are required.
 type PolicyNewParamsRuleConditionEthereumCalldata struct {
-	Abi   any    `json:"abi,omitzero,required"`
-	Field string `json:"field,required"`
+	Abi   any    `json:"abi,omitzero" api:"required"`
+	Field string `json:"field" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                 `json:"operator,omitzero,required"`
-	Value    PolicyNewParamsRuleConditionEthereumCalldataValueUnion `json:"value,omitzero,required"`
+	Operator string                                                 `json:"operator,omitzero" api:"required"`
+	Value    PolicyNewParamsRuleConditionEthereumCalldataValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_calldata".
-	FieldSource constant.EthereumCalldata `json:"field_source,required"`
+	FieldSource constant.EthereumCalldata `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -4501,13 +4501,13 @@ func (u *PolicyNewParamsRuleConditionEthereumCalldataValueUnion) UnmarshalJSON(d
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyNewParamsRuleConditionEthereumTypedDataDomain struct {
 	// Any of "chainId", "verifyingContract".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                        `json:"operator,omitzero,required"`
-	Value    PolicyNewParamsRuleConditionEthereumTypedDataDomainValueUnion `json:"value,omitzero,required"`
+	Operator string                                                        `json:"operator,omitzero" api:"required"`
+	Value    PolicyNewParamsRuleConditionEthereumTypedDataDomainValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_typed_data_domain".
-	FieldSource constant.EthereumTypedDataDomain `json:"field_source,required"`
+	FieldSource constant.EthereumTypedDataDomain `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -4549,14 +4549,14 @@ func (u *PolicyNewParamsRuleConditionEthereumTypedDataDomainValueUnion) Unmarsha
 //
 // The properties Field, FieldSource, Operator, TypedData, Value are required.
 type PolicyNewParamsRuleConditionEthereumTypedDataMessage struct {
-	Field string `json:"field,required"`
+	Field string `json:"field" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator  string                                                         `json:"operator,omitzero,required"`
-	TypedData PolicyNewParamsRuleConditionEthereumTypedDataMessageTypedData  `json:"typed_data,omitzero,required"`
-	Value     PolicyNewParamsRuleConditionEthereumTypedDataMessageValueUnion `json:"value,omitzero,required"`
+	Operator  string                                                         `json:"operator,omitzero" api:"required"`
+	TypedData PolicyNewParamsRuleConditionEthereumTypedDataMessageTypedData  `json:"typed_data,omitzero" api:"required"`
+	Value     PolicyNewParamsRuleConditionEthereumTypedDataMessageValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_typed_data_message".
-	FieldSource constant.EthereumTypedDataMessage `json:"field_source,required"`
+	FieldSource constant.EthereumTypedDataMessage `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -4576,8 +4576,8 @@ func init() {
 
 // The properties PrimaryType, Types are required.
 type PolicyNewParamsRuleConditionEthereumTypedDataMessageTypedData struct {
-	PrimaryType string                                                                         `json:"primary_type,required"`
-	Types       map[string][]PolicyNewParamsRuleConditionEthereumTypedDataMessageTypedDataType `json:"types,omitzero,required"`
+	PrimaryType string                                                                         `json:"primary_type" api:"required"`
+	Types       map[string][]PolicyNewParamsRuleConditionEthereumTypedDataMessageTypedDataType `json:"types,omitzero" api:"required"`
 	paramObj
 }
 
@@ -4591,8 +4591,8 @@ func (r *PolicyNewParamsRuleConditionEthereumTypedDataMessageTypedData) Unmarsha
 
 // The properties Name, Type are required.
 type PolicyNewParamsRuleConditionEthereumTypedDataMessageTypedDataType struct {
-	Name string `json:"name,required"`
-	Type string `json:"type,required"`
+	Name string `json:"name" api:"required"`
+	Type string `json:"type" api:"required"`
 	paramObj
 }
 
@@ -4625,13 +4625,13 @@ func (u *PolicyNewParamsRuleConditionEthereumTypedDataMessageValueUnion) Unmarsh
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyNewParamsRuleConditionEthereum7702Authorization struct {
 	// Any of "contract".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                          `json:"operator,omitzero,required"`
-	Value    PolicyNewParamsRuleConditionEthereum7702AuthorizationValueUnion `json:"value,omitzero,required"`
+	Operator string                                                          `json:"operator,omitzero" api:"required"`
+	Value    PolicyNewParamsRuleConditionEthereum7702AuthorizationValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_7702_authorization".
-	FieldSource constant.Ethereum7702Authorization `json:"field_source,required"`
+	FieldSource constant.Ethereum7702Authorization `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -4673,13 +4673,13 @@ func (u *PolicyNewParamsRuleConditionEthereum7702AuthorizationValueUnion) Unmars
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyNewParamsRuleConditionSolanaProgramInstruction struct {
 	// Any of "programId".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                         `json:"operator,omitzero,required"`
-	Value    PolicyNewParamsRuleConditionSolanaProgramInstructionValueUnion `json:"value,omitzero,required"`
+	Operator string                                                         `json:"operator,omitzero" api:"required"`
+	Value    PolicyNewParamsRuleConditionSolanaProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_program_instruction".
-	FieldSource constant.SolanaProgramInstruction `json:"field_source,required"`
+	FieldSource constant.SolanaProgramInstruction `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -4722,13 +4722,13 @@ func (u *PolicyNewParamsRuleConditionSolanaProgramInstructionValueUnion) Unmarsh
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyNewParamsRuleConditionSolanaSystemProgramInstruction struct {
 	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                               `json:"operator,omitzero,required"`
-	Value    PolicyNewParamsRuleConditionSolanaSystemProgramInstructionValueUnion `json:"value,omitzero,required"`
+	Operator string                                                               `json:"operator,omitzero" api:"required"`
+	Value    PolicyNewParamsRuleConditionSolanaSystemProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_system_program_instruction".
-	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source,required"`
+	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -4773,13 +4773,13 @@ type PolicyNewParamsRuleConditionSolanaTokenProgramInstruction struct {
 	// Any of "instructionName", "TransferChecked.source",
 	// "TransferChecked.destination", "TransferChecked.authority",
 	// "TransferChecked.amount", "TransferChecked.mint".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                              `json:"operator,omitzero,required"`
-	Value    PolicyNewParamsRuleConditionSolanaTokenProgramInstructionValueUnion `json:"value,omitzero,required"`
+	Operator string                                                              `json:"operator,omitzero" api:"required"`
+	Value    PolicyNewParamsRuleConditionSolanaTokenProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_token_program_instruction".
-	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source,required"`
+	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -4821,12 +4821,12 @@ func (u *PolicyNewParamsRuleConditionSolanaTokenProgramInstructionValueUnion) Un
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyNewParamsRuleConditionSystem struct {
 	// Any of "current_unix_timestamp".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                       `json:"operator,omitzero,required"`
-	Value    PolicyNewParamsRuleConditionSystemValueUnion `json:"value,omitzero,required"`
+	Operator string                                       `json:"operator,omitzero" api:"required"`
+	Value    PolicyNewParamsRuleConditionSystemValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as "system".
-	FieldSource constant.System `json:"field_source,required"`
+	FieldSource constant.System `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -4892,7 +4892,7 @@ func (u *PolicyNewParamsOwnerUnion) UnmarshalJSON(data []byte) error {
 //
 // The property PublicKey is required.
 type PolicyNewParamsOwnerPublicKeyOwner struct {
-	PublicKey string `json:"public_key,required"`
+	PublicKey string `json:"public_key" api:"required"`
 	paramObj
 }
 
@@ -4910,7 +4910,7 @@ func (r *PolicyNewParamsOwnerPublicKeyOwner) UnmarshalJSON(data []byte) error {
 //
 // The property UserID is required.
 type PolicyNewParamsOwnerUserOwner struct {
-	UserID string `json:"user_id,required"`
+	UserID string `json:"user_id" api:"required"`
 	paramObj
 }
 
@@ -4967,7 +4967,7 @@ func (u *PolicyUpdateParamsOwnerUnion) UnmarshalJSON(data []byte) error {
 //
 // The property PublicKey is required.
 type PolicyUpdateParamsOwnerPublicKeyOwner struct {
-	PublicKey string `json:"public_key,required"`
+	PublicKey string `json:"public_key" api:"required"`
 	paramObj
 }
 
@@ -4985,7 +4985,7 @@ func (r *PolicyUpdateParamsOwnerPublicKeyOwner) UnmarshalJSON(data []byte) error
 //
 // The property UserID is required.
 type PolicyUpdateParamsOwnerUserOwner struct {
-	UserID string `json:"user_id,required"`
+	UserID string `json:"user_id" api:"required"`
 	paramObj
 }
 
@@ -5004,15 +5004,15 @@ type PolicyUpdateParamsRule struct {
 	// Action to take if the conditions are true.
 	//
 	// Any of "ALLOW", "DENY".
-	Action     string                                 `json:"action,omitzero,required"`
-	Conditions []PolicyUpdateParamsRuleConditionUnion `json:"conditions,omitzero,required"`
+	Action     string                                 `json:"action,omitzero" api:"required"`
+	Conditions []PolicyUpdateParamsRuleConditionUnion `json:"conditions,omitzero" api:"required"`
 	// Method the rule applies to.
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "eth_sign7702Authorization", "signTransaction",
 	// "signAndSendTransaction", "exportPrivateKey", "signTransactionBytes", "\*".
-	Method string `json:"method,omitzero,required"`
-	Name   string `json:"name,required"`
+	Method string `json:"method,omitzero" api:"required"`
+	Name   string `json:"name" api:"required"`
 	paramObj
 }
 
@@ -5094,13 +5094,13 @@ func init() {
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyUpdateParamsRuleConditionEthereumTransaction struct {
 	// Any of "to", "value", "chain_id".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                       `json:"operator,omitzero,required"`
-	Value    PolicyUpdateParamsRuleConditionEthereumTransactionValueUnion `json:"value,omitzero,required"`
+	Operator string                                                       `json:"operator,omitzero" api:"required"`
+	Value    PolicyUpdateParamsRuleConditionEthereumTransactionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_transaction".
-	FieldSource constant.EthereumTransaction `json:"field_source,required"`
+	FieldSource constant.EthereumTransaction `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -5143,14 +5143,14 @@ func (u *PolicyUpdateParamsRuleConditionEthereumTransactionValueUnion) Unmarshal
 //
 // The properties Abi, Field, FieldSource, Operator, Value are required.
 type PolicyUpdateParamsRuleConditionEthereumCalldata struct {
-	Abi   any    `json:"abi,omitzero,required"`
-	Field string `json:"field,required"`
+	Abi   any    `json:"abi,omitzero" api:"required"`
+	Field string `json:"field" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                    `json:"operator,omitzero,required"`
-	Value    PolicyUpdateParamsRuleConditionEthereumCalldataValueUnion `json:"value,omitzero,required"`
+	Operator string                                                    `json:"operator,omitzero" api:"required"`
+	Value    PolicyUpdateParamsRuleConditionEthereumCalldataValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_calldata".
-	FieldSource constant.EthereumCalldata `json:"field_source,required"`
+	FieldSource constant.EthereumCalldata `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -5189,13 +5189,13 @@ func (u *PolicyUpdateParamsRuleConditionEthereumCalldataValueUnion) UnmarshalJSO
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyUpdateParamsRuleConditionEthereumTypedDataDomain struct {
 	// Any of "chainId", "verifyingContract".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                           `json:"operator,omitzero,required"`
-	Value    PolicyUpdateParamsRuleConditionEthereumTypedDataDomainValueUnion `json:"value,omitzero,required"`
+	Operator string                                                           `json:"operator,omitzero" api:"required"`
+	Value    PolicyUpdateParamsRuleConditionEthereumTypedDataDomainValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_typed_data_domain".
-	FieldSource constant.EthereumTypedDataDomain `json:"field_source,required"`
+	FieldSource constant.EthereumTypedDataDomain `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -5237,14 +5237,14 @@ func (u *PolicyUpdateParamsRuleConditionEthereumTypedDataDomainValueUnion) Unmar
 //
 // The properties Field, FieldSource, Operator, TypedData, Value are required.
 type PolicyUpdateParamsRuleConditionEthereumTypedDataMessage struct {
-	Field string `json:"field,required"`
+	Field string `json:"field" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator  string                                                            `json:"operator,omitzero,required"`
-	TypedData PolicyUpdateParamsRuleConditionEthereumTypedDataMessageTypedData  `json:"typed_data,omitzero,required"`
-	Value     PolicyUpdateParamsRuleConditionEthereumTypedDataMessageValueUnion `json:"value,omitzero,required"`
+	Operator  string                                                            `json:"operator,omitzero" api:"required"`
+	TypedData PolicyUpdateParamsRuleConditionEthereumTypedDataMessageTypedData  `json:"typed_data,omitzero" api:"required"`
+	Value     PolicyUpdateParamsRuleConditionEthereumTypedDataMessageValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_typed_data_message".
-	FieldSource constant.EthereumTypedDataMessage `json:"field_source,required"`
+	FieldSource constant.EthereumTypedDataMessage `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -5264,8 +5264,8 @@ func init() {
 
 // The properties PrimaryType, Types are required.
 type PolicyUpdateParamsRuleConditionEthereumTypedDataMessageTypedData struct {
-	PrimaryType string                                                                            `json:"primary_type,required"`
-	Types       map[string][]PolicyUpdateParamsRuleConditionEthereumTypedDataMessageTypedDataType `json:"types,omitzero,required"`
+	PrimaryType string                                                                            `json:"primary_type" api:"required"`
+	Types       map[string][]PolicyUpdateParamsRuleConditionEthereumTypedDataMessageTypedDataType `json:"types,omitzero" api:"required"`
 	paramObj
 }
 
@@ -5279,8 +5279,8 @@ func (r *PolicyUpdateParamsRuleConditionEthereumTypedDataMessageTypedData) Unmar
 
 // The properties Name, Type are required.
 type PolicyUpdateParamsRuleConditionEthereumTypedDataMessageTypedDataType struct {
-	Name string `json:"name,required"`
-	Type string `json:"type,required"`
+	Name string `json:"name" api:"required"`
+	Type string `json:"type" api:"required"`
 	paramObj
 }
 
@@ -5313,13 +5313,13 @@ func (u *PolicyUpdateParamsRuleConditionEthereumTypedDataMessageValueUnion) Unma
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyUpdateParamsRuleConditionEthereum7702Authorization struct {
 	// Any of "contract".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                             `json:"operator,omitzero,required"`
-	Value    PolicyUpdateParamsRuleConditionEthereum7702AuthorizationValueUnion `json:"value,omitzero,required"`
+	Operator string                                                             `json:"operator,omitzero" api:"required"`
+	Value    PolicyUpdateParamsRuleConditionEthereum7702AuthorizationValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_7702_authorization".
-	FieldSource constant.Ethereum7702Authorization `json:"field_source,required"`
+	FieldSource constant.Ethereum7702Authorization `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -5361,13 +5361,13 @@ func (u *PolicyUpdateParamsRuleConditionEthereum7702AuthorizationValueUnion) Unm
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyUpdateParamsRuleConditionSolanaProgramInstruction struct {
 	// Any of "programId".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                            `json:"operator,omitzero,required"`
-	Value    PolicyUpdateParamsRuleConditionSolanaProgramInstructionValueUnion `json:"value,omitzero,required"`
+	Operator string                                                            `json:"operator,omitzero" api:"required"`
+	Value    PolicyUpdateParamsRuleConditionSolanaProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_program_instruction".
-	FieldSource constant.SolanaProgramInstruction `json:"field_source,required"`
+	FieldSource constant.SolanaProgramInstruction `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -5410,13 +5410,13 @@ func (u *PolicyUpdateParamsRuleConditionSolanaProgramInstructionValueUnion) Unma
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyUpdateParamsRuleConditionSolanaSystemProgramInstruction struct {
 	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                                  `json:"operator,omitzero,required"`
-	Value    PolicyUpdateParamsRuleConditionSolanaSystemProgramInstructionValueUnion `json:"value,omitzero,required"`
+	Operator string                                                                  `json:"operator,omitzero" api:"required"`
+	Value    PolicyUpdateParamsRuleConditionSolanaSystemProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_system_program_instruction".
-	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source,required"`
+	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -5461,13 +5461,13 @@ type PolicyUpdateParamsRuleConditionSolanaTokenProgramInstruction struct {
 	// Any of "instructionName", "TransferChecked.source",
 	// "TransferChecked.destination", "TransferChecked.authority",
 	// "TransferChecked.amount", "TransferChecked.mint".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                                 `json:"operator,omitzero,required"`
-	Value    PolicyUpdateParamsRuleConditionSolanaTokenProgramInstructionValueUnion `json:"value,omitzero,required"`
+	Operator string                                                                 `json:"operator,omitzero" api:"required"`
+	Value    PolicyUpdateParamsRuleConditionSolanaTokenProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_token_program_instruction".
-	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source,required"`
+	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -5509,12 +5509,12 @@ func (u *PolicyUpdateParamsRuleConditionSolanaTokenProgramInstructionValueUnion)
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyUpdateParamsRuleConditionSystem struct {
 	// Any of "current_unix_timestamp".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                          `json:"operator,omitzero,required"`
-	Value    PolicyUpdateParamsRuleConditionSystemValueUnion `json:"value,omitzero,required"`
+	Operator string                                          `json:"operator,omitzero" api:"required"`
+	Value    PolicyUpdateParamsRuleConditionSystemValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as "system".
-	FieldSource constant.System `json:"field_source,required"`
+	FieldSource constant.System `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -5562,15 +5562,15 @@ type PolicyNewRuleParams struct {
 	// Action to take if the conditions are true.
 	//
 	// Any of "ALLOW", "DENY".
-	Action     PolicyNewRuleParamsAction           `json:"action,omitzero,required"`
-	Conditions []PolicyNewRuleParamsConditionUnion `json:"conditions,omitzero,required"`
+	Action     PolicyNewRuleParamsAction           `json:"action,omitzero" api:"required"`
+	Conditions []PolicyNewRuleParamsConditionUnion `json:"conditions,omitzero" api:"required"`
 	// Method the rule applies to.
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "eth_sign7702Authorization", "signTransaction",
 	// "signAndSendTransaction", "exportPrivateKey", "signTransactionBytes", "\*".
-	Method PolicyNewRuleParamsMethod `json:"method,omitzero,required"`
-	Name   string                    `json:"name,required"`
+	Method PolicyNewRuleParamsMethod `json:"method,omitzero" api:"required"`
+	Name   string                    `json:"name" api:"required"`
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.
 	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
@@ -5654,13 +5654,13 @@ func init() {
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyNewRuleParamsConditionEthereumTransaction struct {
 	// Any of "to", "value", "chain_id".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                    `json:"operator,omitzero,required"`
-	Value    PolicyNewRuleParamsConditionEthereumTransactionValueUnion `json:"value,omitzero,required"`
+	Operator string                                                    `json:"operator,omitzero" api:"required"`
+	Value    PolicyNewRuleParamsConditionEthereumTransactionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_transaction".
-	FieldSource constant.EthereumTransaction `json:"field_source,required"`
+	FieldSource constant.EthereumTransaction `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -5703,14 +5703,14 @@ func (u *PolicyNewRuleParamsConditionEthereumTransactionValueUnion) UnmarshalJSO
 //
 // The properties Abi, Field, FieldSource, Operator, Value are required.
 type PolicyNewRuleParamsConditionEthereumCalldata struct {
-	Abi   any    `json:"abi,omitzero,required"`
-	Field string `json:"field,required"`
+	Abi   any    `json:"abi,omitzero" api:"required"`
+	Field string `json:"field" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                 `json:"operator,omitzero,required"`
-	Value    PolicyNewRuleParamsConditionEthereumCalldataValueUnion `json:"value,omitzero,required"`
+	Operator string                                                 `json:"operator,omitzero" api:"required"`
+	Value    PolicyNewRuleParamsConditionEthereumCalldataValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_calldata".
-	FieldSource constant.EthereumCalldata `json:"field_source,required"`
+	FieldSource constant.EthereumCalldata `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -5749,13 +5749,13 @@ func (u *PolicyNewRuleParamsConditionEthereumCalldataValueUnion) UnmarshalJSON(d
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyNewRuleParamsConditionEthereumTypedDataDomain struct {
 	// Any of "chainId", "verifyingContract".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                        `json:"operator,omitzero,required"`
-	Value    PolicyNewRuleParamsConditionEthereumTypedDataDomainValueUnion `json:"value,omitzero,required"`
+	Operator string                                                        `json:"operator,omitzero" api:"required"`
+	Value    PolicyNewRuleParamsConditionEthereumTypedDataDomainValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_typed_data_domain".
-	FieldSource constant.EthereumTypedDataDomain `json:"field_source,required"`
+	FieldSource constant.EthereumTypedDataDomain `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -5797,14 +5797,14 @@ func (u *PolicyNewRuleParamsConditionEthereumTypedDataDomainValueUnion) Unmarsha
 //
 // The properties Field, FieldSource, Operator, TypedData, Value are required.
 type PolicyNewRuleParamsConditionEthereumTypedDataMessage struct {
-	Field string `json:"field,required"`
+	Field string `json:"field" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator  string                                                         `json:"operator,omitzero,required"`
-	TypedData PolicyNewRuleParamsConditionEthereumTypedDataMessageTypedData  `json:"typed_data,omitzero,required"`
-	Value     PolicyNewRuleParamsConditionEthereumTypedDataMessageValueUnion `json:"value,omitzero,required"`
+	Operator  string                                                         `json:"operator,omitzero" api:"required"`
+	TypedData PolicyNewRuleParamsConditionEthereumTypedDataMessageTypedData  `json:"typed_data,omitzero" api:"required"`
+	Value     PolicyNewRuleParamsConditionEthereumTypedDataMessageValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_typed_data_message".
-	FieldSource constant.EthereumTypedDataMessage `json:"field_source,required"`
+	FieldSource constant.EthereumTypedDataMessage `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -5824,8 +5824,8 @@ func init() {
 
 // The properties PrimaryType, Types are required.
 type PolicyNewRuleParamsConditionEthereumTypedDataMessageTypedData struct {
-	PrimaryType string                                                                         `json:"primary_type,required"`
-	Types       map[string][]PolicyNewRuleParamsConditionEthereumTypedDataMessageTypedDataType `json:"types,omitzero,required"`
+	PrimaryType string                                                                         `json:"primary_type" api:"required"`
+	Types       map[string][]PolicyNewRuleParamsConditionEthereumTypedDataMessageTypedDataType `json:"types,omitzero" api:"required"`
 	paramObj
 }
 
@@ -5839,8 +5839,8 @@ func (r *PolicyNewRuleParamsConditionEthereumTypedDataMessageTypedData) Unmarsha
 
 // The properties Name, Type are required.
 type PolicyNewRuleParamsConditionEthereumTypedDataMessageTypedDataType struct {
-	Name string `json:"name,required"`
-	Type string `json:"type,required"`
+	Name string `json:"name" api:"required"`
+	Type string `json:"type" api:"required"`
 	paramObj
 }
 
@@ -5873,13 +5873,13 @@ func (u *PolicyNewRuleParamsConditionEthereumTypedDataMessageValueUnion) Unmarsh
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyNewRuleParamsConditionEthereum7702Authorization struct {
 	// Any of "contract".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                          `json:"operator,omitzero,required"`
-	Value    PolicyNewRuleParamsConditionEthereum7702AuthorizationValueUnion `json:"value,omitzero,required"`
+	Operator string                                                          `json:"operator,omitzero" api:"required"`
+	Value    PolicyNewRuleParamsConditionEthereum7702AuthorizationValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_7702_authorization".
-	FieldSource constant.Ethereum7702Authorization `json:"field_source,required"`
+	FieldSource constant.Ethereum7702Authorization `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -5921,13 +5921,13 @@ func (u *PolicyNewRuleParamsConditionEthereum7702AuthorizationValueUnion) Unmars
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyNewRuleParamsConditionSolanaProgramInstruction struct {
 	// Any of "programId".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                         `json:"operator,omitzero,required"`
-	Value    PolicyNewRuleParamsConditionSolanaProgramInstructionValueUnion `json:"value,omitzero,required"`
+	Operator string                                                         `json:"operator,omitzero" api:"required"`
+	Value    PolicyNewRuleParamsConditionSolanaProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_program_instruction".
-	FieldSource constant.SolanaProgramInstruction `json:"field_source,required"`
+	FieldSource constant.SolanaProgramInstruction `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -5970,13 +5970,13 @@ func (u *PolicyNewRuleParamsConditionSolanaProgramInstructionValueUnion) Unmarsh
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyNewRuleParamsConditionSolanaSystemProgramInstruction struct {
 	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                               `json:"operator,omitzero,required"`
-	Value    PolicyNewRuleParamsConditionSolanaSystemProgramInstructionValueUnion `json:"value,omitzero,required"`
+	Operator string                                                               `json:"operator,omitzero" api:"required"`
+	Value    PolicyNewRuleParamsConditionSolanaSystemProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_system_program_instruction".
-	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source,required"`
+	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -6021,13 +6021,13 @@ type PolicyNewRuleParamsConditionSolanaTokenProgramInstruction struct {
 	// Any of "instructionName", "TransferChecked.source",
 	// "TransferChecked.destination", "TransferChecked.authority",
 	// "TransferChecked.amount", "TransferChecked.mint".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                              `json:"operator,omitzero,required"`
-	Value    PolicyNewRuleParamsConditionSolanaTokenProgramInstructionValueUnion `json:"value,omitzero,required"`
+	Operator string                                                              `json:"operator,omitzero" api:"required"`
+	Value    PolicyNewRuleParamsConditionSolanaTokenProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_token_program_instruction".
-	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source,required"`
+	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -6069,12 +6069,12 @@ func (u *PolicyNewRuleParamsConditionSolanaTokenProgramInstructionValueUnion) Un
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyNewRuleParamsConditionSystem struct {
 	// Any of "current_unix_timestamp".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                       `json:"operator,omitzero,required"`
-	Value    PolicyNewRuleParamsConditionSystemValueUnion `json:"value,omitzero,required"`
+	Operator string                                       `json:"operator,omitzero" api:"required"`
+	Value    PolicyNewRuleParamsConditionSystemValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as "system".
-	FieldSource constant.System `json:"field_source,required"`
+	FieldSource constant.System `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -6128,7 +6128,7 @@ const (
 )
 
 type PolicyDeleteRuleParams struct {
-	PolicyID string `path:"policy_id,required" json:"-"`
+	PolicyID string `path:"policy_id" api:"required" json:"-"`
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.
 	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
@@ -6136,24 +6136,24 @@ type PolicyDeleteRuleParams struct {
 }
 
 type PolicyGetRuleParams struct {
-	PolicyID string `path:"policy_id,required" json:"-"`
+	PolicyID string `path:"policy_id" api:"required" json:"-"`
 	paramObj
 }
 
 type PolicyUpdateRuleParams struct {
-	PolicyID string `path:"policy_id,required" json:"-"`
+	PolicyID string `path:"policy_id" api:"required" json:"-"`
 	// Action to take if the conditions are true.
 	//
 	// Any of "ALLOW", "DENY".
-	Action     PolicyUpdateRuleParamsAction           `json:"action,omitzero,required"`
-	Conditions []PolicyUpdateRuleParamsConditionUnion `json:"conditions,omitzero,required"`
+	Action     PolicyUpdateRuleParamsAction           `json:"action,omitzero" api:"required"`
+	Conditions []PolicyUpdateRuleParamsConditionUnion `json:"conditions,omitzero" api:"required"`
 	// Method the rule applies to.
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "eth_sign7702Authorization", "signTransaction",
 	// "signAndSendTransaction", "exportPrivateKey", "signTransactionBytes", "\*".
-	Method PolicyUpdateRuleParamsMethod `json:"method,omitzero,required"`
-	Name   string                       `json:"name,required"`
+	Method PolicyUpdateRuleParamsMethod `json:"method,omitzero" api:"required"`
+	Name   string                       `json:"name" api:"required"`
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.
 	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
@@ -6237,13 +6237,13 @@ func init() {
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyUpdateRuleParamsConditionEthereumTransaction struct {
 	// Any of "to", "value", "chain_id".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                       `json:"operator,omitzero,required"`
-	Value    PolicyUpdateRuleParamsConditionEthereumTransactionValueUnion `json:"value,omitzero,required"`
+	Operator string                                                       `json:"operator,omitzero" api:"required"`
+	Value    PolicyUpdateRuleParamsConditionEthereumTransactionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_transaction".
-	FieldSource constant.EthereumTransaction `json:"field_source,required"`
+	FieldSource constant.EthereumTransaction `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -6286,14 +6286,14 @@ func (u *PolicyUpdateRuleParamsConditionEthereumTransactionValueUnion) Unmarshal
 //
 // The properties Abi, Field, FieldSource, Operator, Value are required.
 type PolicyUpdateRuleParamsConditionEthereumCalldata struct {
-	Abi   any    `json:"abi,omitzero,required"`
-	Field string `json:"field,required"`
+	Abi   any    `json:"abi,omitzero" api:"required"`
+	Field string `json:"field" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                    `json:"operator,omitzero,required"`
-	Value    PolicyUpdateRuleParamsConditionEthereumCalldataValueUnion `json:"value,omitzero,required"`
+	Operator string                                                    `json:"operator,omitzero" api:"required"`
+	Value    PolicyUpdateRuleParamsConditionEthereumCalldataValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_calldata".
-	FieldSource constant.EthereumCalldata `json:"field_source,required"`
+	FieldSource constant.EthereumCalldata `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -6332,13 +6332,13 @@ func (u *PolicyUpdateRuleParamsConditionEthereumCalldataValueUnion) UnmarshalJSO
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyUpdateRuleParamsConditionEthereumTypedDataDomain struct {
 	// Any of "chainId", "verifyingContract".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                           `json:"operator,omitzero,required"`
-	Value    PolicyUpdateRuleParamsConditionEthereumTypedDataDomainValueUnion `json:"value,omitzero,required"`
+	Operator string                                                           `json:"operator,omitzero" api:"required"`
+	Value    PolicyUpdateRuleParamsConditionEthereumTypedDataDomainValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_typed_data_domain".
-	FieldSource constant.EthereumTypedDataDomain `json:"field_source,required"`
+	FieldSource constant.EthereumTypedDataDomain `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -6380,14 +6380,14 @@ func (u *PolicyUpdateRuleParamsConditionEthereumTypedDataDomainValueUnion) Unmar
 //
 // The properties Field, FieldSource, Operator, TypedData, Value are required.
 type PolicyUpdateRuleParamsConditionEthereumTypedDataMessage struct {
-	Field string `json:"field,required"`
+	Field string `json:"field" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator  string                                                            `json:"operator,omitzero,required"`
-	TypedData PolicyUpdateRuleParamsConditionEthereumTypedDataMessageTypedData  `json:"typed_data,omitzero,required"`
-	Value     PolicyUpdateRuleParamsConditionEthereumTypedDataMessageValueUnion `json:"value,omitzero,required"`
+	Operator  string                                                            `json:"operator,omitzero" api:"required"`
+	TypedData PolicyUpdateRuleParamsConditionEthereumTypedDataMessageTypedData  `json:"typed_data,omitzero" api:"required"`
+	Value     PolicyUpdateRuleParamsConditionEthereumTypedDataMessageValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_typed_data_message".
-	FieldSource constant.EthereumTypedDataMessage `json:"field_source,required"`
+	FieldSource constant.EthereumTypedDataMessage `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -6407,8 +6407,8 @@ func init() {
 
 // The properties PrimaryType, Types are required.
 type PolicyUpdateRuleParamsConditionEthereumTypedDataMessageTypedData struct {
-	PrimaryType string                                                                            `json:"primary_type,required"`
-	Types       map[string][]PolicyUpdateRuleParamsConditionEthereumTypedDataMessageTypedDataType `json:"types,omitzero,required"`
+	PrimaryType string                                                                            `json:"primary_type" api:"required"`
+	Types       map[string][]PolicyUpdateRuleParamsConditionEthereumTypedDataMessageTypedDataType `json:"types,omitzero" api:"required"`
 	paramObj
 }
 
@@ -6422,8 +6422,8 @@ func (r *PolicyUpdateRuleParamsConditionEthereumTypedDataMessageTypedData) Unmar
 
 // The properties Name, Type are required.
 type PolicyUpdateRuleParamsConditionEthereumTypedDataMessageTypedDataType struct {
-	Name string `json:"name,required"`
-	Type string `json:"type,required"`
+	Name string `json:"name" api:"required"`
+	Type string `json:"type" api:"required"`
 	paramObj
 }
 
@@ -6456,13 +6456,13 @@ func (u *PolicyUpdateRuleParamsConditionEthereumTypedDataMessageValueUnion) Unma
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyUpdateRuleParamsConditionEthereum7702Authorization struct {
 	// Any of "contract".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                             `json:"operator,omitzero,required"`
-	Value    PolicyUpdateRuleParamsConditionEthereum7702AuthorizationValueUnion `json:"value,omitzero,required"`
+	Operator string                                                             `json:"operator,omitzero" api:"required"`
+	Value    PolicyUpdateRuleParamsConditionEthereum7702AuthorizationValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_7702_authorization".
-	FieldSource constant.Ethereum7702Authorization `json:"field_source,required"`
+	FieldSource constant.Ethereum7702Authorization `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -6504,13 +6504,13 @@ func (u *PolicyUpdateRuleParamsConditionEthereum7702AuthorizationValueUnion) Unm
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyUpdateRuleParamsConditionSolanaProgramInstruction struct {
 	// Any of "programId".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                            `json:"operator,omitzero,required"`
-	Value    PolicyUpdateRuleParamsConditionSolanaProgramInstructionValueUnion `json:"value,omitzero,required"`
+	Operator string                                                            `json:"operator,omitzero" api:"required"`
+	Value    PolicyUpdateRuleParamsConditionSolanaProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_program_instruction".
-	FieldSource constant.SolanaProgramInstruction `json:"field_source,required"`
+	FieldSource constant.SolanaProgramInstruction `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -6553,13 +6553,13 @@ func (u *PolicyUpdateRuleParamsConditionSolanaProgramInstructionValueUnion) Unma
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyUpdateRuleParamsConditionSolanaSystemProgramInstruction struct {
 	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                                  `json:"operator,omitzero,required"`
-	Value    PolicyUpdateRuleParamsConditionSolanaSystemProgramInstructionValueUnion `json:"value,omitzero,required"`
+	Operator string                                                                  `json:"operator,omitzero" api:"required"`
+	Value    PolicyUpdateRuleParamsConditionSolanaSystemProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_system_program_instruction".
-	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source,required"`
+	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -6604,13 +6604,13 @@ type PolicyUpdateRuleParamsConditionSolanaTokenProgramInstruction struct {
 	// Any of "instructionName", "TransferChecked.source",
 	// "TransferChecked.destination", "TransferChecked.authority",
 	// "TransferChecked.amount", "TransferChecked.mint".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                                 `json:"operator,omitzero,required"`
-	Value    PolicyUpdateRuleParamsConditionSolanaTokenProgramInstructionValueUnion `json:"value,omitzero,required"`
+	Operator string                                                                 `json:"operator,omitzero" api:"required"`
+	Value    PolicyUpdateRuleParamsConditionSolanaTokenProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_token_program_instruction".
-	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source,required"`
+	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" api:"required"`
 	paramObj
 }
 
@@ -6652,12 +6652,12 @@ func (u *PolicyUpdateRuleParamsConditionSolanaTokenProgramInstructionValueUnion)
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyUpdateRuleParamsConditionSystem struct {
 	// Any of "current_unix_timestamp".
-	Field string `json:"field,omitzero,required"`
+	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                          `json:"operator,omitzero,required"`
-	Value    PolicyUpdateRuleParamsConditionSystemValueUnion `json:"value,omitzero,required"`
+	Operator string                                          `json:"operator,omitzero" api:"required"`
+	Value    PolicyUpdateRuleParamsConditionSystemValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as "system".
-	FieldSource constant.System `json:"field_source,required"`
+	FieldSource constant.System `json:"field_source" api:"required"`
 	paramObj
 }
 

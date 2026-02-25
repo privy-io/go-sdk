@@ -11,18 +11,13 @@ import (
 )
 
 // generateTestJWT creates a JWT token for testing purposes.
-// It reads the signing key from JWT_AUTH_SK and subject from JWT_AUTH_SUBJECT environment variables.
-func generateTestJWT(t *testing.T) string {
+// It reads the signing key from JWT_AUTH_SK environment variable and uses the provided subject.
+func generateTestJWT(t *testing.T, subject string) string {
 	t.Helper()
 
 	secretKey := os.Getenv("JWT_AUTH_SK")
 	if secretKey == "" {
 		t.Fatal("JWT_AUTH_SK environment variable is required")
-	}
-
-	subject := os.Getenv("JWT_AUTH_SUBJECT")
-	if subject == "" {
-		t.Fatal("JWT_AUTH_SUBJECT environment variable is required")
 	}
 
 	block, _ := pem.Decode([]byte(secretKey))

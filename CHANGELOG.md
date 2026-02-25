@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.2.0 (2026-02-25)
+
+Full Changelog: [v0.1.1...v0.2.0](https://github.com/privy-io/go-sdk/compare/v0.1.1...v0.2.0)
+
+### Features
+
+* **api:** api update ([8db2ba5](https://github.com/privy-io/go-sdk/commit/8db2ba545aec4cdbe99bc903323c32d284a7613c))
+* wallet export util doing hpke ([#57](https://github.com/privy-io/go-sdk/issues/57)) ([8020a67](https://github.com/privy-io/go-sdk/commit/8020a6700ca17db724853571b7ea03fe1323c2dd))
+
+
+### Bug Fixes
+
+* **internal:** skip tests that depend on mock server ([8abf34c](https://github.com/privy-io/go-sdk/commit/8abf34cf83f37229ca7a6634cbc346b0fa5dfbb7))
+
+
+### Chores
+
+* **internal:** move custom custom `json` tags to `api` ([a6cee4b](https://github.com/privy-io/go-sdk/commit/a6cee4bb1873f880361f744b1dfe15f82bf7329f))
+
+
+### Documentation
+
+* updates SECURITY.md ([#55](https://github.com/privy-io/go-sdk/issues/55)) ([896595e](https://github.com/privy-io/go-sdk/commit/896595ec98d501491f017b128e66880f26b08938))
+
 ## 0.1.1 (2026-02-20)
 
 Full Changelog: [v0.1.0...v0.1.1](https://github.com/privy-io/go-sdk/compare/v0.1.0...v0.1.1)
