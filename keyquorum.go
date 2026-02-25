@@ -87,8 +87,8 @@ func (r *KeyQuorumService) Get(ctx context.Context, keyQuorumID string, opts ...
 
 // A key quorum for authorizing wallet operations.
 type KeyQuorum struct {
-	ID                     string                      `json:"id,required" format:"cuid2"`
-	AuthorizationKeys      []KeyQuorumAuthorizationKey `json:"authorization_keys,required"`
+	ID                     string                      `json:"id" api:"required" format:"cuid2"`
+	AuthorizationKeys      []KeyQuorumAuthorizationKey `json:"authorization_keys" api:"required"`
 	AuthorizationThreshold float64                     `json:"authorization_threshold"`
 	DisplayName            string                      `json:"display_name"`
 	// List of nested key quorum IDs that are members of this key quorum.
@@ -114,8 +114,8 @@ func (r *KeyQuorum) UnmarshalJSON(data []byte) error {
 }
 
 type KeyQuorumAuthorizationKey struct {
-	DisplayName string `json:"display_name,required"`
-	PublicKey   string `json:"public_key,required"`
+	DisplayName string `json:"display_name" api:"required"`
+	PublicKey   string `json:"public_key" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		DisplayName respjson.Field
@@ -133,7 +133,7 @@ func (r *KeyQuorumAuthorizationKey) UnmarshalJSON(data []byte) error {
 
 type KeyQuorumDeleteResponse struct {
 	// Whether the key quorum was deleted successfully.
-	Success bool `json:"success,required"`
+	Success bool `json:"success" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Success     respjson.Field

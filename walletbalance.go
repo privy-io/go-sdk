@@ -50,7 +50,7 @@ func (r *WalletBalanceService) Get(ctx context.Context, walletID string, query W
 }
 
 type WalletBalanceGetResponse struct {
-	Balances []WalletBalanceGetResponseBalance `json:"balances,required"`
+	Balances []WalletBalanceGetResponseBalance `json:"balances" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Balances    respjson.Field
@@ -66,14 +66,14 @@ func (r *WalletBalanceGetResponse) UnmarshalJSON(data []byte) error {
 }
 
 type WalletBalanceGetResponseBalance struct {
-	Asset string `json:"asset,required"`
+	Asset string `json:"asset" api:"required"`
 	// Any of "ethereum", "arbitrum", "base", "linea", "optimism", "polygon", "solana",
 	// "zksync_era", "sepolia", "arbitrum_sepolia", "base_sepolia", "linea_testnet",
 	// "optimism_sepolia", "polygon_amoy", "solana_devnet", "solana_testnet".
-	Chain            string            `json:"chain,required"`
-	DisplayValues    map[string]string `json:"display_values,required"`
-	RawValue         string            `json:"raw_value,required"`
-	RawValueDecimals float64           `json:"raw_value_decimals,required"`
+	Chain            string            `json:"chain" api:"required"`
+	DisplayValues    map[string]string `json:"display_values" api:"required"`
+	RawValue         string            `json:"raw_value" api:"required"`
+	RawValueDecimals float64           `json:"raw_value_decimals" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Asset            respjson.Field
