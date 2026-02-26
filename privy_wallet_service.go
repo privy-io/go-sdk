@@ -243,6 +243,144 @@ func (s *PrivyWalletService) RawSign(
 	return s.WalletService.RawSign(ctx, walletID, params)
 }
 
+// WalletImportParams contains the parameters for importing a wallet.
+// The caller provides wallet metadata and the raw private key; the SDK handles
+// HPKE encryption and the two-step InitImport/SubmitImport flow internally.
+type WalletImportParams struct {
+	// Wallet contains the wallet details and private key to import.
+	Wallet WalletImportParamsWalletUnion
+	// Owner optionally sets the owner of the imported wallet.
+	Owner WalletSubmitImportParamsOwnerUnion
+	// OwnerID optionally sets the owner ID (key quorum) of the imported wallet.
+	OwnerID param.Opt[string]
+	// AdditionalSigners optionally sets additional signers for the imported wallet.
+	AdditionalSigners []WalletSubmitImportParamsAdditionalSigner
+	// PolicyIDs optionally sets policy IDs for the imported wallet.
+	PolicyIDs []string
+}
+
+// WalletImportParamsWalletUnion is a union of wallet import variants.
+// Exactly one field must be set.
+type WalletImportParamsWalletUnion struct {
+	OfHD         *WalletImportParamsWalletHD
+	OfPrivateKey *WalletImportParamsWalletPrivateKey
+}
+
+// WalletImportParamsWalletHD contains details for importing an HD wallet.
+type WalletImportParamsWalletHD struct {
+	Address    string
+	ChainType  string
+	Index      int64
+	PrivateKey []byte // raw entropy bytes (e.g. BIP39 seed phrase as UTF-8)
+}
+
+// WalletImportParamsWalletPrivateKey contains details for importing a private key wallet.
+type WalletImportParamsWalletPrivateKey struct {
+	Address    string
+	ChainType  string
+	PrivateKey []byte // raw private key bytes
+}
+
+// Import imports a wallet by orchestrating the two-step InitImport/SubmitImport
+// flow with automatic HPKE encryption of the private key material.
+func (s *PrivyWalletService) Import(ctx context.Context, params WalletImportParams) (*Wallet, error) {
+	sender := hpke.NewHpkeSender()
+
+	// Determine wallet variant and build InitImport params
+	var initParams WalletInitImportParams
+	var privateKeyBytes []byte
+
+	switch {
+	case params.Wallet.OfHD != nil:
+		hd := params.Wallet.OfHD
+		privateKeyBytes = hd.PrivateKey
+		initParams = WalletInitImportParams{
+			OfHD: &WalletInitImportParamsBodyHD{
+				Address:        hd.Address,
+				ChainType:      hd.ChainType,
+				EncryptionType: "HPKE",
+				Index:          hd.Index,
+			},
+		}
+	case params.Wallet.OfPrivateKey != nil:
+		pk := params.Wallet.OfPrivateKey
+		privateKeyBytes = pk.PrivateKey
+		initParams = WalletInitImportParams{
+			OfPrivateKey: &WalletInitImportParamsBodyPrivateKey{
+				Address:        pk.Address,
+				ChainType:      pk.ChainType,
+				EncryptionType: "HPKE",
+			},
+		}
+	default:
+		return nil, fmt.Errorf("wallet import params must have either OfHD or OfPrivateKey set")
+	}
+
+	if len(privateKeyBytes) == 0 {
+		return nil, fmt.Errorf("private key must not be empty")
+	}
+
+	// Step 1: InitImport to get the server's encryption public key
+	initResp, err := s.WalletService.InitImport(ctx, initParams)
+	if err != nil {
+		return nil, fmt.Errorf("failed to init import: %w", err)
+	}
+
+	if initResp.EncryptionType != WalletInitImportResponseEncryptionTypeHpke {
+		return nil, fmt.Errorf("unexpected encryption type: %s", initResp.EncryptionType)
+	}
+
+	// Step 2: Decode the server's public key and encrypt the private key.
+	// The server returns the raw uncompressed EC point bytes (not SPKI), base64-encoded.
+	recipientPubKey, err := base64.StdEncoding.DecodeString(initResp.EncryptionPublicKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode encryption public key: %w", err)
+	}
+
+	encapsulatedKey, ciphertext, err := sender.Encrypt(recipientPubKey, privateKeyBytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encrypt private key: %w", err)
+	}
+
+	encKeyB64 := base64.StdEncoding.EncodeToString(encapsulatedKey)
+	ctB64 := base64.StdEncoding.EncodeToString(ciphertext)
+
+	// Step 3: Build and submit the import
+	var submitParams WalletSubmitImportParams
+	switch {
+	case params.Wallet.OfHD != nil:
+		hd := params.Wallet.OfHD
+		submitParams.Wallet = WalletSubmitImportParamsWalletUnion{
+			OfHD: &WalletSubmitImportParamsWalletHD{
+				Address:         hd.Address,
+				ChainType:       hd.ChainType,
+				Ciphertext:      ctB64,
+				EncapsulatedKey: encKeyB64,
+				EncryptionType:  "HPKE",
+				Index:           hd.Index,
+			},
+		}
+	case params.Wallet.OfPrivateKey != nil:
+		pk := params.Wallet.OfPrivateKey
+		submitParams.Wallet = WalletSubmitImportParamsWalletUnion{
+			OfPrivateKey: &WalletSubmitImportParamsWalletPrivateKey{
+				Address:         pk.Address,
+				ChainType:       pk.ChainType,
+				Ciphertext:      ctB64,
+				EncapsulatedKey: encKeyB64,
+				EncryptionType:  "HPKE",
+			},
+		}
+	}
+
+	submitParams.Owner = params.Owner
+	submitParams.OwnerID = params.OwnerID
+	submitParams.AdditionalSigners = params.AdditionalSigners
+	submitParams.PolicyIDs = params.PolicyIDs
+
+	return s.WalletService.SubmitImport(ctx, submitParams)
+}
+
 // WalletExportResult contains the decrypted private key from a wallet export operation.
 type WalletExportResult struct {
 	// PrivateKey is the decrypted wallet private key.
