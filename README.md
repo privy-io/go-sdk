@@ -234,12 +234,7 @@ input := authorization.WalletApiRequestSignatureInput{
     Headers: headers,
 }
 
-signatures, err := authorization.GenerateAuthorizationSignaturesForRequest(
-    ctx,
-    authCtx,
-    input,
-    client.JwtExchange, // For JWT exchange
-)
+signatures, err := client.GenerateAuthorizationSignaturesForRequest(ctx, authCtx, input)
 ```
 
 #### Formatting requests for external signing
