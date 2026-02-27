@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.0 (2026-02-27)
+
+Full Changelog: [v0.2.0...v0.3.0](https://github.com/privy-io/go-sdk/compare/v0.2.0...v0.3.0)
+
+### Features
+
+* implements the Wallets.Import util ([#58](https://github.com/privy-io/go-sdk/issues/58)) ([c1209b3](https://github.com/privy-io/go-sdk/commit/c1209b31856fa25b3a233a09ab19a709d554fa7e))
+* PrivyClient.GenerateAuthorizationSignaturesForRequest ([#59](https://github.com/privy-io/go-sdk/issues/59)) ([e22be09](https://github.com/privy-io/go-sdk/commit/e22be09fdd8d297f3b83fa8ec4d6a1dd469cc69b))
+
 ## 0.2.0 (2026-02-25)
 
 Full Changelog: [v0.1.1...v0.2.0](https://github.com/privy-io/go-sdk/compare/v0.1.1...v0.2.0)
