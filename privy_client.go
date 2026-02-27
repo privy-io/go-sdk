@@ -1,10 +1,12 @@
 package privyclient
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
 
+	"github.com/privy-io/go-sdk/authorization"
 	"github.com/privy-io/go-sdk/internal"
 	"github.com/privy-io/go-sdk/option"
 )
@@ -131,4 +133,34 @@ func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
 		Webhooks:     newPrivyWebhookService(client.Webhooks, logger),
 		JwtExchange:  jwtExchange,
 	}
+}
+
+// GenerateAuthorizationSignaturesForRequest formats a request and generates
+// signatures for all credentials in an AuthorizationContext, using the client's
+// built-in JWT exchanger for any JWTs in the authorization context.
+//
+// This is a convenience method that delegates to
+// [authorization.GenerateAuthorizationSignaturesForRequest] with the client's
+// JWT exchange service, so callers don't need to pass the exchanger explicitly.
+//
+// Example:
+//
+//	signatures, err := client.GenerateAuthorizationSignaturesForRequest(ctx,
+//	    authorization.AuthorizationContext{
+//	        UserJwts: []string{userJWT},
+//	    },
+//	    authorization.WalletApiRequestSignatureInput{
+//	        Version: 1,
+//	        Method:  "POST",
+//	        URL:     "https://api.privy.io/v1/wallets/my-wallet/rpc",
+//	        Body:    requestBody,
+//	        Headers: map[string]string{"privy-app-id": "my-app-id"},
+//	    },
+//	)
+func (c *PrivyClient) GenerateAuthorizationSignaturesForRequest(
+	ctx context.Context,
+	auth authorization.AuthorizationContext,
+	input authorization.WalletApiRequestSignatureInput,
+) ([]string, error) {
+	return authorization.GenerateAuthorizationSignaturesForRequest(ctx, auth, input, c.JwtExchange)
 }

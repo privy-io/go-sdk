@@ -28,7 +28,7 @@ Or to pin the version:
 <!-- x-release-please-start-version -->
 
 ```sh
-go get -u 'github.com/privy-io/go-sdk@v0.2.0'
+go get -u 'github.com/privy-io/go-sdk@v0.3.0'
 ```
 
 <!-- x-release-please-end -->
@@ -234,12 +234,7 @@ input := authorization.WalletApiRequestSignatureInput{
     Headers: headers,
 }
 
-signatures, err := authorization.GenerateAuthorizationSignaturesForRequest(
-    ctx,
-    authCtx,
-    input,
-    client.JwtExchange, // For JWT exchange
-)
+signatures, err := client.GenerateAuthorizationSignaturesForRequest(ctx, authCtx, input)
 ```
 
 #### Formatting requests for external signing

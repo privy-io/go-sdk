@@ -2,7 +2,10 @@ package e2e_test
 
 import (
 	"crypto/ed25519"
+	"crypto/rand"
 	"encoding/hex"
+	"fmt"
+	randv2 "math/rand/v2"
 	"strings"
 	"testing"
 
@@ -224,6 +227,152 @@ func TestWallets(t *testing.T) {
 				}
 			})
 		}
+	})
+
+	t.Run("Import", func(t *testing.T) {
+		t.Run("PrivateKey", func(t *testing.T) {
+			t.Run("Ethereum", func(t *testing.T) {
+				// Generate a fresh secp256k1 keypair
+				privKey, err := btcec.NewPrivateKey()
+				if err != nil {
+					t.Fatalf("failed to generate private key: %v", err)
+				}
+				privKeyBytes := privKey.Serialize()
+				pubKeyBytes := privKey.PubKey().SerializeUncompressed()
+				hasher := sha3.NewLegacyKeccak256()
+				hasher.Write(pubKeyBytes[1:])
+				hash := hasher.Sum(nil)
+				address := "0x" + hex.EncodeToString(hash[len(hash)-20:])
+
+				imported, err := client.Wallets.Import(ctx, WalletImportParams{
+					Wallet: WalletImportParamsWalletUnion{
+						OfPrivateKey: &WalletImportParamsWalletPrivateKey{
+							Address:    address,
+							ChainType:  string(WalletChainTypeEthereum),
+							PrivateKey: privKeyBytes,
+						},
+					},
+				})
+				if err != nil {
+					t.Fatalf("failed to import wallet: %v", err)
+				}
+
+				if imported.ID == "" {
+					t.Error("expected imported wallet ID to be non-empty")
+				}
+				if imported.Address == "" {
+					t.Error("expected imported wallet address to be non-empty")
+				}
+				if !strings.EqualFold(imported.Address, address) {
+					t.Errorf("expected imported address %s to match %s", imported.Address, address)
+				}
+				if imported.ChainType != WalletChainTypeEthereum {
+					t.Errorf("expected chain type ethereum, got %s", imported.ChainType)
+				}
+			})
+
+			t.Run("Solana", func(t *testing.T) {
+				// Generate a fresh ed25519 keypair
+				pubKey, privKey, err := ed25519.GenerateKey(rand.Reader)
+				if err != nil {
+					t.Fatalf("failed to generate keypair: %v", err)
+				}
+				address := base58.Encode(pubKey)
+
+				imported, err := client.Wallets.Import(ctx, WalletImportParams{
+					Wallet: WalletImportParamsWalletUnion{
+						OfPrivateKey: &WalletImportParamsWalletPrivateKey{
+							Address:    address,
+							ChainType:  string(WalletChainTypeSolana),
+							PrivateKey: []byte(privKey),
+						},
+					},
+				})
+				if err != nil {
+					t.Fatalf("failed to import wallet: %v", err)
+				}
+
+				if imported.ID == "" {
+					t.Error("expected imported wallet ID to be non-empty")
+				}
+				if imported.Address == "" {
+					t.Error("expected imported wallet address to be non-empty")
+				}
+				if imported.Address != address {
+					t.Errorf("expected imported address %s to match %s", imported.Address, address)
+				}
+				if imported.ChainType != WalletChainTypeSolana {
+					t.Errorf("expected chain type solana, got %s", imported.ChainType)
+				}
+			})
+		})
+
+		t.Run("MnemonicHD", func(t *testing.T) {
+			mnemonic := generateMnemonic(t)
+			n := randv2.IntN(98) + 2 // random index >= 2
+
+			indices := []struct {
+				name  string
+				index int
+			}{
+				{"Index=0", 0},
+				{"Index=1", 1},
+				{fmt.Sprintf("Index=%d", n), n},
+			}
+
+			chains := []struct {
+				name            string
+				chainType       WalletChainType
+				deriveAddr      func(*testing.T, string, int) string
+				caseInsensitive bool
+			}{
+				{"Ethereum", WalletChainTypeEthereum, deriveEthAddressFromMnemonic, true},
+				{"Solana", WalletChainTypeSolana, deriveSolAddressFromMnemonic, false},
+			}
+
+			for _, idx := range indices {
+				t.Run(idx.name, func(t *testing.T) {
+					for _, chain := range chains {
+						t.Run(chain.name, func(t *testing.T) {
+							address := chain.deriveAddr(t, mnemonic, idx.index)
+
+							imported, err := client.Wallets.Import(ctx, WalletImportParams{
+								Wallet: WalletImportParamsWalletUnion{
+									OfHD: &WalletImportParamsWalletHD{
+										Address:    address,
+										ChainType:  string(chain.chainType),
+										Index:      int64(idx.index),
+										PrivateKey: []byte(mnemonic),
+									},
+								},
+							})
+							if err != nil {
+								t.Fatalf("failed to import HD wallet: %v", err)
+							}
+
+							if imported.ID == "" {
+								t.Error("expected imported wallet ID to be non-empty")
+							}
+							if imported.Address == "" {
+								t.Error("expected imported wallet address to be non-empty")
+							}
+							if chain.caseInsensitive {
+								if !strings.EqualFold(imported.Address, address) {
+									t.Errorf("expected imported address %s to match %s", imported.Address, address)
+								}
+							} else {
+								if imported.Address != address {
+									t.Errorf("expected imported address %s to match %s", imported.Address, address)
+								}
+							}
+							if imported.ChainType != chain.chainType {
+								t.Errorf("expected chain type %s, got %s", chain.chainType, imported.ChainType)
+							}
+						})
+					}
+				})
+			}
+		})
 	})
 
 	t.Run("RawSign", func(t *testing.T) {
