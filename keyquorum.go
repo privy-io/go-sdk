@@ -16,6 +16,8 @@ import (
 	"github.com/privy-io/go-sdk/packages/respjson"
 )
 
+// Operations related to key quorums
+//
 // KeyQuorumService contains methods and other services that help with interacting
 // with the Privy API API.
 //

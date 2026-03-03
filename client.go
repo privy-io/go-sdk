@@ -16,11 +16,15 @@ import (
 // interacting with the Privy API API. You should not instantiate this client
 // directly, and instead use the [NewClient] method instead.
 type Client struct {
-	Options      []option.RequestOption
-	Wallets      WalletService
-	Users        UserService
-	Policies     PolicyService
+	Options []option.RequestOption
+	Wallets WalletService
+	// Operations related to users
+	Users UserService
+	// Operations related to policies
+	Policies PolicyService
+	// Operations related to transactions
 	Transactions TransactionService
+	// Operations related to key quorums
 	KeyQuorums   KeyQuorumService
 	ClientAuth   ClientAuthService
 	Analytics    AnalyticsService
