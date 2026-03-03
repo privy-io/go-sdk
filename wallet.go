@@ -28,9 +28,11 @@ import (
 // automatically. You should not instantiate this service directly, and instead use
 // the [NewWalletService] method instead.
 type WalletService struct {
-	Options      []option.RequestOption
+	Options []option.RequestOption
+	// Operations related to wallets
 	Transactions WalletTransactionService
-	Balance      WalletBalanceService
+	// Operations related to wallets
+	Balance WalletBalanceService
 }
 
 // NewWalletService generates a new service that applies the given options to each

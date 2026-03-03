@@ -19,6 +19,8 @@ import (
 	"github.com/privy-io/go-sdk/shared/constant"
 )
 
+// Operations related to policies
+//
 // PolicyService contains methods and other services that help with interacting
 // with the Privy API API.
 //
