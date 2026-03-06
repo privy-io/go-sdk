@@ -3356,6 +3356,8 @@ const (
 	PolicyGetRuleResponseMethodStar                     PolicyGetRuleResponseMethod = "*"
 )
 
+// A rule that defines the conditions and action to take if the conditions are
+// true.
 type PolicyUpdateRuleResponse struct {
 	ID string `json:"id" api:"required"`
 	// Action to take if the conditions are true.
