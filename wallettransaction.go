@@ -6,6 +6,8 @@ import (
 	"github.com/privy-io/go-sdk/option"
 )
 
+// Operations related to wallets
+//
 // WalletTransactionService contains methods and other services that help with
 // interacting with the Privy API API.
 //

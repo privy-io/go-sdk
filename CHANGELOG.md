@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.4.0 (2026-03-07)
+
+Full Changelog: [v0.3.0...v0.4.0](https://github.com/privy-io/go-sdk/compare/v0.3.0...v0.4.0)
+
+### Features
+
+* **api:** api update ([54a14ca](https://github.com/privy-io/go-sdk/commit/54a14ca3f47f0b4c7c85e034a19f6aa0b547168d))
+* **api:** api update ([53a50ac](https://github.com/privy-io/go-sdk/commit/53a50ac2833680c3b334a7d4e9ba51ada43e2412))
+* **api:** enables apps resource endpoints ([9f05367](https://github.com/privy-io/go-sdk/commit/9f05367562236daa5cfc9ad6260f2d8617639ada))
+
+
+### Chores
+
+* **ci:** skip uploading artifacts on stainless-internal branches ([daf77f3](https://github.com/privy-io/go-sdk/commit/daf77f33be4052ebb34e56d6d654b410af74e571))
+* **internal:** codegen related update ([1a73b23](https://github.com/privy-io/go-sdk/commit/1a73b23c7af359c7b91fb507fd97b9554b1fbcf4))
+* **internal:** codegen related update ([380dbe1](https://github.com/privy-io/go-sdk/commit/380dbe1c71062b94c0843f8f8d77820c2e5afbf5))
+
+
+### Documentation
+
+* updates the contributing docs ([#63](https://github.com/privy-io/go-sdk/issues/63)) ([d64aa23](https://github.com/privy-io/go-sdk/commit/d64aa2386b5b3d7d8d81c7cf002ec5d5c1a9c0da))
+
 ## 0.3.0 (2026-02-27)
 
 Full Changelog: [v0.2.0...v0.3.0](https://github.com/privy-io/go-sdk/compare/v0.2.0...v0.3.0)

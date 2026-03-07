@@ -18,6 +18,8 @@ import (
 	"github.com/privy-io/go-sdk/packages/respjson"
 )
 
+// Operations related to wallets
+//
 // WalletBalanceService contains methods and other services that help with
 // interacting with the Privy API API.
 //
@@ -67,9 +69,10 @@ func (r *WalletBalanceGetResponse) UnmarshalJSON(data []byte) error {
 
 type WalletBalanceGetResponseBalance struct {
 	Asset string `json:"asset" api:"required"`
-	// Any of "ethereum", "arbitrum", "base", "linea", "optimism", "polygon", "solana",
-	// "zksync_era", "sepolia", "arbitrum_sepolia", "base_sepolia", "linea_testnet",
-	// "optimism_sepolia", "polygon_amoy", "solana_devnet", "solana_testnet".
+	// Any of "ethereum", "arbitrum", "base", "tempo", "linea", "optimism", "polygon",
+	// "solana", "zksync_era", "sepolia", "arbitrum_sepolia", "base_sepolia",
+	// "linea_testnet", "optimism_sepolia", "polygon_amoy", "solana_devnet",
+	// "solana_testnet".
 	Chain            string            `json:"chain" api:"required"`
 	DisplayValues    map[string]string `json:"display_values" api:"required"`
 	RawValue         string            `json:"raw_value" api:"required"`
@@ -161,6 +164,7 @@ const (
 	WalletBalanceGetParamsChainStringEthereum        WalletBalanceGetParamsChainString = "ethereum"
 	WalletBalanceGetParamsChainStringArbitrum        WalletBalanceGetParamsChainString = "arbitrum"
 	WalletBalanceGetParamsChainStringBase            WalletBalanceGetParamsChainString = "base"
+	WalletBalanceGetParamsChainStringTempo           WalletBalanceGetParamsChainString = "tempo"
 	WalletBalanceGetParamsChainStringLinea           WalletBalanceGetParamsChainString = "linea"
 	WalletBalanceGetParamsChainStringOptimism        WalletBalanceGetParamsChainString = "optimism"
 	WalletBalanceGetParamsChainStringPolygon         WalletBalanceGetParamsChainString = "polygon"
