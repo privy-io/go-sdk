@@ -252,9 +252,9 @@ Response Types:
 
 # Aggregations
 
-# Webhooks
-
 # Intents
+
+# Webhooks
 
 # Accounts
 

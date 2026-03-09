@@ -31,8 +31,8 @@ type Client struct {
 	ClientAuth   ClientAuthService
 	Analytics    AnalyticsService
 	Aggregations AggregationService
-	Webhooks     WebhookService
 	Intents      IntentService
+	Webhooks     WebhookService
 	Accounts     AccountService
 	Yield        YieldService
 }
@@ -71,8 +71,8 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.ClientAuth = NewClientAuthService(opts...)
 	r.Analytics = NewAnalyticsService(opts...)
 	r.Aggregations = NewAggregationService(opts...)
-	r.Webhooks = NewWebhookService(opts...)
 	r.Intents = NewIntentService(opts...)
+	r.Webhooks = NewWebhookService(opts...)
 	r.Accounts = NewAccountService(opts...)
 	r.Yield = NewYieldService(opts...)
 
