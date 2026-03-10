@@ -138,13 +138,14 @@ type WalletBalanceGetParamsAssetUnion struct {
 type WalletBalanceGetParamsAssetString string
 
 const (
-	WalletBalanceGetParamsAssetStringUsdc WalletBalanceGetParamsAssetString = "usdc"
-	WalletBalanceGetParamsAssetStringEth  WalletBalanceGetParamsAssetString = "eth"
-	WalletBalanceGetParamsAssetStringPol  WalletBalanceGetParamsAssetString = "pol"
-	WalletBalanceGetParamsAssetStringUsdt WalletBalanceGetParamsAssetString = "usdt"
-	WalletBalanceGetParamsAssetStringEurc WalletBalanceGetParamsAssetString = "eurc"
-	WalletBalanceGetParamsAssetStringUsdb WalletBalanceGetParamsAssetString = "usdb"
-	WalletBalanceGetParamsAssetStringSol  WalletBalanceGetParamsAssetString = "sol"
+	WalletBalanceGetParamsAssetStringUsdc  WalletBalanceGetParamsAssetString = "usdc"
+	WalletBalanceGetParamsAssetStringUsdcE WalletBalanceGetParamsAssetString = "usdc.e"
+	WalletBalanceGetParamsAssetStringEth   WalletBalanceGetParamsAssetString = "eth"
+	WalletBalanceGetParamsAssetStringPol   WalletBalanceGetParamsAssetString = "pol"
+	WalletBalanceGetParamsAssetStringUsdt  WalletBalanceGetParamsAssetString = "usdt"
+	WalletBalanceGetParamsAssetStringEurc  WalletBalanceGetParamsAssetString = "eurc"
+	WalletBalanceGetParamsAssetStringUsdb  WalletBalanceGetParamsAssetString = "usdb"
+	WalletBalanceGetParamsAssetStringSol   WalletBalanceGetParamsAssetString = "sol"
 )
 
 // Only one field can be non-zero.
