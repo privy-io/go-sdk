@@ -183,6 +183,106 @@ func (r *WalletService) Rpc(ctx context.Context, walletID string, params WalletR
 	return res, err
 }
 
+// The wallet chain types that support curve-based signing.
+type CurveSigningChainType string
+
+const (
+	CurveSigningChainTypeCosmos        CurveSigningChainType = "cosmos"
+	CurveSigningChainTypeStellar       CurveSigningChainType = "stellar"
+	CurveSigningChainTypeSui           CurveSigningChainType = "sui"
+	CurveSigningChainTypeAptos         CurveSigningChainType = "aptos"
+	CurveSigningChainTypeMovement      CurveSigningChainType = "movement"
+	CurveSigningChainTypeTron          CurveSigningChainType = "tron"
+	CurveSigningChainTypeBitcoinSegwit CurveSigningChainType = "bitcoin-segwit"
+	CurveSigningChainTypeNear          CurveSigningChainType = "near"
+	CurveSigningChainTypeTon           CurveSigningChainType = "ton"
+	CurveSigningChainTypeStarknet      CurveSigningChainType = "starknet"
+)
+
+// The wallet chain types.
+type WalletChainType string
+
+const (
+	WalletChainTypeEthereum      WalletChainType = "ethereum"
+	WalletChainTypeSolana        WalletChainType = "solana"
+	WalletChainTypeCosmos        WalletChainType = "cosmos"
+	WalletChainTypeStellar       WalletChainType = "stellar"
+	WalletChainTypeSui           WalletChainType = "sui"
+	WalletChainTypeAptos         WalletChainType = "aptos"
+	WalletChainTypeMovement      WalletChainType = "movement"
+	WalletChainTypeTron          WalletChainType = "tron"
+	WalletChainTypeBitcoinSegwit WalletChainType = "bitcoin-segwit"
+	WalletChainTypeNear          WalletChainType = "near"
+	WalletChainTypeTon           WalletChainType = "ton"
+	WalletChainTypeStarknet      WalletChainType = "starknet"
+	WalletChainTypeSpark         WalletChainType = "spark"
+)
+
+// Information about the custodian managing this wallet.
+type WalletCustodian struct {
+	// The custodian responsible for the wallet.
+	Provider string `json:"provider" api:"required"`
+	// The resource ID of the beneficiary of the custodial wallet.
+	ProviderUserID string `json:"provider_user_id" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Provider       respjson.Field
+		ProviderUserID respjson.Field
+		ExtraFields    map[string]respjson.Field
+		raw            string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletCustodian) RawJSON() string { return r.JSON.raw }
+func (r *WalletCustodian) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Optional HPKE configuration for wallet import decryption. These parameters allow
+// importing wallets encrypted by external providers that use different HPKE
+// configurations.
+type HpkeImportConfig struct {
+	// Additional Authenticated Data (AAD) used during encryption. Should be
+	// base64-encoded bytes.
+	Aad param.Opt[string] `json:"aad,omitzero"`
+	// Application-specific context information (INFO) used during HPKE encryption.
+	// Should be base64-encoded bytes.
+	Info param.Opt[string] `json:"info,omitzero"`
+	// The AEAD algorithm used for encryption. Defaults to CHACHA20_POLY1305 if not
+	// specified.
+	//
+	// Any of "CHACHA20_POLY1305", "AES_GCM256".
+	AeadAlgorithm HpkeImportConfigAeadAlgorithm `json:"aead_algorithm,omitzero"`
+	paramObj
+}
+
+func (r HpkeImportConfig) MarshalJSON() (data []byte, err error) {
+	type shadow HpkeImportConfig
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *HpkeImportConfig) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The AEAD algorithm used for encryption. Defaults to CHACHA20_POLY1305 if not
+// specified.
+type HpkeImportConfigAeadAlgorithm string
+
+const (
+	HpkeImportConfigAeadAlgorithmChacha20Poly1305 HpkeImportConfigAeadAlgorithm = "CHACHA20_POLY1305"
+	HpkeImportConfigAeadAlgorithmAesGcm256        HpkeImportConfigAeadAlgorithm = "AES_GCM256"
+)
+
+// SUI transaction commands allowlist for raw_sign endpoint policy evaluation
+type SuiCommandName string
+
+const (
+	SuiCommandNameTransferObjects SuiCommandName = "TransferObjects"
+	SuiCommandNameSplitCoins      SuiCommandName = "SplitCoins"
+	SuiCommandNameMergeCoins      SuiCommandName = "MergeCoins"
+)
+
 // A wallet managed by Privy's wallet infrastructure.
 type Wallet struct {
 	// Unique ID of the wallet. This will be the primary identifier when using the
@@ -254,85 +354,6 @@ func (r WalletAdditionalSigner) RawJSON() string { return r.JSON.raw }
 func (r *WalletAdditionalSigner) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-// The wallet chain types that support curve-based signing.
-type CurveSigningChainType string
-
-const (
-	CurveSigningChainTypeCosmos        CurveSigningChainType = "cosmos"
-	CurveSigningChainTypeStellar       CurveSigningChainType = "stellar"
-	CurveSigningChainTypeSui           CurveSigningChainType = "sui"
-	CurveSigningChainTypeAptos         CurveSigningChainType = "aptos"
-	CurveSigningChainTypeMovement      CurveSigningChainType = "movement"
-	CurveSigningChainTypeTron          CurveSigningChainType = "tron"
-	CurveSigningChainTypeBitcoinSegwit CurveSigningChainType = "bitcoin-segwit"
-	CurveSigningChainTypeNear          CurveSigningChainType = "near"
-	CurveSigningChainTypeTon           CurveSigningChainType = "ton"
-	CurveSigningChainTypeStarknet      CurveSigningChainType = "starknet"
-)
-
-// The wallet chain types.
-type WalletChainType string
-
-const (
-	WalletChainTypeEthereum      WalletChainType = "ethereum"
-	WalletChainTypeSolana        WalletChainType = "solana"
-	WalletChainTypeCosmos        WalletChainType = "cosmos"
-	WalletChainTypeStellar       WalletChainType = "stellar"
-	WalletChainTypeSui           WalletChainType = "sui"
-	WalletChainTypeAptos         WalletChainType = "aptos"
-	WalletChainTypeMovement      WalletChainType = "movement"
-	WalletChainTypeTron          WalletChainType = "tron"
-	WalletChainTypeBitcoinSegwit WalletChainType = "bitcoin-segwit"
-	WalletChainTypeNear          WalletChainType = "near"
-	WalletChainTypeTon           WalletChainType = "ton"
-	WalletChainTypeStarknet      WalletChainType = "starknet"
-	WalletChainTypeSpark         WalletChainType = "spark"
-)
-
-// Optional HPKE configuration for wallet import decryption. These parameters allow
-// importing wallets encrypted by external providers that use different HPKE
-// configurations.
-type HpkeImportConfig struct {
-	// Additional Authenticated Data (AAD) used during encryption. Should be
-	// base64-encoded bytes.
-	Aad param.Opt[string] `json:"aad,omitzero"`
-	// Application-specific context information (INFO) used during HPKE encryption.
-	// Should be base64-encoded bytes.
-	Info param.Opt[string] `json:"info,omitzero"`
-	// The AEAD algorithm used for encryption. Defaults to CHACHA20_POLY1305 if not
-	// specified.
-	//
-	// Any of "CHACHA20_POLY1305", "AES_GCM256".
-	AeadAlgorithm HpkeImportConfigAeadAlgorithm `json:"aead_algorithm,omitzero"`
-	paramObj
-}
-
-func (r HpkeImportConfig) MarshalJSON() (data []byte, err error) {
-	type shadow HpkeImportConfig
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *HpkeImportConfig) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The AEAD algorithm used for encryption. Defaults to CHACHA20_POLY1305 if not
-// specified.
-type HpkeImportConfigAeadAlgorithm string
-
-const (
-	HpkeImportConfigAeadAlgorithmChacha20Poly1305 HpkeImportConfigAeadAlgorithm = "CHACHA20_POLY1305"
-	HpkeImportConfigAeadAlgorithmAesGcm256        HpkeImportConfigAeadAlgorithm = "AES_GCM256"
-)
-
-// SUI transaction commands allowlist for raw_sign endpoint policy evaluation
-type SuiCommandName string
-
-const (
-	SuiCommandNameTransferObjects SuiCommandName = "TransferObjects"
-	SuiCommandNameSplitCoins      SuiCommandName = "SplitCoins"
-	SuiCommandNameMergeCoins      SuiCommandName = "MergeCoins"
-)
 
 // Request body for updating a wallet.
 type WalletUpdateRequestBody struct {

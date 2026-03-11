@@ -239,39 +239,6 @@ func (r *UserService) UnlinkLinkedAccount(ctx context.Context, userID string, bo
 	return res, err
 }
 
-// A Privy user object.
-type User struct {
-	ID string `json:"id" api:"required"`
-	// Unix timestamp of when the user was created in milliseconds.
-	CreatedAt float64 `json:"created_at" api:"required"`
-	// Indicates if the user has accepted the terms of service.
-	HasAcceptedTerms bool `json:"has_accepted_terms" api:"required"`
-	// Indicates if the user is a guest account user.
-	IsGuest        bool                   `json:"is_guest" api:"required"`
-	LinkedAccounts []LinkedAccountUnion   `json:"linked_accounts" api:"required"`
-	MfaMethods     []LinkedMfaMethodUnion `json:"mfa_methods" api:"required"`
-	// Custom metadata associated with the user.
-	CustomMetadata CustomMetadata `json:"custom_metadata"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID               respjson.Field
-		CreatedAt        respjson.Field
-		HasAcceptedTerms respjson.Field
-		IsGuest          respjson.Field
-		LinkedAccounts   respjson.Field
-		MfaMethods       respjson.Field
-		CustomMetadata   respjson.Field
-		ExtraFields      map[string]respjson.Field
-		raw              string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r User) RawJSON() string { return r.JSON.raw }
-func (r *User) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // An email account linked to the user.
 type LinkedAccountEmail struct {
 	Address          string  `json:"address" api:"required"`
@@ -639,7 +606,7 @@ const (
 	EmbeddedWalletRecoveryMethodPrivy                 EmbeddedWalletRecoveryMethod = "privy"
 	EmbeddedWalletRecoveryMethodUserPasscode          EmbeddedWalletRecoveryMethod = "user-passcode"
 	EmbeddedWalletRecoveryMethodGoogleDrive           EmbeddedWalletRecoveryMethod = "google-drive"
-	EmbeddedWalletRecoveryMethodIcloud                EmbeddedWalletRecoveryMethod = "icloud"
+	EmbeddedWalletRecoveryMethodICloud                EmbeddedWalletRecoveryMethod = "icloud"
 	EmbeddedWalletRecoveryMethodRecoveryEncryptionKey EmbeddedWalletRecoveryMethod = "recovery-encryption-key"
 	EmbeddedWalletRecoveryMethodPrivyV2               EmbeddedWalletRecoveryMethod = "privy-v2"
 )
@@ -2730,6 +2697,39 @@ func (u LinkedMfaMethodUnion) AsPasskey() (v PasskeyMfaMethod) {
 func (u LinkedMfaMethodUnion) RawJSON() string { return u.JSON.raw }
 
 func (r *LinkedMfaMethodUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A Privy user object.
+type User struct {
+	ID string `json:"id" api:"required"`
+	// Unix timestamp of when the user was created in milliseconds.
+	CreatedAt float64 `json:"created_at" api:"required"`
+	// Indicates if the user has accepted the terms of service.
+	HasAcceptedTerms bool `json:"has_accepted_terms" api:"required"`
+	// Indicates if the user is a guest account user.
+	IsGuest        bool                   `json:"is_guest" api:"required"`
+	LinkedAccounts []LinkedAccountUnion   `json:"linked_accounts" api:"required"`
+	MfaMethods     []LinkedMfaMethodUnion `json:"mfa_methods" api:"required"`
+	// Custom metadata associated with the user.
+	CustomMetadata CustomMetadata `json:"custom_metadata"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID               respjson.Field
+		CreatedAt        respjson.Field
+		HasAcceptedTerms respjson.Field
+		IsGuest          respjson.Field
+		LinkedAccounts   respjson.Field
+		MfaMethods       respjson.Field
+		CustomMetadata   respjson.Field
+		ExtraFields      map[string]respjson.Field
+		raw              string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r User) RawJSON() string { return r.JSON.raw }
+func (r *User) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
