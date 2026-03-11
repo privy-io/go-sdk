@@ -48,7 +48,7 @@ func (r *PolicyService) New(ctx context.Context, params PolicyNewParams, opts ..
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/policies"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
-	return
+	return res, err
 }
 
 // Update a policy by policy ID.
@@ -59,11 +59,11 @@ func (r *PolicyService) Update(ctx context.Context, policyID string, params Poli
 	opts = slices.Concat(r.Options, opts)
 	if policyID == "" {
 		err = errors.New("missing required policy_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/policies/%s", url.PathEscape(policyID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, params, &res, opts...)
-	return
+	return res, err
 }
 
 // Delete a policy by policy ID.
@@ -74,11 +74,11 @@ func (r *PolicyService) Delete(ctx context.Context, policyID string, body Policy
 	opts = slices.Concat(r.Options, opts)
 	if policyID == "" {
 		err = errors.New("missing required policy_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/policies/%s", url.PathEscape(policyID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Create a new rule for a policy.
@@ -89,11 +89,11 @@ func (r *PolicyService) NewRule(ctx context.Context, policyID string, params Pol
 	opts = slices.Concat(r.Options, opts)
 	if policyID == "" {
 		err = errors.New("missing required policy_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/policies/%s/rules", url.PathEscape(policyID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
-	return
+	return res, err
 }
 
 // Delete a rule by policy ID and rule ID.
@@ -104,15 +104,15 @@ func (r *PolicyService) DeleteRule(ctx context.Context, ruleID string, params Po
 	opts = slices.Concat(r.Options, opts)
 	if params.PolicyID == "" {
 		err = errors.New("missing required policy_id parameter")
-		return
+		return nil, err
 	}
 	if ruleID == "" {
 		err = errors.New("missing required rule_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/policies/%s/rules/%s", url.PathEscape(params.PolicyID), url.PathEscape(ruleID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Get a policy by policy ID.
@@ -120,11 +120,11 @@ func (r *PolicyService) Get(ctx context.Context, policyID string, opts ...option
 	opts = slices.Concat(r.Options, opts)
 	if policyID == "" {
 		err = errors.New("missing required policy_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/policies/%s", url.PathEscape(policyID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Get a rule by policy ID and rule ID.
@@ -132,15 +132,15 @@ func (r *PolicyService) GetRule(ctx context.Context, ruleID string, query Policy
 	opts = slices.Concat(r.Options, opts)
 	if query.PolicyID == "" {
 		err = errors.New("missing required policy_id parameter")
-		return
+		return nil, err
 	}
 	if ruleID == "" {
 		err = errors.New("missing required rule_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/policies/%s/rules/%s", url.PathEscape(query.PolicyID), url.PathEscape(ruleID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Update a rule by policy ID and rule ID.
@@ -151,15 +151,15 @@ func (r *PolicyService) UpdateRule(ctx context.Context, ruleID string, params Po
 	opts = slices.Concat(r.Options, opts)
 	if params.PolicyID == "" {
 		err = errors.New("missing required policy_id parameter")
-		return
+		return nil, err
 	}
 	if ruleID == "" {
 		err = errors.New("missing required rule_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/policies/%s/rules/%s", url.PathEscape(params.PolicyID), url.PathEscape(ruleID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, params, &res, opts...)
-	return
+	return res, err
 }
 
 // A policy for controlling wallet operations.

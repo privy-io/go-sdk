@@ -47,11 +47,11 @@ func (r *AppService) Get(ctx context.Context, appID string, opts ...option.Reque
 	opts = slices.Concat(r.Options, opts)
 	if appID == "" {
 		err = errors.New("missing required app_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/apps/%s", url.PathEscape(appID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // The response for getting an app.

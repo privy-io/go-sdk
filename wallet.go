@@ -55,7 +55,7 @@ func (r *WalletService) New(ctx context.Context, params WalletNewParams, opts ..
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/wallets"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
-	return
+	return res, err
 }
 
 // Update a wallet's policies or authorization key configuration.
@@ -66,11 +66,11 @@ func (r *WalletService) Update(ctx context.Context, walletID string, params Wall
 	opts = slices.Concat(r.Options, opts)
 	if walletID == "" {
 		err = errors.New("missing required wallet_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/wallets/%s", url.PathEscape(walletID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, params, &res, opts...)
-	return
+	return res, err
 }
 
 // Get all wallets in your app.
@@ -101,7 +101,7 @@ func (r *WalletService) InitImport(ctx context.Context, body WalletInitImportPar
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/wallets/import/init"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Submit a wallet import request.
@@ -109,7 +109,7 @@ func (r *WalletService) SubmitImport(ctx context.Context, body WalletSubmitImpor
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/wallets/import/submit"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Obtain a session key to enable wallet access.
@@ -117,7 +117,7 @@ func (r *WalletService) AuthenticateWithJwt(ctx context.Context, body WalletAuth
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/wallets/authenticate"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Export a wallet's private key
@@ -128,11 +128,11 @@ func (r *WalletService) Export(ctx context.Context, walletID string, params Wall
 	opts = slices.Concat(r.Options, opts)
 	if walletID == "" {
 		err = errors.New("missing required wallet_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/wallets/%s/export", url.PathEscape(walletID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
-	return
+	return res, err
 }
 
 // Get a wallet by wallet ID.
@@ -140,11 +140,11 @@ func (r *WalletService) Get(ctx context.Context, walletID string, opts ...option
 	opts = slices.Concat(r.Options, opts)
 	if walletID == "" {
 		err = errors.New("missing required wallet_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/wallets/%s", url.PathEscape(walletID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Sign a message with a wallet by wallet ID.
@@ -158,11 +158,11 @@ func (r *WalletService) RawSign(ctx context.Context, walletID string, params Wal
 	opts = slices.Concat(r.Options, opts)
 	if walletID == "" {
 		err = errors.New("missing required wallet_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/wallets/%s/raw_sign", url.PathEscape(walletID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
-	return
+	return res, err
 }
 
 // Sign a message or transaction with a wallet by wallet ID.
@@ -176,11 +176,11 @@ func (r *WalletService) Rpc(ctx context.Context, walletID string, params WalletR
 	opts = slices.Concat(r.Options, opts)
 	if walletID == "" {
 		err = errors.New("missing required wallet_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/wallets/%s/rpc", url.PathEscape(walletID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
-	return
+	return res, err
 }
 
 // A wallet managed by Privy's wallet infrastructure.
