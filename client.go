@@ -35,6 +35,7 @@ type Client struct {
 	Webhooks     WebhookService
 	Accounts     AccountService
 	Yield        YieldService
+	KrakenEmbed  KrakenEmbedService
 }
 
 // DefaultClientOptions read from the environment (PRIVY_APP_ID, PRIVY_APP_SECRET,
@@ -75,6 +76,7 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.Webhooks = NewWebhookService(opts...)
 	r.Accounts = NewAccountService(opts...)
 	r.Yield = NewYieldService(opts...)
+	r.KrakenEmbed = NewKrakenEmbedService(opts...)
 
 	return
 }
