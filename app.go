@@ -54,6 +54,18 @@ func (r *AppService) Get(ctx context.Context, appID string, opts ...option.Reque
 	return res, err
 }
 
+// Get the test accounts and credentials for an app.
+func (r *AppService) GetTestCredentials(ctx context.Context, appID string, opts ...option.RequestOption) (res *TestAccountsResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if appID == "" {
+		err = errors.New("missing required app_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/apps/%s/test_credentials", url.PathEscape(appID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return res, err
+}
+
 // The response for getting an app.
 type AppResponse struct {
 	ID                         string                           `json:"id" api:"required"`
@@ -667,5 +679,49 @@ type AllowlistDeletionResponse struct {
 // Returns the unmodified JSON received from the API
 func (r AllowlistDeletionResponse) RawJSON() string { return r.JSON.raw }
 func (r *AllowlistDeletionResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A test account for an app.
+type TestAccount struct {
+	ID          string `json:"id" api:"required"`
+	CreatedAt   string `json:"created_at" api:"required"`
+	Email       string `json:"email" api:"required"`
+	OtpCode     string `json:"otp_code" api:"required"`
+	PhoneNumber string `json:"phone_number" api:"required"`
+	UpdatedAt   string `json:"updated_at" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID          respjson.Field
+		CreatedAt   respjson.Field
+		Email       respjson.Field
+		OtpCode     respjson.Field
+		PhoneNumber respjson.Field
+		UpdatedAt   respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TestAccount) RawJSON() string { return r.JSON.raw }
+func (r *TestAccount) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response for listing test accounts for an app.
+type TestAccountsResponse struct {
+	Data []TestAccount `json:"data" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TestAccountsResponse) RawJSON() string { return r.JSON.raw }
+func (r *TestAccountsResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }

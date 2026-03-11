@@ -26,12 +26,12 @@ type Client struct {
 	Transactions TransactionService
 	// Operations related to key quorums
 	KeyQuorums KeyQuorumService
+	Intents    IntentService
 	// Operations related to app settings and allowlist management
 	Apps         AppService
 	ClientAuth   ClientAuthService
 	Analytics    AnalyticsService
 	Aggregations AggregationService
-	Intents      IntentService
 	Webhooks     WebhookService
 	Accounts     AccountService
 	Yield        YieldService
@@ -67,11 +67,11 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.Policies = NewPolicyService(opts...)
 	r.Transactions = NewTransactionService(opts...)
 	r.KeyQuorums = NewKeyQuorumService(opts...)
+	r.Intents = NewIntentService(opts...)
 	r.Apps = NewAppService(opts...)
 	r.ClientAuth = NewClientAuthService(opts...)
 	r.Analytics = NewAnalyticsService(opts...)
 	r.Aggregations = NewAggregationService(opts...)
-	r.Intents = NewIntentService(opts...)
 	r.Webhooks = NewWebhookService(opts...)
 	r.Accounts = NewAccountService(opts...)
 	r.Yield = NewYieldService(opts...)

@@ -89,6 +89,32 @@ func (r *KeyQuorumService) Get(ctx context.Context, keyQuorumID string, opts ...
 	return res, err
 }
 
+// Request input for creating or updating a key quorum.
+type KeyQuorumCreateParams struct {
+	// The number of keys that must sign for an action to be valid. Must be less than
+	// or equal to total number of key quorum members.
+	AuthorizationThreshold param.Opt[float64] `json:"authorization_threshold,omitzero"`
+	DisplayName            param.Opt[string]  `json:"display_name,omitzero"`
+	// List of key quorum IDs that should be members of this key quorum. Key quorums
+	// can only be nested 1 level deep.
+	KeyQuorumIDs []string `json:"key_quorum_ids,omitzero"`
+	// List of P-256 public keys of the keys that should be authorized to sign on the
+	// key quorum, in base64-encoded DER format.
+	PublicKeys []string `json:"public_keys,omitzero"`
+	// List of user IDs of the users that should be authorized to sign on the key
+	// quorum.
+	UserIDs []string `json:"user_ids,omitzero"`
+	paramObj
+}
+
+func (r KeyQuorumCreateParams) MarshalJSON() (data []byte, err error) {
+	type shadow KeyQuorumCreateParams
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *KeyQuorumCreateParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // A key quorum for authorizing wallet operations.
 type KeyQuorum struct {
 	ID                     string                      `json:"id" api:"required" format:"cuid2"`
@@ -132,32 +158,6 @@ type KeyQuorumAuthorizationKey struct {
 // Returns the unmodified JSON received from the API
 func (r KeyQuorumAuthorizationKey) RawJSON() string { return r.JSON.raw }
 func (r *KeyQuorumAuthorizationKey) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Request input for creating or updating a key quorum.
-type KeyQuorumCreateParams struct {
-	// The number of keys that must sign for an action to be valid. Must be less than
-	// or equal to total number of key quorum members.
-	AuthorizationThreshold param.Opt[float64] `json:"authorization_threshold,omitzero"`
-	DisplayName            param.Opt[string]  `json:"display_name,omitzero"`
-	// List of key quorum IDs that should be members of this key quorum. Key quorums
-	// can only be nested 1 level deep.
-	KeyQuorumIDs []string `json:"key_quorum_ids,omitzero"`
-	// List of P-256 public keys of the keys that should be authorized to sign on the
-	// key quorum, in base64-encoded DER format.
-	PublicKeys []string `json:"public_keys,omitzero"`
-	// List of user IDs of the users that should be authorized to sign on the key
-	// quorum.
-	UserIDs []string `json:"user_ids,omitzero"`
-	paramObj
-}
-
-func (r KeyQuorumCreateParams) MarshalJSON() (data []byte, err error) {
-	type shadow KeyQuorumCreateParams
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *KeyQuorumCreateParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
