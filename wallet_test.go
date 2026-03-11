@@ -69,13 +69,13 @@ func TestWalletUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"wallet_id",
 		privyclient.WalletUpdateParams{
-			PatchWalletRequestBody: privyclient.PatchWalletRequestBody{
-				AdditionalSigners: []privyclient.PatchWalletRequestBodyAdditionalSigner{{
+			WalletUpdateRequestBody: privyclient.WalletUpdateRequestBody{
+				AdditionalSigners: []privyclient.WalletUpdateRequestBodyAdditionalSigner{{
 					SignerID:          "signer_id",
 					OverridePolicyIDs: []string{"string"},
 				}},
-				Owner: privyclient.PatchWalletRequestBodyOwnerUnion{
-					OfPublicKeyOwner: &privyclient.PatchWalletRequestBodyOwnerPublicKeyOwner{
+				Owner: privyclient.WalletUpdateRequestBodyOwnerUnion{
+					OfPublicKeyOwner: &privyclient.WalletUpdateRequestBodyOwnerPublicKeyOwner{
 						PublicKey: "public_key",
 					},
 				},
