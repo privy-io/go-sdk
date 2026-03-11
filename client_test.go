@@ -39,7 +39,7 @@ func TestUserAgentHeader(t *testing.T) {
 			},
 		}),
 	)
-	client.Wallets.Get(context.Background(), "wallet_id")
+	_, _ = client.Wallets.Get(context.Background(), "wallet_id")
 	if userAgent != fmt.Sprintf("PrivyAPI/Go %s", internal.PackageVersion) {
 		t.Errorf("Expected User-Agent to be correct, but got: %#v", userAgent)
 	}
