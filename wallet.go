@@ -166,7 +166,7 @@ func (r *WalletService) RawSign(ctx context.Context, walletID string, params Wal
 }
 
 // Sign a message or transaction with a wallet by wallet ID.
-func (r *WalletService) Rpc(ctx context.Context, walletID string, params WalletRpcParams, opts ...option.RequestOption) (res *WalletRpcResponseBodyUnion, err error) {
+func (r *WalletService) Rpc(ctx context.Context, walletID string, params WalletRpcParams, opts ...option.RequestOption) (res *WalletRpcResponseUnion, err error) {
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
 		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
 	}
@@ -335,30 +335,30 @@ const (
 )
 
 // Request body for updating a wallet.
-type PatchWalletRequestBody struct {
+type WalletUpdateRequestBody struct {
 	OwnerID param.Opt[string] `json:"owner_id,omitzero"`
 	// The owner of the resource. If you provide this, do not specify an owner_id as it
 	// will be generated automatically. When updating a wallet, you can set the owner
 	// to null to remove the owner.
-	Owner PatchWalletRequestBodyOwnerUnion `json:"owner,omitzero"`
+	Owner WalletUpdateRequestBodyOwnerUnion `json:"owner,omitzero"`
 	// Additional signers for the wallet.
-	AdditionalSigners []PatchWalletRequestBodyAdditionalSigner `json:"additional_signers,omitzero"`
+	AdditionalSigners []WalletUpdateRequestBodyAdditionalSigner `json:"additional_signers,omitzero"`
 	// New policy IDs to enforce on the wallet. Currently, only one policy is supported
 	// per wallet.
 	PolicyIDs []string `json:"policy_ids,omitzero"`
 	paramObj
 }
 
-func (r PatchWalletRequestBody) MarshalJSON() (data []byte, err error) {
-	type shadow PatchWalletRequestBody
+func (r WalletUpdateRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow WalletUpdateRequestBody
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *PatchWalletRequestBody) UnmarshalJSON(data []byte) error {
+func (r *WalletUpdateRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 // The property SignerID is required.
-type PatchWalletRequestBodyAdditionalSigner struct {
+type WalletUpdateRequestBodyAdditionalSigner struct {
 	SignerID string `json:"signer_id" api:"required" format:"cuid2"`
 	// The array of policy IDs that will be applied to wallet requests. If specified,
 	// this will override the base policy IDs set on the wallet.
@@ -366,27 +366,27 @@ type PatchWalletRequestBodyAdditionalSigner struct {
 	paramObj
 }
 
-func (r PatchWalletRequestBodyAdditionalSigner) MarshalJSON() (data []byte, err error) {
-	type shadow PatchWalletRequestBodyAdditionalSigner
+func (r WalletUpdateRequestBodyAdditionalSigner) MarshalJSON() (data []byte, err error) {
+	type shadow WalletUpdateRequestBodyAdditionalSigner
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *PatchWalletRequestBodyAdditionalSigner) UnmarshalJSON(data []byte) error {
+func (r *WalletUpdateRequestBodyAdditionalSigner) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type PatchWalletRequestBodyOwnerUnion struct {
-	OfPublicKeyOwner *PatchWalletRequestBodyOwnerPublicKeyOwner `json:",omitzero,inline"`
-	OfUserOwner      *PatchWalletRequestBodyOwnerUserOwner      `json:",omitzero,inline"`
+type WalletUpdateRequestBodyOwnerUnion struct {
+	OfPublicKeyOwner *WalletUpdateRequestBodyOwnerPublicKeyOwner `json:",omitzero,inline"`
+	OfUserOwner      *WalletUpdateRequestBodyOwnerUserOwner      `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u PatchWalletRequestBodyOwnerUnion) MarshalJSON() ([]byte, error) {
+func (u WalletUpdateRequestBodyOwnerUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfPublicKeyOwner, u.OfUserOwner)
 }
-func (u *PatchWalletRequestBodyOwnerUnion) UnmarshalJSON(data []byte) error {
+func (u *WalletUpdateRequestBodyOwnerUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
 }
 
@@ -395,16 +395,16 @@ func (u *PatchWalletRequestBodyOwnerUnion) UnmarshalJSON(data []byte) error {
 // automatically.
 //
 // The property PublicKey is required.
-type PatchWalletRequestBodyOwnerPublicKeyOwner struct {
+type WalletUpdateRequestBodyOwnerPublicKeyOwner struct {
 	PublicKey string `json:"public_key" api:"required"`
 	paramObj
 }
 
-func (r PatchWalletRequestBodyOwnerPublicKeyOwner) MarshalJSON() (data []byte, err error) {
-	type shadow PatchWalletRequestBodyOwnerPublicKeyOwner
+func (r WalletUpdateRequestBodyOwnerPublicKeyOwner) MarshalJSON() (data []byte, err error) {
+	type shadow WalletUpdateRequestBodyOwnerPublicKeyOwner
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *PatchWalletRequestBodyOwnerPublicKeyOwner) UnmarshalJSON(data []byte) error {
+func (r *WalletUpdateRequestBodyOwnerPublicKeyOwner) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -413,16 +413,16 @@ func (r *PatchWalletRequestBodyOwnerPublicKeyOwner) UnmarshalJSON(data []byte) e
 // owner_id as it will be generated automatically.
 //
 // The property UserID is required.
-type PatchWalletRequestBodyOwnerUserOwner struct {
+type WalletUpdateRequestBodyOwnerUserOwner struct {
 	UserID string `json:"user_id" api:"required"`
 	paramObj
 }
 
-func (r PatchWalletRequestBodyOwnerUserOwner) MarshalJSON() (data []byte, err error) {
-	type shadow PatchWalletRequestBodyOwnerUserOwner
+func (r WalletUpdateRequestBodyOwnerUserOwner) MarshalJSON() (data []byte, err error) {
+	type shadow WalletUpdateRequestBodyOwnerUserOwner
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *PatchWalletRequestBodyOwnerUserOwner) UnmarshalJSON(data []byte) error {
+func (r *WalletUpdateRequestBodyOwnerUserOwner) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2514,7 +2514,7 @@ func init() {
 	)
 }
 
-// WalletRpcResponseBodyUnion contains all possible properties and values from
+// WalletRpcResponseUnion contains all possible properties and values from
 // [EthereumPersonalSignRpcResponse], [EthereumSignTypedDataRpcResponse],
 // [EthereumSignTransactionRpcResponse], [EthereumSendTransactionRpcResponse],
 // [EthereumSignUserOperationRpcResponse],
@@ -2522,10 +2522,10 @@ func init() {
 // [SolanaSignMessageRpcResponse], [SolanaSignTransactionRpcResponse],
 // [SolanaSignAndSendTransactionRpcResponse].
 //
-// Use the [WalletRpcResponseBodyUnion.AsAny] method to switch on the variant.
+// Use the [WalletRpcResponseUnion.AsAny] method to switch on the variant.
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
-type WalletRpcResponseBodyUnion struct {
+type WalletRpcResponseUnion struct {
 	// This field is a union of [EthereumPersonalSignRpcResponseData],
 	// [EthereumSignTypedDataRpcResponseData],
 	// [EthereumSignTransactionRpcResponseData],
@@ -2535,7 +2535,7 @@ type WalletRpcResponseBodyUnion struct {
 	// [EthereumSecp256k1SignRpcResponseData], [SolanaSignMessageRpcResponseData],
 	// [SolanaSignTransactionRpcResponseData],
 	// [SolanaSignAndSendTransactionRpcResponseData]
-	Data WalletRpcResponseBodyUnionData `json:"data"`
+	Data WalletRpcResponseUnionData `json:"data"`
 	// Any of "personal_sign", "eth_signTypedData_v4", "eth_signTransaction",
 	// "eth_sendTransaction", "eth_signUserOperation", "eth_sign7702Authorization",
 	// "secp256k1_sign", "signMessage", "signTransaction", "signAndSendTransaction".
@@ -2547,27 +2547,26 @@ type WalletRpcResponseBodyUnion struct {
 	} `json:"-"`
 }
 
-// anyWalletRpcResponseBody is implemented by each variant of
-// [WalletRpcResponseBodyUnion] to add type safety for the return type of
-// [WalletRpcResponseBodyUnion.AsAny]
-type anyWalletRpcResponseBody interface {
-	implWalletRpcResponseBodyUnion()
+// anyWalletRpcResponse is implemented by each variant of [WalletRpcResponseUnion]
+// to add type safety for the return type of [WalletRpcResponseUnion.AsAny]
+type anyWalletRpcResponse interface {
+	implWalletRpcResponseUnion()
 }
 
-func (EthereumPersonalSignRpcResponse) implWalletRpcResponseBodyUnion()          {}
-func (EthereumSignTypedDataRpcResponse) implWalletRpcResponseBodyUnion()         {}
-func (EthereumSignTransactionRpcResponse) implWalletRpcResponseBodyUnion()       {}
-func (EthereumSendTransactionRpcResponse) implWalletRpcResponseBodyUnion()       {}
-func (EthereumSignUserOperationRpcResponse) implWalletRpcResponseBodyUnion()     {}
-func (EthereumSign7702AuthorizationRpcResponse) implWalletRpcResponseBodyUnion() {}
-func (EthereumSecp256k1SignRpcResponse) implWalletRpcResponseBodyUnion()         {}
-func (SolanaSignMessageRpcResponse) implWalletRpcResponseBodyUnion()             {}
-func (SolanaSignTransactionRpcResponse) implWalletRpcResponseBodyUnion()         {}
-func (SolanaSignAndSendTransactionRpcResponse) implWalletRpcResponseBodyUnion()  {}
+func (EthereumPersonalSignRpcResponse) implWalletRpcResponseUnion()          {}
+func (EthereumSignTypedDataRpcResponse) implWalletRpcResponseUnion()         {}
+func (EthereumSignTransactionRpcResponse) implWalletRpcResponseUnion()       {}
+func (EthereumSendTransactionRpcResponse) implWalletRpcResponseUnion()       {}
+func (EthereumSignUserOperationRpcResponse) implWalletRpcResponseUnion()     {}
+func (EthereumSign7702AuthorizationRpcResponse) implWalletRpcResponseUnion() {}
+func (EthereumSecp256k1SignRpcResponse) implWalletRpcResponseUnion()         {}
+func (SolanaSignMessageRpcResponse) implWalletRpcResponseUnion()             {}
+func (SolanaSignTransactionRpcResponse) implWalletRpcResponseUnion()         {}
+func (SolanaSignAndSendTransactionRpcResponse) implWalletRpcResponseUnion()  {}
 
 // Use the following switch statement to find the correct variant
 //
-//	switch variant := WalletRpcResponseBodyUnion.AsAny().(type) {
+//	switch variant := WalletRpcResponseUnion.AsAny().(type) {
 //	case privyclient.EthereumPersonalSignRpcResponse:
 //	case privyclient.EthereumSignTypedDataRpcResponse:
 //	case privyclient.EthereumSignTransactionRpcResponse:
@@ -2581,7 +2580,7 @@ func (SolanaSignAndSendTransactionRpcResponse) implWalletRpcResponseBodyUnion() 
 //	default:
 //	  fmt.Errorf("no variant present")
 //	}
-func (u WalletRpcResponseBodyUnion) AsAny() anyWalletRpcResponseBody {
+func (u WalletRpcResponseUnion) AsAny() anyWalletRpcResponse {
 	switch u.Method {
 	case "personal_sign":
 		return u.AsPersonalSign()
@@ -2607,70 +2606,70 @@ func (u WalletRpcResponseBodyUnion) AsAny() anyWalletRpcResponseBody {
 	return nil
 }
 
-func (u WalletRpcResponseBodyUnion) AsPersonalSign() (v EthereumPersonalSignRpcResponse) {
+func (u WalletRpcResponseUnion) AsPersonalSign() (v EthereumPersonalSignRpcResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u WalletRpcResponseBodyUnion) AsEthSignTypedDataV4() (v EthereumSignTypedDataRpcResponse) {
+func (u WalletRpcResponseUnion) AsEthSignTypedDataV4() (v EthereumSignTypedDataRpcResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u WalletRpcResponseBodyUnion) AsEthSignTransaction() (v EthereumSignTransactionRpcResponse) {
+func (u WalletRpcResponseUnion) AsEthSignTransaction() (v EthereumSignTransactionRpcResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u WalletRpcResponseBodyUnion) AsEthSendTransaction() (v EthereumSendTransactionRpcResponse) {
+func (u WalletRpcResponseUnion) AsEthSendTransaction() (v EthereumSendTransactionRpcResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u WalletRpcResponseBodyUnion) AsEthSignUserOperation() (v EthereumSignUserOperationRpcResponse) {
+func (u WalletRpcResponseUnion) AsEthSignUserOperation() (v EthereumSignUserOperationRpcResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u WalletRpcResponseBodyUnion) AsEthSign7702Authorization() (v EthereumSign7702AuthorizationRpcResponse) {
+func (u WalletRpcResponseUnion) AsEthSign7702Authorization() (v EthereumSign7702AuthorizationRpcResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u WalletRpcResponseBodyUnion) AsSecp256k1Sign() (v EthereumSecp256k1SignRpcResponse) {
+func (u WalletRpcResponseUnion) AsSecp256k1Sign() (v EthereumSecp256k1SignRpcResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u WalletRpcResponseBodyUnion) AsSignMessage() (v SolanaSignMessageRpcResponse) {
+func (u WalletRpcResponseUnion) AsSignMessage() (v SolanaSignMessageRpcResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u WalletRpcResponseBodyUnion) AsSignTransaction() (v SolanaSignTransactionRpcResponse) {
+func (u WalletRpcResponseUnion) AsSignTransaction() (v SolanaSignTransactionRpcResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u WalletRpcResponseBodyUnion) AsSignAndSendTransaction() (v SolanaSignAndSendTransactionRpcResponse) {
+func (u WalletRpcResponseUnion) AsSignAndSendTransaction() (v SolanaSignAndSendTransactionRpcResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
 // Returns the unmodified JSON received from the API
-func (u WalletRpcResponseBodyUnion) RawJSON() string { return u.JSON.raw }
+func (u WalletRpcResponseUnion) RawJSON() string { return u.JSON.raw }
 
-func (r *WalletRpcResponseBodyUnion) UnmarshalJSON(data []byte) error {
+func (r *WalletRpcResponseUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// WalletRpcResponseBodyUnionData is an implicit subunion of
-// [WalletRpcResponseBodyUnion]. WalletRpcResponseBodyUnionData provides convenient
-// access to the sub-properties of the union.
+// WalletRpcResponseUnionData is an implicit subunion of [WalletRpcResponseUnion].
+// WalletRpcResponseUnionData provides convenient access to the sub-properties of
+// the union.
 //
 // For type safety it is recommended to directly use a variant of the
-// [WalletRpcResponseBodyUnion].
-type WalletRpcResponseBodyUnionData struct {
+// [WalletRpcResponseUnion].
+type WalletRpcResponseUnionData struct {
 	Encoding          string `json:"encoding"`
 	Signature         string `json:"signature"`
 	SignedTransaction string `json:"signed_transaction"`
@@ -2697,7 +2696,7 @@ type WalletRpcResponseBodyUnionData struct {
 	} `json:"-"`
 }
 
-func (r *WalletRpcResponseBodyUnionData) UnmarshalJSON(data []byte) error {
+func (r *WalletRpcResponseUnionData) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -3022,7 +3021,7 @@ func (r *WalletNewParamsOwnerUserOwner) UnmarshalJSON(data []byte) error {
 
 type WalletUpdateParams struct {
 	// Request body for updating a wallet.
-	PatchWalletRequestBody PatchWalletRequestBody
+	WalletUpdateRequestBody WalletUpdateRequestBody
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.
 	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
@@ -3030,10 +3029,10 @@ type WalletUpdateParams struct {
 }
 
 func (r WalletUpdateParams) MarshalJSON() (data []byte, err error) {
-	return shimjson.Marshal(r.PatchWalletRequestBody)
+	return shimjson.Marshal(r.WalletUpdateRequestBody)
 }
 func (r *WalletUpdateParams) UnmarshalJSON(data []byte) error {
-	return json.Unmarshal(data, &r.PatchWalletRequestBody)
+	return json.Unmarshal(data, &r.WalletUpdateRequestBody)
 }
 
 type WalletListParams struct {
