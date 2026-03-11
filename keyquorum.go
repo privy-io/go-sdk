@@ -44,7 +44,7 @@ func (r *KeyQuorumService) New(ctx context.Context, body KeyQuorumNewParams, opt
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/key_quorums"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Update a key quorum by key quorum ID.
@@ -55,11 +55,11 @@ func (r *KeyQuorumService) Update(ctx context.Context, keyQuorumID string, param
 	opts = slices.Concat(r.Options, opts)
 	if keyQuorumID == "" {
 		err = errors.New("missing required key_quorum_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/key_quorums/%s", keyQuorumID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, params, &res, opts...)
-	return
+	return res, err
 }
 
 // Delete a key quorum by key quorum ID.
@@ -70,11 +70,11 @@ func (r *KeyQuorumService) Delete(ctx context.Context, keyQuorumID string, body 
 	opts = slices.Concat(r.Options, opts)
 	if keyQuorumID == "" {
 		err = errors.New("missing required key_quorum_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/key_quorums/%s", keyQuorumID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Get a key quorum by ID.
@@ -82,11 +82,11 @@ func (r *KeyQuorumService) Get(ctx context.Context, keyQuorumID string, opts ...
 	opts = slices.Concat(r.Options, opts)
 	if keyQuorumID == "" {
 		err = errors.New("missing required key_quorum_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/key_quorums/%s", keyQuorumID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // A key quorum for authorizing wallet operations.

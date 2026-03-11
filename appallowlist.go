@@ -42,11 +42,11 @@ func (r *AppAllowlistService) New(ctx context.Context, appID string, body AppAll
 	opts = slices.Concat(r.Options, opts)
 	if appID == "" {
 		err = errors.New("missing required app_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/apps/%s/allowlist", url.PathEscape(appID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Get all allowlist entries for an app. Returns the list of users allowed to
@@ -55,11 +55,11 @@ func (r *AppAllowlistService) List(ctx context.Context, appID string, opts ...op
 	opts = slices.Concat(r.Options, opts)
 	if appID == "" {
 		err = errors.New("missing required app_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/apps/%s/allowlist", url.PathEscape(appID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Remove an entry from the allowlist for an app. The allowlist must be enabled.
@@ -67,11 +67,11 @@ func (r *AppAllowlistService) Delete(ctx context.Context, appID string, body App
 	opts = slices.Concat(r.Options, opts)
 	if appID == "" {
 		err = errors.New("missing required app_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/apps/%s/allowlist", url.PathEscape(appID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 type AppAllowlistNewParams struct {

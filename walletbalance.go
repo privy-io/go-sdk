@@ -44,11 +44,11 @@ func (r *WalletBalanceService) Get(ctx context.Context, walletID string, query W
 	opts = slices.Concat(r.Options, opts)
 	if walletID == "" {
 		err = errors.New("missing required wallet_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/wallets/%s/balance", url.PathEscape(walletID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return
+	return res, err
 }
 
 type WalletBalanceGetResponse struct {
