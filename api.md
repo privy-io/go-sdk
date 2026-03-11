@@ -295,3 +295,5 @@ Response Types:
 # Accounts
 
 # Yield
+
+# KrakenEmbed
