@@ -1,5 +1,38 @@
 # Changelog
 
+## 0.4.0 (2026-03-13)
+
+Full Changelog: [v0.3.0...v0.4.0](https://github.com/privy-io/go-sdk/compare/v0.3.0...v0.4.0)
+
+### Features
+
+* **api:** api update ([3a3dc5e](https://github.com/privy-io/go-sdk/commit/3a3dc5ed0bdb6ec2e604ecb18dfd44b99abe56a9))
+* **api:** api update ([f76d0b2](https://github.com/privy-io/go-sdk/commit/f76d0b2e365ffad4d8013b809ea08a4badd196d5))
+* **api:** api update ([cefefa8](https://github.com/privy-io/go-sdk/commit/cefefa8f407f39f7588096cbdee6521b6594a13e))
+* **api:** api update ([ec7aee3](https://github.com/privy-io/go-sdk/commit/ec7aee36c7e08f4b2a9a19042c7fbe82aef0f0fe))
+* **api:** api update ([3073064](https://github.com/privy-io/go-sdk/commit/30730647e1df3185adad02d5e1d65a01fc6dc3e7))
+* **api:** api update ([54a14ca](https://github.com/privy-io/go-sdk/commit/54a14ca3f47f0b4c7c85e034a19f6aa0b547168d))
+* **api:** api update ([53a50ac](https://github.com/privy-io/go-sdk/commit/53a50ac2833680c3b334a7d4e9ba51ada43e2412))
+* **api:** enables apps resource endpoints ([9f05367](https://github.com/privy-io/go-sdk/commit/9f05367562236daa5cfc9ad6260f2d8617639ada))
+* **api:** manual updates ([def3363](https://github.com/privy-io/go-sdk/commit/def3363c0678e603c9aa3e52c7078bd526588346))
+* **api:** manual updates ([81a4b19](https://github.com/privy-io/go-sdk/commit/81a4b193807cee2c1367b3280fbcd4bb0e715d95))
+
+
+### Chores
+
+* **ci:** skip uploading artifacts on stainless-internal branches ([daf77f3](https://github.com/privy-io/go-sdk/commit/daf77f33be4052ebb34e56d6d654b410af74e571))
+* configure new SDK language ([975b955](https://github.com/privy-io/go-sdk/commit/975b95567ef482ace46e557d56956035dd5e3b21))
+* **internal:** codegen related update ([1a73b23](https://github.com/privy-io/go-sdk/commit/1a73b23c7af359c7b91fb507fd97b9554b1fbcf4))
+* **internal:** codegen related update ([380dbe1](https://github.com/privy-io/go-sdk/commit/380dbe1c71062b94c0843f8f8d77820c2e5afbf5))
+* **internal:** minor cleanup ([5ad1d0a](https://github.com/privy-io/go-sdk/commit/5ad1d0a39bbe71fa3d94304bb3942700f32c77cc))
+* **internal:** use explicit returns ([278eab1](https://github.com/privy-io/go-sdk/commit/278eab1eaeb5d7d7e8728b6378c0431d0c9c54c4))
+* **internal:** use explicit returns in more places ([cec9ceb](https://github.com/privy-io/go-sdk/commit/cec9cebd4d43e5da46e2ac5aa4f63bd163443b01))
+
+
+### Documentation
+
+* updates the contributing docs ([#63](https://github.com/privy-io/go-sdk/issues/63)) ([d64aa23](https://github.com/privy-io/go-sdk/commit/d64aa2386b5b3d7d8d81c7cf002ec5d5c1a9c0da))
+
 ## 0.3.0 (2026-02-27)
 
 Full Changelog: [v0.2.0...v0.3.0](https://github.com/privy-io/go-sdk/compare/v0.2.0...v0.3.0)
