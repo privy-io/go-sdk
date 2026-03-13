@@ -28,14 +28,15 @@ type Client struct {
 	KeyQuorums KeyQuorumService
 	Intents    IntentService
 	// Operations related to app settings and allowlist management
-	Apps         AppService
-	ClientAuth   ClientAuthService
-	Analytics    AnalyticsService
-	Aggregations AggregationService
-	Webhooks     WebhookService
-	Accounts     AccountService
-	Yield        YieldService
-	KrakenEmbed  KrakenEmbedService
+	Apps          AppService
+	ClientAuth    ClientAuthService
+	Analytics     AnalyticsService
+	Aggregations  AggregationService
+	Webhooks      WebhookService
+	Accounts      AccountService
+	Yield         YieldService
+	WalletActions WalletActionService
+	KrakenEmbed   KrakenEmbedService
 }
 
 // DefaultClientOptions read from the environment (PRIVY_APP_ID, PRIVY_APP_SECRET,
@@ -76,6 +77,7 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.Webhooks = NewWebhookService(opts...)
 	r.Accounts = NewAccountService(opts...)
 	r.Yield = NewYieldService(opts...)
+	r.WalletActions = NewWalletActionService(opts...)
 	r.KrakenEmbed = NewKrakenEmbedService(opts...)
 
 	return
