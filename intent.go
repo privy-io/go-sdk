@@ -201,53 +201,12 @@ const (
 	IntentStatusDismissed IntentStatus = "dismissed"
 )
 
-// RuleIntentRequestDetailsUnion contains all possible properties and values from
-// [RuleIntentRequestDetailsObject], [RuleIntentRequestDetailsObject],
-// [RuleIntentRequestDetailsObject].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-type RuleIntentRequestDetailsUnion struct {
-	// This field is from variant [RuleIntentRequestDetailsObject].
-	Body RuleIntentRequestDetailsObjectBody `json:"body"`
-	// This field is from variant [RuleIntentRequestDetailsObject].
-	Method string `json:"method"`
-	// This field is from variant [RuleIntentRequestDetailsObject].
-	URL  string `json:"url"`
-	JSON struct {
-		Body   respjson.Field
-		Method respjson.Field
-		URL    respjson.Field
-		raw    string
-	} `json:"-"`
-}
-
-func (u RuleIntentRequestDetailsUnion) AsRuleIntentRequestDetailsObject() (v RuleIntentRequestDetailsObject) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u RuleIntentRequestDetailsUnion) AsVariant2() (v RuleIntentRequestDetailsObject) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u RuleIntentRequestDetailsUnion) AsVariant3() (v RuleIntentRequestDetailsObject) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u RuleIntentRequestDetailsUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *RuleIntentRequestDetailsUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type RuleIntentRequestDetailsObject struct {
-	Body RuleIntentRequestDetailsObjectBody `json:"body" api:"required"`
+// Request details for creating a rule via intent.
+type RuleIntentCreateRequestDetails struct {
+	Body RuleIntentCreateRequestDetailsBody `json:"body" api:"required"`
 	// Any of "POST".
-	Method string `json:"method" api:"required"`
-	URL    string `json:"url" api:"required"`
+	Method RuleIntentCreateRequestDetailsMethod `json:"method" api:"required"`
+	URL    string                               `json:"url" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Body        respjson.Field
@@ -259,15 +218,15 @@ type RuleIntentRequestDetailsObject struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r RuleIntentRequestDetailsObject) RawJSON() string { return r.JSON.raw }
-func (r *RuleIntentRequestDetailsObject) UnmarshalJSON(data []byte) error {
+func (r RuleIntentCreateRequestDetails) RawJSON() string { return r.JSON.raw }
+func (r *RuleIntentCreateRequestDetails) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type RuleIntentRequestDetailsObjectBody struct {
+type RuleIntentCreateRequestDetailsBody struct {
 	// Any of "ALLOW", "DENY".
 	Action     string                                             `json:"action" api:"required"`
-	Conditions []RuleIntentRequestDetailsObjectBodyConditionUnion `json:"conditions" api:"required"`
+	Conditions []RuleIntentCreateRequestDetailsBodyConditionUnion `json:"conditions" api:"required"`
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signTypedData_v4",
 	// "eth_signUserOperation", "eth_sign7702Authorization", "signTransaction",
 	// "signAndSendTransaction", "signTransactionBytes", "exportPrivateKey", "\*".
@@ -285,41 +244,41 @@ type RuleIntentRequestDetailsObjectBody struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r RuleIntentRequestDetailsObjectBody) RawJSON() string { return r.JSON.raw }
-func (r *RuleIntentRequestDetailsObjectBody) UnmarshalJSON(data []byte) error {
+func (r RuleIntentCreateRequestDetailsBody) RawJSON() string { return r.JSON.raw }
+func (r *RuleIntentCreateRequestDetailsBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// RuleIntentRequestDetailsObjectBodyConditionUnion contains all possible
-// properties and values from [RuleIntentRequestDetailsObjectBodyConditionObject],
-// [RuleIntentRequestDetailsObjectBodyConditionObject],
-// [RuleIntentRequestDetailsObjectBodyConditionObject],
-// [RuleIntentRequestDetailsObjectBodyConditionObject],
-// [RuleIntentRequestDetailsObjectBodyConditionObject],
-// [RuleIntentRequestDetailsObjectBodyConditionObject],
-// [RuleIntentRequestDetailsObjectBodyConditionObject],
-// [RuleIntentRequestDetailsObjectBodyConditionObject],
-// [RuleIntentRequestDetailsObjectBodyConditionObject],
-// [RuleIntentRequestDetailsObjectBodyConditionObject],
-// [RuleIntentRequestDetailsObjectBodyConditionObject],
-// [RuleIntentRequestDetailsObjectBodyConditionObject],
-// [RuleIntentRequestDetailsObjectBodyConditionObject],
-// [RuleIntentRequestDetailsObjectBodyConditionObject].
+// RuleIntentCreateRequestDetailsBodyConditionUnion contains all possible
+// properties and values from [RuleIntentCreateRequestDetailsBodyConditionObject],
+// [RuleIntentCreateRequestDetailsBodyConditionObject],
+// [RuleIntentCreateRequestDetailsBodyConditionObject],
+// [RuleIntentCreateRequestDetailsBodyConditionObject],
+// [RuleIntentCreateRequestDetailsBodyConditionObject],
+// [RuleIntentCreateRequestDetailsBodyConditionObject],
+// [RuleIntentCreateRequestDetailsBodyConditionObject],
+// [RuleIntentCreateRequestDetailsBodyConditionObject],
+// [RuleIntentCreateRequestDetailsBodyConditionObject],
+// [RuleIntentCreateRequestDetailsBodyConditionObject],
+// [RuleIntentCreateRequestDetailsBodyConditionObject],
+// [RuleIntentCreateRequestDetailsBodyConditionObject],
+// [RuleIntentCreateRequestDetailsBodyConditionObject],
+// [RuleIntentCreateRequestDetailsBodyConditionObject].
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
-type RuleIntentRequestDetailsObjectBodyConditionUnion struct {
-	// This field is from variant [RuleIntentRequestDetailsObjectBodyConditionObject].
-	Field RuleIntentRequestDetailsObjectBodyConditionObjectField `json:"field"`
-	// This field is from variant [RuleIntentRequestDetailsObjectBodyConditionObject].
+type RuleIntentCreateRequestDetailsBodyConditionUnion struct {
+	// This field is from variant [RuleIntentCreateRequestDetailsBodyConditionObject].
+	Field RuleIntentCreateRequestDetailsBodyConditionObjectField `json:"field"`
+	// This field is from variant [RuleIntentCreateRequestDetailsBodyConditionObject].
 	FieldSource string `json:"field_source"`
-	// This field is from variant [RuleIntentRequestDetailsObjectBodyConditionObject].
-	Operator RuleIntentRequestDetailsObjectBodyConditionObjectOperator `json:"operator"`
-	// This field is from variant [RuleIntentRequestDetailsObjectBodyConditionObject].
-	Value RuleIntentRequestDetailsObjectBodyConditionObjectValueUnion `json:"value"`
-	// This field is from variant [RuleIntentRequestDetailsObjectBodyConditionObject].
-	Abi []RuleIntentRequestDetailsObjectBodyConditionObjectAbi `json:"abi"`
-	// This field is from variant [RuleIntentRequestDetailsObjectBodyConditionObject].
-	TypedData RuleIntentRequestDetailsObjectBodyConditionObjectTypedData `json:"typed_data"`
+	// This field is from variant [RuleIntentCreateRequestDetailsBodyConditionObject].
+	Operator RuleIntentCreateRequestDetailsBodyConditionObjectOperator `json:"operator"`
+	// This field is from variant [RuleIntentCreateRequestDetailsBodyConditionObject].
+	Value RuleIntentCreateRequestDetailsBodyConditionObjectValueUnion `json:"value"`
+	// This field is from variant [RuleIntentCreateRequestDetailsBodyConditionObject].
+	Abi []RuleIntentCreateRequestDetailsBodyConditionObjectAbi `json:"abi"`
+	// This field is from variant [RuleIntentCreateRequestDetailsBodyConditionObject].
+	TypedData RuleIntentCreateRequestDetailsBodyConditionObjectTypedData `json:"typed_data"`
 	JSON      struct {
 		Field       respjson.Field
 		FieldSource respjson.Field
@@ -331,36 +290,36 @@ type RuleIntentRequestDetailsObjectBodyConditionUnion struct {
 	} `json:"-"`
 }
 
-func (u RuleIntentRequestDetailsObjectBodyConditionUnion) AsRuleIntentRequestDetailsObjectBodyConditionObject() (v RuleIntentRequestDetailsObjectBodyConditionObject) {
+func (u RuleIntentCreateRequestDetailsBodyConditionUnion) AsRuleIntentCreateRequestDetailsBodyConditionObject() (v RuleIntentCreateRequestDetailsBodyConditionObject) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u RuleIntentRequestDetailsObjectBodyConditionUnion) AsVariant2() (v RuleIntentRequestDetailsObjectBodyConditionObject) {
+func (u RuleIntentCreateRequestDetailsBodyConditionUnion) AsVariant2() (v RuleIntentCreateRequestDetailsBodyConditionObject) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u RuleIntentRequestDetailsObjectBodyConditionUnion) AsVariant3() (v RuleIntentRequestDetailsObjectBodyConditionObject) {
+func (u RuleIntentCreateRequestDetailsBodyConditionUnion) AsVariant3() (v RuleIntentCreateRequestDetailsBodyConditionObject) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
 // Returns the unmodified JSON received from the API
-func (u RuleIntentRequestDetailsObjectBodyConditionUnion) RawJSON() string { return u.JSON.raw }
+func (u RuleIntentCreateRequestDetailsBodyConditionUnion) RawJSON() string { return u.JSON.raw }
 
-func (r *RuleIntentRequestDetailsObjectBodyConditionUnion) UnmarshalJSON(data []byte) error {
+func (r *RuleIntentCreateRequestDetailsBodyConditionUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type RuleIntentRequestDetailsObjectBodyConditionObject struct {
+type RuleIntentCreateRequestDetailsBodyConditionObject struct {
 	// Any of "to", "value", "chain_id".
-	Field RuleIntentRequestDetailsObjectBodyConditionObjectField `json:"field" api:"required"`
+	Field RuleIntentCreateRequestDetailsBodyConditionObjectField `json:"field" api:"required"`
 	// Any of "ethereum_transaction".
 	FieldSource string `json:"field_source" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator RuleIntentRequestDetailsObjectBodyConditionObjectOperator   `json:"operator" api:"required"`
-	Value    RuleIntentRequestDetailsObjectBodyConditionObjectValueUnion `json:"value" api:"required"`
+	Operator RuleIntentCreateRequestDetailsBodyConditionObjectOperator   `json:"operator" api:"required"`
+	Value    RuleIntentCreateRequestDetailsBodyConditionObjectValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -373,39 +332,39 @@ type RuleIntentRequestDetailsObjectBodyConditionObject struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r RuleIntentRequestDetailsObjectBodyConditionObject) RawJSON() string { return r.JSON.raw }
-func (r *RuleIntentRequestDetailsObjectBodyConditionObject) UnmarshalJSON(data []byte) error {
+func (r RuleIntentCreateRequestDetailsBodyConditionObject) RawJSON() string { return r.JSON.raw }
+func (r *RuleIntentCreateRequestDetailsBodyConditionObject) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type RuleIntentRequestDetailsObjectBodyConditionObjectField string
+type RuleIntentCreateRequestDetailsBodyConditionObjectField string
 
 const (
-	RuleIntentRequestDetailsObjectBodyConditionObjectFieldTo      RuleIntentRequestDetailsObjectBodyConditionObjectField = "to"
-	RuleIntentRequestDetailsObjectBodyConditionObjectFieldValue   RuleIntentRequestDetailsObjectBodyConditionObjectField = "value"
-	RuleIntentRequestDetailsObjectBodyConditionObjectFieldChainID RuleIntentRequestDetailsObjectBodyConditionObjectField = "chain_id"
+	RuleIntentCreateRequestDetailsBodyConditionObjectFieldTo      RuleIntentCreateRequestDetailsBodyConditionObjectField = "to"
+	RuleIntentCreateRequestDetailsBodyConditionObjectFieldValue   RuleIntentCreateRequestDetailsBodyConditionObjectField = "value"
+	RuleIntentCreateRequestDetailsBodyConditionObjectFieldChainID RuleIntentCreateRequestDetailsBodyConditionObjectField = "chain_id"
 )
 
-type RuleIntentRequestDetailsObjectBodyConditionObjectOperator string
+type RuleIntentCreateRequestDetailsBodyConditionObjectOperator string
 
 const (
-	RuleIntentRequestDetailsObjectBodyConditionObjectOperatorEq             RuleIntentRequestDetailsObjectBodyConditionObjectOperator = "eq"
-	RuleIntentRequestDetailsObjectBodyConditionObjectOperatorGt             RuleIntentRequestDetailsObjectBodyConditionObjectOperator = "gt"
-	RuleIntentRequestDetailsObjectBodyConditionObjectOperatorGte            RuleIntentRequestDetailsObjectBodyConditionObjectOperator = "gte"
-	RuleIntentRequestDetailsObjectBodyConditionObjectOperatorLt             RuleIntentRequestDetailsObjectBodyConditionObjectOperator = "lt"
-	RuleIntentRequestDetailsObjectBodyConditionObjectOperatorLte            RuleIntentRequestDetailsObjectBodyConditionObjectOperator = "lte"
-	RuleIntentRequestDetailsObjectBodyConditionObjectOperatorIn             RuleIntentRequestDetailsObjectBodyConditionObjectOperator = "in"
-	RuleIntentRequestDetailsObjectBodyConditionObjectOperatorInConditionSet RuleIntentRequestDetailsObjectBodyConditionObjectOperator = "in_condition_set"
+	RuleIntentCreateRequestDetailsBodyConditionObjectOperatorEq             RuleIntentCreateRequestDetailsBodyConditionObjectOperator = "eq"
+	RuleIntentCreateRequestDetailsBodyConditionObjectOperatorGt             RuleIntentCreateRequestDetailsBodyConditionObjectOperator = "gt"
+	RuleIntentCreateRequestDetailsBodyConditionObjectOperatorGte            RuleIntentCreateRequestDetailsBodyConditionObjectOperator = "gte"
+	RuleIntentCreateRequestDetailsBodyConditionObjectOperatorLt             RuleIntentCreateRequestDetailsBodyConditionObjectOperator = "lt"
+	RuleIntentCreateRequestDetailsBodyConditionObjectOperatorLte            RuleIntentCreateRequestDetailsBodyConditionObjectOperator = "lte"
+	RuleIntentCreateRequestDetailsBodyConditionObjectOperatorIn             RuleIntentCreateRequestDetailsBodyConditionObjectOperator = "in"
+	RuleIntentCreateRequestDetailsBodyConditionObjectOperatorInConditionSet RuleIntentCreateRequestDetailsBodyConditionObjectOperator = "in_condition_set"
 )
 
-// RuleIntentRequestDetailsObjectBodyConditionObjectValueUnion contains all
+// RuleIntentCreateRequestDetailsBodyConditionObjectValueUnion contains all
 // possible properties and values from [string], [[]string].
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 //
 // If the underlying value is not a json object, one of the following properties
 // will be valid: OfString OfStringArray]
-type RuleIntentRequestDetailsObjectBodyConditionObjectValueUnion struct {
+type RuleIntentCreateRequestDetailsBodyConditionObjectValueUnion struct {
 	// This field will be present if the value is a [string] instead of an object.
 	OfString string `json:",inline"`
 	// This field will be present if the value is a [[]string] instead of an object.
@@ -417,36 +376,418 @@ type RuleIntentRequestDetailsObjectBodyConditionObjectValueUnion struct {
 	} `json:"-"`
 }
 
-func (u RuleIntentRequestDetailsObjectBodyConditionObjectValueUnion) AsString() (v string) {
+func (u RuleIntentCreateRequestDetailsBodyConditionObjectValueUnion) AsString() (v string) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u RuleIntentRequestDetailsObjectBodyConditionObjectValueUnion) AsStringArray() (v []string) {
+func (u RuleIntentCreateRequestDetailsBodyConditionObjectValueUnion) AsStringArray() (v []string) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
 // Returns the unmodified JSON received from the API
-func (u RuleIntentRequestDetailsObjectBodyConditionObjectValueUnion) RawJSON() string {
+func (u RuleIntentCreateRequestDetailsBodyConditionObjectValueUnion) RawJSON() string {
 	return u.JSON.raw
 }
 
-func (r *RuleIntentRequestDetailsObjectBodyConditionObjectValueUnion) UnmarshalJSON(data []byte) error {
+func (r *RuleIntentCreateRequestDetailsBodyConditionObjectValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type RuleIntentRequestDetailsObjectBodyConditionOperator string
+type RuleIntentCreateRequestDetailsBodyConditionOperator string
 
 const (
-	RuleIntentRequestDetailsObjectBodyConditionOperatorEq             RuleIntentRequestDetailsObjectBodyConditionOperator = "eq"
-	RuleIntentRequestDetailsObjectBodyConditionOperatorGt             RuleIntentRequestDetailsObjectBodyConditionOperator = "gt"
-	RuleIntentRequestDetailsObjectBodyConditionOperatorGte            RuleIntentRequestDetailsObjectBodyConditionOperator = "gte"
-	RuleIntentRequestDetailsObjectBodyConditionOperatorLt             RuleIntentRequestDetailsObjectBodyConditionOperator = "lt"
-	RuleIntentRequestDetailsObjectBodyConditionOperatorLte            RuleIntentRequestDetailsObjectBodyConditionOperator = "lte"
-	RuleIntentRequestDetailsObjectBodyConditionOperatorIn             RuleIntentRequestDetailsObjectBodyConditionOperator = "in"
-	RuleIntentRequestDetailsObjectBodyConditionOperatorInConditionSet RuleIntentRequestDetailsObjectBodyConditionOperator = "in_condition_set"
+	RuleIntentCreateRequestDetailsBodyConditionOperatorEq             RuleIntentCreateRequestDetailsBodyConditionOperator = "eq"
+	RuleIntentCreateRequestDetailsBodyConditionOperatorGt             RuleIntentCreateRequestDetailsBodyConditionOperator = "gt"
+	RuleIntentCreateRequestDetailsBodyConditionOperatorGte            RuleIntentCreateRequestDetailsBodyConditionOperator = "gte"
+	RuleIntentCreateRequestDetailsBodyConditionOperatorLt             RuleIntentCreateRequestDetailsBodyConditionOperator = "lt"
+	RuleIntentCreateRequestDetailsBodyConditionOperatorLte            RuleIntentCreateRequestDetailsBodyConditionOperator = "lte"
+	RuleIntentCreateRequestDetailsBodyConditionOperatorIn             RuleIntentCreateRequestDetailsBodyConditionOperator = "in"
+	RuleIntentCreateRequestDetailsBodyConditionOperatorInConditionSet RuleIntentCreateRequestDetailsBodyConditionOperator = "in_condition_set"
 )
+
+type RuleIntentCreateRequestDetailsMethod string
+
+const (
+	RuleIntentCreateRequestDetailsMethodPost RuleIntentCreateRequestDetailsMethod = "POST"
+)
+
+// Request details for updating a rule via intent.
+type RuleIntentUpdateRequestDetails struct {
+	Body RuleIntentUpdateRequestDetailsBody `json:"body" api:"required"`
+	// Any of "PATCH".
+	Method RuleIntentUpdateRequestDetailsMethod `json:"method" api:"required"`
+	URL    string                               `json:"url" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Body        respjson.Field
+		Method      respjson.Field
+		URL         respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentUpdateRequestDetails) RawJSON() string { return r.JSON.raw }
+func (r *RuleIntentUpdateRequestDetails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type RuleIntentUpdateRequestDetailsBody struct {
+	// Any of "ALLOW", "DENY".
+	Action     string                                             `json:"action" api:"required"`
+	Conditions []RuleIntentUpdateRequestDetailsBodyConditionUnion `json:"conditions" api:"required"`
+	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signTypedData_v4",
+	// "eth_signUserOperation", "eth_sign7702Authorization", "signTransaction",
+	// "signAndSendTransaction", "signTransactionBytes", "exportPrivateKey", "\*".
+	Method string `json:"method" api:"required"`
+	Name   string `json:"name" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Action      respjson.Field
+		Conditions  respjson.Field
+		Method      respjson.Field
+		Name        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentUpdateRequestDetailsBody) RawJSON() string { return r.JSON.raw }
+func (r *RuleIntentUpdateRequestDetailsBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentUpdateRequestDetailsBodyConditionUnion contains all possible
+// properties and values from [RuleIntentUpdateRequestDetailsBodyConditionObject],
+// [RuleIntentUpdateRequestDetailsBodyConditionObject],
+// [RuleIntentUpdateRequestDetailsBodyConditionObject],
+// [RuleIntentUpdateRequestDetailsBodyConditionObject],
+// [RuleIntentUpdateRequestDetailsBodyConditionObject],
+// [RuleIntentUpdateRequestDetailsBodyConditionObject],
+// [RuleIntentUpdateRequestDetailsBodyConditionObject],
+// [RuleIntentUpdateRequestDetailsBodyConditionObject],
+// [RuleIntentUpdateRequestDetailsBodyConditionObject],
+// [RuleIntentUpdateRequestDetailsBodyConditionObject],
+// [RuleIntentUpdateRequestDetailsBodyConditionObject],
+// [RuleIntentUpdateRequestDetailsBodyConditionObject],
+// [RuleIntentUpdateRequestDetailsBodyConditionObject],
+// [RuleIntentUpdateRequestDetailsBodyConditionObject].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type RuleIntentUpdateRequestDetailsBodyConditionUnion struct {
+	// This field is from variant [RuleIntentUpdateRequestDetailsBodyConditionObject].
+	Field RuleIntentUpdateRequestDetailsBodyConditionObjectField `json:"field"`
+	// This field is from variant [RuleIntentUpdateRequestDetailsBodyConditionObject].
+	FieldSource string `json:"field_source"`
+	// This field is from variant [RuleIntentUpdateRequestDetailsBodyConditionObject].
+	Operator RuleIntentUpdateRequestDetailsBodyConditionObjectOperator `json:"operator"`
+	// This field is from variant [RuleIntentUpdateRequestDetailsBodyConditionObject].
+	Value RuleIntentUpdateRequestDetailsBodyConditionObjectValueUnion `json:"value"`
+	// This field is from variant [RuleIntentUpdateRequestDetailsBodyConditionObject].
+	Abi []RuleIntentUpdateRequestDetailsBodyConditionObjectAbi `json:"abi"`
+	// This field is from variant [RuleIntentUpdateRequestDetailsBodyConditionObject].
+	TypedData RuleIntentUpdateRequestDetailsBodyConditionObjectTypedData `json:"typed_data"`
+	JSON      struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		Abi         respjson.Field
+		TypedData   respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionUnion) AsRuleIntentUpdateRequestDetailsBodyConditionObject() (v RuleIntentUpdateRequestDetailsBodyConditionObject) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionUnion) AsVariant2() (v RuleIntentUpdateRequestDetailsBodyConditionObject) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionUnion) AsVariant3() (v RuleIntentUpdateRequestDetailsBodyConditionObject) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentUpdateRequestDetailsBodyConditionUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *RuleIntentUpdateRequestDetailsBodyConditionUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type RuleIntentUpdateRequestDetailsBodyConditionObject struct {
+	// Any of "to", "value", "chain_id".
+	Field RuleIntentUpdateRequestDetailsBodyConditionObjectField `json:"field" api:"required"`
+	// Any of "ethereum_transaction".
+	FieldSource string `json:"field_source" api:"required"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator RuleIntentUpdateRequestDetailsBodyConditionObjectOperator   `json:"operator" api:"required"`
+	Value    RuleIntentUpdateRequestDetailsBodyConditionObjectValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentUpdateRequestDetailsBodyConditionObject) RawJSON() string { return r.JSON.raw }
+func (r *RuleIntentUpdateRequestDetailsBodyConditionObject) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type RuleIntentUpdateRequestDetailsBodyConditionObjectField string
+
+const (
+	RuleIntentUpdateRequestDetailsBodyConditionObjectFieldTo      RuleIntentUpdateRequestDetailsBodyConditionObjectField = "to"
+	RuleIntentUpdateRequestDetailsBodyConditionObjectFieldValue   RuleIntentUpdateRequestDetailsBodyConditionObjectField = "value"
+	RuleIntentUpdateRequestDetailsBodyConditionObjectFieldChainID RuleIntentUpdateRequestDetailsBodyConditionObjectField = "chain_id"
+)
+
+type RuleIntentUpdateRequestDetailsBodyConditionObjectOperator string
+
+const (
+	RuleIntentUpdateRequestDetailsBodyConditionObjectOperatorEq             RuleIntentUpdateRequestDetailsBodyConditionObjectOperator = "eq"
+	RuleIntentUpdateRequestDetailsBodyConditionObjectOperatorGt             RuleIntentUpdateRequestDetailsBodyConditionObjectOperator = "gt"
+	RuleIntentUpdateRequestDetailsBodyConditionObjectOperatorGte            RuleIntentUpdateRequestDetailsBodyConditionObjectOperator = "gte"
+	RuleIntentUpdateRequestDetailsBodyConditionObjectOperatorLt             RuleIntentUpdateRequestDetailsBodyConditionObjectOperator = "lt"
+	RuleIntentUpdateRequestDetailsBodyConditionObjectOperatorLte            RuleIntentUpdateRequestDetailsBodyConditionObjectOperator = "lte"
+	RuleIntentUpdateRequestDetailsBodyConditionObjectOperatorIn             RuleIntentUpdateRequestDetailsBodyConditionObjectOperator = "in"
+	RuleIntentUpdateRequestDetailsBodyConditionObjectOperatorInConditionSet RuleIntentUpdateRequestDetailsBodyConditionObjectOperator = "in_condition_set"
+)
+
+// RuleIntentUpdateRequestDetailsBodyConditionObjectValueUnion contains all
+// possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentUpdateRequestDetailsBodyConditionObjectValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionObjectValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionObjectValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentUpdateRequestDetailsBodyConditionObjectValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentUpdateRequestDetailsBodyConditionObjectValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type RuleIntentUpdateRequestDetailsBodyConditionOperator string
+
+const (
+	RuleIntentUpdateRequestDetailsBodyConditionOperatorEq             RuleIntentUpdateRequestDetailsBodyConditionOperator = "eq"
+	RuleIntentUpdateRequestDetailsBodyConditionOperatorGt             RuleIntentUpdateRequestDetailsBodyConditionOperator = "gt"
+	RuleIntentUpdateRequestDetailsBodyConditionOperatorGte            RuleIntentUpdateRequestDetailsBodyConditionOperator = "gte"
+	RuleIntentUpdateRequestDetailsBodyConditionOperatorLt             RuleIntentUpdateRequestDetailsBodyConditionOperator = "lt"
+	RuleIntentUpdateRequestDetailsBodyConditionOperatorLte            RuleIntentUpdateRequestDetailsBodyConditionOperator = "lte"
+	RuleIntentUpdateRequestDetailsBodyConditionOperatorIn             RuleIntentUpdateRequestDetailsBodyConditionOperator = "in"
+	RuleIntentUpdateRequestDetailsBodyConditionOperatorInConditionSet RuleIntentUpdateRequestDetailsBodyConditionOperator = "in_condition_set"
+)
+
+type RuleIntentUpdateRequestDetailsMethod string
+
+const (
+	RuleIntentUpdateRequestDetailsMethodPatch RuleIntentUpdateRequestDetailsMethod = "PATCH"
+)
+
+// Request details for deleting a rule via intent.
+type RuleIntentDeleteRequestDetails struct {
+	// Any of "DELETE".
+	Method RuleIntentDeleteRequestDetailsMethod `json:"method" api:"required"`
+	URL    string                               `json:"url" api:"required"`
+	Body   any                                  `json:"body"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Method      respjson.Field
+		URL         respjson.Field
+		Body        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentDeleteRequestDetails) RawJSON() string { return r.JSON.raw }
+func (r *RuleIntentDeleteRequestDetails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type RuleIntentDeleteRequestDetailsMethod string
+
+const (
+	RuleIntentDeleteRequestDetailsMethodDelete RuleIntentDeleteRequestDetailsMethod = "DELETE"
+)
+
+// RuleIntentRequestDetailsUnion contains all possible properties and values from
+// [RuleIntentCreateRequestDetails], [RuleIntentUpdateRequestDetails],
+// [RuleIntentDeleteRequestDetails].
+//
+// Use the [RuleIntentRequestDetailsUnion.AsAny] method to switch on the variant.
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type RuleIntentRequestDetailsUnion struct {
+	// This field is a union of [RuleIntentCreateRequestDetailsBody],
+	// [RuleIntentUpdateRequestDetailsBody], [any]
+	Body RuleIntentRequestDetailsUnionBody `json:"body"`
+	// Any of "POST", "PATCH", "DELETE".
+	Method string `json:"method"`
+	URL    string `json:"url"`
+	JSON   struct {
+		Body   respjson.Field
+		Method respjson.Field
+		URL    respjson.Field
+		raw    string
+	} `json:"-"`
+}
+
+// anyRuleIntentRequestDetails is implemented by each variant of
+// [RuleIntentRequestDetailsUnion] to add type safety for the return type of
+// [RuleIntentRequestDetailsUnion.AsAny]
+type anyRuleIntentRequestDetails interface {
+	implRuleIntentRequestDetailsUnion()
+}
+
+func (RuleIntentCreateRequestDetails) implRuleIntentRequestDetailsUnion() {}
+func (RuleIntentUpdateRequestDetails) implRuleIntentRequestDetailsUnion() {}
+func (RuleIntentDeleteRequestDetails) implRuleIntentRequestDetailsUnion() {}
+
+// Use the following switch statement to find the correct variant
+//
+//	switch variant := RuleIntentRequestDetailsUnion.AsAny().(type) {
+//	case privyclient.RuleIntentCreateRequestDetails:
+//	case privyclient.RuleIntentUpdateRequestDetails:
+//	case privyclient.RuleIntentDeleteRequestDetails:
+//	default:
+//	  fmt.Errorf("no variant present")
+//	}
+func (u RuleIntentRequestDetailsUnion) AsAny() anyRuleIntentRequestDetails {
+	switch u.Method {
+	case "POST":
+		return u.AsPost()
+	case "PATCH":
+		return u.AsPatch()
+	case "DELETE":
+		return u.AsDelete()
+	}
+	return nil
+}
+
+func (u RuleIntentRequestDetailsUnion) AsPost() (v RuleIntentCreateRequestDetails) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentRequestDetailsUnion) AsPatch() (v RuleIntentUpdateRequestDetails) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentRequestDetailsUnion) AsDelete() (v RuleIntentDeleteRequestDetails) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentRequestDetailsUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *RuleIntentRequestDetailsUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentRequestDetailsUnionBody is an implicit subunion of
+// [RuleIntentRequestDetailsUnion]. RuleIntentRequestDetailsUnionBody provides
+// convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [RuleIntentRequestDetailsUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfRuleIntentDeleteRequestDetailsBody]
+type RuleIntentRequestDetailsUnionBody struct {
+	// This field will be present if the value is a [any] instead of an object.
+	OfRuleIntentDeleteRequestDetailsBody any    `json:",inline"`
+	Action                               string `json:"action"`
+	// This field is a union of [[]RuleIntentCreateRequestDetailsBodyConditionUnion],
+	// [[]RuleIntentUpdateRequestDetailsBodyConditionUnion]
+	Conditions RuleIntentRequestDetailsUnionBodyConditions `json:"conditions"`
+	Method     string                                      `json:"method"`
+	Name       string                                      `json:"name"`
+	JSON       struct {
+		OfRuleIntentDeleteRequestDetailsBody respjson.Field
+		Action                               respjson.Field
+		Conditions                           respjson.Field
+		Method                               respjson.Field
+		Name                                 respjson.Field
+		raw                                  string
+	} `json:"-"`
+}
+
+func (r *RuleIntentRequestDetailsUnionBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentRequestDetailsUnionBodyConditions is an implicit subunion of
+// [RuleIntentRequestDetailsUnion]. RuleIntentRequestDetailsUnionBodyConditions
+// provides convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [RuleIntentRequestDetailsUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfRuleIntentCreateRequestDetailsBodyConditions
+// OfRuleIntentUpdateRequestDetailsBodyConditions]
+type RuleIntentRequestDetailsUnionBodyConditions struct {
+	// This field will be present if the value is a
+	// [[]RuleIntentCreateRequestDetailsBodyConditionUnion] instead of an object.
+	OfRuleIntentCreateRequestDetailsBodyConditions []RuleIntentCreateRequestDetailsBodyConditionUnion `json:",inline"`
+	// This field will be present if the value is a
+	// [[]RuleIntentUpdateRequestDetailsBodyConditionUnion] instead of an object.
+	OfRuleIntentUpdateRequestDetailsBodyConditions []RuleIntentUpdateRequestDetailsBodyConditionUnion `json:",inline"`
+	JSON                                           struct {
+		OfRuleIntentCreateRequestDetailsBodyConditions respjson.Field
+		OfRuleIntentUpdateRequestDetailsBodyConditions respjson.Field
+		raw                                            string
+	} `json:"-"`
+}
+
+func (r *RuleIntentRequestDetailsUnionBodyConditions) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 // IntentAuthorizationKeyQuorumMemberUnion contains all possible properties and
 // values from [IntentAuthorizationKeyQuorumMemberUserMember],
@@ -3110,7 +3451,8 @@ func (r *IntentResponseUnion) UnmarshalJSON(data []byte) error {
 type IntentResponseUnionRequestDetails struct {
 	// This field is a union of [RpcIntentResponseRequestDetailsBodyUnion],
 	// [WalletIntentResponseRequestDetailsBody],
-	// [PolicyIntentResponseRequestDetailsBody], [RuleIntentRequestDetailsObjectBody],
+	// [PolicyIntentResponseRequestDetailsBody], [RuleIntentCreateRequestDetailsBody],
+	// [RuleIntentUpdateRequestDetailsBody], [any],
 	// [KeyQuorumIntentResponseRequestDetailsBody]
 	Body   IntentResponseUnionRequestDetailsBody `json:"body"`
 	Method string                                `json:"method"`
@@ -3133,8 +3475,13 @@ func (r *IntentResponseUnionRequestDetails) UnmarshalJSON(data []byte) error {
 //
 // For type safety it is recommended to directly use a variant of the
 // [IntentResponseUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfRuleIntentDeleteRequestDetailsBody]
 type IntentResponseUnionRequestDetailsBody struct {
-	Method string `json:"method"`
+	// This field will be present if the value is a [any] instead of an object.
+	OfRuleIntentDeleteRequestDetailsBody any    `json:",inline"`
+	Method                               string `json:"method"`
 	// This field is from variant [RpcIntentResponseRequestDetailsBodyUnion].
 	Params RpcIntentResponseRequestDetailsBodyObjectParams `json:"params"`
 	// This field is from variant [RpcIntentResponseRequestDetailsBodyUnion].
@@ -3162,11 +3509,11 @@ type IntentResponseUnionRequestDetailsBody struct {
 	PolicyIDs []string `json:"policy_ids"`
 	Name      string   `json:"name"`
 	// This field is from variant [PolicyIntentResponseRequestDetailsBody].
-	Rules []PolicyIntentResponseRequestDetailsBodyRule `json:"rules"`
-	// This field is from variant [RuleIntentRequestDetailsObjectBody].
-	Action string `json:"action"`
-	// This field is from variant [RuleIntentRequestDetailsObjectBody].
-	Conditions []RuleIntentRequestDetailsObjectBodyConditionUnion `json:"conditions"`
+	Rules  []PolicyIntentResponseRequestDetailsBodyRule `json:"rules"`
+	Action string                                       `json:"action"`
+	// This field is a union of [[]RuleIntentCreateRequestDetailsBodyConditionUnion],
+	// [[]RuleIntentUpdateRequestDetailsBodyConditionUnion]
+	Conditions IntentResponseUnionRequestDetailsBodyConditions `json:"conditions"`
 	// This field is from variant [KeyQuorumIntentResponseRequestDetailsBody].
 	DisplayName string `json:"display_name"`
 	// This field is from variant [KeyQuorumIntentResponseRequestDetailsBody].
@@ -3176,29 +3523,30 @@ type IntentResponseUnionRequestDetailsBody struct {
 	// This field is from variant [KeyQuorumIntentResponseRequestDetailsBody].
 	UserIDs []string `json:"user_ids"`
 	JSON    struct {
-		Method                 respjson.Field
-		Params                 respjson.Field
-		Address                respjson.Field
-		ChainType              respjson.Field
-		WalletID               respjson.Field
-		Caip2                  respjson.Field
-		Sponsor                respjson.Field
-		Network                respjson.Field
-		AdditionalSigners      respjson.Field
-		AuthorizationKeyIDs    respjson.Field
-		AuthorizationThreshold respjson.Field
-		Owner                  respjson.Field
-		OwnerID                respjson.Field
-		PolicyIDs              respjson.Field
-		Name                   respjson.Field
-		Rules                  respjson.Field
-		Action                 respjson.Field
-		Conditions             respjson.Field
-		DisplayName            respjson.Field
-		KeyQuorumIDs           respjson.Field
-		PublicKeys             respjson.Field
-		UserIDs                respjson.Field
-		raw                    string
+		OfRuleIntentDeleteRequestDetailsBody respjson.Field
+		Method                               respjson.Field
+		Params                               respjson.Field
+		Address                              respjson.Field
+		ChainType                            respjson.Field
+		WalletID                             respjson.Field
+		Caip2                                respjson.Field
+		Sponsor                              respjson.Field
+		Network                              respjson.Field
+		AdditionalSigners                    respjson.Field
+		AuthorizationKeyIDs                  respjson.Field
+		AuthorizationThreshold               respjson.Field
+		Owner                                respjson.Field
+		OwnerID                              respjson.Field
+		PolicyIDs                            respjson.Field
+		Name                                 respjson.Field
+		Rules                                respjson.Field
+		Action                               respjson.Field
+		Conditions                           respjson.Field
+		DisplayName                          respjson.Field
+		KeyQuorumIDs                         respjson.Field
+		PublicKeys                           respjson.Field
+		UserIDs                              respjson.Field
+		raw                                  string
 	} `json:"-"`
 }
 
@@ -3223,6 +3571,34 @@ type IntentResponseUnionRequestDetailsBodyOwner struct {
 }
 
 func (r *IntentResponseUnionRequestDetailsBodyOwner) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// IntentResponseUnionRequestDetailsBodyConditions is an implicit subunion of
+// [IntentResponseUnion]. IntentResponseUnionRequestDetailsBodyConditions provides
+// convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [IntentResponseUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfRuleIntentCreateRequestDetailsBodyConditions
+// OfRuleIntentUpdateRequestDetailsBodyConditions]
+type IntentResponseUnionRequestDetailsBodyConditions struct {
+	// This field will be present if the value is a
+	// [[]RuleIntentCreateRequestDetailsBodyConditionUnion] instead of an object.
+	OfRuleIntentCreateRequestDetailsBodyConditions []RuleIntentCreateRequestDetailsBodyConditionUnion `json:",inline"`
+	// This field will be present if the value is a
+	// [[]RuleIntentUpdateRequestDetailsBodyConditionUnion] instead of an object.
+	OfRuleIntentUpdateRequestDetailsBodyConditions []RuleIntentUpdateRequestDetailsBodyConditionUnion `json:",inline"`
+	JSON                                           struct {
+		OfRuleIntentCreateRequestDetailsBodyConditions respjson.Field
+		OfRuleIntentUpdateRequestDetailsBodyConditions respjson.Field
+		raw                                            string
+	} `json:"-"`
+}
+
+func (r *IntentResponseUnionRequestDetailsBodyConditions) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
