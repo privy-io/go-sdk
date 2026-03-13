@@ -18,6 +18,8 @@ import (
 	"github.com/privy-io/go-sdk/packages/respjson"
 )
 
+// Operations related to wallets
+//
 // WalletBalanceService contains methods and other services that help with
 // interacting with the Privy API API.
 //
@@ -42,11 +44,11 @@ func (r *WalletBalanceService) Get(ctx context.Context, walletID string, query W
 	opts = slices.Concat(r.Options, opts)
 	if walletID == "" {
 		err = errors.New("missing required wallet_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/wallets/%s/balance", url.PathEscape(walletID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return
+	return res, err
 }
 
 type WalletBalanceGetResponse struct {
@@ -67,9 +69,10 @@ func (r *WalletBalanceGetResponse) UnmarshalJSON(data []byte) error {
 
 type WalletBalanceGetResponseBalance struct {
 	Asset string `json:"asset" api:"required"`
-	// Any of "ethereum", "arbitrum", "base", "linea", "optimism", "polygon", "solana",
-	// "zksync_era", "sepolia", "arbitrum_sepolia", "base_sepolia", "linea_testnet",
-	// "optimism_sepolia", "polygon_amoy", "solana_devnet", "solana_testnet".
+	// Any of "ethereum", "arbitrum", "base", "tempo", "linea", "optimism", "polygon",
+	// "solana", "zksync_era", "sepolia", "arbitrum_sepolia", "base_sepolia",
+	// "linea_testnet", "optimism_sepolia", "polygon_amoy", "solana_devnet",
+	// "solana_testnet".
 	Chain            string            `json:"chain" api:"required"`
 	DisplayValues    map[string]string `json:"display_values" api:"required"`
 	RawValue         string            `json:"raw_value" api:"required"`
@@ -135,13 +138,14 @@ type WalletBalanceGetParamsAssetUnion struct {
 type WalletBalanceGetParamsAssetString string
 
 const (
-	WalletBalanceGetParamsAssetStringUsdc WalletBalanceGetParamsAssetString = "usdc"
-	WalletBalanceGetParamsAssetStringEth  WalletBalanceGetParamsAssetString = "eth"
-	WalletBalanceGetParamsAssetStringPol  WalletBalanceGetParamsAssetString = "pol"
-	WalletBalanceGetParamsAssetStringUsdt WalletBalanceGetParamsAssetString = "usdt"
-	WalletBalanceGetParamsAssetStringEurc WalletBalanceGetParamsAssetString = "eurc"
-	WalletBalanceGetParamsAssetStringUsdb WalletBalanceGetParamsAssetString = "usdb"
-	WalletBalanceGetParamsAssetStringSol  WalletBalanceGetParamsAssetString = "sol"
+	WalletBalanceGetParamsAssetStringUsdc  WalletBalanceGetParamsAssetString = "usdc"
+	WalletBalanceGetParamsAssetStringUsdcE WalletBalanceGetParamsAssetString = "usdc.e"
+	WalletBalanceGetParamsAssetStringEth   WalletBalanceGetParamsAssetString = "eth"
+	WalletBalanceGetParamsAssetStringPol   WalletBalanceGetParamsAssetString = "pol"
+	WalletBalanceGetParamsAssetStringUsdt  WalletBalanceGetParamsAssetString = "usdt"
+	WalletBalanceGetParamsAssetStringEurc  WalletBalanceGetParamsAssetString = "eurc"
+	WalletBalanceGetParamsAssetStringUsdb  WalletBalanceGetParamsAssetString = "usdb"
+	WalletBalanceGetParamsAssetStringSol   WalletBalanceGetParamsAssetString = "sol"
 )
 
 // Only one field can be non-zero.
@@ -161,6 +165,7 @@ const (
 	WalletBalanceGetParamsChainStringEthereum        WalletBalanceGetParamsChainString = "ethereum"
 	WalletBalanceGetParamsChainStringArbitrum        WalletBalanceGetParamsChainString = "arbitrum"
 	WalletBalanceGetParamsChainStringBase            WalletBalanceGetParamsChainString = "base"
+	WalletBalanceGetParamsChainStringTempo           WalletBalanceGetParamsChainString = "tempo"
 	WalletBalanceGetParamsChainStringLinea           WalletBalanceGetParamsChainString = "linea"
 	WalletBalanceGetParamsChainStringOptimism        WalletBalanceGetParamsChainString = "optimism"
 	WalletBalanceGetParamsChainStringPolygon         WalletBalanceGetParamsChainString = "polygon"

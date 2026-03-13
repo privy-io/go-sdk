@@ -16,20 +16,27 @@ import (
 // interacting with the Privy API API. You should not instantiate this client
 // directly, and instead use the [NewClient] method instead.
 type Client struct {
-	Options      []option.RequestOption
-	Wallets      WalletService
-	Users        UserService
-	Policies     PolicyService
+	Options []option.RequestOption
+	Wallets WalletService
+	// Operations related to users
+	Users UserService
+	// Operations related to policies
+	Policies PolicyService
+	// Operations related to transactions
 	Transactions TransactionService
-	KeyQuorums   KeyQuorumService
-	ClientAuth   ClientAuthService
-	Analytics    AnalyticsService
-	Apps         AppService
-	Aggregations AggregationService
-	Webhooks     WebhookService
-	Accounts     AccountService
-	Yield        YieldService
-	Intents      IntentService
+	// Operations related to key quorums
+	KeyQuorums KeyQuorumService
+	Intents    IntentService
+	// Operations related to app settings and allowlist management
+	Apps          AppService
+	ClientAuth    ClientAuthService
+	Analytics     AnalyticsService
+	Aggregations  AggregationService
+	Webhooks      WebhookService
+	Accounts      AccountService
+	Yield         YieldService
+	WalletActions WalletActionService
+	KrakenEmbed   KrakenEmbedService
 }
 
 // DefaultClientOptions read from the environment (PRIVY_APP_ID, PRIVY_APP_SECRET,
@@ -62,14 +69,16 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.Policies = NewPolicyService(opts...)
 	r.Transactions = NewTransactionService(opts...)
 	r.KeyQuorums = NewKeyQuorumService(opts...)
+	r.Intents = NewIntentService(opts...)
+	r.Apps = NewAppService(opts...)
 	r.ClientAuth = NewClientAuthService(opts...)
 	r.Analytics = NewAnalyticsService(opts...)
-	r.Apps = NewAppService(opts...)
 	r.Aggregations = NewAggregationService(opts...)
 	r.Webhooks = NewWebhookService(opts...)
 	r.Accounts = NewAccountService(opts...)
 	r.Yield = NewYieldService(opts...)
-	r.Intents = NewIntentService(opts...)
+	r.WalletActions = NewWalletActionService(opts...)
+	r.KrakenEmbed = NewKrakenEmbedService(opts...)
 
 	return
 }

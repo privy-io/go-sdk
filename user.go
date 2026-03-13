@@ -21,6 +21,8 @@ import (
 	"github.com/privy-io/go-sdk/shared/constant"
 )
 
+// Operations related to users
+//
 // UserService contains methods and other services that help with interacting with
 // the Privy API API.
 //
@@ -46,7 +48,7 @@ func (r *UserService) New(ctx context.Context, body UserNewParams, opts ...optio
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Get all users in your app.
@@ -78,11 +80,11 @@ func (r *UserService) Delete(ctx context.Context, userID string, opts ...option.
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if userID == "" {
 		err = errors.New("missing required user_id parameter")
-		return
+		return err
 	}
 	path := fmt.Sprintf("v1/users/%s", url.PathEscape(userID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
-	return
+	return err
 }
 
 // Get a user by user ID.
@@ -90,11 +92,11 @@ func (r *UserService) Get(ctx context.Context, userID string, opts ...option.Req
 	opts = slices.Concat(r.Options, opts)
 	if userID == "" {
 		err = errors.New("missing required user_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/users/%s", url.PathEscape(userID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their custom auth ID.
@@ -102,7 +104,7 @@ func (r *UserService) GetByCustomAuthID(ctx context.Context, body UserGetByCusto
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/custom_auth/id"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their Discord username.
@@ -110,7 +112,7 @@ func (r *UserService) GetByDiscordUsername(ctx context.Context, body UserGetByDi
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/discord/username"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their email address.
@@ -118,7 +120,7 @@ func (r *UserService) GetByEmailAddress(ctx context.Context, body UserGetByEmail
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/email/address"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their Farcaster ID.
@@ -126,7 +128,7 @@ func (r *UserService) GetByFarcasterID(ctx context.Context, body UserGetByFarcas
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/farcaster/fid"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their Github username.
@@ -134,7 +136,7 @@ func (r *UserService) GetByGitHubUsername(ctx context.Context, body UserGetByGit
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/github/username"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their phone number.
@@ -142,7 +144,7 @@ func (r *UserService) GetByPhoneNumber(ctx context.Context, body UserGetByPhoneN
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/phone/number"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their smart wallet address.
@@ -150,7 +152,7 @@ func (r *UserService) GetBySmartWalletAddress(ctx context.Context, body UserGetB
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/smart_wallet/address"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their Telegram user ID.
@@ -158,7 +160,7 @@ func (r *UserService) GetByTelegramUserID(ctx context.Context, body UserGetByTel
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/telegram/telegram_user_id"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their Telegram username.
@@ -166,7 +168,7 @@ func (r *UserService) GetByTelegramUsername(ctx context.Context, body UserGetByT
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/telegram/username"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their Twitter subject.
@@ -174,7 +176,7 @@ func (r *UserService) GetByTwitterSubject(ctx context.Context, body UserGetByTwi
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/twitter/subject"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their Twitter username.
@@ -182,7 +184,7 @@ func (r *UserService) GetByTwitterUsername(ctx context.Context, body UserGetByTw
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/twitter/username"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their wallet address.
@@ -190,7 +192,7 @@ func (r *UserService) GetByWalletAddress(ctx context.Context, body UserGetByWall
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/wallet/address"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Creates an embedded wallet for an existing user.
@@ -198,11 +200,11 @@ func (r *UserService) PregenerateWallets(ctx context.Context, userID string, bod
 	opts = slices.Concat(r.Options, opts)
 	if userID == "" {
 		err = errors.New("missing required user_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/users/%s/wallets", url.PathEscape(userID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Search users by search term, emails, phone numbers, or wallet addresses.
@@ -210,7 +212,7 @@ func (r *UserService) Search(ctx context.Context, body UserSearchParams, opts ..
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/search"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Adds custom metadata to a user by user ID.
@@ -218,11 +220,11 @@ func (r *UserService) SetCustomMetadata(ctx context.Context, userID string, body
 	opts = slices.Concat(r.Options, opts)
 	if userID == "" {
 		err = errors.New("missing required user_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/users/%s/custom_metadata", url.PathEscape(userID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Unlinks a user linked account.
@@ -230,44 +232,11 @@ func (r *UserService) UnlinkLinkedAccount(ctx context.Context, userID string, bo
 	opts = slices.Concat(r.Options, opts)
 	if userID == "" {
 		err = errors.New("missing required user_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/users/%s/accounts/unlink", url.PathEscape(userID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
-}
-
-// A Privy user object.
-type User struct {
-	ID string `json:"id" api:"required"`
-	// Unix timestamp of when the user was created in milliseconds.
-	CreatedAt float64 `json:"created_at" api:"required"`
-	// Indicates if the user has accepted the terms of service.
-	HasAcceptedTerms bool `json:"has_accepted_terms" api:"required"`
-	// Indicates if the user is a guest account user.
-	IsGuest        bool                   `json:"is_guest" api:"required"`
-	LinkedAccounts []LinkedAccountUnion   `json:"linked_accounts" api:"required"`
-	MfaMethods     []LinkedMfaMethodUnion `json:"mfa_methods" api:"required"`
-	// Custom metadata associated with the user.
-	CustomMetadata CustomMetadata `json:"custom_metadata"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID               respjson.Field
-		CreatedAt        respjson.Field
-		HasAcceptedTerms respjson.Field
-		IsGuest          respjson.Field
-		LinkedAccounts   respjson.Field
-		MfaMethods       respjson.Field
-		CustomMetadata   respjson.Field
-		ExtraFields      map[string]respjson.Field
-		raw              string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r User) RawJSON() string { return r.JSON.raw }
-func (r *User) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return res, err
 }
 
 // An email account linked to the user.
@@ -637,7 +606,7 @@ const (
 	EmbeddedWalletRecoveryMethodPrivy                 EmbeddedWalletRecoveryMethod = "privy"
 	EmbeddedWalletRecoveryMethodUserPasscode          EmbeddedWalletRecoveryMethod = "user-passcode"
 	EmbeddedWalletRecoveryMethodGoogleDrive           EmbeddedWalletRecoveryMethod = "google-drive"
-	EmbeddedWalletRecoveryMethodIcloud                EmbeddedWalletRecoveryMethod = "icloud"
+	EmbeddedWalletRecoveryMethodICloud                EmbeddedWalletRecoveryMethod = "icloud"
 	EmbeddedWalletRecoveryMethodRecoveryEncryptionKey EmbeddedWalletRecoveryMethod = "recovery-encryption-key"
 	EmbeddedWalletRecoveryMethodPrivyV2               EmbeddedWalletRecoveryMethod = "privy-v2"
 )
@@ -2615,6 +2584,39 @@ func (u LinkedMfaMethodUnion) AsPasskey() (v PasskeyMfaMethod) {
 func (u LinkedMfaMethodUnion) RawJSON() string { return u.JSON.raw }
 
 func (r *LinkedMfaMethodUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A Privy user object.
+type User struct {
+	ID string `json:"id" api:"required"`
+	// Unix timestamp of when the user was created in milliseconds.
+	CreatedAt float64 `json:"created_at" api:"required"`
+	// Indicates if the user has accepted the terms of service.
+	HasAcceptedTerms bool `json:"has_accepted_terms" api:"required"`
+	// Indicates if the user is a guest account user.
+	IsGuest        bool                   `json:"is_guest" api:"required"`
+	LinkedAccounts []LinkedAccountUnion   `json:"linked_accounts" api:"required"`
+	MfaMethods     []LinkedMfaMethodUnion `json:"mfa_methods" api:"required"`
+	// Custom metadata associated with the user.
+	CustomMetadata CustomMetadata `json:"custom_metadata"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID               respjson.Field
+		CreatedAt        respjson.Field
+		HasAcceptedTerms respjson.Field
+		IsGuest          respjson.Field
+		LinkedAccounts   respjson.Field
+		MfaMethods       respjson.Field
+		CustomMetadata   respjson.Field
+		ExtraFields      map[string]respjson.Field
+		raw              string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r User) RawJSON() string { return r.JSON.raw }
+func (r *User) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

@@ -6,23 +6,21 @@ import (
 	"github.com/privy-io/go-sdk/option"
 )
 
-// Operations related to transactions
-//
-// TransactionService contains methods and other services that help with
+// WalletActionService contains methods and other services that help with
 // interacting with the Privy API API.
 //
 // Note, unlike clients, this service does not read variables from the environment
 // automatically. You should not instantiate this service directly, and instead use
-// the [NewTransactionService] method instead.
-type TransactionService struct {
+// the [NewWalletActionService] method instead.
+type WalletActionService struct {
 	Options []option.RequestOption
 }
 
-// NewTransactionService generates a new service that applies the given options to
+// NewWalletActionService generates a new service that applies the given options to
 // each request. These options are applied after the parent client's options (if
 // there is one), and before any request-specific options.
-func NewTransactionService(opts ...option.RequestOption) (r TransactionService) {
-	r = TransactionService{}
+func NewWalletActionService(opts ...option.RequestOption) (r WalletActionService) {
+	r = WalletActionService{}
 	r.Options = opts
 	return
 }
