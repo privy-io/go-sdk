@@ -52,6 +52,9 @@ func (r *KeyQuorumService) Update(ctx context.Context, keyQuorumID string, param
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
 		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
 	}
+	if !param.IsOmitted(params.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	if keyQuorumID == "" {
 		err = errors.New("missing required key_quorum_id parameter")
@@ -66,6 +69,9 @@ func (r *KeyQuorumService) Update(ctx context.Context, keyQuorumID string, param
 func (r *KeyQuorumService) Delete(ctx context.Context, keyQuorumID string, body KeyQuorumDeleteParams, opts ...option.RequestOption) (res *KeyQuorumDeleteResponse, err error) {
 	if !param.IsOmitted(body.PrivyAuthorizationSignature) {
 		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", body.PrivyAuthorizationSignature.Value)))
+	}
+	if !param.IsOmitted(body.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", body.PrivyRequestExpiry.Value)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if keyQuorumID == "" {
@@ -197,6 +203,9 @@ type KeyQuorumUpdateParams struct {
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.
 	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
 	paramObj
 }
 
@@ -211,5 +220,8 @@ type KeyQuorumDeleteParams struct {
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.
 	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
 	paramObj
 }

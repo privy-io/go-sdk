@@ -83,6 +83,7 @@ func TestWalletUpdateWithOptionalParams(t *testing.T) {
 				PolicyIDs: []string{"tb54eps4z44ed0jepousxi4n"},
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
+			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {
@@ -253,6 +254,7 @@ func TestWalletExportWithOptionalParams(t *testing.T) {
 			EncryptionType:              privyclient.WalletExportParamsEncryptionTypeHpke,
 			RecipientPublicKey:          "BDAZLOIdTaPycEYkgG0MvCzbIKJLli/yWkAV5yCa9yOsZ4JsrLweA5MnP8YIiY4k/RRzC+APhhO+P+Hoz/rt7Go=",
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
+			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {
@@ -313,6 +315,7 @@ func TestWalletRawSignWithOptionalParams(t *testing.T) {
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
 			PrivyIdempotencyKey:         privyclient.String("privy-idempotency-key"),
+			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {
@@ -394,6 +397,7 @@ func TestWalletRpcWithOptionalParams(t *testing.T) {
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
 			PrivyIdempotencyKey:         privyclient.String("privy-idempotency-key"),
+			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {

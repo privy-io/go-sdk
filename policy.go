@@ -56,6 +56,9 @@ func (r *PolicyService) Update(ctx context.Context, policyID string, params Poli
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
 		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
 	}
+	if !param.IsOmitted(params.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	if policyID == "" {
 		err = errors.New("missing required policy_id parameter")
@@ -70,6 +73,9 @@ func (r *PolicyService) Update(ctx context.Context, policyID string, params Poli
 func (r *PolicyService) Delete(ctx context.Context, policyID string, body PolicyDeleteParams, opts ...option.RequestOption) (res *PolicyDeleteResponse, err error) {
 	if !param.IsOmitted(body.PrivyAuthorizationSignature) {
 		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", body.PrivyAuthorizationSignature.Value)))
+	}
+	if !param.IsOmitted(body.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", body.PrivyRequestExpiry.Value)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if policyID == "" {
@@ -86,6 +92,9 @@ func (r *PolicyService) NewRule(ctx context.Context, policyID string, params Pol
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
 		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
 	}
+	if !param.IsOmitted(params.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	if policyID == "" {
 		err = errors.New("missing required policy_id parameter")
@@ -100,6 +109,9 @@ func (r *PolicyService) NewRule(ctx context.Context, policyID string, params Pol
 func (r *PolicyService) DeleteRule(ctx context.Context, ruleID string, params PolicyDeleteRuleParams, opts ...option.RequestOption) (res *PolicyDeleteRuleResponse, err error) {
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
 		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
+	}
+	if !param.IsOmitted(params.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if params.PolicyID == "" {
@@ -147,6 +159,9 @@ func (r *PolicyService) GetRule(ctx context.Context, ruleID string, query Policy
 func (r *PolicyService) UpdateRule(ctx context.Context, ruleID string, params PolicyUpdateRuleParams, opts ...option.RequestOption) (res *PolicyUpdateRuleResponse, err error) {
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
 		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
+	}
+	if !param.IsOmitted(params.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if params.PolicyID == "" {
@@ -4933,6 +4948,9 @@ type PolicyUpdateParams struct {
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.
 	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
 	// The owner of the resource. If you provide this, do not specify an owner_id as it
 	// will be generated automatically. When updating a wallet, you can set the owner
 	// to null to remove the owner.
@@ -5559,6 +5577,9 @@ type PolicyDeleteParams struct {
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.
 	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
 	paramObj
 }
 
@@ -5578,6 +5599,9 @@ type PolicyNewRuleParams struct {
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.
 	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
 	paramObj
 }
 
@@ -6136,6 +6160,9 @@ type PolicyDeleteRuleParams struct {
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.
 	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
 	paramObj
 }
 
@@ -6161,6 +6188,9 @@ type PolicyUpdateRuleParams struct {
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.
 	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
 	paramObj
 }
 
