@@ -71,6 +71,7 @@ func TestKeyQuorumUpdateWithOptionalParams(t *testing.T) {
 				UserIDs:                []string{"string"},
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
+			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {
@@ -101,6 +102,7 @@ func TestKeyQuorumDeleteWithOptionalParams(t *testing.T) {
 		"key_quorum_id",
 		privyclient.KeyQuorumDeleteParams{
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
+			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {
