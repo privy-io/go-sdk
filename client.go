@@ -36,6 +36,7 @@ type Client struct {
 	Accounts      AccountService
 	Yield         YieldService
 	WalletActions WalletActionService
+	Swaps         SwapService
 	KrakenEmbed   KrakenEmbedService
 }
 
@@ -78,6 +79,7 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.Accounts = NewAccountService(opts...)
 	r.Yield = NewYieldService(opts...)
 	r.WalletActions = NewWalletActionService(opts...)
+	r.Swaps = NewSwapService(opts...)
 	r.KrakenEmbed = NewKrakenEmbedService(opts...)
 
 	return
