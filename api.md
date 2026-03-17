@@ -301,4 +301,6 @@ Response Types:
 
 # WalletActions
 
+# Swaps
+
 # KrakenEmbed
