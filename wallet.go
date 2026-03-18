@@ -318,26 +318,32 @@ type Wallet struct {
 	// was imported.
 	ImportedAt float64 `json:"imported_at" api:"required"`
 	// The key quorum ID of the owner of the wallet.
-	OwnerID string `json:"owner_id" api:"required"`
+	OwnerID string `json:"owner_id" api:"required" format:"cuid2"`
 	// List of policy IDs for policies that are enforced on the wallet.
 	PolicyIDs []string `json:"policy_ids" api:"required"`
+	// The number of keys that must sign for an action to be valid.
+	AuthorizationThreshold float64 `json:"authorization_threshold"`
+	// Information about the custodian managing this wallet.
+	Custody WalletCustodian `json:"custody"`
 	// The compressed, raw public key for the wallet along the chain cryptographic
 	// curve.
 	PublicKey string `json:"public_key"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		ID                respjson.Field
-		AdditionalSigners respjson.Field
-		Address           respjson.Field
-		ChainType         respjson.Field
-		CreatedAt         respjson.Field
-		ExportedAt        respjson.Field
-		ImportedAt        respjson.Field
-		OwnerID           respjson.Field
-		PolicyIDs         respjson.Field
-		PublicKey         respjson.Field
-		ExtraFields       map[string]respjson.Field
-		raw               string
+		ID                     respjson.Field
+		AdditionalSigners      respjson.Field
+		Address                respjson.Field
+		ChainType              respjson.Field
+		CreatedAt              respjson.Field
+		ExportedAt             respjson.Field
+		ImportedAt             respjson.Field
+		OwnerID                respjson.Field
+		PolicyIDs              respjson.Field
+		AuthorizationThreshold respjson.Field
+		Custody                respjson.Field
+		PublicKey              respjson.Field
+		ExtraFields            map[string]respjson.Field
+		raw                    string
 	} `json:"-"`
 }
 
@@ -2733,6 +2739,39 @@ func (r *WalletRpcResponseUnionData) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Request body for wallet authentication with HPKE-encrypted response.
+//
+// The properties EncryptionType, RecipientPublicKey, UserJwt are required.
+type WalletAuthenticateRequestBody struct {
+	// The encryption type for the authentication response. Currently only supports
+	// HPKE.
+	//
+	// Any of "HPKE".
+	EncryptionType WalletAuthenticateRequestBodyEncryptionType `json:"encryption_type,omitzero" api:"required"`
+	// The public key of your ECDH keypair, in base64-encoded, SPKI-format, whose
+	// private key will be able to decrypt the session key.
+	RecipientPublicKey string `json:"recipient_public_key" api:"required"`
+	// The user's JWT, to be used to authenticate the user.
+	UserJwt string `json:"user_jwt" api:"required"`
+	paramObj
+}
+
+func (r WalletAuthenticateRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow WalletAuthenticateRequestBody
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *WalletAuthenticateRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The encryption type for the authentication response. Currently only supports
+// HPKE.
+type WalletAuthenticateRequestBodyEncryptionType string
+
+const (
+	WalletAuthenticateRequestBodyEncryptionTypeHpke WalletAuthenticateRequestBodyEncryptionType = "HPKE"
+)
+
 type WalletInitImportResponse struct {
 	// The base64-encoded encryption public key to encrypt the wallet entropy with.
 	EncryptionPublicKey string `json:"encryption_public_key" api:"required"`
@@ -3393,34 +3432,17 @@ func (r *WalletSubmitImportParamsOwnerPublicKey) UnmarshalJSON(data []byte) erro
 }
 
 type WalletAuthenticateWithJwtParams struct {
-	// The user's JWT, to be used to authenticate the user.
-	UserJwt string `json:"user_jwt" api:"required"`
-	// The public key of your ECDH keypair, in base64-encoded, SPKI-format, whose
-	// private key will be able to decrypt the session key.
-	RecipientPublicKey param.Opt[string] `json:"recipient_public_key,omitzero"`
-	// The encryption type for the authentication response. Currently only supports
-	// HPKE.
-	//
-	// Any of "HPKE".
-	EncryptionType WalletAuthenticateWithJwtParamsEncryptionType `json:"encryption_type,omitzero"`
+	// Request body for wallet authentication with HPKE-encrypted response.
+	WalletAuthenticateRequestBody WalletAuthenticateRequestBody
 	paramObj
 }
 
 func (r WalletAuthenticateWithJwtParams) MarshalJSON() (data []byte, err error) {
-	type shadow WalletAuthenticateWithJwtParams
-	return param.MarshalObject(r, (*shadow)(&r))
+	return shimjson.Marshal(r.WalletAuthenticateRequestBody)
 }
 func (r *WalletAuthenticateWithJwtParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return json.Unmarshal(data, &r.WalletAuthenticateRequestBody)
 }
-
-// The encryption type for the authentication response. Currently only supports
-// HPKE.
-type WalletAuthenticateWithJwtParamsEncryptionType string
-
-const (
-	WalletAuthenticateWithJwtParamsEncryptionTypeHpke WalletAuthenticateWithJwtParamsEncryptionType = "HPKE"
-)
 
 type WalletExportParams struct {
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.

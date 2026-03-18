@@ -205,7 +205,7 @@ func TestWalletSubmitImportWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestWalletAuthenticateWithJwtWithOptionalParams(t *testing.T) {
+func TestWalletAuthenticateWithJwt(t *testing.T) {
 	t.Skip("Mock server tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -220,9 +220,11 @@ func TestWalletAuthenticateWithJwtWithOptionalParams(t *testing.T) {
 		option.WithAppSecret("My App Secret"),
 	)
 	_, err := client.Wallets.AuthenticateWithJwt(context.TODO(), privyclient.WalletAuthenticateWithJwtParams{
-		UserJwt:            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30",
-		EncryptionType:     privyclient.WalletAuthenticateWithJwtParamsEncryptionTypeHpke,
-		RecipientPublicKey: privyclient.String("DAQcDQgAEx4aoeD72yykviK+fckqE2CItVIGn1rCnvCXZ1HgpOcMEMialRmTrqIK4oZlYd1"),
+		WalletAuthenticateRequestBody: privyclient.WalletAuthenticateRequestBody{
+			EncryptionType:     privyclient.WalletAuthenticateRequestBodyEncryptionTypeHpke,
+			RecipientPublicKey: "DAQcDQgAEx4aoeD72yykviK+fckqE2CItVIGn1rCnvCXZ1HgpOcMEMialRmTrqIK4oZlYd1",
+			UserJwt:            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30",
+		},
 	})
 	if err != nil {
 		var apierr *privyclient.Error
