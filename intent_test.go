@@ -47,7 +47,7 @@ func TestIntentListWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestIntentNewPolicyRule(t *testing.T) {
+func TestIntentNewPolicyRuleWithOptionalParams(t *testing.T) {
 	t.Skip("Mock server tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -75,8 +75,9 @@ func TestIntentNewPolicyRule(t *testing.T) {
 					},
 				},
 			}},
-			Method: privyclient.IntentNewPolicyRuleParamsMethodEthSendTransaction,
-			Name:   "x",
+			Method:             privyclient.IntentNewPolicyRuleParamsMethodEthSendTransaction,
+			Name:               "x",
+			PrivyRequestExpiry: privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {
@@ -88,7 +89,7 @@ func TestIntentNewPolicyRule(t *testing.T) {
 	}
 }
 
-func TestIntentDeletePolicyRule(t *testing.T) {
+func TestIntentDeletePolicyRuleWithOptionalParams(t *testing.T) {
 	t.Skip("Mock server tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -106,7 +107,8 @@ func TestIntentDeletePolicyRule(t *testing.T) {
 		context.TODO(),
 		"rule_id",
 		privyclient.IntentDeletePolicyRuleParams{
-			PolicyID: "policy_id",
+			PolicyID:           "policy_id",
+			PrivyRequestExpiry: privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {
@@ -171,6 +173,7 @@ func TestIntentRpcWithOptionalParams(t *testing.T) {
 					ChainType: privyclient.EthereumPersonalSignRpcInputChainTypeEthereum,
 				},
 			},
+			PrivyRequestExpiry: privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {
@@ -207,6 +210,7 @@ func TestIntentUpdateKeyQuorumWithOptionalParams(t *testing.T) {
 				PublicKeys:             []string{"string"},
 				UserIDs:                []string{"string"},
 			},
+			PrivyRequestExpiry: privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {
@@ -257,6 +261,7 @@ func TestIntentUpdatePolicyWithOptionalParams(t *testing.T) {
 				Method: "eth_sendTransaction",
 				Name:   "x",
 			}},
+			PrivyRequestExpiry: privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {
@@ -268,7 +273,7 @@ func TestIntentUpdatePolicyWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestIntentUpdatePolicyRule(t *testing.T) {
+func TestIntentUpdatePolicyRuleWithOptionalParams(t *testing.T) {
 	t.Skip("Mock server tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -297,8 +302,9 @@ func TestIntentUpdatePolicyRule(t *testing.T) {
 					},
 				},
 			}},
-			Method: privyclient.IntentUpdatePolicyRuleParamsMethodEthSendTransaction,
-			Name:   "x",
+			Method:             privyclient.IntentUpdatePolicyRuleParamsMethodEthSendTransaction,
+			Name:               "x",
+			PrivyRequestExpiry: privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {
@@ -341,6 +347,7 @@ func TestIntentUpdateWalletWithOptionalParams(t *testing.T) {
 				OwnerID:   privyclient.String("owner_id"),
 				PolicyIDs: []string{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 			},
+			PrivyRequestExpiry: privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {

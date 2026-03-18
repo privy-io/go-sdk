@@ -68,22 +68,28 @@ func (r *IntentService) ListAutoPaging(ctx context.Context, query IntentListPara
 
 // Create an intent to add a rule to a policy. The intent must be authorized by the
 // policy owner before it can be executed.
-func (r *IntentService) NewPolicyRule(ctx context.Context, policyID string, body IntentNewPolicyRuleParams, opts ...option.RequestOption) (res *RuleIntentResponse, err error) {
+func (r *IntentService) NewPolicyRule(ctx context.Context, policyID string, params IntentNewPolicyRuleParams, opts ...option.RequestOption) (res *RuleIntentResponse, err error) {
+	if !param.IsOmitted(params.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	if policyID == "" {
 		err = errors.New("missing required policy_id parameter")
 		return nil, err
 	}
 	path := fmt.Sprintf("v1/intents/policies/%s/rules", url.PathEscape(policyID))
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return res, err
 }
 
 // Create an intent to delete a rule from a policy. The intent must be authorized
 // by the policy owner before it can be executed.
-func (r *IntentService) DeletePolicyRule(ctx context.Context, ruleID string, body IntentDeletePolicyRuleParams, opts ...option.RequestOption) (res *RuleIntentResponse, err error) {
+func (r *IntentService) DeletePolicyRule(ctx context.Context, ruleID string, params IntentDeletePolicyRuleParams, opts ...option.RequestOption) (res *RuleIntentResponse, err error) {
+	if !param.IsOmitted(params.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
-	if body.PolicyID == "" {
+	if params.PolicyID == "" {
 		err = errors.New("missing required policy_id parameter")
 		return nil, err
 	}
@@ -91,7 +97,7 @@ func (r *IntentService) DeletePolicyRule(ctx context.Context, ruleID string, bod
 		err = errors.New("missing required rule_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/intents/policies/%s/rules/%s", url.PathEscape(body.PolicyID), url.PathEscape(ruleID))
+	path := fmt.Sprintf("v1/intents/policies/%s/rules/%s", url.PathEscape(params.PolicyID), url.PathEscape(ruleID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
 	return res, err
 }
@@ -111,46 +117,58 @@ func (r *IntentService) Get(ctx context.Context, intentID string, opts ...option
 
 // Create an intent to execute an RPC method on a wallet. The intent must be
 // authorized by either the wallet owner or signers before it can be executed.
-func (r *IntentService) Rpc(ctx context.Context, walletID string, body IntentRpcParams, opts ...option.RequestOption) (res *RpcIntentResponse, err error) {
+func (r *IntentService) Rpc(ctx context.Context, walletID string, params IntentRpcParams, opts ...option.RequestOption) (res *RpcIntentResponse, err error) {
+	if !param.IsOmitted(params.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	if walletID == "" {
 		err = errors.New("missing required wallet_id parameter")
 		return nil, err
 	}
 	path := fmt.Sprintf("v1/intents/wallets/%s/rpc", url.PathEscape(walletID))
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return res, err
 }
 
 // Create an intent to update a key quorum. The intent must be authorized by the
 // key quorum members before it can be executed.
-func (r *IntentService) UpdateKeyQuorum(ctx context.Context, keyQuorumID string, body IntentUpdateKeyQuorumParams, opts ...option.RequestOption) (res *KeyQuorumIntentResponse, err error) {
+func (r *IntentService) UpdateKeyQuorum(ctx context.Context, keyQuorumID string, params IntentUpdateKeyQuorumParams, opts ...option.RequestOption) (res *KeyQuorumIntentResponse, err error) {
+	if !param.IsOmitted(params.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	if keyQuorumID == "" {
 		err = errors.New("missing required key_quorum_id parameter")
 		return nil, err
 	}
 	path := fmt.Sprintf("v1/intents/key_quorums/%s", url.PathEscape(keyQuorumID))
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, body, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, params, &res, opts...)
 	return res, err
 }
 
 // Create an intent to update a policy. The intent must be authorized by the policy
 // owner before it can be executed.
-func (r *IntentService) UpdatePolicy(ctx context.Context, policyID string, body IntentUpdatePolicyParams, opts ...option.RequestOption) (res *PolicyIntentResponse, err error) {
+func (r *IntentService) UpdatePolicy(ctx context.Context, policyID string, params IntentUpdatePolicyParams, opts ...option.RequestOption) (res *PolicyIntentResponse, err error) {
+	if !param.IsOmitted(params.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	if policyID == "" {
 		err = errors.New("missing required policy_id parameter")
 		return nil, err
 	}
 	path := fmt.Sprintf("v1/intents/policies/%s", url.PathEscape(policyID))
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, body, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, params, &res, opts...)
 	return res, err
 }
 
 // Create an intent to update a rule on a policy. The intent must be authorized by
 // the policy owner before it can be executed.
 func (r *IntentService) UpdatePolicyRule(ctx context.Context, ruleID string, params IntentUpdatePolicyRuleParams, opts ...option.RequestOption) (res *RuleIntentResponse, err error) {
+	if !param.IsOmitted(params.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	if params.PolicyID == "" {
 		err = errors.New("missing required policy_id parameter")
@@ -167,14 +185,17 @@ func (r *IntentService) UpdatePolicyRule(ctx context.Context, ruleID string, par
 
 // Create an intent to update a wallet. The intent must be authorized by the wallet
 // owner before it can be executed.
-func (r *IntentService) UpdateWallet(ctx context.Context, walletID string, body IntentUpdateWalletParams, opts ...option.RequestOption) (res *WalletIntentResponse, err error) {
+func (r *IntentService) UpdateWallet(ctx context.Context, walletID string, params IntentUpdateWalletParams, opts ...option.RequestOption) (res *WalletIntentResponse, err error) {
+	if !param.IsOmitted(params.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	if walletID == "" {
 		err = errors.New("missing required wallet_id parameter")
 		return nil, err
 	}
 	path := fmt.Sprintf("v1/intents/wallets/%s", url.PathEscape(walletID))
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, body, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, params, &res, opts...)
 	return res, err
 }
 
@@ -1069,6 +1090,9 @@ type RpcIntentResponse struct {
 	CreatedAt float64 `json:"created_at" api:"required"`
 	// Display name of the user who created the intent
 	CreatedByDisplayName string `json:"created_by_display_name" api:"required"`
+	// Whether this intent has a custom expiry time set by the client. If false, the
+	// intent expires after a default duration.
+	CustomExpiry bool `json:"custom_expiry" api:"required"`
 	// Unix timestamp when the intent expires
 	ExpiresAt float64 `json:"expires_at" api:"required"`
 	// Unique ID for the intent
@@ -1101,6 +1125,7 @@ type RpcIntentResponse struct {
 		AuthorizationDetails respjson.Field
 		CreatedAt            respjson.Field
 		CreatedByDisplayName respjson.Field
+		CustomExpiry         respjson.Field
 		ExpiresAt            respjson.Field
 		IntentID             respjson.Field
 		IntentType           respjson.Field
@@ -1689,6 +1714,9 @@ type WalletIntentResponse struct {
 	CreatedAt float64 `json:"created_at" api:"required"`
 	// Display name of the user who created the intent
 	CreatedByDisplayName string `json:"created_by_display_name" api:"required"`
+	// Whether this intent has a custom expiry time set by the client. If false, the
+	// intent expires after a default duration.
+	CustomExpiry bool `json:"custom_expiry" api:"required"`
 	// Unix timestamp when the intent expires
 	ExpiresAt float64 `json:"expires_at" api:"required"`
 	// Unique ID for the intent
@@ -1722,6 +1750,7 @@ type WalletIntentResponse struct {
 		AuthorizationDetails respjson.Field
 		CreatedAt            respjson.Field
 		CreatedByDisplayName respjson.Field
+		CustomExpiry         respjson.Field
 		ExpiresAt            respjson.Field
 		IntentID             respjson.Field
 		IntentType           respjson.Field
@@ -1893,6 +1922,9 @@ type PolicyIntentResponse struct {
 	CreatedAt float64 `json:"created_at" api:"required"`
 	// Display name of the user who created the intent
 	CreatedByDisplayName string `json:"created_by_display_name" api:"required"`
+	// Whether this intent has a custom expiry time set by the client. If false, the
+	// intent expires after a default duration.
+	CustomExpiry bool `json:"custom_expiry" api:"required"`
 	// Unix timestamp when the intent expires
 	ExpiresAt float64 `json:"expires_at" api:"required"`
 	// Unique ID for the intent
@@ -1927,6 +1959,7 @@ type PolicyIntentResponse struct {
 		AuthorizationDetails respjson.Field
 		CreatedAt            respjson.Field
 		CreatedByDisplayName respjson.Field
+		CustomExpiry         respjson.Field
 		ExpiresAt            respjson.Field
 		IntentID             respjson.Field
 		IntentType           respjson.Field
@@ -2501,6 +2534,9 @@ type KeyQuorumIntentResponse struct {
 	CreatedAt float64 `json:"created_at" api:"required"`
 	// Display name of the user who created the intent
 	CreatedByDisplayName string `json:"created_by_display_name" api:"required"`
+	// Whether this intent has a custom expiry time set by the client. If false, the
+	// intent expires after a default duration.
+	CustomExpiry bool `json:"custom_expiry" api:"required"`
 	// Unix timestamp when the intent expires
 	ExpiresAt float64 `json:"expires_at" api:"required"`
 	// Unique ID for the intent
@@ -2536,6 +2572,7 @@ type KeyQuorumIntentResponse struct {
 		AuthorizationDetails respjson.Field
 		CreatedAt            respjson.Field
 		CreatedByDisplayName respjson.Field
+		CustomExpiry         respjson.Field
 		ExpiresAt            respjson.Field
 		IntentID             respjson.Field
 		IntentType           respjson.Field
@@ -2669,6 +2706,9 @@ type RuleIntentResponse struct {
 	CreatedAt float64 `json:"created_at" api:"required"`
 	// Display name of the user who created the intent
 	CreatedByDisplayName string `json:"created_by_display_name" api:"required"`
+	// Whether this intent has a custom expiry time set by the client. If false, the
+	// intent expires after a default duration.
+	CustomExpiry bool `json:"custom_expiry" api:"required"`
 	// Unix timestamp when the intent expires
 	ExpiresAt float64 `json:"expires_at" api:"required"`
 	// Unique ID for the intent
@@ -2706,6 +2746,7 @@ type RuleIntentResponse struct {
 		AuthorizationDetails respjson.Field
 		CreatedAt            respjson.Field
 		CreatedByDisplayName respjson.Field
+		CustomExpiry         respjson.Field
 		ExpiresAt            respjson.Field
 		IntentID             respjson.Field
 		IntentType           respjson.Field
@@ -3161,6 +3202,7 @@ type IntentResponseUnion struct {
 	AuthorizationDetails []IntentAuthorization `json:"authorization_details"`
 	CreatedAt            float64               `json:"created_at"`
 	CreatedByDisplayName string                `json:"created_by_display_name"`
+	CustomExpiry         bool                  `json:"custom_expiry"`
 	ExpiresAt            float64               `json:"expires_at"`
 	IntentID             string                `json:"intent_id"`
 	// Any of "RPC", "WALLET", "POLICY", "RULE", "KEY_QUORUM".
@@ -3188,6 +3230,7 @@ type IntentResponseUnion struct {
 		AuthorizationDetails respjson.Field
 		CreatedAt            respjson.Field
 		CreatedByDisplayName respjson.Field
+		CustomExpiry         respjson.Field
 		ExpiresAt            respjson.Field
 		IntentID             respjson.Field
 		IntentType           respjson.Field
@@ -3570,6 +3613,9 @@ type IntentNewPolicyRuleParams struct {
 	// "signAndSendTransaction", "exportPrivateKey", "signTransactionBytes", "\*".
 	Method IntentNewPolicyRuleParamsMethod `json:"method,omitzero" api:"required"`
 	Name   string                          `json:"name" api:"required"`
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
 	paramObj
 }
 
@@ -4126,12 +4172,18 @@ const (
 type IntentDeletePolicyRuleParams struct {
 	// ID of the policy.
 	PolicyID string `path:"policy_id" api:"required" json:"-"`
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
 	paramObj
 }
 
 type IntentRpcParams struct {
 	// Request body for wallet RPC operations, discriminated by method.
 	WalletRpcRequestBody WalletRpcRequestBodyUnion
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
 	paramObj
 }
 
@@ -4145,6 +4197,9 @@ func (r *IntentRpcParams) UnmarshalJSON(data []byte) error {
 type IntentUpdateKeyQuorumParams struct {
 	// Request input for creating or updating a key quorum.
 	KeyQuorumCreateParams KeyQuorumCreateParams
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
 	paramObj
 }
 
@@ -4159,6 +4214,9 @@ type IntentUpdatePolicyParams struct {
 	OwnerID param.Opt[string] `json:"owner_id,omitzero"`
 	// Name to assign to policy.
 	Name param.Opt[string] `json:"name,omitzero"`
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
 	// The owner of the resource. If you provide this, do not specify an owner_id as it
 	// will be generated automatically. When updating a wallet, you can set the owner
 	// to null to remove the owner.
@@ -4796,6 +4854,9 @@ type IntentUpdatePolicyRuleParams struct {
 	// "signAndSendTransaction", "exportPrivateKey", "signTransactionBytes", "\*".
 	Method IntentUpdatePolicyRuleParamsMethod `json:"method,omitzero" api:"required"`
 	Name   string                             `json:"name" api:"required"`
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
 	paramObj
 }
 
@@ -5352,6 +5413,9 @@ const (
 type IntentUpdateWalletParams struct {
 	// Request body for updating a wallet.
 	WalletUpdateRequestBody WalletUpdateRequestBody
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
 	paramObj
 }
 
