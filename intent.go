@@ -1088,9 +1088,8 @@ type RpcIntentResponse struct {
 	// ID of the user who created the intent. If undefined, the intent was created
 	// using the app secret
 	CreatedByID string `json:"created_by_id"`
-	// Current state of the wallet before any changes. If undefined, the resource was
-	// deleted and no longer exists
-	CurrentResourceData RpcIntentResponseCurrentResourceData `json:"current_resource_data"`
+	// A wallet managed by Privy's wallet infrastructure.
+	CurrentResourceData Wallet `json:"current_resource_data"`
 	// Human-readable reason for dismissal, present when status is 'dismissed'
 	DismissalReason string `json:"dismissal_reason"`
 	// Unix timestamp when the intent was dismissed, present when status is 'dismissed'
@@ -1681,87 +1680,6 @@ func (r *RpcIntentResponseRequestDetailsBodyObjectParamsTransactionValueUnion) U
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Current state of the wallet before any changes. If undefined, the resource was
-// deleted and no longer exists
-type RpcIntentResponseCurrentResourceData struct {
-	ID                string                                                 `json:"id" api:"required"`
-	AdditionalSigners []RpcIntentResponseCurrentResourceDataAdditionalSigner `json:"additional_signers" api:"required"`
-	Address           string                                                 `json:"address" api:"required"`
-	// The wallet chain types.
-	//
-	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
-	// "tron", "bitcoin-segwit", "near", "ton", "starknet", "spark".
-	ChainType              WalletChainType                               `json:"chain_type" api:"required"`
-	CreatedAt              float64                                       `json:"created_at" api:"required"`
-	ExportedAt             float64                                       `json:"exported_at" api:"required"`
-	ImportedAt             float64                                       `json:"imported_at" api:"required"`
-	OwnerID                string                                        `json:"owner_id" api:"required" format:"cuid2"`
-	PolicyIDs              []string                                      `json:"policy_ids" api:"required"`
-	AuthorizationThreshold float64                                       `json:"authorization_threshold"`
-	Custodian              RpcIntentResponseCurrentResourceDataCustodian `json:"custodian"`
-	// Information about the custodian managing this wallet.
-	Custody   WalletCustodian `json:"custody"`
-	PublicKey string          `json:"public_key"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID                     respjson.Field
-		AdditionalSigners      respjson.Field
-		Address                respjson.Field
-		ChainType              respjson.Field
-		CreatedAt              respjson.Field
-		ExportedAt             respjson.Field
-		ImportedAt             respjson.Field
-		OwnerID                respjson.Field
-		PolicyIDs              respjson.Field
-		AuthorizationThreshold respjson.Field
-		Custodian              respjson.Field
-		Custody                respjson.Field
-		PublicKey              respjson.Field
-		ExtraFields            map[string]respjson.Field
-		raw                    string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r RpcIntentResponseCurrentResourceData) RawJSON() string { return r.JSON.raw }
-func (r *RpcIntentResponseCurrentResourceData) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type RpcIntentResponseCurrentResourceDataAdditionalSigner struct {
-	SignerID          string   `json:"signer_id" api:"required" format:"cuid2"`
-	OverridePolicyIDs []string `json:"override_policy_ids"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		SignerID          respjson.Field
-		OverridePolicyIDs respjson.Field
-		ExtraFields       map[string]respjson.Field
-		raw               string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r RpcIntentResponseCurrentResourceDataAdditionalSigner) RawJSON() string { return r.JSON.raw }
-func (r *RpcIntentResponseCurrentResourceDataAdditionalSigner) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type RpcIntentResponseCurrentResourceDataCustodian struct {
-	Name string `json:"name" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Name        respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r RpcIntentResponseCurrentResourceDataCustodian) RawJSON() string { return r.JSON.raw }
-func (r *RpcIntentResponseCurrentResourceDataCustodian) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // Response for a wallet intent
 type WalletIntentResponse struct {
 	// Detailed authorization information including key quorum members, thresholds, and
@@ -1791,9 +1709,8 @@ type WalletIntentResponse struct {
 	// ID of the user who created the intent. If undefined, the intent was created
 	// using the app secret
 	CreatedByID string `json:"created_by_id"`
-	// Current state of the wallet before any changes. If undefined, the resource was
-	// deleted and no longer exists
-	CurrentResourceData WalletIntentResponseCurrentResourceData `json:"current_resource_data"`
+	// A wallet managed by Privy's wallet infrastructure.
+	CurrentResourceData Wallet `json:"current_resource_data"`
 	// Human-readable reason for dismissal, present when status is 'dismissed'
 	DismissalReason string `json:"dismissal_reason"`
 	// Unix timestamp when the intent was dismissed, present when status is 'dismissed'
@@ -1964,87 +1881,6 @@ type WalletIntentResponseRequestDetailsBodyOwnerPublicKey struct {
 // Returns the unmodified JSON received from the API
 func (r WalletIntentResponseRequestDetailsBodyOwnerPublicKey) RawJSON() string { return r.JSON.raw }
 func (r *WalletIntentResponseRequestDetailsBodyOwnerPublicKey) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Current state of the wallet before any changes. If undefined, the resource was
-// deleted and no longer exists
-type WalletIntentResponseCurrentResourceData struct {
-	ID                string                                                    `json:"id" api:"required"`
-	AdditionalSigners []WalletIntentResponseCurrentResourceDataAdditionalSigner `json:"additional_signers" api:"required"`
-	Address           string                                                    `json:"address" api:"required"`
-	// The wallet chain types.
-	//
-	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
-	// "tron", "bitcoin-segwit", "near", "ton", "starknet", "spark".
-	ChainType              WalletChainType                                  `json:"chain_type" api:"required"`
-	CreatedAt              float64                                          `json:"created_at" api:"required"`
-	ExportedAt             float64                                          `json:"exported_at" api:"required"`
-	ImportedAt             float64                                          `json:"imported_at" api:"required"`
-	OwnerID                string                                           `json:"owner_id" api:"required" format:"cuid2"`
-	PolicyIDs              []string                                         `json:"policy_ids" api:"required"`
-	AuthorizationThreshold float64                                          `json:"authorization_threshold"`
-	Custodian              WalletIntentResponseCurrentResourceDataCustodian `json:"custodian"`
-	// Information about the custodian managing this wallet.
-	Custody   WalletCustodian `json:"custody"`
-	PublicKey string          `json:"public_key"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID                     respjson.Field
-		AdditionalSigners      respjson.Field
-		Address                respjson.Field
-		ChainType              respjson.Field
-		CreatedAt              respjson.Field
-		ExportedAt             respjson.Field
-		ImportedAt             respjson.Field
-		OwnerID                respjson.Field
-		PolicyIDs              respjson.Field
-		AuthorizationThreshold respjson.Field
-		Custodian              respjson.Field
-		Custody                respjson.Field
-		PublicKey              respjson.Field
-		ExtraFields            map[string]respjson.Field
-		raw                    string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r WalletIntentResponseCurrentResourceData) RawJSON() string { return r.JSON.raw }
-func (r *WalletIntentResponseCurrentResourceData) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type WalletIntentResponseCurrentResourceDataAdditionalSigner struct {
-	SignerID          string   `json:"signer_id" api:"required" format:"cuid2"`
-	OverridePolicyIDs []string `json:"override_policy_ids"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		SignerID          respjson.Field
-		OverridePolicyIDs respjson.Field
-		ExtraFields       map[string]respjson.Field
-		raw               string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r WalletIntentResponseCurrentResourceDataAdditionalSigner) RawJSON() string { return r.JSON.raw }
-func (r *WalletIntentResponseCurrentResourceDataAdditionalSigner) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type WalletIntentResponseCurrentResourceDataCustodian struct {
-	Name string `json:"name" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Name        respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r WalletIntentResponseCurrentResourceDataCustodian) RawJSON() string { return r.JSON.raw }
-func (r *WalletIntentResponseCurrentResourceDataCustodian) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -3339,9 +3175,7 @@ type IntentResponseUnion struct {
 	// This field is from variant [RpcIntentResponse].
 	ActionResult BaseActionResult `json:"action_result"`
 	CreatedByID  string           `json:"created_by_id"`
-	// This field is a union of [RpcIntentResponseCurrentResourceData],
-	// [WalletIntentResponseCurrentResourceData],
-	// [PolicyIntentResponseCurrentResourceData],
+	// This field is a union of [Wallet], [PolicyIntentResponseCurrentResourceData],
 	// [RuleIntentResponseCurrentResourceData],
 	// [KeyQuorumIntentResponseCurrentResourceData]
 	CurrentResourceData IntentResponseUnionCurrentResourceData `json:"current_resource_data"`
@@ -3610,26 +3444,26 @@ func (r *IntentResponseUnionRequestDetailsBodyConditions) UnmarshalJSON(data []b
 // [IntentResponseUnion].
 type IntentResponseUnionCurrentResourceData struct {
 	ID string `json:"id"`
-	// This field is a union of
-	// [[]RpcIntentResponseCurrentResourceDataAdditionalSigner],
-	// [[]WalletIntentResponseCurrentResourceDataAdditionalSigner]
-	AdditionalSigners IntentResponseUnionCurrentResourceDataAdditionalSigners `json:"additional_signers"`
-	Address           string                                                  `json:"address"`
-	// This field is from variant [RpcIntentResponseCurrentResourceData].
-	ChainType              WalletChainType `json:"chain_type"`
-	CreatedAt              float64         `json:"created_at"`
-	ExportedAt             float64         `json:"exported_at"`
-	ImportedAt             float64         `json:"imported_at"`
-	OwnerID                string          `json:"owner_id"`
-	PolicyIDs              []string        `json:"policy_ids"`
-	AuthorizationThreshold float64         `json:"authorization_threshold"`
-	// This field is a union of [RpcIntentResponseCurrentResourceDataCustodian],
-	// [WalletIntentResponseCurrentResourceDataCustodian]
-	Custodian IntentResponseUnionCurrentResourceDataCustodian `json:"custodian"`
-	// This field is from variant [RpcIntentResponseCurrentResourceData].
-	Custody   WalletCustodian `json:"custody"`
-	PublicKey string          `json:"public_key"`
-	Name      string          `json:"name"`
+	// This field is from variant [Wallet].
+	AdditionalSigners []WalletAdditionalSigner `json:"additional_signers"`
+	// This field is from variant [Wallet].
+	Address string `json:"address"`
+	// This field is from variant [Wallet].
+	ChainType WalletChainType `json:"chain_type"`
+	CreatedAt float64         `json:"created_at"`
+	// This field is from variant [Wallet].
+	ExportedAt float64 `json:"exported_at"`
+	// This field is from variant [Wallet].
+	ImportedAt float64 `json:"imported_at"`
+	OwnerID    string  `json:"owner_id"`
+	// This field is from variant [Wallet].
+	PolicyIDs              []string `json:"policy_ids"`
+	AuthorizationThreshold float64  `json:"authorization_threshold"`
+	// This field is from variant [Wallet].
+	Custody WalletCustodian `json:"custody"`
+	// This field is from variant [Wallet].
+	PublicKey string `json:"public_key"`
+	Name      string `json:"name"`
 	// This field is from variant [PolicyIntentResponseCurrentResourceData].
 	Rules []PolicyIntentResponseCurrentResourceDataRule `json:"rules"`
 	// This field is from variant [PolicyIntentResponseCurrentResourceData].
@@ -3659,7 +3493,6 @@ type IntentResponseUnionCurrentResourceData struct {
 		OwnerID                respjson.Field
 		PolicyIDs              respjson.Field
 		AuthorizationThreshold respjson.Field
-		Custodian              respjson.Field
 		Custody                respjson.Field
 		PublicKey              respjson.Field
 		Name                   respjson.Field
@@ -3677,54 +3510,6 @@ type IntentResponseUnionCurrentResourceData struct {
 }
 
 func (r *IntentResponseUnionCurrentResourceData) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// IntentResponseUnionCurrentResourceDataAdditionalSigners is an implicit subunion
-// of [IntentResponseUnion].
-// IntentResponseUnionCurrentResourceDataAdditionalSigners provides convenient
-// access to the sub-properties of the union.
-//
-// For type safety it is recommended to directly use a variant of the
-// [IntentResponseUnion].
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfRpcIntentResponseCurrentResourceDataAdditionalSigners
-// OfWalletIntentResponseCurrentResourceDataAdditionalSigners]
-type IntentResponseUnionCurrentResourceDataAdditionalSigners struct {
-	// This field will be present if the value is a
-	// [[]RpcIntentResponseCurrentResourceDataAdditionalSigner] instead of an object.
-	OfRpcIntentResponseCurrentResourceDataAdditionalSigners []RpcIntentResponseCurrentResourceDataAdditionalSigner `json:",inline"`
-	// This field will be present if the value is a
-	// [[]WalletIntentResponseCurrentResourceDataAdditionalSigner] instead of an
-	// object.
-	OfWalletIntentResponseCurrentResourceDataAdditionalSigners []WalletIntentResponseCurrentResourceDataAdditionalSigner `json:",inline"`
-	JSON                                                       struct {
-		OfRpcIntentResponseCurrentResourceDataAdditionalSigners    respjson.Field
-		OfWalletIntentResponseCurrentResourceDataAdditionalSigners respjson.Field
-		raw                                                        string
-	} `json:"-"`
-}
-
-func (r *IntentResponseUnionCurrentResourceDataAdditionalSigners) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// IntentResponseUnionCurrentResourceDataCustodian is an implicit subunion of
-// [IntentResponseUnion]. IntentResponseUnionCurrentResourceDataCustodian provides
-// convenient access to the sub-properties of the union.
-//
-// For type safety it is recommended to directly use a variant of the
-// [IntentResponseUnion].
-type IntentResponseUnionCurrentResourceDataCustodian struct {
-	Name string `json:"name"`
-	JSON struct {
-		Name respjson.Field
-		raw  string
-	} `json:"-"`
-}
-
-func (r *IntentResponseUnionCurrentResourceDataCustodian) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
