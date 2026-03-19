@@ -2558,9 +2558,8 @@ type KeyQuorumIntentResponse struct {
 	// ID of the user who created the intent. If undefined, the intent was created
 	// using the app secret
 	CreatedByID string `json:"created_by_id"`
-	// Current state of the key quorum before any changes. If undefined, the resource
-	// was deleted and no longer exists
-	CurrentResourceData KeyQuorumIntentResponseCurrentResourceData `json:"current_resource_data"`
+	// A key quorum for authorizing wallet operations.
+	CurrentResourceData KeyQuorum `json:"current_resource_data"`
 	// Human-readable reason for dismissal, present when status is 'dismissed'
 	DismissalReason string `json:"dismissal_reason"`
 	// Unix timestamp when the intent was dismissed, present when status is 'dismissed'
@@ -2605,7 +2604,8 @@ const (
 // The original key quorum update request that would be sent to the key quorum
 // endpoint
 type KeyQuorumIntentResponseRequestDetails struct {
-	Body KeyQuorumIntentResponseRequestDetailsBody `json:"body" api:"required"`
+	// Request input for updating an existing key quorum.
+	Body KeyQuorumUpdateParamsResp `json:"body" api:"required"`
 	// Any of "PATCH".
 	Method string `json:"method" api:"required"`
 	URL    string `json:"url" api:"required"`
@@ -2622,78 +2622,6 @@ type KeyQuorumIntentResponseRequestDetails struct {
 // Returns the unmodified JSON received from the API
 func (r KeyQuorumIntentResponseRequestDetails) RawJSON() string { return r.JSON.raw }
 func (r *KeyQuorumIntentResponseRequestDetails) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type KeyQuorumIntentResponseRequestDetailsBody struct {
-	AuthorizationThreshold float64  `json:"authorization_threshold"`
-	DisplayName            string   `json:"display_name"`
-	KeyQuorumIDs           []string `json:"key_quorum_ids"`
-	PublicKeys             []string `json:"public_keys"`
-	UserIDs                []string `json:"user_ids"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		AuthorizationThreshold respjson.Field
-		DisplayName            respjson.Field
-		KeyQuorumIDs           respjson.Field
-		PublicKeys             respjson.Field
-		UserIDs                respjson.Field
-		ExtraFields            map[string]respjson.Field
-		raw                    string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r KeyQuorumIntentResponseRequestDetailsBody) RawJSON() string { return r.JSON.raw }
-func (r *KeyQuorumIntentResponseRequestDetailsBody) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Current state of the key quorum before any changes. If undefined, the resource
-// was deleted and no longer exists
-type KeyQuorumIntentResponseCurrentResourceData struct {
-	ID                     string                                                       `json:"id" api:"required"`
-	AuthorizationKeys      []KeyQuorumIntentResponseCurrentResourceDataAuthorizationKey `json:"authorization_keys" api:"required"`
-	AuthorizationThreshold float64                                                      `json:"authorization_threshold" api:"required"`
-	DisplayName            string                                                       `json:"display_name" api:"required"`
-	UserIDs                []string                                                     `json:"user_ids" api:"required"`
-	KeyQuorumIDs           []string                                                     `json:"key_quorum_ids"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID                     respjson.Field
-		AuthorizationKeys      respjson.Field
-		AuthorizationThreshold respjson.Field
-		DisplayName            respjson.Field
-		UserIDs                respjson.Field
-		KeyQuorumIDs           respjson.Field
-		ExtraFields            map[string]respjson.Field
-		raw                    string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r KeyQuorumIntentResponseCurrentResourceData) RawJSON() string { return r.JSON.raw }
-func (r *KeyQuorumIntentResponseCurrentResourceData) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type KeyQuorumIntentResponseCurrentResourceDataAuthorizationKey struct {
-	DisplayName string `json:"display_name" api:"required"`
-	PublicKey   string `json:"public_key" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		DisplayName respjson.Field
-		PublicKey   respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r KeyQuorumIntentResponseCurrentResourceDataAuthorizationKey) RawJSON() string {
-	return r.JSON.raw
-}
-func (r *KeyQuorumIntentResponseCurrentResourceDataAuthorizationKey) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -3218,8 +3146,7 @@ type IntentResponseUnion struct {
 	ActionResult BaseActionResult `json:"action_result"`
 	CreatedByID  string           `json:"created_by_id"`
 	// This field is a union of [Wallet], [PolicyIntentResponseCurrentResourceData],
-	// [RuleIntentResponseCurrentResourceData],
-	// [KeyQuorumIntentResponseCurrentResourceData]
+	// [RuleIntentResponseCurrentResourceData], [KeyQuorum]
 	CurrentResourceData IntentResponseUnionCurrentResourceData `json:"current_resource_data"`
 	DismissalReason     string                                 `json:"dismissal_reason"`
 	DismissedAt         float64                                `json:"dismissed_at"`
@@ -3329,8 +3256,7 @@ type IntentResponseUnionRequestDetails struct {
 	// This field is a union of [RpcIntentResponseRequestDetailsBodyUnion],
 	// [WalletIntentResponseRequestDetailsBody],
 	// [PolicyIntentResponseRequestDetailsBody], [RuleIntentCreateRequestDetailsBody],
-	// [RuleIntentUpdateRequestDetailsBody], [any],
-	// [KeyQuorumIntentResponseRequestDetailsBody]
+	// [RuleIntentUpdateRequestDetailsBody], [any], [KeyQuorumUpdateParamsResp]
 	Body   IntentResponseUnionRequestDetailsBody `json:"body"`
 	Method string                                `json:"method"`
 	URL    string                                `json:"url"`
@@ -3391,13 +3317,13 @@ type IntentResponseUnionRequestDetailsBody struct {
 	// This field is a union of [[]RuleIntentCreateRequestDetailsBodyConditionUnion],
 	// [[]RuleIntentUpdateRequestDetailsBodyConditionUnion]
 	Conditions IntentResponseUnionRequestDetailsBodyConditions `json:"conditions"`
-	// This field is from variant [KeyQuorumIntentResponseRequestDetailsBody].
+	// This field is from variant [KeyQuorumUpdateParamsResp].
 	DisplayName string `json:"display_name"`
-	// This field is from variant [KeyQuorumIntentResponseRequestDetailsBody].
+	// This field is from variant [KeyQuorumUpdateParamsResp].
 	KeyQuorumIDs []string `json:"key_quorum_ids"`
-	// This field is from variant [KeyQuorumIntentResponseRequestDetailsBody].
+	// This field is from variant [KeyQuorumUpdateParamsResp].
 	PublicKeys []string `json:"public_keys"`
-	// This field is from variant [KeyQuorumIntentResponseRequestDetailsBody].
+	// This field is from variant [KeyQuorumUpdateParamsResp].
 	UserIDs []string `json:"user_ids"`
 	JSON    struct {
 		OfRuleIntentDeleteRequestDetailsBody respjson.Field
@@ -3517,13 +3443,13 @@ type IntentResponseUnionCurrentResourceData struct {
 	Conditions []RuleIntentResponseCurrentResourceDataConditionUnion `json:"conditions"`
 	// This field is from variant [RuleIntentResponseCurrentResourceData].
 	Method string `json:"method"`
-	// This field is from variant [KeyQuorumIntentResponseCurrentResourceData].
-	AuthorizationKeys []KeyQuorumIntentResponseCurrentResourceDataAuthorizationKey `json:"authorization_keys"`
-	// This field is from variant [KeyQuorumIntentResponseCurrentResourceData].
+	// This field is from variant [KeyQuorum].
+	AuthorizationKeys []KeyQuorumAuthorizationKey `json:"authorization_keys"`
+	// This field is from variant [KeyQuorum].
 	DisplayName string `json:"display_name"`
-	// This field is from variant [KeyQuorumIntentResponseCurrentResourceData].
+	// This field is from variant [KeyQuorum].
 	UserIDs []string `json:"user_ids"`
-	// This field is from variant [KeyQuorumIntentResponseCurrentResourceData].
+	// This field is from variant [KeyQuorum].
 	KeyQuorumIDs []string `json:"key_quorum_ids"`
 	JSON         struct {
 		ID                     respjson.Field
@@ -4195,8 +4121,8 @@ func (r *IntentRpcParams) UnmarshalJSON(data []byte) error {
 }
 
 type IntentUpdateKeyQuorumParams struct {
-	// Request input for creating or updating a key quorum.
-	KeyQuorumCreateParams KeyQuorumCreateParams
+	// Request input for updating an existing key quorum.
+	KeyQuorumUpdateParams KeyQuorumUpdateParams
 	// Request expiry. Value is a Unix timestamp in milliseconds representing the
 	// deadline by which the request must be processed.
 	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
@@ -4204,10 +4130,10 @@ type IntentUpdateKeyQuorumParams struct {
 }
 
 func (r IntentUpdateKeyQuorumParams) MarshalJSON() (data []byte, err error) {
-	return shimjson.Marshal(r.KeyQuorumCreateParams)
+	return shimjson.Marshal(r.KeyQuorumUpdateParams)
 }
 func (r *IntentUpdateKeyQuorumParams) UnmarshalJSON(data []byte) error {
-	return json.Unmarshal(data, &r.KeyQuorumCreateParams)
+	return json.Unmarshal(data, &r.KeyQuorumUpdateParams)
 }
 
 type IntentUpdatePolicyParams struct {

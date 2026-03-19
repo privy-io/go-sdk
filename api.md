@@ -200,10 +200,12 @@ Methods:
 Params Types:
 
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#KeyQuorumCreateParams">KeyQuorumCreateParams</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#KeyQuorumUpdateParams">KeyQuorumUpdateParams</a>
 
 Response Types:
 
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#KeyQuorum">KeyQuorum</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#KeyQuorumUpdateParamsResp">KeyQuorumUpdateParamsResp</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#KeyQuorumDeleteResponse">KeyQuorumDeleteResponse</a>
 
 Methods:
@@ -294,14 +296,16 @@ Response Types:
 
 # Aggregations
 
+# WalletActions
+
 # Webhooks
 
 # Accounts
 
 # Yield
 
-# WalletActions
-
 # Swaps
 
 # KrakenEmbed
+
+# CrossApp

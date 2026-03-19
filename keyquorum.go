@@ -95,49 +95,23 @@ func (r *KeyQuorumService) Get(ctx context.Context, keyQuorumID string, opts ...
 	return res, err
 }
 
-// Request input for creating or updating a key quorum.
-type KeyQuorumCreateParams struct {
-	// The number of keys that must sign for an action to be valid. Must be less than
-	// or equal to total number of key quorum members.
-	AuthorizationThreshold param.Opt[float64] `json:"authorization_threshold,omitzero"`
-	DisplayName            param.Opt[string]  `json:"display_name,omitzero"`
-	// List of key quorum IDs that should be members of this key quorum. Key quorums
-	// can only be nested 1 level deep.
-	KeyQuorumIDs []string `json:"key_quorum_ids,omitzero"`
-	// List of P-256 public keys of the keys that should be authorized to sign on the
-	// key quorum, in base64-encoded DER format.
-	PublicKeys []string `json:"public_keys,omitzero"`
-	// List of user IDs of the users that should be authorized to sign on the key
-	// quorum.
-	UserIDs []string `json:"user_ids,omitzero"`
-	paramObj
-}
-
-func (r KeyQuorumCreateParams) MarshalJSON() (data []byte, err error) {
-	type shadow KeyQuorumCreateParams
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *KeyQuorumCreateParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // A key quorum for authorizing wallet operations.
 type KeyQuorum struct {
 	ID                     string                      `json:"id" api:"required" format:"cuid2"`
 	AuthorizationKeys      []KeyQuorumAuthorizationKey `json:"authorization_keys" api:"required"`
-	AuthorizationThreshold float64                     `json:"authorization_threshold"`
-	DisplayName            string                      `json:"display_name"`
+	AuthorizationThreshold float64                     `json:"authorization_threshold" api:"required"`
+	DisplayName            string                      `json:"display_name" api:"required"`
+	UserIDs                []string                    `json:"user_ids" api:"required"`
 	// List of nested key quorum IDs that are members of this key quorum.
 	KeyQuorumIDs []string `json:"key_quorum_ids"`
-	UserIDs      []string `json:"user_ids"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID                     respjson.Field
 		AuthorizationKeys      respjson.Field
 		AuthorizationThreshold respjson.Field
 		DisplayName            respjson.Field
-		KeyQuorumIDs           respjson.Field
 		UserIDs                respjson.Field
+		KeyQuorumIDs           respjson.Field
 		ExtraFields            map[string]respjson.Field
 		raw                    string
 	} `json:"-"`
@@ -167,6 +141,100 @@ func (r *KeyQuorumAuthorizationKey) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Request input for creating a key quorum.
+type KeyQuorumCreateParams struct {
+	// The number of keys that must sign for an action to be valid. Must be less than
+	// or equal to total number of key quorum members.
+	AuthorizationThreshold param.Opt[float64] `json:"authorization_threshold,omitzero"`
+	DisplayName            param.Opt[string]  `json:"display_name,omitzero"`
+	// List of key quorum IDs that should be members of this key quorum. Key quorums
+	// can only be nested 1 level deep.
+	KeyQuorumIDs []string `json:"key_quorum_ids,omitzero"`
+	// List of P-256 public keys of the keys that should be authorized to sign on the
+	// key quorum, in base64-encoded DER format.
+	PublicKeys []string `json:"public_keys,omitzero"`
+	// List of user IDs of the users that should be authorized to sign on the key
+	// quorum.
+	UserIDs []string `json:"user_ids,omitzero"`
+	paramObj
+}
+
+func (r KeyQuorumCreateParams) MarshalJSON() (data []byte, err error) {
+	type shadow KeyQuorumCreateParams
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *KeyQuorumCreateParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Request input for updating an existing key quorum.
+type KeyQuorumUpdateParamsResp struct {
+	// The number of keys that must sign for an action to be valid. Must be less than
+	// or equal to total number of key quorum members.
+	AuthorizationThreshold float64 `json:"authorization_threshold"`
+	DisplayName            string  `json:"display_name"`
+	// List of key quorum IDs that should be members of this key quorum. Key quorums
+	// can only be nested 1 level deep.
+	KeyQuorumIDs []string `json:"key_quorum_ids"`
+	// List of P-256 public keys of the keys that should be authorized to sign on the
+	// key quorum, in base64-encoded DER format.
+	PublicKeys []string `json:"public_keys"`
+	// List of user IDs of the users that should be authorized to sign on the key
+	// quorum.
+	UserIDs []string `json:"user_ids"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		AuthorizationThreshold respjson.Field
+		DisplayName            respjson.Field
+		KeyQuorumIDs           respjson.Field
+		PublicKeys             respjson.Field
+		UserIDs                respjson.Field
+		ExtraFields            map[string]respjson.Field
+		raw                    string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r KeyQuorumUpdateParamsResp) RawJSON() string { return r.JSON.raw }
+func (r *KeyQuorumUpdateParamsResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this KeyQuorumUpdateParamsResp to a KeyQuorumUpdateParams.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// KeyQuorumUpdateParams.Overrides()
+func (r KeyQuorumUpdateParamsResp) ToParam() KeyQuorumUpdateParams {
+	return param.Override[KeyQuorumUpdateParams](json.RawMessage(r.RawJSON()))
+}
+
+// Request input for updating an existing key quorum.
+type KeyQuorumUpdateParams struct {
+	// The number of keys that must sign for an action to be valid. Must be less than
+	// or equal to total number of key quorum members.
+	AuthorizationThreshold param.Opt[float64] `json:"authorization_threshold,omitzero"`
+	DisplayName            param.Opt[string]  `json:"display_name,omitzero"`
+	// List of key quorum IDs that should be members of this key quorum. Key quorums
+	// can only be nested 1 level deep.
+	KeyQuorumIDs []string `json:"key_quorum_ids,omitzero"`
+	// List of P-256 public keys of the keys that should be authorized to sign on the
+	// key quorum, in base64-encoded DER format.
+	PublicKeys []string `json:"public_keys,omitzero"`
+	// List of user IDs of the users that should be authorized to sign on the key
+	// quorum.
+	UserIDs []string `json:"user_ids,omitzero"`
+	paramObj
+}
+
+func (r KeyQuorumUpdateParams) MarshalJSON() (data []byte, err error) {
+	type shadow KeyQuorumUpdateParams
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *KeyQuorumUpdateParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 type KeyQuorumDeleteResponse struct {
 	// Whether the key quorum was deleted successfully.
 	Success bool `json:"success" api:"required"`
@@ -185,7 +253,7 @@ func (r *KeyQuorumDeleteResponse) UnmarshalJSON(data []byte) error {
 }
 
 type KeyQuorumNewParams struct {
-	// Request input for creating or updating a key quorum.
+	// Request input for creating a key quorum.
 	KeyQuorumCreateParams KeyQuorumCreateParams
 	paramObj
 }
@@ -198,8 +266,8 @@ func (r *KeyQuorumNewParams) UnmarshalJSON(data []byte) error {
 }
 
 type KeyQuorumUpdateParams struct {
-	// Request input for creating or updating a key quorum.
-	KeyQuorumCreateParams KeyQuorumCreateParams
+	// Request input for updating an existing key quorum.
+	KeyQuorumUpdateParams KeyQuorumUpdateParams
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.
 	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
@@ -210,10 +278,10 @@ type KeyQuorumUpdateParams struct {
 }
 
 func (r KeyQuorumUpdateParams) MarshalJSON() (data []byte, err error) {
-	return shimjson.Marshal(r.KeyQuorumCreateParams)
+	return shimjson.Marshal(r.KeyQuorumUpdateParams)
 }
 func (r *KeyQuorumUpdateParams) UnmarshalJSON(data []byte) error {
-	return json.Unmarshal(data, &r.KeyQuorumCreateParams)
+	return json.Unmarshal(data, &r.KeyQuorumUpdateParams)
 }
 
 type KeyQuorumDeleteParams struct {
