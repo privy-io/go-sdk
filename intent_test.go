@@ -203,8 +203,8 @@ func TestIntentUpdateKeyQuorumWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"key_quorum_id",
 		privyclient.IntentUpdateKeyQuorumParams{
-			KeyQuorumCreateParams: privyclient.KeyQuorumCreateParams{
-				AuthorizationThreshold: privyclient.Float(1),
+			KeyQuorumUpdateParams: privyclient.KeyQuorumUpdateParams{
+				AuthorizationThreshold: privyclient.Float(0),
 				DisplayName:            privyclient.String("display_name"),
 				KeyQuorumIDs:           []string{"string"},
 				PublicKeys:             []string{"string"},

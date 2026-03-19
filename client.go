@@ -32,12 +32,13 @@ type Client struct {
 	ClientAuth    ClientAuthService
 	Analytics     AnalyticsService
 	Aggregations  AggregationService
+	WalletActions WalletActionService
 	Webhooks      WebhookService
 	Accounts      AccountService
 	Yield         YieldService
-	WalletActions WalletActionService
 	Swaps         SwapService
 	KrakenEmbed   KrakenEmbedService
+	CrossApp      CrossAppService
 }
 
 // DefaultClientOptions read from the environment (PRIVY_APP_ID, PRIVY_APP_SECRET,
@@ -75,12 +76,13 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.ClientAuth = NewClientAuthService(opts...)
 	r.Analytics = NewAnalyticsService(opts...)
 	r.Aggregations = NewAggregationService(opts...)
+	r.WalletActions = NewWalletActionService(opts...)
 	r.Webhooks = NewWebhookService(opts...)
 	r.Accounts = NewAccountService(opts...)
 	r.Yield = NewYieldService(opts...)
-	r.WalletActions = NewWalletActionService(opts...)
 	r.Swaps = NewSwapService(opts...)
 	r.KrakenEmbed = NewKrakenEmbedService(opts...)
+	r.CrossApp = NewCrossAppService(opts...)
 
 	return
 }
