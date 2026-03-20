@@ -1209,7 +1209,9 @@ const (
 type EthereumSign7702AuthorizationRpcInputParams struct {
 	ChainID  EthereumSign7702AuthorizationRpcInputParamsChainIDUnion `json:"chain_id,omitzero" api:"required"`
 	Contract string                                                  `json:"contract" api:"required"`
-	Nonce    EthereumSign7702AuthorizationRpcInputParamsNonceUnion   `json:"nonce,omitzero"`
+	// Any of "self".
+	Executor string                                                `json:"executor,omitzero"`
+	Nonce    EthereumSign7702AuthorizationRpcInputParamsNonceUnion `json:"nonce,omitzero"`
 	paramObj
 }
 
@@ -1219,6 +1221,12 @@ func (r EthereumSign7702AuthorizationRpcInputParams) MarshalJSON() (data []byte,
 }
 func (r *EthereumSign7702AuthorizationRpcInputParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func init() {
+	apijson.RegisterFieldValidator[EthereumSign7702AuthorizationRpcInputParams](
+		"executor", "self",
+	)
 }
 
 // Only one field can be non-zero.
