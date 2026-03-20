@@ -2590,7 +2590,7 @@ func (r *LinkedMfaMethodUnion) UnmarshalJSON(data []byte) error {
 // A Privy user object.
 type User struct {
 	ID string `json:"id" api:"required"`
-	// Unix timestamp of when the user was created in milliseconds.
+	// Unix timestamp of when the user was created in seconds.
 	CreatedAt float64 `json:"created_at" api:"required"`
 	// Indicates if the user has accepted the terms of service.
 	HasAcceptedTerms bool `json:"has_accepted_terms" api:"required"`
