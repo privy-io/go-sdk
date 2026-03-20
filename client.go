@@ -30,9 +30,9 @@ type Client struct {
 	// Operations related to app settings and allowlist management
 	Apps          AppService
 	ClientAuth    ClientAuthService
+	WalletActions WalletActionService
 	Analytics     AnalyticsService
 	Aggregations  AggregationService
-	WalletActions WalletActionService
 	Webhooks      WebhookService
 	Accounts      AccountService
 	Yield         YieldService
@@ -74,9 +74,9 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.Intents = NewIntentService(opts...)
 	r.Apps = NewAppService(opts...)
 	r.ClientAuth = NewClientAuthService(opts...)
+	r.WalletActions = NewWalletActionService(opts...)
 	r.Analytics = NewAnalyticsService(opts...)
 	r.Aggregations = NewAggregationService(opts...)
-	r.WalletActions = NewWalletActionService(opts...)
 	r.Webhooks = NewWebhookService(opts...)
 	r.Accounts = NewAccountService(opts...)
 	r.Yield = NewYieldService(opts...)

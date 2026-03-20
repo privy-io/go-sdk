@@ -292,11 +292,11 @@ Response Types:
 
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#CustomOAuthProviderID">CustomOAuthProviderID</a>
 
+# WalletActions
+
 # Analytics
 
 # Aggregations
-
-# WalletActions
 
 # Webhooks
 
