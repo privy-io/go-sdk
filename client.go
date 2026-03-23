@@ -28,17 +28,19 @@ type Client struct {
 	KeyQuorums KeyQuorumService
 	Intents    IntentService
 	// Operations related to app settings and allowlist management
-	Apps          AppService
-	ClientAuth    ClientAuthService
-	WalletActions WalletActionService
-	Analytics     AnalyticsService
-	Aggregations  AggregationService
-	Webhooks      WebhookService
-	Accounts      AccountService
-	Yield         YieldService
-	Swaps         SwapService
-	KrakenEmbed   KrakenEmbedService
-	CrossApp      CrossAppService
+	Apps            AppService
+	ClientAuth      ClientAuthService
+	WalletActions   WalletActionService
+	Analytics       AnalyticsService
+	EmbeddedWallets EmbeddedWalletService
+	Funding         FundingService
+	Aggregations    AggregationService
+	Webhooks        WebhookService
+	Accounts        AccountService
+	Yield           YieldService
+	Swaps           SwapService
+	KrakenEmbed     KrakenEmbedService
+	CrossApp        CrossAppService
 }
 
 // DefaultClientOptions read from the environment (PRIVY_APP_ID, PRIVY_APP_SECRET,
@@ -76,6 +78,8 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.ClientAuth = NewClientAuthService(opts...)
 	r.WalletActions = NewWalletActionService(opts...)
 	r.Analytics = NewAnalyticsService(opts...)
+	r.EmbeddedWallets = NewEmbeddedWalletService(opts...)
+	r.Funding = NewFundingService(opts...)
 	r.Aggregations = NewAggregationService(opts...)
 	r.Webhooks = NewWebhookService(opts...)
 	r.Accounts = NewAccountService(opts...)

@@ -66,6 +66,202 @@ func (r *AppService) GetTestCredentials(ctx context.Context, appID string, opts 
 	return res, err
 }
 
+// Whether to create embedded wallets on login.
+type EmbeddedWalletCreateOnLogin string
+
+const (
+	EmbeddedWalletCreateOnLoginUsersWithoutWallets EmbeddedWalletCreateOnLogin = "users-without-wallets"
+	EmbeddedWalletCreateOnLoginAllUsers            EmbeddedWalletCreateOnLogin = "all-users"
+	EmbeddedWalletCreateOnLoginOff                 EmbeddedWalletCreateOnLogin = "off"
+)
+
+// Chain-specific configuration for embedded wallets.
+type EmbeddedWalletChainConfig struct {
+	// Whether to create embedded wallets on login.
+	//
+	// Any of "users-without-wallets", "all-users", "off".
+	CreateOnLogin EmbeddedWalletCreateOnLogin `json:"create_on_login" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		CreateOnLogin respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EmbeddedWalletChainConfig) RawJSON() string { return r.JSON.raw }
+func (r *EmbeddedWalletChainConfig) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A user-owned recovery option for embedded wallets.
+type UserOwnedRecoveryOption string
+
+const (
+	UserOwnedRecoveryOptionUserPasscode UserOwnedRecoveryOption = "user-passcode"
+	UserOwnedRecoveryOptionGoogleDrive  UserOwnedRecoveryOption = "google-drive"
+	UserOwnedRecoveryOptionICloud       UserOwnedRecoveryOption = "icloud"
+)
+
+// Input configuration for embedded wallets.
+type EmbeddedWalletInputSchema struct {
+	// Whether to create embedded wallets on login.
+	//
+	// Any of "users-without-wallets", "all-users", "off".
+	CreateOnLogin EmbeddedWalletCreateOnLogin `json:"create_on_login" api:"required"`
+	// Chain-specific configuration for embedded wallets.
+	Ethereum EmbeddedWalletChainConfig `json:"ethereum" api:"required"`
+	// Chain-specific configuration for embedded wallets.
+	Solana                           EmbeddedWalletChainConfig `json:"solana" api:"required"`
+	UserOwnedRecoveryOptions         []UserOwnedRecoveryOption `json:"user_owned_recovery_options" api:"required"`
+	RequireUserOwnedRecoveryOnCreate bool                      `json:"require_user_owned_recovery_on_create"`
+	RequireUserPasswordOnCreate      bool                      `json:"require_user_password_on_create"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		CreateOnLogin                    respjson.Field
+		Ethereum                         respjson.Field
+		Solana                           respjson.Field
+		UserOwnedRecoveryOptions         respjson.Field
+		RequireUserOwnedRecoveryOnCreate respjson.Field
+		RequireUserPasswordOnCreate      respjson.Field
+		ExtraFields                      map[string]respjson.Field
+		raw                              string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EmbeddedWalletInputSchema) RawJSON() string { return r.JSON.raw }
+func (r *EmbeddedWalletInputSchema) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The mode for embedded wallets.
+type EmbeddedWalletMode string
+
+const (
+	EmbeddedWalletModeLegacyEmbeddedWalletsOnly       EmbeddedWalletMode = "legacy-embedded-wallets-only"
+	EmbeddedWalletModeUserControlledServerWalletsOnly EmbeddedWalletMode = "user-controlled-server-wallets-only"
+)
+
+// Configuration for embedded wallets including the mode.
+type EmbeddedWalletConfigSchema struct {
+	// The mode for embedded wallets.
+	//
+	// Any of "legacy-embedded-wallets-only", "user-controlled-server-wallets-only".
+	Mode EmbeddedWalletMode `json:"mode" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Mode        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+	EmbeddedWalletInputSchema
+}
+
+// Returns the unmodified JSON received from the API
+func (r EmbeddedWalletConfigSchema) RawJSON() string { return r.JSON.raw }
+func (r *EmbeddedWalletConfigSchema) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Configuration for Telegram authentication.
+type TelegramAuthConfigSchema struct {
+	BotID               string `json:"bot_id" api:"required"`
+	BotName             string `json:"bot_name" api:"required"`
+	LinkEnabled         bool   `json:"link_enabled" api:"required"`
+	SeamlessAuthEnabled bool   `json:"seamless_auth_enabled" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		BotID               respjson.Field
+		BotName             respjson.Field
+		LinkEnabled         respjson.Field
+		SeamlessAuthEnabled respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TelegramAuthConfigSchema) RawJSON() string { return r.JSON.raw }
+func (r *TelegramAuthConfigSchema) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A funding method for on-ramp.
+type FundingMethodEnum string
+
+const (
+	FundingMethodEnumMoonpay        FundingMethodEnum = "moonpay"
+	FundingMethodEnumCoinbaseOnramp FundingMethodEnum = "coinbase-onramp"
+	FundingMethodEnumExternal       FundingMethodEnum = "external"
+)
+
+// A funding option with method and provider.
+type FundingOption struct {
+	Method   string `json:"method" api:"required"`
+	Provider string `json:"provider" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Method      respjson.Field
+		Provider    respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r FundingOption) RawJSON() string { return r.JSON.raw }
+func (r *FundingOption) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Configuration for funding and on-ramp options.
+type FundingConfigResponseSchema struct {
+	CrossChainBridgingEnabled     bool                                                  `json:"cross_chain_bridging_enabled" api:"required"`
+	DefaultRecommendedAmount      string                                                `json:"default_recommended_amount" api:"required"`
+	DefaultRecommendedCurrency    FundingConfigResponseSchemaDefaultRecommendedCurrency `json:"default_recommended_currency" api:"required"`
+	Methods                       []FundingMethodEnum                                   `json:"methods" api:"required"`
+	Options                       []FundingOption                                       `json:"options" api:"required"`
+	PromptFundingOnWalletCreation bool                                                  `json:"prompt_funding_on_wallet_creation" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		CrossChainBridgingEnabled     respjson.Field
+		DefaultRecommendedAmount      respjson.Field
+		DefaultRecommendedCurrency    respjson.Field
+		Methods                       respjson.Field
+		Options                       respjson.Field
+		PromptFundingOnWalletCreation respjson.Field
+		ExtraFields                   map[string]respjson.Field
+		raw                           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r FundingConfigResponseSchema) RawJSON() string { return r.JSON.raw }
+func (r *FundingConfigResponseSchema) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type FundingConfigResponseSchemaDefaultRecommendedCurrency struct {
+	Chain string `json:"chain" api:"required"`
+	// Any of "native-currency", "USDC".
+	Asset string `json:"asset"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Chain       respjson.Field
+		Asset       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r FundingConfigResponseSchemaDefaultRecommendedCurrency) RawJSON() string { return r.JSON.raw }
+func (r *FundingConfigResponseSchemaDefaultRecommendedCurrency) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // The response for getting an app.
 type AppResponse struct {
 	ID                         string                           `json:"id" api:"required"`
@@ -83,7 +279,8 @@ type AppResponse struct {
 	DisablePlusEmails          bool                             `json:"disable_plus_emails" api:"required"`
 	DiscordOAuth               bool                             `json:"discord_oauth" api:"required"`
 	EmailAuth                  bool                             `json:"email_auth" api:"required"`
-	EmbeddedWalletConfig       AppResponseEmbeddedWalletConfig  `json:"embedded_wallet_config" api:"required"`
+	// Configuration for embedded wallets including the mode.
+	EmbeddedWalletConfig EmbeddedWalletConfigSchema `json:"embedded_wallet_config" api:"required"`
 	// Any of "turnstile", "hcaptcha".
 	EnabledCaptchaProvider      AppResponseEnabledCaptchaProvider `json:"enabled_captcha_provider" api:"required"`
 	EnforceWalletUis            bool                              `json:"enforce_wallet_uis" api:"required"`
@@ -124,8 +321,10 @@ type AppResponse struct {
 	WalletConnectCloudProjectID string                            `json:"wallet_connect_cloud_project_id" api:"required"`
 	WhatsappEnabled             bool                              `json:"whatsapp_enabled" api:"required"`
 	CaptchaSiteKey              string                            `json:"captcha_site_key"`
-	FundingConfig               AppResponseFundingConfig          `json:"funding_config"`
-	TelegramAuthConfig          AppResponseTelegramAuthConfig     `json:"telegram_auth_config"`
+	// Configuration for funding and on-ramp options.
+	FundingConfig FundingConfigResponseSchema `json:"funding_config"`
+	// Configuration for Telegram authentication.
+	TelegramAuthConfig TelegramAuthConfigSchema `json:"telegram_auth_config"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID                          respjson.Field
@@ -238,71 +437,6 @@ type AppResponseCustomOAuthProvider struct {
 // Returns the unmodified JSON received from the API
 func (r AppResponseCustomOAuthProvider) RawJSON() string { return r.JSON.raw }
 func (r *AppResponseCustomOAuthProvider) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type AppResponseEmbeddedWalletConfig struct {
-	// Any of "users-without-wallets", "all-users", "off".
-	CreateOnLogin string                                  `json:"create_on_login" api:"required"`
-	Ethereum      AppResponseEmbeddedWalletConfigEthereum `json:"ethereum" api:"required"`
-	// Any of "legacy-embedded-wallets-only", "user-controlled-server-wallets-only".
-	Mode   string                                `json:"mode" api:"required"`
-	Solana AppResponseEmbeddedWalletConfigSolana `json:"solana" api:"required"`
-	// Any of "user-passcode", "google-drive", "icloud".
-	UserOwnedRecoveryOptions         []string `json:"user_owned_recovery_options" api:"required"`
-	RequireUserOwnedRecoveryOnCreate bool     `json:"require_user_owned_recovery_on_create"`
-	RequireUserPasswordOnCreate      bool     `json:"require_user_password_on_create"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		CreateOnLogin                    respjson.Field
-		Ethereum                         respjson.Field
-		Mode                             respjson.Field
-		Solana                           respjson.Field
-		UserOwnedRecoveryOptions         respjson.Field
-		RequireUserOwnedRecoveryOnCreate respjson.Field
-		RequireUserPasswordOnCreate      respjson.Field
-		ExtraFields                      map[string]respjson.Field
-		raw                              string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AppResponseEmbeddedWalletConfig) RawJSON() string { return r.JSON.raw }
-func (r *AppResponseEmbeddedWalletConfig) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type AppResponseEmbeddedWalletConfigEthereum struct {
-	// Any of "users-without-wallets", "all-users", "off".
-	CreateOnLogin string `json:"create_on_login" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		CreateOnLogin respjson.Field
-		ExtraFields   map[string]respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AppResponseEmbeddedWalletConfigEthereum) RawJSON() string { return r.JSON.raw }
-func (r *AppResponseEmbeddedWalletConfigEthereum) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type AppResponseEmbeddedWalletConfigSolana struct {
-	// Any of "users-without-wallets", "all-users", "off".
-	CreateOnLogin string `json:"create_on_login" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		CreateOnLogin respjson.Field
-		ExtraFields   map[string]respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AppResponseEmbeddedWalletConfigSolana) RawJSON() string { return r.JSON.raw }
-func (r *AppResponseEmbeddedWalletConfigSolana) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -435,92 +569,6 @@ func (r AppResponseSmartWalletConfigObjectConfiguredNetworkPaymasterContext) Raw
 	return r.JSON.raw
 }
 func (r *AppResponseSmartWalletConfigObjectConfiguredNetworkPaymasterContext) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type AppResponseFundingConfig struct {
-	CrossChainBridgingEnabled  bool                                               `json:"cross_chain_bridging_enabled" api:"required"`
-	DefaultRecommendedAmount   string                                             `json:"default_recommended_amount" api:"required"`
-	DefaultRecommendedCurrency AppResponseFundingConfigDefaultRecommendedCurrency `json:"default_recommended_currency" api:"required"`
-	// Any of "moonpay", "coinbase-onramp", "external".
-	Methods                       []string                         `json:"methods" api:"required"`
-	Options                       []AppResponseFundingConfigOption `json:"options" api:"required"`
-	PromptFundingOnWalletCreation bool                             `json:"prompt_funding_on_wallet_creation" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		CrossChainBridgingEnabled     respjson.Field
-		DefaultRecommendedAmount      respjson.Field
-		DefaultRecommendedCurrency    respjson.Field
-		Methods                       respjson.Field
-		Options                       respjson.Field
-		PromptFundingOnWalletCreation respjson.Field
-		ExtraFields                   map[string]respjson.Field
-		raw                           string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AppResponseFundingConfig) RawJSON() string { return r.JSON.raw }
-func (r *AppResponseFundingConfig) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type AppResponseFundingConfigDefaultRecommendedCurrency struct {
-	Chain string `json:"chain" api:"required"`
-	// Any of "native-currency", "USDC".
-	Asset string `json:"asset"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Chain       respjson.Field
-		Asset       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AppResponseFundingConfigDefaultRecommendedCurrency) RawJSON() string { return r.JSON.raw }
-func (r *AppResponseFundingConfigDefaultRecommendedCurrency) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type AppResponseFundingConfigOption struct {
-	Method   string `json:"method" api:"required"`
-	Provider string `json:"provider" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Method      respjson.Field
-		Provider    respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AppResponseFundingConfigOption) RawJSON() string { return r.JSON.raw }
-func (r *AppResponseFundingConfigOption) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type AppResponseTelegramAuthConfig struct {
-	BotID               string `json:"bot_id" api:"required"`
-	BotName             string `json:"bot_name" api:"required"`
-	LinkEnabled         bool   `json:"link_enabled" api:"required"`
-	SeamlessAuthEnabled bool   `json:"seamless_auth_enabled" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		BotID               respjson.Field
-		BotName             respjson.Field
-		LinkEnabled         respjson.Field
-		SeamlessAuthEnabled respjson.Field
-		ExtraFields         map[string]respjson.Field
-		raw                 string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AppResponseTelegramAuthConfig) RawJSON() string { return r.JSON.raw }
-func (r *AppResponseTelegramAuthConfig) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

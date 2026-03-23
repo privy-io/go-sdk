@@ -162,15 +162,53 @@ func TestIntentRpcWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"wallet_id",
 		privyclient.IntentRpcParams{
-			WalletRpcRequestBody: privyclient.WalletRpcRequestBodyUnion{
-				OfPersonalSign: &privyclient.EthereumPersonalSignRpcInput{
-					Method: privyclient.EthereumPersonalSignRpcInputMethodPersonalSign,
-					Params: privyclient.EthereumPersonalSignRpcInputParams{
-						Encoding: privyclient.EthereumPersonalSignRpcInputParamsEncodingUtf8,
-						Message:  "message",
+			WalletRpcRequestBody: privyclient.WalletRpcRequestBodyUnionParam{
+				OfEthSignTransaction: &privyclient.EthereumSignTransactionRpcInputParam{
+					Method: privyclient.EthereumSignTransactionRpcInputMethodEthSignTransaction,
+					Params: privyclient.EthereumSignTransactionRpcInputParams{
+						Transaction: privyclient.EthereumSignTransactionRpcInputParamsTransaction{
+							AuthorizationList: []privyclient.EthereumSignTransactionRpcInputParamsTransactionAuthorizationList{{
+								ChainID: privyclient.EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnion{
+									OfString: privyclient.String("string"),
+								},
+								Contract: "contract",
+								Nonce: privyclient.EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnion{
+									OfString: privyclient.String("string"),
+								},
+								R:       "r",
+								S:       "s",
+								YParity: 0,
+							}},
+							ChainID: privyclient.EthereumSignTransactionRpcInputParamsTransactionChainIDUnion{
+								OfString: privyclient.String("string"),
+							},
+							Data: privyclient.String("data"),
+							From: privyclient.String("from"),
+							GasLimit: privyclient.EthereumSignTransactionRpcInputParamsTransactionGasLimitUnion{
+								OfString: privyclient.String("string"),
+							},
+							GasPrice: privyclient.EthereumSignTransactionRpcInputParamsTransactionGasPriceUnion{
+								OfString: privyclient.String("string"),
+							},
+							MaxFeePerGas: privyclient.EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnion{
+								OfString: privyclient.String("string"),
+							},
+							MaxPriorityFeePerGas: privyclient.EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnion{
+								OfString: privyclient.String("string"),
+							},
+							Nonce: privyclient.EthereumSignTransactionRpcInputParamsTransactionNonceUnion{
+								OfString: privyclient.String("string"),
+							},
+							To:   privyclient.String("to"),
+							Type: 0,
+							Value: privyclient.EthereumSignTransactionRpcInputParamsTransactionValueUnion{
+								OfString: privyclient.String("string"),
+							},
+						},
 					},
 					Address:   privyclient.String("address"),
-					ChainType: privyclient.EthereumPersonalSignRpcInputChainTypeEthereum,
+					ChainType: privyclient.EthereumSignTransactionRpcInputChainTypeEthereum,
+					WalletID:  privyclient.String("wallet_id"),
 				},
 			},
 			PrivyRequestExpiry: privyclient.String("privy-request-expiry"),

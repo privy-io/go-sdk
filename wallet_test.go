@@ -310,9 +310,11 @@ func TestWalletRawSignWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"wallet_id",
 		privyclient.WalletRawSignParams{
-			Params: privyclient.WalletRawSignParamsParamsUnion{
-				OfHash: &privyclient.WalletRawSignParamsParamsHash{
-					Hash: "0x0775aeed9c9ce6e0fbc4db25c5e4e6368029651c905c286f813126a09025a21e",
+			RawSignInput: privyclient.RawSignInput{
+				Params: privyclient.RawSignInputParamsUnion{
+					OfRawSignHashs: &privyclient.RawSignHashParams{
+						Hash: "0x0775aeed9c9ce6e0fbc4db25c5e4e6368029651c905c286f813126a09025a21e",
+					},
 				},
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
@@ -347,8 +349,8 @@ func TestWalletRpcWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"wallet_id",
 		privyclient.WalletRpcParams{
-			WalletRpcRequestBody: privyclient.WalletRpcRequestBodyUnion{
-				OfEthSendTransaction: &privyclient.EthereumSendTransactionRpcInput{
+			WalletRpcRequestBody: privyclient.WalletRpcRequestBodyUnionParam{
+				OfEthSendTransaction: &privyclient.EthereumSendTransactionRpcInputParam{
 					Caip2:  "eip155:8453",
 					Method: privyclient.EthereumSendTransactionRpcInputMethodEthSendTransaction,
 					Params: privyclient.EthereumSendTransactionRpcInputParams{
@@ -395,6 +397,7 @@ func TestWalletRpcWithOptionalParams(t *testing.T) {
 					Address:   privyclient.String("address"),
 					ChainType: privyclient.EthereumSendTransactionRpcInputChainTypeEthereum,
 					Sponsor:   privyclient.Bool(true),
+					WalletID:  privyclient.String("wallet_id"),
 				},
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
