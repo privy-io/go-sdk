@@ -1157,7 +1157,8 @@ const (
 
 // The original RPC request that would be sent to the wallet endpoint
 type RpcIntentResponseRequestDetails struct {
-	Body RpcIntentResponseRequestDetailsBodyUnion `json:"body" api:"required"`
+	// Request body for wallet RPC operations, discriminated by method.
+	Body WalletRpcRequestBodyUnion `json:"body" api:"required"`
 	// Any of "POST".
 	Method string `json:"method" api:"required"`
 	URL    string `json:"url" api:"required"`
@@ -1174,534 +1175,6 @@ type RpcIntentResponseRequestDetails struct {
 // Returns the unmodified JSON received from the API
 func (r RpcIntentResponseRequestDetails) RawJSON() string { return r.JSON.raw }
 func (r *RpcIntentResponseRequestDetails) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// RpcIntentResponseRequestDetailsBodyUnion contains all possible properties and
-// values from [RpcIntentResponseRequestDetailsBodyObject],
-// [RpcIntentResponseRequestDetailsBodyObject],
-// [RpcIntentResponseRequestDetailsBodyObject],
-// [RpcIntentResponseRequestDetailsBodyObject],
-// [RpcIntentResponseRequestDetailsBodyObject],
-// [RpcIntentResponseRequestDetailsBodyObject],
-// [RpcIntentResponseRequestDetailsBodyObject],
-// [RpcIntentResponseRequestDetailsBodyObject],
-// [RpcIntentResponseRequestDetailsBodyObject],
-// [RpcIntentResponseRequestDetailsBodyObject],
-// [RpcIntentResponseRequestDetailsBodyObject],
-// [RpcIntentResponseRequestDetailsBodyObject],
-// [RpcIntentResponseRequestDetailsBodyObject],
-// [RpcIntentResponseRequestDetailsBodyObject],
-// [RpcIntentResponseRequestDetailsBodyObject],
-// [RpcIntentResponseRequestDetailsBodyObject],
-// [RpcIntentResponseRequestDetailsBodyObject],
-// [RpcIntentResponseRequestDetailsBodyObject],
-// [RpcIntentResponseRequestDetailsBodyObject],
-// [RpcIntentResponseRequestDetailsBodyObject].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-type RpcIntentResponseRequestDetailsBodyUnion struct {
-	// This field is from variant [RpcIntentResponseRequestDetailsBodyObject].
-	Method string `json:"method"`
-	// This field is from variant [RpcIntentResponseRequestDetailsBodyObject].
-	Params RpcIntentResponseRequestDetailsBodyObjectParams `json:"params"`
-	// This field is from variant [RpcIntentResponseRequestDetailsBodyObject].
-	Address string `json:"address"`
-	// This field is from variant [RpcIntentResponseRequestDetailsBodyObject].
-	ChainType string `json:"chain_type"`
-	// This field is from variant [RpcIntentResponseRequestDetailsBodyObject].
-	WalletID string `json:"wallet_id"`
-	// This field is from variant [RpcIntentResponseRequestDetailsBodyObject].
-	Caip2 string `json:"caip2"`
-	// This field is from variant [RpcIntentResponseRequestDetailsBodyObject].
-	Sponsor bool `json:"sponsor"`
-	// This field is from variant [RpcIntentResponseRequestDetailsBodyObject].
-	Network string `json:"network"`
-	JSON    struct {
-		Method    respjson.Field
-		Params    respjson.Field
-		Address   respjson.Field
-		ChainType respjson.Field
-		WalletID  respjson.Field
-		Caip2     respjson.Field
-		Sponsor   respjson.Field
-		Network   respjson.Field
-		raw       string
-	} `json:"-"`
-}
-
-func (u RpcIntentResponseRequestDetailsBodyUnion) AsRpcIntentResponseRequestDetailsBodyObject() (v RpcIntentResponseRequestDetailsBodyObject) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u RpcIntentResponseRequestDetailsBodyUnion) AsVariant2() (v RpcIntentResponseRequestDetailsBodyObject) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u RpcIntentResponseRequestDetailsBodyUnion) AsVariant3() (v RpcIntentResponseRequestDetailsBodyObject) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u RpcIntentResponseRequestDetailsBodyUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *RpcIntentResponseRequestDetailsBodyUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type RpcIntentResponseRequestDetailsBodyObject struct {
-	// Any of "eth_signTransaction".
-	Method  string                                          `json:"method" api:"required"`
-	Params  RpcIntentResponseRequestDetailsBodyObjectParams `json:"params" api:"required"`
-	Address string                                          `json:"address"`
-	// Any of "ethereum".
-	ChainType string `json:"chain_type"`
-	WalletID  string `json:"wallet_id"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Method      respjson.Field
-		Params      respjson.Field
-		Address     respjson.Field
-		ChainType   respjson.Field
-		WalletID    respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r RpcIntentResponseRequestDetailsBodyObject) RawJSON() string { return r.JSON.raw }
-func (r *RpcIntentResponseRequestDetailsBodyObject) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type RpcIntentResponseRequestDetailsBodyObjectParams struct {
-	Transaction RpcIntentResponseRequestDetailsBodyObjectParamsTransaction `json:"transaction" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Transaction respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r RpcIntentResponseRequestDetailsBodyObjectParams) RawJSON() string { return r.JSON.raw }
-func (r *RpcIntentResponseRequestDetailsBodyObjectParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type RpcIntentResponseRequestDetailsBodyObjectParamsTransaction struct {
-	AuthorizationList    []RpcIntentResponseRequestDetailsBodyObjectParamsTransactionAuthorizationList       `json:"authorization_list"`
-	ChainID              RpcIntentResponseRequestDetailsBodyObjectParamsTransactionChainIDUnion              `json:"chain_id"`
-	Data                 string                                                                              `json:"data"`
-	From                 string                                                                              `json:"from"`
-	GasLimit             RpcIntentResponseRequestDetailsBodyObjectParamsTransactionGasLimitUnion             `json:"gas_limit"`
-	GasPrice             RpcIntentResponseRequestDetailsBodyObjectParamsTransactionGasPriceUnion             `json:"gas_price"`
-	MaxFeePerGas         RpcIntentResponseRequestDetailsBodyObjectParamsTransactionMaxFeePerGasUnion         `json:"max_fee_per_gas"`
-	MaxPriorityFeePerGas RpcIntentResponseRequestDetailsBodyObjectParamsTransactionMaxPriorityFeePerGasUnion `json:"max_priority_fee_per_gas"`
-	Nonce                RpcIntentResponseRequestDetailsBodyObjectParamsTransactionNonceUnion                `json:"nonce"`
-	To                   string                                                                              `json:"to"`
-	// Any of 0, 1, 2, 4.
-	Type  float64                                                              `json:"type"`
-	Value RpcIntentResponseRequestDetailsBodyObjectParamsTransactionValueUnion `json:"value"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		AuthorizationList    respjson.Field
-		ChainID              respjson.Field
-		Data                 respjson.Field
-		From                 respjson.Field
-		GasLimit             respjson.Field
-		GasPrice             respjson.Field
-		MaxFeePerGas         respjson.Field
-		MaxPriorityFeePerGas respjson.Field
-		Nonce                respjson.Field
-		To                   respjson.Field
-		Type                 respjson.Field
-		Value                respjson.Field
-		ExtraFields          map[string]respjson.Field
-		raw                  string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r RpcIntentResponseRequestDetailsBodyObjectParamsTransaction) RawJSON() string {
-	return r.JSON.raw
-}
-func (r *RpcIntentResponseRequestDetailsBodyObjectParamsTransaction) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type RpcIntentResponseRequestDetailsBodyObjectParamsTransactionAuthorizationList struct {
-	ChainID  RpcIntentResponseRequestDetailsBodyObjectParamsTransactionAuthorizationListChainIDUnion `json:"chain_id" api:"required"`
-	Contract string                                                                                  `json:"contract" api:"required"`
-	Nonce    RpcIntentResponseRequestDetailsBodyObjectParamsTransactionAuthorizationListNonceUnion   `json:"nonce" api:"required"`
-	R        string                                                                                  `json:"r" api:"required"`
-	S        string                                                                                  `json:"s" api:"required"`
-	YParity  float64                                                                                 `json:"y_parity" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ChainID     respjson.Field
-		Contract    respjson.Field
-		Nonce       respjson.Field
-		R           respjson.Field
-		S           respjson.Field
-		YParity     respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r RpcIntentResponseRequestDetailsBodyObjectParamsTransactionAuthorizationList) RawJSON() string {
-	return r.JSON.raw
-}
-func (r *RpcIntentResponseRequestDetailsBodyObjectParamsTransactionAuthorizationList) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// RpcIntentResponseRequestDetailsBodyObjectParamsTransactionAuthorizationListChainIDUnion
-// contains all possible properties and values from [string], [int64].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfInt]
-type RpcIntentResponseRequestDetailsBodyObjectParamsTransactionAuthorizationListChainIDUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [int64] instead of an object.
-	OfInt int64 `json:",inline"`
-	JSON  struct {
-		OfString respjson.Field
-		OfInt    respjson.Field
-		raw      string
-	} `json:"-"`
-}
-
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionAuthorizationListChainIDUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionAuthorizationListChainIDUnion) AsInt() (v int64) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionAuthorizationListChainIDUnion) RawJSON() string {
-	return u.JSON.raw
-}
-
-func (r *RpcIntentResponseRequestDetailsBodyObjectParamsTransactionAuthorizationListChainIDUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// RpcIntentResponseRequestDetailsBodyObjectParamsTransactionAuthorizationListNonceUnion
-// contains all possible properties and values from [string], [int64].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfInt]
-type RpcIntentResponseRequestDetailsBodyObjectParamsTransactionAuthorizationListNonceUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [int64] instead of an object.
-	OfInt int64 `json:",inline"`
-	JSON  struct {
-		OfString respjson.Field
-		OfInt    respjson.Field
-		raw      string
-	} `json:"-"`
-}
-
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionAuthorizationListNonceUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionAuthorizationListNonceUnion) AsInt() (v int64) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionAuthorizationListNonceUnion) RawJSON() string {
-	return u.JSON.raw
-}
-
-func (r *RpcIntentResponseRequestDetailsBodyObjectParamsTransactionAuthorizationListNonceUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// RpcIntentResponseRequestDetailsBodyObjectParamsTransactionChainIDUnion contains
-// all possible properties and values from [string], [int64].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfInt]
-type RpcIntentResponseRequestDetailsBodyObjectParamsTransactionChainIDUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [int64] instead of an object.
-	OfInt int64 `json:",inline"`
-	JSON  struct {
-		OfString respjson.Field
-		OfInt    respjson.Field
-		raw      string
-	} `json:"-"`
-}
-
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionChainIDUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionChainIDUnion) AsInt() (v int64) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionChainIDUnion) RawJSON() string {
-	return u.JSON.raw
-}
-
-func (r *RpcIntentResponseRequestDetailsBodyObjectParamsTransactionChainIDUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// RpcIntentResponseRequestDetailsBodyObjectParamsTransactionGasLimitUnion contains
-// all possible properties and values from [string], [int64].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfInt]
-type RpcIntentResponseRequestDetailsBodyObjectParamsTransactionGasLimitUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [int64] instead of an object.
-	OfInt int64 `json:",inline"`
-	JSON  struct {
-		OfString respjson.Field
-		OfInt    respjson.Field
-		raw      string
-	} `json:"-"`
-}
-
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionGasLimitUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionGasLimitUnion) AsInt() (v int64) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionGasLimitUnion) RawJSON() string {
-	return u.JSON.raw
-}
-
-func (r *RpcIntentResponseRequestDetailsBodyObjectParamsTransactionGasLimitUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// RpcIntentResponseRequestDetailsBodyObjectParamsTransactionGasPriceUnion contains
-// all possible properties and values from [string], [int64].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfInt]
-type RpcIntentResponseRequestDetailsBodyObjectParamsTransactionGasPriceUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [int64] instead of an object.
-	OfInt int64 `json:",inline"`
-	JSON  struct {
-		OfString respjson.Field
-		OfInt    respjson.Field
-		raw      string
-	} `json:"-"`
-}
-
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionGasPriceUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionGasPriceUnion) AsInt() (v int64) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionGasPriceUnion) RawJSON() string {
-	return u.JSON.raw
-}
-
-func (r *RpcIntentResponseRequestDetailsBodyObjectParamsTransactionGasPriceUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// RpcIntentResponseRequestDetailsBodyObjectParamsTransactionMaxFeePerGasUnion
-// contains all possible properties and values from [string], [int64].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfInt]
-type RpcIntentResponseRequestDetailsBodyObjectParamsTransactionMaxFeePerGasUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [int64] instead of an object.
-	OfInt int64 `json:",inline"`
-	JSON  struct {
-		OfString respjson.Field
-		OfInt    respjson.Field
-		raw      string
-	} `json:"-"`
-}
-
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionMaxFeePerGasUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionMaxFeePerGasUnion) AsInt() (v int64) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionMaxFeePerGasUnion) RawJSON() string {
-	return u.JSON.raw
-}
-
-func (r *RpcIntentResponseRequestDetailsBodyObjectParamsTransactionMaxFeePerGasUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// RpcIntentResponseRequestDetailsBodyObjectParamsTransactionMaxPriorityFeePerGasUnion
-// contains all possible properties and values from [string], [int64].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfInt]
-type RpcIntentResponseRequestDetailsBodyObjectParamsTransactionMaxPriorityFeePerGasUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [int64] instead of an object.
-	OfInt int64 `json:",inline"`
-	JSON  struct {
-		OfString respjson.Field
-		OfInt    respjson.Field
-		raw      string
-	} `json:"-"`
-}
-
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionMaxPriorityFeePerGasUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionMaxPriorityFeePerGasUnion) AsInt() (v int64) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionMaxPriorityFeePerGasUnion) RawJSON() string {
-	return u.JSON.raw
-}
-
-func (r *RpcIntentResponseRequestDetailsBodyObjectParamsTransactionMaxPriorityFeePerGasUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// RpcIntentResponseRequestDetailsBodyObjectParamsTransactionNonceUnion contains
-// all possible properties and values from [string], [int64].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfInt]
-type RpcIntentResponseRequestDetailsBodyObjectParamsTransactionNonceUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [int64] instead of an object.
-	OfInt int64 `json:",inline"`
-	JSON  struct {
-		OfString respjson.Field
-		OfInt    respjson.Field
-		raw      string
-	} `json:"-"`
-}
-
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionNonceUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionNonceUnion) AsInt() (v int64) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionNonceUnion) RawJSON() string {
-	return u.JSON.raw
-}
-
-func (r *RpcIntentResponseRequestDetailsBodyObjectParamsTransactionNonceUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// RpcIntentResponseRequestDetailsBodyObjectParamsTransactionValueUnion contains
-// all possible properties and values from [string], [int64].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfInt]
-type RpcIntentResponseRequestDetailsBodyObjectParamsTransactionValueUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [int64] instead of an object.
-	OfInt int64 `json:",inline"`
-	JSON  struct {
-		OfString respjson.Field
-		OfInt    respjson.Field
-		raw      string
-	} `json:"-"`
-}
-
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionValueUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionValueUnion) AsInt() (v int64) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u RpcIntentResponseRequestDetailsBodyObjectParamsTransactionValueUnion) RawJSON() string {
-	return u.JSON.raw
-}
-
-func (r *RpcIntentResponseRequestDetailsBodyObjectParamsTransactionValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -3253,7 +2726,7 @@ func (r *IntentResponseUnion) UnmarshalJSON(data []byte) error {
 // For type safety it is recommended to directly use a variant of the
 // [IntentResponseUnion].
 type IntentResponseUnionRequestDetails struct {
-	// This field is a union of [RpcIntentResponseRequestDetailsBodyUnion],
+	// This field is a union of [WalletRpcRequestBodyUnion],
 	// [WalletIntentResponseRequestDetailsBody],
 	// [PolicyIntentResponseRequestDetailsBody], [RuleIntentCreateRequestDetailsBody],
 	// [RuleIntentUpdateRequestDetailsBody], [any], [KeyQuorumUpdateParamsResp]
@@ -3285,20 +2758,30 @@ type IntentResponseUnionRequestDetailsBody struct {
 	// This field will be present if the value is a [any] instead of an object.
 	OfRuleIntentDeleteRequestDetailsBody any    `json:",inline"`
 	Method                               string `json:"method"`
-	// This field is from variant [RpcIntentResponseRequestDetailsBodyUnion].
-	Params RpcIntentResponseRequestDetailsBodyObjectParams `json:"params"`
-	// This field is from variant [RpcIntentResponseRequestDetailsBodyUnion].
-	Address string `json:"address"`
-	// This field is from variant [RpcIntentResponseRequestDetailsBodyUnion].
-	ChainType string `json:"chain_type"`
-	// This field is from variant [RpcIntentResponseRequestDetailsBodyUnion].
-	WalletID string `json:"wallet_id"`
-	// This field is from variant [RpcIntentResponseRequestDetailsBodyUnion].
-	Caip2 string `json:"caip2"`
-	// This field is from variant [RpcIntentResponseRequestDetailsBodyUnion].
-	Sponsor bool `json:"sponsor"`
-	// This field is from variant [RpcIntentResponseRequestDetailsBodyUnion].
-	Network string `json:"network"`
+	// This field is a union of [EthereumSignTransactionRpcInputParamsResp],
+	// [EthereumSendTransactionRpcInputParamsResp],
+	// [EthereumPersonalSignRpcInputParamsResp],
+	// [EthereumSignTypedDataRpcInputParamsResp],
+	// [EthereumSecp256k1SignRpcInputParamsResp],
+	// [EthereumSign7702AuthorizationRpcInputParamsResp],
+	// [EthereumSignUserOperationRpcInputParamsResp],
+	// [SolanaSignTransactionRpcInputParamsResp],
+	// [SolanaSignAndSendTransactionRpcInputParamsResp],
+	// [SolanaSignMessageRpcInputParamsResp], [SparkTransferRpcInputParamsResp],
+	// [SparkTransferTokensRpcInputParamsResp],
+	// [SparkGetClaimStaticDepositQuoteRpcInputParamsResp],
+	// [SparkClaimStaticDepositRpcInputParamsResp],
+	// [SparkCreateLightningInvoiceRpcInputParamsResp],
+	// [SparkPayLightningInvoiceRpcInputParamsResp],
+	// [SparkSignMessageWithIdentityKeyRpcInputParamsResp],
+	// [ExportPrivateKeyRpcInputParams]
+	Params    IntentResponseUnionRequestDetailsBodyParams `json:"params"`
+	Address   string                                      `json:"address"`
+	ChainType string                                      `json:"chain_type"`
+	WalletID  string                                      `json:"wallet_id"`
+	Caip2     string                                      `json:"caip2"`
+	Sponsor   bool                                        `json:"sponsor"`
+	Network   string                                      `json:"network"`
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
 	AdditionalSigners []WalletIntentResponseRequestDetailsBodyAdditionalSigner `json:"additional_signers"`
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
@@ -3354,6 +2837,426 @@ type IntentResponseUnionRequestDetailsBody struct {
 }
 
 func (r *IntentResponseUnionRequestDetailsBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// IntentResponseUnionRequestDetailsBodyParams is an implicit subunion of
+// [IntentResponseUnion]. IntentResponseUnionRequestDetailsBodyParams provides
+// convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [IntentResponseUnion].
+type IntentResponseUnionRequestDetailsBodyParams struct {
+	// This field is a union of [EthereumSignTransactionRpcInputParamsTransactionResp],
+	// [EthereumSendTransactionRpcInputParamsTransactionResp], [string], [string]
+	Transaction IntentResponseUnionRequestDetailsBodyParamsTransaction `json:"transaction"`
+	Encoding    string                                                 `json:"encoding"`
+	Message     string                                                 `json:"message"`
+	// This field is from variant [EthereumSignTypedDataRpcInputParamsResp].
+	TypedData EthereumTypedDataInput `json:"typed_data"`
+	// This field is from variant [EthereumSecp256k1SignRpcInputParamsResp].
+	Hash string `json:"hash"`
+	// This field is a union of
+	// [EthereumSign7702AuthorizationRpcInputParamsChainIDUnionResp],
+	// [EthereumSignUserOperationRpcInputParamsChainIDUnionResp]
+	ChainID  IntentResponseUnionRequestDetailsBodyParamsChainID `json:"chain_id"`
+	Contract string                                             `json:"contract"`
+	// This field is from variant [EthereumSign7702AuthorizationRpcInputParamsResp].
+	Executor EthereumSign7702AuthorizationRpcInputParamsExecutor `json:"executor"`
+	// This field is from variant [EthereumSign7702AuthorizationRpcInputParamsResp].
+	Nonce EthereumSign7702AuthorizationRpcInputParamsNonceUnionResp `json:"nonce"`
+	// This field is from variant [EthereumSignUserOperationRpcInputParamsResp].
+	UserOperation        EthereumSignUserOperationRpcInputParamsUserOperationResp `json:"user_operation"`
+	AmountSats           float64                                                  `json:"amount_sats"`
+	ReceiverSparkAddress string                                                   `json:"receiver_spark_address"`
+	// This field is from variant [SparkTransferTokensRpcInputParamsResp].
+	TokenAmount float64 `json:"token_amount"`
+	// This field is from variant [SparkTransferTokensRpcInputParamsResp].
+	TokenIdentifier string `json:"token_identifier"`
+	// This field is from variant [SparkTransferTokensRpcInputParamsResp].
+	OutputSelectionStrategy SparkOutputSelectionStrategy `json:"output_selection_strategy"`
+	// This field is from variant [SparkTransferTokensRpcInputParamsResp].
+	SelectedOutputs []SparkTransferTokensRpcInputParamsSelectedOutputResp `json:"selected_outputs"`
+	TransactionID   string                                                `json:"transaction_id"`
+	OutputIndex     float64                                               `json:"output_index"`
+	// This field is from variant [SparkClaimStaticDepositRpcInputParamsResp].
+	CreditAmountSats float64 `json:"credit_amount_sats"`
+	// This field is from variant [SparkClaimStaticDepositRpcInputParamsResp].
+	Signature string `json:"signature"`
+	// This field is from variant [SparkCreateLightningInvoiceRpcInputParamsResp].
+	DescriptionHash string `json:"description_hash"`
+	// This field is from variant [SparkCreateLightningInvoiceRpcInputParamsResp].
+	ExpirySeconds float64 `json:"expiry_seconds"`
+	// This field is from variant [SparkCreateLightningInvoiceRpcInputParamsResp].
+	IncludeSparkAddress bool `json:"include_spark_address"`
+	// This field is from variant [SparkCreateLightningInvoiceRpcInputParamsResp].
+	Memo string `json:"memo"`
+	// This field is from variant [SparkCreateLightningInvoiceRpcInputParamsResp].
+	ReceiverIdentityPubkey string `json:"receiver_identity_pubkey"`
+	// This field is from variant [SparkPayLightningInvoiceRpcInputParamsResp].
+	Invoice string `json:"invoice"`
+	// This field is from variant [SparkPayLightningInvoiceRpcInputParamsResp].
+	MaxFeeSats float64 `json:"max_fee_sats"`
+	// This field is from variant [SparkPayLightningInvoiceRpcInputParamsResp].
+	AmountSatsToSend float64 `json:"amount_sats_to_send"`
+	// This field is from variant [SparkPayLightningInvoiceRpcInputParamsResp].
+	PreferSpark bool `json:"prefer_spark"`
+	// This field is from variant [SparkSignMessageWithIdentityKeyRpcInputParamsResp].
+	Compact bool `json:"compact"`
+	// This field is from variant [ExportPrivateKeyRpcInputParams].
+	EncryptionType string `json:"encryption_type"`
+	// This field is from variant [ExportPrivateKeyRpcInputParams].
+	RecipientPublicKey string `json:"recipient_public_key"`
+	// This field is from variant [ExportPrivateKeyRpcInputParams].
+	ExportType string `json:"export_type"`
+	JSON       struct {
+		Transaction             respjson.Field
+		Encoding                respjson.Field
+		Message                 respjson.Field
+		TypedData               respjson.Field
+		Hash                    respjson.Field
+		ChainID                 respjson.Field
+		Contract                respjson.Field
+		Executor                respjson.Field
+		Nonce                   respjson.Field
+		UserOperation           respjson.Field
+		AmountSats              respjson.Field
+		ReceiverSparkAddress    respjson.Field
+		TokenAmount             respjson.Field
+		TokenIdentifier         respjson.Field
+		OutputSelectionStrategy respjson.Field
+		SelectedOutputs         respjson.Field
+		TransactionID           respjson.Field
+		OutputIndex             respjson.Field
+		CreditAmountSats        respjson.Field
+		Signature               respjson.Field
+		DescriptionHash         respjson.Field
+		ExpirySeconds           respjson.Field
+		IncludeSparkAddress     respjson.Field
+		Memo                    respjson.Field
+		ReceiverIdentityPubkey  respjson.Field
+		Invoice                 respjson.Field
+		MaxFeeSats              respjson.Field
+		AmountSatsToSend        respjson.Field
+		PreferSpark             respjson.Field
+		Compact                 respjson.Field
+		EncryptionType          respjson.Field
+		RecipientPublicKey      respjson.Field
+		ExportType              respjson.Field
+		raw                     string
+	} `json:"-"`
+}
+
+func (r *IntentResponseUnionRequestDetailsBodyParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// IntentResponseUnionRequestDetailsBodyParamsTransaction is an implicit subunion
+// of [IntentResponseUnion]. IntentResponseUnionRequestDetailsBodyParamsTransaction
+// provides convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [IntentResponseUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString]
+type IntentResponseUnionRequestDetailsBodyParamsTransaction struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field is a union of
+	// [[]EthereumSignTransactionRpcInputParamsTransactionAuthorizationListResp],
+	// [[]EthereumSendTransactionRpcInputParamsTransactionAuthorizationListResp]
+	AuthorizationList IntentResponseUnionRequestDetailsBodyParamsTransactionAuthorizationList `json:"authorization_list"`
+	// This field is a union of
+	// [EthereumSignTransactionRpcInputParamsTransactionChainIDUnionResp],
+	// [EthereumSendTransactionRpcInputParamsTransactionChainIDUnionResp]
+	ChainID IntentResponseUnionRequestDetailsBodyParamsTransactionChainID `json:"chain_id"`
+	Data    string                                                        `json:"data"`
+	From    string                                                        `json:"from"`
+	// This field is a union of
+	// [EthereumSignTransactionRpcInputParamsTransactionGasLimitUnionResp],
+	// [EthereumSendTransactionRpcInputParamsTransactionGasLimitUnionResp]
+	GasLimit IntentResponseUnionRequestDetailsBodyParamsTransactionGasLimit `json:"gas_limit"`
+	// This field is a union of
+	// [EthereumSignTransactionRpcInputParamsTransactionGasPriceUnionResp],
+	// [EthereumSendTransactionRpcInputParamsTransactionGasPriceUnionResp]
+	GasPrice IntentResponseUnionRequestDetailsBodyParamsTransactionGasPrice `json:"gas_price"`
+	// This field is a union of
+	// [EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnionResp],
+	// [EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnionResp]
+	MaxFeePerGas IntentResponseUnionRequestDetailsBodyParamsTransactionMaxFeePerGas `json:"max_fee_per_gas"`
+	// This field is a union of
+	// [EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionResp],
+	// [EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionResp]
+	MaxPriorityFeePerGas IntentResponseUnionRequestDetailsBodyParamsTransactionMaxPriorityFeePerGas `json:"max_priority_fee_per_gas"`
+	// This field is a union of
+	// [EthereumSignTransactionRpcInputParamsTransactionNonceUnionResp],
+	// [EthereumSendTransactionRpcInputParamsTransactionNonceUnionResp]
+	Nonce IntentResponseUnionRequestDetailsBodyParamsTransactionNonce `json:"nonce"`
+	To    string                                                      `json:"to"`
+	Type  float64                                                     `json:"type"`
+	// This field is a union of
+	// [EthereumSignTransactionRpcInputParamsTransactionValueUnionResp],
+	// [EthereumSendTransactionRpcInputParamsTransactionValueUnionResp]
+	Value IntentResponseUnionRequestDetailsBodyParamsTransactionValue `json:"value"`
+	JSON  struct {
+		OfString             respjson.Field
+		AuthorizationList    respjson.Field
+		ChainID              respjson.Field
+		Data                 respjson.Field
+		From                 respjson.Field
+		GasLimit             respjson.Field
+		GasPrice             respjson.Field
+		MaxFeePerGas         respjson.Field
+		MaxPriorityFeePerGas respjson.Field
+		Nonce                respjson.Field
+		To                   respjson.Field
+		Type                 respjson.Field
+		Value                respjson.Field
+		raw                  string
+	} `json:"-"`
+}
+
+func (r *IntentResponseUnionRequestDetailsBodyParamsTransaction) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// IntentResponseUnionRequestDetailsBodyParamsTransactionAuthorizationList is an
+// implicit subunion of [IntentResponseUnion].
+// IntentResponseUnionRequestDetailsBodyParamsTransactionAuthorizationList provides
+// convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [IntentResponseUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid:
+// OfEthereumSignTransactionRpcInputsTransactionAuthorizationListArray
+// OfEthereumSendTransactionRpcInputsTransactionAuthorizationListArray]
+type IntentResponseUnionRequestDetailsBodyParamsTransactionAuthorizationList struct {
+	// This field will be present if the value is a
+	// [[]EthereumSignTransactionRpcInputParamsTransactionAuthorizationListResp]
+	// instead of an object.
+	OfEthereumSignTransactionRpcInputsTransactionAuthorizationListArray []EthereumSignTransactionRpcInputParamsTransactionAuthorizationListResp `json:",inline"`
+	// This field will be present if the value is a
+	// [[]EthereumSendTransactionRpcInputParamsTransactionAuthorizationListResp]
+	// instead of an object.
+	OfEthereumSendTransactionRpcInputsTransactionAuthorizationListArray []EthereumSendTransactionRpcInputParamsTransactionAuthorizationListResp `json:",inline"`
+	JSON                                                                struct {
+		OfEthereumSignTransactionRpcInputsTransactionAuthorizationListArray respjson.Field
+		OfEthereumSendTransactionRpcInputsTransactionAuthorizationListArray respjson.Field
+		raw                                                                 string
+	} `json:"-"`
+}
+
+func (r *IntentResponseUnionRequestDetailsBodyParamsTransactionAuthorizationList) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// IntentResponseUnionRequestDetailsBodyParamsTransactionChainID is an implicit
+// subunion of [IntentResponseUnion].
+// IntentResponseUnionRequestDetailsBodyParamsTransactionChainID provides
+// convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [IntentResponseUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type IntentResponseUnionRequestDetailsBodyParamsTransactionChainID struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (r *IntentResponseUnionRequestDetailsBodyParamsTransactionChainID) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// IntentResponseUnionRequestDetailsBodyParamsTransactionGasLimit is an implicit
+// subunion of [IntentResponseUnion].
+// IntentResponseUnionRequestDetailsBodyParamsTransactionGasLimit provides
+// convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [IntentResponseUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type IntentResponseUnionRequestDetailsBodyParamsTransactionGasLimit struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (r *IntentResponseUnionRequestDetailsBodyParamsTransactionGasLimit) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// IntentResponseUnionRequestDetailsBodyParamsTransactionGasPrice is an implicit
+// subunion of [IntentResponseUnion].
+// IntentResponseUnionRequestDetailsBodyParamsTransactionGasPrice provides
+// convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [IntentResponseUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type IntentResponseUnionRequestDetailsBodyParamsTransactionGasPrice struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (r *IntentResponseUnionRequestDetailsBodyParamsTransactionGasPrice) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// IntentResponseUnionRequestDetailsBodyParamsTransactionMaxFeePerGas is an
+// implicit subunion of [IntentResponseUnion].
+// IntentResponseUnionRequestDetailsBodyParamsTransactionMaxFeePerGas provides
+// convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [IntentResponseUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type IntentResponseUnionRequestDetailsBodyParamsTransactionMaxFeePerGas struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (r *IntentResponseUnionRequestDetailsBodyParamsTransactionMaxFeePerGas) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// IntentResponseUnionRequestDetailsBodyParamsTransactionMaxPriorityFeePerGas is an
+// implicit subunion of [IntentResponseUnion].
+// IntentResponseUnionRequestDetailsBodyParamsTransactionMaxPriorityFeePerGas
+// provides convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [IntentResponseUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type IntentResponseUnionRequestDetailsBodyParamsTransactionMaxPriorityFeePerGas struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (r *IntentResponseUnionRequestDetailsBodyParamsTransactionMaxPriorityFeePerGas) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// IntentResponseUnionRequestDetailsBodyParamsTransactionNonce is an implicit
+// subunion of [IntentResponseUnion].
+// IntentResponseUnionRequestDetailsBodyParamsTransactionNonce provides convenient
+// access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [IntentResponseUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type IntentResponseUnionRequestDetailsBodyParamsTransactionNonce struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (r *IntentResponseUnionRequestDetailsBodyParamsTransactionNonce) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// IntentResponseUnionRequestDetailsBodyParamsTransactionValue is an implicit
+// subunion of [IntentResponseUnion].
+// IntentResponseUnionRequestDetailsBodyParamsTransactionValue provides convenient
+// access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [IntentResponseUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type IntentResponseUnionRequestDetailsBodyParamsTransactionValue struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (r *IntentResponseUnionRequestDetailsBodyParamsTransactionValue) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// IntentResponseUnionRequestDetailsBodyParamsChainID is an implicit subunion of
+// [IntentResponseUnion]. IntentResponseUnionRequestDetailsBodyParamsChainID
+// provides convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [IntentResponseUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type IntentResponseUnionRequestDetailsBodyParamsChainID struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (r *IntentResponseUnionRequestDetailsBodyParamsChainID) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -4106,7 +4009,7 @@ type IntentDeletePolicyRuleParams struct {
 
 type IntentRpcParams struct {
 	// Request body for wallet RPC operations, discriminated by method.
-	WalletRpcRequestBody WalletRpcRequestBodyUnion
+	WalletRpcRequestBody WalletRpcRequestBodyUnionParam
 	// Request expiry. Value is a Unix timestamp in milliseconds representing the
 	// deadline by which the request must be processed.
 	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`

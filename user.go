@@ -1923,6 +1923,154 @@ const (
 	LinkedAccountTypeAuthorizationKey LinkedAccountType = "authorization_key"
 )
 
+// A SMS MFA method.
+type SMSMfaMethod struct {
+	// Any of "sms".
+	Type       SMSMfaMethodType `json:"type" api:"required"`
+	VerifiedAt float64          `json:"verified_at" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Type        respjson.Field
+		VerifiedAt  respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SMSMfaMethod) RawJSON() string { return r.JSON.raw }
+func (r *SMSMfaMethod) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type SMSMfaMethodType string
+
+const (
+	SMSMfaMethodTypeSMS SMSMfaMethodType = "sms"
+)
+
+// A TOTP MFA method.
+type TotpMfaMethod struct {
+	// Any of "totp".
+	Type       TotpMfaMethodType `json:"type" api:"required"`
+	VerifiedAt float64           `json:"verified_at" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Type        respjson.Field
+		VerifiedAt  respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TotpMfaMethod) RawJSON() string { return r.JSON.raw }
+func (r *TotpMfaMethod) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type TotpMfaMethodType string
+
+const (
+	TotpMfaMethodTypeTotp TotpMfaMethodType = "totp"
+)
+
+// A Passkey MFA method.
+type PasskeyMfaMethod struct {
+	// Any of "passkey".
+	Type       PasskeyMfaMethodType `json:"type" api:"required"`
+	VerifiedAt float64              `json:"verified_at" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Type        respjson.Field
+		VerifiedAt  respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PasskeyMfaMethod) RawJSON() string { return r.JSON.raw }
+func (r *PasskeyMfaMethod) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type PasskeyMfaMethodType string
+
+const (
+	PasskeyMfaMethodTypePasskey PasskeyMfaMethodType = "passkey"
+)
+
+// LinkedMfaMethodUnion contains all possible properties and values from
+// [SMSMfaMethod], [TotpMfaMethod], [PasskeyMfaMethod].
+//
+// Use the [LinkedMfaMethodUnion.AsAny] method to switch on the variant.
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type LinkedMfaMethodUnion struct {
+	// Any of "sms", "totp", "passkey".
+	Type       string  `json:"type"`
+	VerifiedAt float64 `json:"verified_at"`
+	JSON       struct {
+		Type       respjson.Field
+		VerifiedAt respjson.Field
+		raw        string
+	} `json:"-"`
+}
+
+// anyLinkedMfaMethod is implemented by each variant of [LinkedMfaMethodUnion] to
+// add type safety for the return type of [LinkedMfaMethodUnion.AsAny]
+type anyLinkedMfaMethod interface {
+	implLinkedMfaMethodUnion()
+}
+
+func (SMSMfaMethod) implLinkedMfaMethodUnion()     {}
+func (TotpMfaMethod) implLinkedMfaMethodUnion()    {}
+func (PasskeyMfaMethod) implLinkedMfaMethodUnion() {}
+
+// Use the following switch statement to find the correct variant
+//
+//	switch variant := LinkedMfaMethodUnion.AsAny().(type) {
+//	case privyclient.SMSMfaMethod:
+//	case privyclient.TotpMfaMethod:
+//	case privyclient.PasskeyMfaMethod:
+//	default:
+//	  fmt.Errorf("no variant present")
+//	}
+func (u LinkedMfaMethodUnion) AsAny() anyLinkedMfaMethod {
+	switch u.Type {
+	case "sms":
+		return u.AsSMS()
+	case "totp":
+		return u.AsTotp()
+	case "passkey":
+		return u.AsPasskey()
+	}
+	return nil
+}
+
+func (u LinkedMfaMethodUnion) AsSMS() (v SMSMfaMethod) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedMfaMethodUnion) AsTotp() (v TotpMfaMethod) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedMfaMethodUnion) AsPasskey() (v PasskeyMfaMethod) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u LinkedMfaMethodUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *LinkedMfaMethodUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 type CustomMetadata map[string]CustomMetadataItemUnion
 
 // CustomMetadataItemUnion contains all possible properties and values from
@@ -1986,6 +2134,39 @@ func (u CustomMetadataItemUnionParam) MarshalJSON() ([]byte, error) {
 }
 func (u *CustomMetadataItemUnionParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
+}
+
+// A Privy user object.
+type User struct {
+	ID string `json:"id" api:"required"`
+	// Unix timestamp of when the user was created in seconds.
+	CreatedAt float64 `json:"created_at" api:"required"`
+	// Indicates if the user has accepted the terms of service.
+	HasAcceptedTerms bool `json:"has_accepted_terms" api:"required"`
+	// Indicates if the user is a guest account user.
+	IsGuest        bool                   `json:"is_guest" api:"required"`
+	LinkedAccounts []LinkedAccountUnion   `json:"linked_accounts" api:"required"`
+	MfaMethods     []LinkedMfaMethodUnion `json:"mfa_methods" api:"required"`
+	// Custom metadata associated with the user.
+	CustomMetadata CustomMetadata `json:"custom_metadata"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID               respjson.Field
+		CreatedAt        respjson.Field
+		HasAcceptedTerms respjson.Field
+		IsGuest          respjson.Field
+		LinkedAccounts   respjson.Field
+		MfaMethods       respjson.Field
+		CustomMetadata   respjson.Field
+		ExtraFields      map[string]respjson.Field
+		raw              string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r User) RawJSON() string { return r.JSON.raw }
+func (r *User) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
 // The payload for importing a wallet account.
@@ -2437,187 +2618,6 @@ func init() {
 		apijson.Discriminator[LinkedAccountCustomJwtInput]("custom_auth"),
 		apijson.Discriminator[LinkedAccountPasskeyInput]("passkey"),
 	)
-}
-
-// A SMS MFA method.
-type SMSMfaMethod struct {
-	// Any of "sms".
-	Type       SMSMfaMethodType `json:"type" api:"required"`
-	VerifiedAt float64          `json:"verified_at" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Type        respjson.Field
-		VerifiedAt  respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r SMSMfaMethod) RawJSON() string { return r.JSON.raw }
-func (r *SMSMfaMethod) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type SMSMfaMethodType string
-
-const (
-	SMSMfaMethodTypeSMS SMSMfaMethodType = "sms"
-)
-
-// A TOTP MFA method.
-type TotpMfaMethod struct {
-	// Any of "totp".
-	Type       TotpMfaMethodType `json:"type" api:"required"`
-	VerifiedAt float64           `json:"verified_at" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Type        respjson.Field
-		VerifiedAt  respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r TotpMfaMethod) RawJSON() string { return r.JSON.raw }
-func (r *TotpMfaMethod) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type TotpMfaMethodType string
-
-const (
-	TotpMfaMethodTypeTotp TotpMfaMethodType = "totp"
-)
-
-// A Passkey MFA method.
-type PasskeyMfaMethod struct {
-	// Any of "passkey".
-	Type       PasskeyMfaMethodType `json:"type" api:"required"`
-	VerifiedAt float64              `json:"verified_at" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Type        respjson.Field
-		VerifiedAt  respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PasskeyMfaMethod) RawJSON() string { return r.JSON.raw }
-func (r *PasskeyMfaMethod) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type PasskeyMfaMethodType string
-
-const (
-	PasskeyMfaMethodTypePasskey PasskeyMfaMethodType = "passkey"
-)
-
-// LinkedMfaMethodUnion contains all possible properties and values from
-// [SMSMfaMethod], [TotpMfaMethod], [PasskeyMfaMethod].
-//
-// Use the [LinkedMfaMethodUnion.AsAny] method to switch on the variant.
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-type LinkedMfaMethodUnion struct {
-	// Any of "sms", "totp", "passkey".
-	Type       string  `json:"type"`
-	VerifiedAt float64 `json:"verified_at"`
-	JSON       struct {
-		Type       respjson.Field
-		VerifiedAt respjson.Field
-		raw        string
-	} `json:"-"`
-}
-
-// anyLinkedMfaMethod is implemented by each variant of [LinkedMfaMethodUnion] to
-// add type safety for the return type of [LinkedMfaMethodUnion.AsAny]
-type anyLinkedMfaMethod interface {
-	implLinkedMfaMethodUnion()
-}
-
-func (SMSMfaMethod) implLinkedMfaMethodUnion()     {}
-func (TotpMfaMethod) implLinkedMfaMethodUnion()    {}
-func (PasskeyMfaMethod) implLinkedMfaMethodUnion() {}
-
-// Use the following switch statement to find the correct variant
-//
-//	switch variant := LinkedMfaMethodUnion.AsAny().(type) {
-//	case privyclient.SMSMfaMethod:
-//	case privyclient.TotpMfaMethod:
-//	case privyclient.PasskeyMfaMethod:
-//	default:
-//	  fmt.Errorf("no variant present")
-//	}
-func (u LinkedMfaMethodUnion) AsAny() anyLinkedMfaMethod {
-	switch u.Type {
-	case "sms":
-		return u.AsSMS()
-	case "totp":
-		return u.AsTotp()
-	case "passkey":
-		return u.AsPasskey()
-	}
-	return nil
-}
-
-func (u LinkedMfaMethodUnion) AsSMS() (v SMSMfaMethod) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedMfaMethodUnion) AsTotp() (v TotpMfaMethod) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u LinkedMfaMethodUnion) AsPasskey() (v PasskeyMfaMethod) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u LinkedMfaMethodUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *LinkedMfaMethodUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// A Privy user object.
-type User struct {
-	ID string `json:"id" api:"required"`
-	// Unix timestamp of when the user was created in seconds.
-	CreatedAt float64 `json:"created_at" api:"required"`
-	// Indicates if the user has accepted the terms of service.
-	HasAcceptedTerms bool `json:"has_accepted_terms" api:"required"`
-	// Indicates if the user is a guest account user.
-	IsGuest        bool                   `json:"is_guest" api:"required"`
-	LinkedAccounts []LinkedAccountUnion   `json:"linked_accounts" api:"required"`
-	MfaMethods     []LinkedMfaMethodUnion `json:"mfa_methods" api:"required"`
-	// Custom metadata associated with the user.
-	CustomMetadata CustomMetadata `json:"custom_metadata"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID               respjson.Field
-		CreatedAt        respjson.Field
-		HasAcceptedTerms respjson.Field
-		IsGuest          respjson.Field
-		LinkedAccounts   respjson.Field
-		MfaMethods       respjson.Field
-		CustomMetadata   respjson.Field
-		ExtraFields      map[string]respjson.Field
-		raw              string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r User) RawJSON() string { return r.JSON.raw }
-func (r *User) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
 }
 
 type UserNewParams struct {
