@@ -462,14 +462,14 @@ func TestUserPregenerateWallets(t *testing.T) {
 		context.TODO(),
 		"user_id",
 		privyclient.UserPregenerateWalletsParams{
-			Wallets: []privyclient.UserPregenerateWalletsParamsWallet{{
+			Wallets: []privyclient.WalletCreationInput{{
 				ChainType: privyclient.WalletChainTypeEthereum,
-				AdditionalSigners: []privyclient.UserPregenerateWalletsParamsWalletAdditionalSigner{{
+				AdditionalSigners: []privyclient.WalletCreationAdditionalSignerItem{{
 					SignerID:          "signer_id",
-					OverridePolicyIDs: []string{"string"},
+					OverridePolicyIDs: []string{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 				}},
 				CreateSmartWallet: privyclient.Bool(true),
-				PolicyIDs:         []string{"string"},
+				PolicyIDs:         []string{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 			}},
 		},
 	)

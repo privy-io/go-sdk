@@ -251,6 +251,32 @@ func (r *WalletCustodian) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// SUI transaction commands allowlist for raw_sign endpoint policy evaluation
+type SuiCommandName string
+
+const (
+	SuiCommandNameTransferObjects SuiCommandName = "TransferObjects"
+	SuiCommandNameSplitCoins      SuiCommandName = "SplitCoins"
+	SuiCommandNameMergeCoins      SuiCommandName = "MergeCoins"
+)
+
+// The chain type of the wallet to import. Currently supports `ethereum` and
+// `solana`.
+type WalletImportSupportedChains string
+
+const (
+	WalletImportSupportedChainsEthereum WalletImportSupportedChains = "ethereum"
+	WalletImportSupportedChainsSolana   WalletImportSupportedChains = "solana"
+)
+
+// The AEAD algorithm used for HPKE encryption.
+type HpkeAeadAlgorithm string
+
+const (
+	HpkeAeadAlgorithmChacha20Poly1305 HpkeAeadAlgorithm = "CHACHA20_POLY1305"
+	HpkeAeadAlgorithmAesGcm256        HpkeAeadAlgorithm = "AES_GCM256"
+)
+
 // Optional HPKE configuration for wallet import decryption. These parameters allow
 // importing wallets encrypted by external providers that use different HPKE
 // configurations.
@@ -261,11 +287,10 @@ type HpkeImportConfig struct {
 	// Application-specific context information (INFO) used during HPKE encryption.
 	// Should be base64-encoded bytes.
 	Info param.Opt[string] `json:"info,omitzero"`
-	// The AEAD algorithm used for encryption. Defaults to CHACHA20_POLY1305 if not
-	// specified.
+	// The AEAD algorithm used for HPKE encryption.
 	//
 	// Any of "CHACHA20_POLY1305", "AES_GCM256".
-	AeadAlgorithm HpkeImportConfigAeadAlgorithm `json:"aead_algorithm,omitzero"`
+	AeadAlgorithm HpkeAeadAlgorithm `json:"aead_algorithm,omitzero"`
 	paramObj
 }
 
@@ -276,24 +301,6 @@ func (r HpkeImportConfig) MarshalJSON() (data []byte, err error) {
 func (r *HpkeImportConfig) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-// The AEAD algorithm used for encryption. Defaults to CHACHA20_POLY1305 if not
-// specified.
-type HpkeImportConfigAeadAlgorithm string
-
-const (
-	HpkeImportConfigAeadAlgorithmChacha20Poly1305 HpkeImportConfigAeadAlgorithm = "CHACHA20_POLY1305"
-	HpkeImportConfigAeadAlgorithmAesGcm256        HpkeImportConfigAeadAlgorithm = "AES_GCM256"
-)
-
-// SUI transaction commands allowlist for raw_sign endpoint policy evaluation
-type SuiCommandName string
-
-const (
-	SuiCommandNameTransferObjects SuiCommandName = "TransferObjects"
-	SuiCommandNameSplitCoins      SuiCommandName = "SplitCoins"
-	SuiCommandNameMergeCoins      SuiCommandName = "MergeCoins"
-)
 
 // Exports the private key of the wallet.
 type ExportPrivateKeyRpcInput struct {
@@ -8068,7 +8075,7 @@ type WalletInitImportParamsBodyHD struct {
 	// `solana`.
 	//
 	// Any of "ethereum", "solana".
-	ChainType string `json:"chain_type,omitzero" api:"required"`
+	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
 	//
 	// Any of "HPKE".
@@ -8092,9 +8099,6 @@ func (r *WalletInitImportParamsBodyHD) UnmarshalJSON(data []byte) error {
 
 func init() {
 	apijson.RegisterFieldValidator[WalletInitImportParamsBodyHD](
-		"chain_type", "ethereum", "solana",
-	)
-	apijson.RegisterFieldValidator[WalletInitImportParamsBodyHD](
 		"encryption_type", "HPKE",
 	)
 }
@@ -8109,7 +8113,7 @@ type WalletInitImportParamsBodyPrivateKey struct {
 	// `solana`.
 	//
 	// Any of "ethereum", "solana".
-	ChainType string `json:"chain_type,omitzero" api:"required"`
+	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
 	//
 	// Any of "HPKE".
@@ -8128,9 +8132,6 @@ func (r *WalletInitImportParamsBodyPrivateKey) UnmarshalJSON(data []byte) error 
 }
 
 func init() {
-	apijson.RegisterFieldValidator[WalletInitImportParamsBodyPrivateKey](
-		"chain_type", "ethereum", "solana",
-	)
 	apijson.RegisterFieldValidator[WalletInitImportParamsBodyPrivateKey](
 		"encryption_type", "HPKE",
 	)
@@ -8186,7 +8187,7 @@ type WalletSubmitImportParamsWalletHD struct {
 	// `solana`.
 	//
 	// Any of "ethereum", "solana".
-	ChainType string `json:"chain_type,omitzero" api:"required"`
+	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
 	// The encrypted entropy of the wallet to import.
 	Ciphertext string `json:"ciphertext" api:"required"`
 	// The base64-encoded encapsulated key that was generated during encryption, for
@@ -8219,9 +8220,6 @@ func (r *WalletSubmitImportParamsWalletHD) UnmarshalJSON(data []byte) error {
 
 func init() {
 	apijson.RegisterFieldValidator[WalletSubmitImportParamsWalletHD](
-		"chain_type", "ethereum", "solana",
-	)
-	apijson.RegisterFieldValidator[WalletSubmitImportParamsWalletHD](
 		"encryption_type", "HPKE",
 	)
 }
@@ -8235,7 +8233,7 @@ type WalletSubmitImportParamsWalletPrivateKey struct {
 	// `solana`.
 	//
 	// Any of "ethereum", "solana".
-	ChainType string `json:"chain_type,omitzero" api:"required"`
+	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
 	// The encrypted entropy of the wallet to import.
 	Ciphertext string `json:"ciphertext" api:"required"`
 	// The base64-encoded encapsulated key that was generated during encryption, for
@@ -8263,9 +8261,6 @@ func (r *WalletSubmitImportParamsWalletPrivateKey) UnmarshalJSON(data []byte) er
 }
 
 func init() {
-	apijson.RegisterFieldValidator[WalletSubmitImportParamsWalletPrivateKey](
-		"chain_type", "ethereum", "solana",
-	)
 	apijson.RegisterFieldValidator[WalletSubmitImportParamsWalletPrivateKey](
 		"encryption_type", "HPKE",
 	)
