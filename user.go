@@ -2966,7 +2966,7 @@ func (r *UserGetByWalletAddressParams) UnmarshalJSON(data []byte) error {
 }
 
 type UserPregenerateWalletsParams struct {
-	Wallets []UserPregenerateWalletsParamsWallet `json:"wallets,omitzero" api:"required"`
+	Wallets []WalletCreationInput `json:"wallets,omitzero" api:"required"`
 	paramObj
 }
 
@@ -2975,42 +2975,6 @@ func (r UserPregenerateWalletsParams) MarshalJSON() (data []byte, err error) {
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *UserPregenerateWalletsParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The property ChainType is required.
-type UserPregenerateWalletsParamsWallet struct {
-	// The wallet chain types.
-	//
-	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
-	// "tron", "bitcoin-segwit", "near", "ton", "starknet", "spark".
-	ChainType         WalletChainType                                      `json:"chain_type,omitzero" api:"required"`
-	CreateSmartWallet param.Opt[bool]                                      `json:"create_smart_wallet,omitzero"`
-	AdditionalSigners []UserPregenerateWalletsParamsWalletAdditionalSigner `json:"additional_signers,omitzero"`
-	PolicyIDs         []string                                             `json:"policy_ids,omitzero" format:"cuid2"`
-	paramObj
-}
-
-func (r UserPregenerateWalletsParamsWallet) MarshalJSON() (data []byte, err error) {
-	type shadow UserPregenerateWalletsParamsWallet
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *UserPregenerateWalletsParamsWallet) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The property SignerID is required.
-type UserPregenerateWalletsParamsWalletAdditionalSigner struct {
-	SignerID          string   `json:"signer_id" api:"required" format:"cuid2"`
-	OverridePolicyIDs []string `json:"override_policy_ids,omitzero" format:"cuid2"`
-	paramObj
-}
-
-func (r UserPregenerateWalletsParamsWalletAdditionalSigner) MarshalJSON() (data []byte, err error) {
-	type shadow UserPregenerateWalletsParamsWalletAdditionalSigner
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *UserPregenerateWalletsParamsWalletAdditionalSigner) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

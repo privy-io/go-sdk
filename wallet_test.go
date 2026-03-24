@@ -142,7 +142,7 @@ func TestWalletInitImport(t *testing.T) {
 	_, err := client.Wallets.InitImport(context.TODO(), privyclient.WalletInitImportParams{
 		OfPrivateKey: &privyclient.WalletInitImportParamsBodyPrivateKey{
 			Address:        "0xF1DBff66C993EE895C8cb176c30b07A559d76496",
-			ChainType:      "ethereum",
+			ChainType:      privyclient.WalletImportSupportedChainsEthereum,
 			EncryptionType: "HPKE",
 		},
 	})
@@ -173,13 +173,13 @@ func TestWalletSubmitImportWithOptionalParams(t *testing.T) {
 		Wallet: privyclient.WalletSubmitImportParamsWalletUnion{
 			OfPrivateKey: &privyclient.WalletSubmitImportParamsWalletPrivateKey{
 				Address:         "0xF1DBff66C993EE895C8cb176c30b07A559d76496",
-				ChainType:       "ethereum",
+				ChainType:       privyclient.WalletImportSupportedChainsEthereum,
 				Ciphertext:      "PRoRXygG+YYSDBXjCopNYZmx8Z6nvdl1D0lpePTYZdZI2VGfK+LkFt+GlEJqdoi9",
 				EncapsulatedKey: "BOhR6xITDt5THJawHHJKrKdI9CBr2M/SDWzZZAaOW4gCMsSpC65U007WyKiwuuOVAo1BNm4YgcBBROuMmyIZXZk=",
 				EncryptionType:  "HPKE",
 				HpkeConfig: privyclient.HpkeImportConfig{
 					Aad:           privyclient.String("aad"),
-					AeadAlgorithm: privyclient.HpkeImportConfigAeadAlgorithmChacha20Poly1305,
+					AeadAlgorithm: privyclient.HpkeAeadAlgorithmChacha20Poly1305,
 					Info:          privyclient.String("info"),
 				},
 			},
