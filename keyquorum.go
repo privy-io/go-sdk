@@ -66,7 +66,7 @@ func (r *KeyQuorumService) Update(ctx context.Context, keyQuorumID string, param
 }
 
 // Delete a key quorum by key quorum ID.
-func (r *KeyQuorumService) Delete(ctx context.Context, keyQuorumID string, body KeyQuorumDeleteParams, opts ...option.RequestOption) (res *KeyQuorumDeleteResponse, err error) {
+func (r *KeyQuorumService) Delete(ctx context.Context, keyQuorumID string, body KeyQuorumDeleteParams, opts ...option.RequestOption) (res *SuccessResponse, err error) {
 	if !param.IsOmitted(body.PrivyAuthorizationSignature) {
 		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", body.PrivyAuthorizationSignature.Value)))
 	}
@@ -232,23 +232,6 @@ func (r KeyQuorumUpdateParams) MarshalJSON() (data []byte, err error) {
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *KeyQuorumUpdateParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type KeyQuorumDeleteResponse struct {
-	// Whether the key quorum was deleted successfully.
-	Success bool `json:"success" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Success     respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r KeyQuorumDeleteResponse) RawJSON() string { return r.JSON.raw }
-func (r *KeyQuorumDeleteResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

@@ -66,6 +66,39 @@ func (r *AppService) GetTestCredentials(ctx context.Context, appID string, opts 
 	return res, err
 }
 
+type Caip2 = string
+
+// A currency asset type.
+type CurrencyAsset string
+
+const (
+	CurrencyAssetNativeCurrency CurrencyAsset = "native-currency"
+	CurrencyAssetUsdc           CurrencyAsset = "USDC"
+)
+
+// A crypto currency identified by a CAIP-2 chain ID and optional asset.
+type Currency struct {
+	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	Chain Caip2 `json:"chain" api:"required"`
+	// A currency asset type.
+	//
+	// Any of "native-currency", "USDC".
+	Asset CurrencyAsset `json:"asset"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Chain       respjson.Field
+		Asset       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r Currency) RawJSON() string { return r.JSON.raw }
+func (r *Currency) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Whether to create embedded wallets on login.
 type EmbeddedWalletCreateOnLogin string
 
@@ -218,12 +251,13 @@ func (r *FundingOption) UnmarshalJSON(data []byte) error {
 
 // Configuration for funding and on-ramp options.
 type FundingConfigResponseSchema struct {
-	CrossChainBridgingEnabled     bool                                                  `json:"cross_chain_bridging_enabled" api:"required"`
-	DefaultRecommendedAmount      string                                                `json:"default_recommended_amount" api:"required"`
-	DefaultRecommendedCurrency    FundingConfigResponseSchemaDefaultRecommendedCurrency `json:"default_recommended_currency" api:"required"`
-	Methods                       []FundingMethodEnum                                   `json:"methods" api:"required"`
-	Options                       []FundingOption                                       `json:"options" api:"required"`
-	PromptFundingOnWalletCreation bool                                                  `json:"prompt_funding_on_wallet_creation" api:"required"`
+	CrossChainBridgingEnabled bool   `json:"cross_chain_bridging_enabled" api:"required"`
+	DefaultRecommendedAmount  string `json:"default_recommended_amount" api:"required"`
+	// A crypto currency identified by a CAIP-2 chain ID and optional asset.
+	DefaultRecommendedCurrency    Currency            `json:"default_recommended_currency" api:"required"`
+	Methods                       []FundingMethodEnum `json:"methods" api:"required"`
+	Options                       []FundingOption     `json:"options" api:"required"`
+	PromptFundingOnWalletCreation bool                `json:"prompt_funding_on_wallet_creation" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		CrossChainBridgingEnabled     respjson.Field
@@ -240,25 +274,6 @@ type FundingConfigResponseSchema struct {
 // Returns the unmodified JSON received from the API
 func (r FundingConfigResponseSchema) RawJSON() string { return r.JSON.raw }
 func (r *FundingConfigResponseSchema) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type FundingConfigResponseSchemaDefaultRecommendedCurrency struct {
-	Chain string `json:"chain" api:"required"`
-	// Any of "native-currency", "USDC".
-	Asset string `json:"asset"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Chain       respjson.Field
-		Asset       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r FundingConfigResponseSchemaDefaultRecommendedCurrency) RawJSON() string { return r.JSON.raw }
-func (r *FundingConfigResponseSchemaDefaultRecommendedCurrency) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
