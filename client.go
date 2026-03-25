@@ -30,6 +30,7 @@ type Client struct {
 	// Operations related to app settings and allowlist management
 	Apps            AppService
 	ClientAuth      ClientAuthService
+	Shared          SharedService
 	WalletActions   WalletActionService
 	Analytics       AnalyticsService
 	EmbeddedWallets EmbeddedWalletService
@@ -76,6 +77,7 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.Intents = NewIntentService(opts...)
 	r.Apps = NewAppService(opts...)
 	r.ClientAuth = NewClientAuthService(opts...)
+	r.Shared = NewSharedService(opts...)
 	r.WalletActions = NewWalletActionService(opts...)
 	r.Analytics = NewAnalyticsService(opts...)
 	r.EmbeddedWallets = NewEmbeddedWalletService(opts...)

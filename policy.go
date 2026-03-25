@@ -70,7 +70,7 @@ func (r *PolicyService) Update(ctx context.Context, policyID string, params Poli
 }
 
 // Delete a policy by policy ID.
-func (r *PolicyService) Delete(ctx context.Context, policyID string, body PolicyDeleteParams, opts ...option.RequestOption) (res *PolicyDeleteResponse, err error) {
+func (r *PolicyService) Delete(ctx context.Context, policyID string, body PolicyDeleteParams, opts ...option.RequestOption) (res *SuccessResponse, err error) {
 	if !param.IsOmitted(body.PrivyAuthorizationSignature) {
 		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", body.PrivyAuthorizationSignature.Value)))
 	}
@@ -106,7 +106,7 @@ func (r *PolicyService) NewRule(ctx context.Context, policyID string, params Pol
 }
 
 // Delete a rule by policy ID and rule ID.
-func (r *PolicyService) DeleteRule(ctx context.Context, ruleID string, params PolicyDeleteRuleParams, opts ...option.RequestOption) (res *PolicyDeleteRuleResponse, err error) {
+func (r *PolicyService) DeleteRule(ctx context.Context, ruleID string, params PolicyDeleteRuleParams, opts ...option.RequestOption) (res *SuccessResponse, err error) {
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
 		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
 	}
@@ -1527,23 +1527,6 @@ const (
 	PolicyVersion1_0 PolicyVersion = "1.0"
 )
 
-type PolicyDeleteResponse struct {
-	// Whether the policy was deleted successfully.
-	Success bool `json:"success" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Success     respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyDeleteResponse) RawJSON() string { return r.JSON.raw }
-func (r *PolicyDeleteResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // A rule that defines the conditions and action to take if the conditions are
 // true.
 type PolicyNewRuleResponse struct {
@@ -2448,23 +2431,6 @@ const (
 	PolicyNewRuleResponseMethodSignTransactionBytes     PolicyNewRuleResponseMethod = "signTransactionBytes"
 	PolicyNewRuleResponseMethodStar                     PolicyNewRuleResponseMethod = "*"
 )
-
-type PolicyDeleteRuleResponse struct {
-	// Whether the rule was deleted successfully.
-	Success bool `json:"success" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Success     respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyDeleteRuleResponse) RawJSON() string { return r.JSON.raw }
-func (r *PolicyDeleteRuleResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
 
 // A rule that defines the conditions and action to take if the conditions are
 // true.
