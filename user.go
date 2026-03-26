@@ -2177,7 +2177,7 @@ type LinkedAccountWalletInput struct {
 	// Any of "ethereum", "solana".
 	ChainType LinkedAccountWalletInputChainType `json:"chain_type,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as "wallet".
-	Type constant.Wallet `json:"type" api:"required"`
+	Type constant.Wallet `json:"type" default:"wallet"`
 	paramObj
 }
 
@@ -2202,7 +2202,7 @@ const (
 type LinkedAccountEmailInput struct {
 	Address string `json:"address" api:"required" format:"email"`
 	// This field can be elided, and will marshal its zero value as "email".
-	Type constant.Email `json:"type" api:"required"`
+	Type constant.Email `json:"type" default:"email"`
 	paramObj
 }
 
@@ -2220,7 +2220,7 @@ func (r *LinkedAccountEmailInput) UnmarshalJSON(data []byte) error {
 type LinkedAccountPhoneInput struct {
 	Number string `json:"number" api:"required"`
 	// This field can be elided, and will marshal its zero value as "phone".
-	Type constant.Phone `json:"type" api:"required"`
+	Type constant.Phone `json:"type" default:"phone"`
 	paramObj
 }
 
@@ -2240,7 +2240,7 @@ type LinkedAccountGoogleInput struct {
 	Name    string `json:"name" api:"required"`
 	Subject string `json:"subject" api:"required"`
 	// This field can be elided, and will marshal its zero value as "google_oauth".
-	Type constant.GoogleOAuth `json:"type" api:"required"`
+	Type constant.GoogleOAuth `json:"type" default:"google_oauth"`
 	paramObj
 }
 
@@ -2261,7 +2261,7 @@ type LinkedAccountTwitterInput struct {
 	Username          string            `json:"username" api:"required"`
 	ProfilePictureURL param.Opt[string] `json:"profile_picture_url,omitzero" format:"uri"`
 	// This field can be elided, and will marshal its zero value as "twitter_oauth".
-	Type constant.TwitterOAuth `json:"type" api:"required"`
+	Type constant.TwitterOAuth `json:"type" default:"twitter_oauth"`
 	paramObj
 }
 
@@ -2281,7 +2281,7 @@ type LinkedAccountDiscordInput struct {
 	Username string            `json:"username" api:"required"`
 	Email    param.Opt[string] `json:"email,omitzero" format:"email"`
 	// This field can be elided, and will marshal its zero value as "discord_oauth".
-	Type constant.DiscordOAuth `json:"type" api:"required"`
+	Type constant.DiscordOAuth `json:"type" default:"discord_oauth"`
 	paramObj
 }
 
@@ -2302,7 +2302,7 @@ type LinkedAccountGitHubInput struct {
 	Email    param.Opt[string] `json:"email,omitzero" format:"email"`
 	Name     param.Opt[string] `json:"name,omitzero"`
 	// This field can be elided, and will marshal its zero value as "github_oauth".
-	Type constant.GitHubOAuth `json:"type" api:"required"`
+	Type constant.GitHubOAuth `json:"type" default:"github_oauth"`
 	paramObj
 }
 
@@ -2322,7 +2322,7 @@ type LinkedAccountSpotifyInput struct {
 	Email   param.Opt[string] `json:"email,omitzero" format:"email"`
 	Name    param.Opt[string] `json:"name,omitzero"`
 	// This field can be elided, and will marshal its zero value as "spotify_oauth".
-	Type constant.SpotifyOAuth `json:"type" api:"required"`
+	Type constant.SpotifyOAuth `json:"type" default:"spotify_oauth"`
 	paramObj
 }
 
@@ -2341,7 +2341,7 @@ type LinkedAccountInstagramInput struct {
 	Subject  string `json:"subject" api:"required"`
 	Username string `json:"username" api:"required"`
 	// This field can be elided, and will marshal its zero value as "instagram_oauth".
-	Type constant.InstagramOAuth `json:"type" api:"required"`
+	Type constant.InstagramOAuth `json:"type" default:"instagram_oauth"`
 	paramObj
 }
 
@@ -2361,7 +2361,7 @@ type LinkedAccountTiktokInput struct {
 	Subject  string            `json:"subject" api:"required"`
 	Username string            `json:"username" api:"required"`
 	// This field can be elided, and will marshal its zero value as "tiktok_oauth".
-	Type constant.TiktokOAuth `json:"type" api:"required"`
+	Type constant.TiktokOAuth `json:"type" default:"tiktok_oauth"`
 	paramObj
 }
 
@@ -2382,7 +2382,7 @@ type LinkedAccountLineInput struct {
 	Name              param.Opt[string] `json:"name,omitzero"`
 	ProfilePictureURL param.Opt[string] `json:"profile_picture_url,omitzero" format:"uri"`
 	// This field can be elided, and will marshal its zero value as "line_oauth".
-	Type constant.LineOAuth `json:"type" api:"required"`
+	Type constant.LineOAuth `json:"type" default:"line_oauth"`
 	paramObj
 }
 
@@ -2401,7 +2401,7 @@ type LinkedAccountTwitchInput struct {
 	Subject  string            `json:"subject" api:"required"`
 	Username param.Opt[string] `json:"username,omitzero"`
 	// This field can be elided, and will marshal its zero value as "twitch_oauth".
-	Type constant.TwitchOAuth `json:"type" api:"required"`
+	Type constant.TwitchOAuth `json:"type" default:"twitch_oauth"`
 	paramObj
 }
 
@@ -2420,7 +2420,7 @@ type LinkedAccountAppleInput struct {
 	Subject string            `json:"subject" api:"required"`
 	Email   param.Opt[string] `json:"email,omitzero" format:"email"`
 	// This field can be elided, and will marshal its zero value as "apple_oauth".
-	Type constant.AppleOAuth `json:"type" api:"required"`
+	Type constant.AppleOAuth `json:"type" default:"apple_oauth"`
 	paramObj
 }
 
@@ -2441,7 +2441,7 @@ type LinkedAccountLinkedInInput struct {
 	Name       param.Opt[string] `json:"name,omitzero"`
 	VanityName param.Opt[string] `json:"vanityName,omitzero"`
 	// This field can be elided, and will marshal its zero value as "linkedin_oauth".
-	Type constant.LinkedinOAuth `json:"type" api:"required"`
+	Type constant.LinkedinOAuth `json:"type" default:"linkedin_oauth"`
 	paramObj
 }
 
@@ -2465,7 +2465,7 @@ type LinkedAccountFarcasterInput struct {
 	ProfilePictureURL param.Opt[string] `json:"profile_picture_url,omitzero"`
 	Username          param.Opt[string] `json:"username,omitzero"`
 	// This field can be elided, and will marshal its zero value as "farcaster".
-	Type constant.Farcaster `json:"type" api:"required"`
+	Type constant.Farcaster `json:"type" default:"farcaster"`
 	paramObj
 }
 
@@ -2487,7 +2487,7 @@ type LinkedAccountTelegramInput struct {
 	PhotoURL       param.Opt[string] `json:"photo_url,omitzero"`
 	Username       param.Opt[string] `json:"username,omitzero"`
 	// This field can be elided, and will marshal its zero value as "telegram".
-	Type constant.Telegram `json:"type" api:"required"`
+	Type constant.Telegram `json:"type" default:"telegram"`
 	paramObj
 }
 
@@ -2505,7 +2505,7 @@ func (r *LinkedAccountTelegramInput) UnmarshalJSON(data []byte) error {
 type LinkedAccountCustomJwtInput struct {
 	CustomUserID string `json:"custom_user_id" api:"required"`
 	// This field can be elided, and will marshal its zero value as "custom_auth".
-	Type constant.CustomAuth `json:"type" api:"required"`
+	Type constant.CustomAuth `json:"type" default:"custom_auth"`
 	paramObj
 }
 
@@ -2528,7 +2528,7 @@ type LinkedAccountPasskeyInput struct {
 	CredentialPublicKey  string                                        `json:"credential_public_key" api:"required"`
 	CredentialUsername   string                                        `json:"credential_username" api:"required"`
 	// This field can be elided, and will marshal its zero value as "passkey".
-	Type constant.Passkey `json:"type" api:"required"`
+	Type constant.Passkey `json:"type" default:"passkey"`
 	paramObj
 }
 

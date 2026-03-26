@@ -926,7 +926,7 @@ func (r *PolicyRuleConditionUnionValue) UnmarshalJSON(data []byte) error {
 type PolicyRuleConditionEthereumTransaction struct {
 	// Any of "to", "value", "chain_id".
 	Field       string                       `json:"field" api:"required"`
-	FieldSource constant.EthereumTransaction `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTransaction `json:"field_source" default:"ethereum_transaction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                           `json:"operator" api:"required"`
 	Value    PolicyRuleConditionEthereumTransactionValueUnion `json:"value" api:"required"`
@@ -989,7 +989,7 @@ func (r *PolicyRuleConditionEthereumTransactionValueUnion) UnmarshalJSON(data []
 type PolicyRuleConditionEthereumCalldata struct {
 	Abi         any                       `json:"abi" api:"required"`
 	Field       string                    `json:"field" api:"required"`
-	FieldSource constant.EthereumCalldata `json:"field_source" api:"required"`
+	FieldSource constant.EthereumCalldata `json:"field_source" default:"ethereum_calldata"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                        `json:"operator" api:"required"`
 	Value    PolicyRuleConditionEthereumCalldataValueUnion `json:"value" api:"required"`
@@ -1051,7 +1051,7 @@ func (r *PolicyRuleConditionEthereumCalldataValueUnion) UnmarshalJSON(data []byt
 type PolicyRuleConditionEthereumTypedDataDomain struct {
 	// Any of "chainId", "verifyingContract".
 	Field       string                           `json:"field" api:"required"`
-	FieldSource constant.EthereumTypedDataDomain `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTypedDataDomain `json:"field_source" default:"ethereum_typed_data_domain"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                               `json:"operator" api:"required"`
 	Value    PolicyRuleConditionEthereumTypedDataDomainValueUnion `json:"value" api:"required"`
@@ -1112,7 +1112,7 @@ func (r *PolicyRuleConditionEthereumTypedDataDomainValueUnion) UnmarshalJSON(dat
 // EIP-712.
 type PolicyRuleConditionEthereumTypedDataMessage struct {
 	Field       string                            `json:"field" api:"required"`
-	FieldSource constant.EthereumTypedDataMessage `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTypedDataMessage `json:"field_source" default:"ethereum_typed_data_message"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator  string                                                `json:"operator" api:"required"`
 	TypedData PolicyRuleConditionEthereumTypedDataMessageTypedData  `json:"typed_data" api:"required"`
@@ -1211,7 +1211,7 @@ func (r *PolicyRuleConditionEthereumTypedDataMessageValueUnion) UnmarshalJSON(da
 type PolicyRuleConditionEthereum7702Authorization struct {
 	// Any of "contract".
 	Field       string                             `json:"field" api:"required"`
-	FieldSource constant.Ethereum7702Authorization `json:"field_source" api:"required"`
+	FieldSource constant.Ethereum7702Authorization `json:"field_source" default:"ethereum_7702_authorization"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                 `json:"operator" api:"required"`
 	Value    PolicyRuleConditionEthereum7702AuthorizationValueUnion `json:"value" api:"required"`
@@ -1272,7 +1272,7 @@ func (r *PolicyRuleConditionEthereum7702AuthorizationValueUnion) UnmarshalJSON(d
 type PolicyRuleConditionSolanaProgramInstruction struct {
 	// Any of "programId".
 	Field       string                            `json:"field" api:"required"`
-	FieldSource constant.SolanaProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaProgramInstruction `json:"field_source" default:"solana_program_instruction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                `json:"operator" api:"required"`
 	Value    PolicyRuleConditionSolanaProgramInstructionValueUnion `json:"value" api:"required"`
@@ -1334,7 +1334,7 @@ func (r *PolicyRuleConditionSolanaProgramInstructionValueUnion) UnmarshalJSON(da
 type PolicyRuleConditionSolanaSystemProgramInstruction struct {
 	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
 	Field       string                                  `json:"field" api:"required"`
-	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" default:"solana_system_program_instruction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                      `json:"operator" api:"required"`
 	Value    PolicyRuleConditionSolanaSystemProgramInstructionValueUnion `json:"value" api:"required"`
@@ -1400,7 +1400,7 @@ type PolicyRuleConditionSolanaTokenProgramInstruction struct {
 	// "TransferChecked.destination", "TransferChecked.authority",
 	// "TransferChecked.amount", "TransferChecked.mint".
 	Field       string                                 `json:"field" api:"required"`
-	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" default:"solana_token_program_instruction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                     `json:"operator" api:"required"`
 	Value    PolicyRuleConditionSolanaTokenProgramInstructionValueUnion `json:"value" api:"required"`
@@ -1463,7 +1463,7 @@ func (r *PolicyRuleConditionSolanaTokenProgramInstructionValueUnion) UnmarshalJS
 type PolicyRuleConditionSystem struct {
 	// Any of "current_unix_timestamp".
 	Field       string          `json:"field" api:"required"`
-	FieldSource constant.System `json:"field_source" api:"required"`
+	FieldSource constant.System `json:"field_source" default:"system"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                              `json:"operator" api:"required"`
 	Value    PolicyRuleConditionSystemValueUnion `json:"value" api:"required"`
@@ -1804,7 +1804,7 @@ func (r *PolicyNewRuleResponseConditionUnionValue) UnmarshalJSON(data []byte) er
 type PolicyNewRuleResponseConditionEthereumTransaction struct {
 	// Any of "to", "value", "chain_id".
 	Field       string                       `json:"field" api:"required"`
-	FieldSource constant.EthereumTransaction `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTransaction `json:"field_source" default:"ethereum_transaction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                      `json:"operator" api:"required"`
 	Value    PolicyNewRuleResponseConditionEthereumTransactionValueUnion `json:"value" api:"required"`
@@ -1869,7 +1869,7 @@ func (r *PolicyNewRuleResponseConditionEthereumTransactionValueUnion) UnmarshalJ
 type PolicyNewRuleResponseConditionEthereumCalldata struct {
 	Abi         any                       `json:"abi" api:"required"`
 	Field       string                    `json:"field" api:"required"`
-	FieldSource constant.EthereumCalldata `json:"field_source" api:"required"`
+	FieldSource constant.EthereumCalldata `json:"field_source" default:"ethereum_calldata"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                   `json:"operator" api:"required"`
 	Value    PolicyNewRuleResponseConditionEthereumCalldataValueUnion `json:"value" api:"required"`
@@ -1931,7 +1931,7 @@ func (r *PolicyNewRuleResponseConditionEthereumCalldataValueUnion) UnmarshalJSON
 type PolicyNewRuleResponseConditionEthereumTypedDataDomain struct {
 	// Any of "chainId", "verifyingContract".
 	Field       string                           `json:"field" api:"required"`
-	FieldSource constant.EthereumTypedDataDomain `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTypedDataDomain `json:"field_source" default:"ethereum_typed_data_domain"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                          `json:"operator" api:"required"`
 	Value    PolicyNewRuleResponseConditionEthereumTypedDataDomainValueUnion `json:"value" api:"required"`
@@ -1994,7 +1994,7 @@ func (r *PolicyNewRuleResponseConditionEthereumTypedDataDomainValueUnion) Unmars
 // EIP-712.
 type PolicyNewRuleResponseConditionEthereumTypedDataMessage struct {
 	Field       string                            `json:"field" api:"required"`
-	FieldSource constant.EthereumTypedDataMessage `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTypedDataMessage `json:"field_source" default:"ethereum_typed_data_message"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator  string                                                           `json:"operator" api:"required"`
 	TypedData PolicyNewRuleResponseConditionEthereumTypedDataMessageTypedData  `json:"typed_data" api:"required"`
@@ -2099,7 +2099,7 @@ func (r *PolicyNewRuleResponseConditionEthereumTypedDataMessageValueUnion) Unmar
 type PolicyNewRuleResponseConditionEthereum7702Authorization struct {
 	// Any of "contract".
 	Field       string                             `json:"field" api:"required"`
-	FieldSource constant.Ethereum7702Authorization `json:"field_source" api:"required"`
+	FieldSource constant.Ethereum7702Authorization `json:"field_source" default:"ethereum_7702_authorization"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                            `json:"operator" api:"required"`
 	Value    PolicyNewRuleResponseConditionEthereum7702AuthorizationValueUnion `json:"value" api:"required"`
@@ -2162,7 +2162,7 @@ func (r *PolicyNewRuleResponseConditionEthereum7702AuthorizationValueUnion) Unma
 type PolicyNewRuleResponseConditionSolanaProgramInstruction struct {
 	// Any of "programId".
 	Field       string                            `json:"field" api:"required"`
-	FieldSource constant.SolanaProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaProgramInstruction `json:"field_source" default:"solana_program_instruction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                           `json:"operator" api:"required"`
 	Value    PolicyNewRuleResponseConditionSolanaProgramInstructionValueUnion `json:"value" api:"required"`
@@ -2226,7 +2226,7 @@ func (r *PolicyNewRuleResponseConditionSolanaProgramInstructionValueUnion) Unmar
 type PolicyNewRuleResponseConditionSolanaSystemProgramInstruction struct {
 	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
 	Field       string                                  `json:"field" api:"required"`
-	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" default:"solana_system_program_instruction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                                 `json:"operator" api:"required"`
 	Value    PolicyNewRuleResponseConditionSolanaSystemProgramInstructionValueUnion `json:"value" api:"required"`
@@ -2294,7 +2294,7 @@ type PolicyNewRuleResponseConditionSolanaTokenProgramInstruction struct {
 	// "TransferChecked.destination", "TransferChecked.authority",
 	// "TransferChecked.amount", "TransferChecked.mint".
 	Field       string                                 `json:"field" api:"required"`
-	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" default:"solana_token_program_instruction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                                `json:"operator" api:"required"`
 	Value    PolicyNewRuleResponseConditionSolanaTokenProgramInstructionValueUnion `json:"value" api:"required"`
@@ -2359,7 +2359,7 @@ func (r *PolicyNewRuleResponseConditionSolanaTokenProgramInstructionValueUnion) 
 type PolicyNewRuleResponseConditionSystem struct {
 	// Any of "current_unix_timestamp".
 	Field       string          `json:"field" api:"required"`
-	FieldSource constant.System `json:"field_source" api:"required"`
+	FieldSource constant.System `json:"field_source" default:"system"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                         `json:"operator" api:"required"`
 	Value    PolicyNewRuleResponseConditionSystemValueUnion `json:"value" api:"required"`
@@ -2709,7 +2709,7 @@ func (r *PolicyGetRuleResponseConditionUnionValue) UnmarshalJSON(data []byte) er
 type PolicyGetRuleResponseConditionEthereumTransaction struct {
 	// Any of "to", "value", "chain_id".
 	Field       string                       `json:"field" api:"required"`
-	FieldSource constant.EthereumTransaction `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTransaction `json:"field_source" default:"ethereum_transaction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                      `json:"operator" api:"required"`
 	Value    PolicyGetRuleResponseConditionEthereumTransactionValueUnion `json:"value" api:"required"`
@@ -2774,7 +2774,7 @@ func (r *PolicyGetRuleResponseConditionEthereumTransactionValueUnion) UnmarshalJ
 type PolicyGetRuleResponseConditionEthereumCalldata struct {
 	Abi         any                       `json:"abi" api:"required"`
 	Field       string                    `json:"field" api:"required"`
-	FieldSource constant.EthereumCalldata `json:"field_source" api:"required"`
+	FieldSource constant.EthereumCalldata `json:"field_source" default:"ethereum_calldata"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                   `json:"operator" api:"required"`
 	Value    PolicyGetRuleResponseConditionEthereumCalldataValueUnion `json:"value" api:"required"`
@@ -2836,7 +2836,7 @@ func (r *PolicyGetRuleResponseConditionEthereumCalldataValueUnion) UnmarshalJSON
 type PolicyGetRuleResponseConditionEthereumTypedDataDomain struct {
 	// Any of "chainId", "verifyingContract".
 	Field       string                           `json:"field" api:"required"`
-	FieldSource constant.EthereumTypedDataDomain `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTypedDataDomain `json:"field_source" default:"ethereum_typed_data_domain"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                          `json:"operator" api:"required"`
 	Value    PolicyGetRuleResponseConditionEthereumTypedDataDomainValueUnion `json:"value" api:"required"`
@@ -2899,7 +2899,7 @@ func (r *PolicyGetRuleResponseConditionEthereumTypedDataDomainValueUnion) Unmars
 // EIP-712.
 type PolicyGetRuleResponseConditionEthereumTypedDataMessage struct {
 	Field       string                            `json:"field" api:"required"`
-	FieldSource constant.EthereumTypedDataMessage `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTypedDataMessage `json:"field_source" default:"ethereum_typed_data_message"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator  string                                                           `json:"operator" api:"required"`
 	TypedData PolicyGetRuleResponseConditionEthereumTypedDataMessageTypedData  `json:"typed_data" api:"required"`
@@ -3004,7 +3004,7 @@ func (r *PolicyGetRuleResponseConditionEthereumTypedDataMessageValueUnion) Unmar
 type PolicyGetRuleResponseConditionEthereum7702Authorization struct {
 	// Any of "contract".
 	Field       string                             `json:"field" api:"required"`
-	FieldSource constant.Ethereum7702Authorization `json:"field_source" api:"required"`
+	FieldSource constant.Ethereum7702Authorization `json:"field_source" default:"ethereum_7702_authorization"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                            `json:"operator" api:"required"`
 	Value    PolicyGetRuleResponseConditionEthereum7702AuthorizationValueUnion `json:"value" api:"required"`
@@ -3067,7 +3067,7 @@ func (r *PolicyGetRuleResponseConditionEthereum7702AuthorizationValueUnion) Unma
 type PolicyGetRuleResponseConditionSolanaProgramInstruction struct {
 	// Any of "programId".
 	Field       string                            `json:"field" api:"required"`
-	FieldSource constant.SolanaProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaProgramInstruction `json:"field_source" default:"solana_program_instruction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                           `json:"operator" api:"required"`
 	Value    PolicyGetRuleResponseConditionSolanaProgramInstructionValueUnion `json:"value" api:"required"`
@@ -3131,7 +3131,7 @@ func (r *PolicyGetRuleResponseConditionSolanaProgramInstructionValueUnion) Unmar
 type PolicyGetRuleResponseConditionSolanaSystemProgramInstruction struct {
 	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
 	Field       string                                  `json:"field" api:"required"`
-	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" default:"solana_system_program_instruction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                                 `json:"operator" api:"required"`
 	Value    PolicyGetRuleResponseConditionSolanaSystemProgramInstructionValueUnion `json:"value" api:"required"`
@@ -3199,7 +3199,7 @@ type PolicyGetRuleResponseConditionSolanaTokenProgramInstruction struct {
 	// "TransferChecked.destination", "TransferChecked.authority",
 	// "TransferChecked.amount", "TransferChecked.mint".
 	Field       string                                 `json:"field" api:"required"`
-	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" default:"solana_token_program_instruction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                                `json:"operator" api:"required"`
 	Value    PolicyGetRuleResponseConditionSolanaTokenProgramInstructionValueUnion `json:"value" api:"required"`
@@ -3264,7 +3264,7 @@ func (r *PolicyGetRuleResponseConditionSolanaTokenProgramInstructionValueUnion) 
 type PolicyGetRuleResponseConditionSystem struct {
 	// Any of "current_unix_timestamp".
 	Field       string          `json:"field" api:"required"`
-	FieldSource constant.System `json:"field_source" api:"required"`
+	FieldSource constant.System `json:"field_source" default:"system"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                         `json:"operator" api:"required"`
 	Value    PolicyGetRuleResponseConditionSystemValueUnion `json:"value" api:"required"`
@@ -3617,7 +3617,7 @@ func (r *PolicyUpdateRuleResponseConditionUnionValue) UnmarshalJSON(data []byte)
 type PolicyUpdateRuleResponseConditionEthereumTransaction struct {
 	// Any of "to", "value", "chain_id".
 	Field       string                       `json:"field" api:"required"`
-	FieldSource constant.EthereumTransaction `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTransaction `json:"field_source" default:"ethereum_transaction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                         `json:"operator" api:"required"`
 	Value    PolicyUpdateRuleResponseConditionEthereumTransactionValueUnion `json:"value" api:"required"`
@@ -3682,7 +3682,7 @@ func (r *PolicyUpdateRuleResponseConditionEthereumTransactionValueUnion) Unmarsh
 type PolicyUpdateRuleResponseConditionEthereumCalldata struct {
 	Abi         any                       `json:"abi" api:"required"`
 	Field       string                    `json:"field" api:"required"`
-	FieldSource constant.EthereumCalldata `json:"field_source" api:"required"`
+	FieldSource constant.EthereumCalldata `json:"field_source" default:"ethereum_calldata"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                      `json:"operator" api:"required"`
 	Value    PolicyUpdateRuleResponseConditionEthereumCalldataValueUnion `json:"value" api:"required"`
@@ -3746,7 +3746,7 @@ func (r *PolicyUpdateRuleResponseConditionEthereumCalldataValueUnion) UnmarshalJ
 type PolicyUpdateRuleResponseConditionEthereumTypedDataDomain struct {
 	// Any of "chainId", "verifyingContract".
 	Field       string                           `json:"field" api:"required"`
-	FieldSource constant.EthereumTypedDataDomain `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTypedDataDomain `json:"field_source" default:"ethereum_typed_data_domain"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                             `json:"operator" api:"required"`
 	Value    PolicyUpdateRuleResponseConditionEthereumTypedDataDomainValueUnion `json:"value" api:"required"`
@@ -3809,7 +3809,7 @@ func (r *PolicyUpdateRuleResponseConditionEthereumTypedDataDomainValueUnion) Unm
 // EIP-712.
 type PolicyUpdateRuleResponseConditionEthereumTypedDataMessage struct {
 	Field       string                            `json:"field" api:"required"`
-	FieldSource constant.EthereumTypedDataMessage `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTypedDataMessage `json:"field_source" default:"ethereum_typed_data_message"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator  string                                                              `json:"operator" api:"required"`
 	TypedData PolicyUpdateRuleResponseConditionEthereumTypedDataMessageTypedData  `json:"typed_data" api:"required"`
@@ -3916,7 +3916,7 @@ func (r *PolicyUpdateRuleResponseConditionEthereumTypedDataMessageValueUnion) Un
 type PolicyUpdateRuleResponseConditionEthereum7702Authorization struct {
 	// Any of "contract".
 	Field       string                             `json:"field" api:"required"`
-	FieldSource constant.Ethereum7702Authorization `json:"field_source" api:"required"`
+	FieldSource constant.Ethereum7702Authorization `json:"field_source" default:"ethereum_7702_authorization"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                               `json:"operator" api:"required"`
 	Value    PolicyUpdateRuleResponseConditionEthereum7702AuthorizationValueUnion `json:"value" api:"required"`
@@ -3981,7 +3981,7 @@ func (r *PolicyUpdateRuleResponseConditionEthereum7702AuthorizationValueUnion) U
 type PolicyUpdateRuleResponseConditionSolanaProgramInstruction struct {
 	// Any of "programId".
 	Field       string                            `json:"field" api:"required"`
-	FieldSource constant.SolanaProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaProgramInstruction `json:"field_source" default:"solana_program_instruction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                              `json:"operator" api:"required"`
 	Value    PolicyUpdateRuleResponseConditionSolanaProgramInstructionValueUnion `json:"value" api:"required"`
@@ -4047,7 +4047,7 @@ func (r *PolicyUpdateRuleResponseConditionSolanaProgramInstructionValueUnion) Un
 type PolicyUpdateRuleResponseConditionSolanaSystemProgramInstruction struct {
 	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
 	Field       string                                  `json:"field" api:"required"`
-	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" default:"solana_system_program_instruction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                                    `json:"operator" api:"required"`
 	Value    PolicyUpdateRuleResponseConditionSolanaSystemProgramInstructionValueUnion `json:"value" api:"required"`
@@ -4115,7 +4115,7 @@ type PolicyUpdateRuleResponseConditionSolanaTokenProgramInstruction struct {
 	// "TransferChecked.destination", "TransferChecked.authority",
 	// "TransferChecked.amount", "TransferChecked.mint".
 	Field       string                                 `json:"field" api:"required"`
-	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" default:"solana_token_program_instruction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                                   `json:"operator" api:"required"`
 	Value    PolicyUpdateRuleResponseConditionSolanaTokenProgramInstructionValueUnion `json:"value" api:"required"`
@@ -4180,7 +4180,7 @@ func (r *PolicyUpdateRuleResponseConditionSolanaTokenProgramInstructionValueUnio
 type PolicyUpdateRuleResponseConditionSystem struct {
 	// Any of "current_unix_timestamp".
 	Field       string          `json:"field" api:"required"`
-	FieldSource constant.System `json:"field_source" api:"required"`
+	FieldSource constant.System `json:"field_source" default:"system"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                            `json:"operator" api:"required"`
 	Value    PolicyUpdateRuleResponseConditionSystemValueUnion `json:"value" api:"required"`
@@ -4397,7 +4397,7 @@ type PolicyNewParamsRuleConditionEthereumTransaction struct {
 	Value    PolicyNewParamsRuleConditionEthereumTransactionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_transaction".
-	FieldSource constant.EthereumTransaction `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTransaction `json:"field_source" default:"ethereum_transaction"`
 	paramObj
 }
 
@@ -4447,7 +4447,7 @@ type PolicyNewParamsRuleConditionEthereumCalldata struct {
 	Value    PolicyNewParamsRuleConditionEthereumCalldataValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_calldata".
-	FieldSource constant.EthereumCalldata `json:"field_source" api:"required"`
+	FieldSource constant.EthereumCalldata `json:"field_source" default:"ethereum_calldata"`
 	paramObj
 }
 
@@ -4492,7 +4492,7 @@ type PolicyNewParamsRuleConditionEthereumTypedDataDomain struct {
 	Value    PolicyNewParamsRuleConditionEthereumTypedDataDomainValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_typed_data_domain".
-	FieldSource constant.EthereumTypedDataDomain `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTypedDataDomain `json:"field_source" default:"ethereum_typed_data_domain"`
 	paramObj
 }
 
@@ -4541,7 +4541,7 @@ type PolicyNewParamsRuleConditionEthereumTypedDataMessage struct {
 	Value     PolicyNewParamsRuleConditionEthereumTypedDataMessageValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_typed_data_message".
-	FieldSource constant.EthereumTypedDataMessage `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTypedDataMessage `json:"field_source" default:"ethereum_typed_data_message"`
 	paramObj
 }
 
@@ -4616,7 +4616,7 @@ type PolicyNewParamsRuleConditionEthereum7702Authorization struct {
 	Value    PolicyNewParamsRuleConditionEthereum7702AuthorizationValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_7702_authorization".
-	FieldSource constant.Ethereum7702Authorization `json:"field_source" api:"required"`
+	FieldSource constant.Ethereum7702Authorization `json:"field_source" default:"ethereum_7702_authorization"`
 	paramObj
 }
 
@@ -4664,7 +4664,7 @@ type PolicyNewParamsRuleConditionSolanaProgramInstruction struct {
 	Value    PolicyNewParamsRuleConditionSolanaProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_program_instruction".
-	FieldSource constant.SolanaProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaProgramInstruction `json:"field_source" default:"solana_program_instruction"`
 	paramObj
 }
 
@@ -4713,7 +4713,7 @@ type PolicyNewParamsRuleConditionSolanaSystemProgramInstruction struct {
 	Value    PolicyNewParamsRuleConditionSolanaSystemProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_system_program_instruction".
-	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" default:"solana_system_program_instruction"`
 	paramObj
 }
 
@@ -4764,7 +4764,7 @@ type PolicyNewParamsRuleConditionSolanaTokenProgramInstruction struct {
 	Value    PolicyNewParamsRuleConditionSolanaTokenProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_token_program_instruction".
-	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" default:"solana_token_program_instruction"`
 	paramObj
 }
 
@@ -4811,7 +4811,7 @@ type PolicyNewParamsRuleConditionSystem struct {
 	Operator string                                       `json:"operator,omitzero" api:"required"`
 	Value    PolicyNewParamsRuleConditionSystemValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as "system".
-	FieldSource constant.System `json:"field_source" api:"required"`
+	FieldSource constant.System `json:"field_source" default:"system"`
 	paramObj
 }
 
@@ -5088,7 +5088,7 @@ type PolicyUpdateParamsRuleConditionEthereumTransaction struct {
 	Value    PolicyUpdateParamsRuleConditionEthereumTransactionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_transaction".
-	FieldSource constant.EthereumTransaction `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTransaction `json:"field_source" default:"ethereum_transaction"`
 	paramObj
 }
 
@@ -5138,7 +5138,7 @@ type PolicyUpdateParamsRuleConditionEthereumCalldata struct {
 	Value    PolicyUpdateParamsRuleConditionEthereumCalldataValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_calldata".
-	FieldSource constant.EthereumCalldata `json:"field_source" api:"required"`
+	FieldSource constant.EthereumCalldata `json:"field_source" default:"ethereum_calldata"`
 	paramObj
 }
 
@@ -5183,7 +5183,7 @@ type PolicyUpdateParamsRuleConditionEthereumTypedDataDomain struct {
 	Value    PolicyUpdateParamsRuleConditionEthereumTypedDataDomainValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_typed_data_domain".
-	FieldSource constant.EthereumTypedDataDomain `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTypedDataDomain `json:"field_source" default:"ethereum_typed_data_domain"`
 	paramObj
 }
 
@@ -5232,7 +5232,7 @@ type PolicyUpdateParamsRuleConditionEthereumTypedDataMessage struct {
 	Value     PolicyUpdateParamsRuleConditionEthereumTypedDataMessageValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_typed_data_message".
-	FieldSource constant.EthereumTypedDataMessage `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTypedDataMessage `json:"field_source" default:"ethereum_typed_data_message"`
 	paramObj
 }
 
@@ -5307,7 +5307,7 @@ type PolicyUpdateParamsRuleConditionEthereum7702Authorization struct {
 	Value    PolicyUpdateParamsRuleConditionEthereum7702AuthorizationValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_7702_authorization".
-	FieldSource constant.Ethereum7702Authorization `json:"field_source" api:"required"`
+	FieldSource constant.Ethereum7702Authorization `json:"field_source" default:"ethereum_7702_authorization"`
 	paramObj
 }
 
@@ -5355,7 +5355,7 @@ type PolicyUpdateParamsRuleConditionSolanaProgramInstruction struct {
 	Value    PolicyUpdateParamsRuleConditionSolanaProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_program_instruction".
-	FieldSource constant.SolanaProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaProgramInstruction `json:"field_source" default:"solana_program_instruction"`
 	paramObj
 }
 
@@ -5404,7 +5404,7 @@ type PolicyUpdateParamsRuleConditionSolanaSystemProgramInstruction struct {
 	Value    PolicyUpdateParamsRuleConditionSolanaSystemProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_system_program_instruction".
-	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" default:"solana_system_program_instruction"`
 	paramObj
 }
 
@@ -5455,7 +5455,7 @@ type PolicyUpdateParamsRuleConditionSolanaTokenProgramInstruction struct {
 	Value    PolicyUpdateParamsRuleConditionSolanaTokenProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_token_program_instruction".
-	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" default:"solana_token_program_instruction"`
 	paramObj
 }
 
@@ -5502,7 +5502,7 @@ type PolicyUpdateParamsRuleConditionSystem struct {
 	Operator string                                          `json:"operator,omitzero" api:"required"`
 	Value    PolicyUpdateParamsRuleConditionSystemValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as "system".
-	FieldSource constant.System `json:"field_source" api:"required"`
+	FieldSource constant.System `json:"field_source" default:"system"`
 	paramObj
 }
 
@@ -5654,7 +5654,7 @@ type PolicyNewRuleParamsConditionEthereumTransaction struct {
 	Value    PolicyNewRuleParamsConditionEthereumTransactionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_transaction".
-	FieldSource constant.EthereumTransaction `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTransaction `json:"field_source" default:"ethereum_transaction"`
 	paramObj
 }
 
@@ -5704,7 +5704,7 @@ type PolicyNewRuleParamsConditionEthereumCalldata struct {
 	Value    PolicyNewRuleParamsConditionEthereumCalldataValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_calldata".
-	FieldSource constant.EthereumCalldata `json:"field_source" api:"required"`
+	FieldSource constant.EthereumCalldata `json:"field_source" default:"ethereum_calldata"`
 	paramObj
 }
 
@@ -5749,7 +5749,7 @@ type PolicyNewRuleParamsConditionEthereumTypedDataDomain struct {
 	Value    PolicyNewRuleParamsConditionEthereumTypedDataDomainValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_typed_data_domain".
-	FieldSource constant.EthereumTypedDataDomain `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTypedDataDomain `json:"field_source" default:"ethereum_typed_data_domain"`
 	paramObj
 }
 
@@ -5798,7 +5798,7 @@ type PolicyNewRuleParamsConditionEthereumTypedDataMessage struct {
 	Value     PolicyNewRuleParamsConditionEthereumTypedDataMessageValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_typed_data_message".
-	FieldSource constant.EthereumTypedDataMessage `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTypedDataMessage `json:"field_source" default:"ethereum_typed_data_message"`
 	paramObj
 }
 
@@ -5873,7 +5873,7 @@ type PolicyNewRuleParamsConditionEthereum7702Authorization struct {
 	Value    PolicyNewRuleParamsConditionEthereum7702AuthorizationValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_7702_authorization".
-	FieldSource constant.Ethereum7702Authorization `json:"field_source" api:"required"`
+	FieldSource constant.Ethereum7702Authorization `json:"field_source" default:"ethereum_7702_authorization"`
 	paramObj
 }
 
@@ -5921,7 +5921,7 @@ type PolicyNewRuleParamsConditionSolanaProgramInstruction struct {
 	Value    PolicyNewRuleParamsConditionSolanaProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_program_instruction".
-	FieldSource constant.SolanaProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaProgramInstruction `json:"field_source" default:"solana_program_instruction"`
 	paramObj
 }
 
@@ -5970,7 +5970,7 @@ type PolicyNewRuleParamsConditionSolanaSystemProgramInstruction struct {
 	Value    PolicyNewRuleParamsConditionSolanaSystemProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_system_program_instruction".
-	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" default:"solana_system_program_instruction"`
 	paramObj
 }
 
@@ -6021,7 +6021,7 @@ type PolicyNewRuleParamsConditionSolanaTokenProgramInstruction struct {
 	Value    PolicyNewRuleParamsConditionSolanaTokenProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_token_program_instruction".
-	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" default:"solana_token_program_instruction"`
 	paramObj
 }
 
@@ -6068,7 +6068,7 @@ type PolicyNewRuleParamsConditionSystem struct {
 	Operator string                                       `json:"operator,omitzero" api:"required"`
 	Value    PolicyNewRuleParamsConditionSystemValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as "system".
-	FieldSource constant.System `json:"field_source" api:"required"`
+	FieldSource constant.System `json:"field_source" default:"system"`
 	paramObj
 }
 
@@ -6243,7 +6243,7 @@ type PolicyUpdateRuleParamsConditionEthereumTransaction struct {
 	Value    PolicyUpdateRuleParamsConditionEthereumTransactionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_transaction".
-	FieldSource constant.EthereumTransaction `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTransaction `json:"field_source" default:"ethereum_transaction"`
 	paramObj
 }
 
@@ -6293,7 +6293,7 @@ type PolicyUpdateRuleParamsConditionEthereumCalldata struct {
 	Value    PolicyUpdateRuleParamsConditionEthereumCalldataValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_calldata".
-	FieldSource constant.EthereumCalldata `json:"field_source" api:"required"`
+	FieldSource constant.EthereumCalldata `json:"field_source" default:"ethereum_calldata"`
 	paramObj
 }
 
@@ -6338,7 +6338,7 @@ type PolicyUpdateRuleParamsConditionEthereumTypedDataDomain struct {
 	Value    PolicyUpdateRuleParamsConditionEthereumTypedDataDomainValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_typed_data_domain".
-	FieldSource constant.EthereumTypedDataDomain `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTypedDataDomain `json:"field_source" default:"ethereum_typed_data_domain"`
 	paramObj
 }
 
@@ -6387,7 +6387,7 @@ type PolicyUpdateRuleParamsConditionEthereumTypedDataMessage struct {
 	Value     PolicyUpdateRuleParamsConditionEthereumTypedDataMessageValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_typed_data_message".
-	FieldSource constant.EthereumTypedDataMessage `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTypedDataMessage `json:"field_source" default:"ethereum_typed_data_message"`
 	paramObj
 }
 
@@ -6462,7 +6462,7 @@ type PolicyUpdateRuleParamsConditionEthereum7702Authorization struct {
 	Value    PolicyUpdateRuleParamsConditionEthereum7702AuthorizationValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_7702_authorization".
-	FieldSource constant.Ethereum7702Authorization `json:"field_source" api:"required"`
+	FieldSource constant.Ethereum7702Authorization `json:"field_source" default:"ethereum_7702_authorization"`
 	paramObj
 }
 
@@ -6510,7 +6510,7 @@ type PolicyUpdateRuleParamsConditionSolanaProgramInstruction struct {
 	Value    PolicyUpdateRuleParamsConditionSolanaProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_program_instruction".
-	FieldSource constant.SolanaProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaProgramInstruction `json:"field_source" default:"solana_program_instruction"`
 	paramObj
 }
 
@@ -6559,7 +6559,7 @@ type PolicyUpdateRuleParamsConditionSolanaSystemProgramInstruction struct {
 	Value    PolicyUpdateRuleParamsConditionSolanaSystemProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_system_program_instruction".
-	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" default:"solana_system_program_instruction"`
 	paramObj
 }
 
@@ -6610,7 +6610,7 @@ type PolicyUpdateRuleParamsConditionSolanaTokenProgramInstruction struct {
 	Value    PolicyUpdateRuleParamsConditionSolanaTokenProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_token_program_instruction".
-	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" default:"solana_token_program_instruction"`
 	paramObj
 }
 
@@ -6657,7 +6657,7 @@ type PolicyUpdateRuleParamsConditionSystem struct {
 	Operator string                                          `json:"operator,omitzero" api:"required"`
 	Value    PolicyUpdateRuleParamsConditionSystemValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as "system".
-	FieldSource constant.System `json:"field_source" api:"required"`
+	FieldSource constant.System `json:"field_source" default:"system"`
 	paramObj
 }
 
