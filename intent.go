@@ -3531,7 +3531,7 @@ type IntentNewPolicyRuleParamsConditionEthereumTransaction struct {
 	Value    IntentNewPolicyRuleParamsConditionEthereumTransactionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_transaction".
-	FieldSource constant.EthereumTransaction `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTransaction `json:"field_source" default:"ethereum_transaction"`
 	paramObj
 }
 
@@ -3581,7 +3581,7 @@ type IntentNewPolicyRuleParamsConditionEthereumCalldata struct {
 	Value    IntentNewPolicyRuleParamsConditionEthereumCalldataValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_calldata".
-	FieldSource constant.EthereumCalldata `json:"field_source" api:"required"`
+	FieldSource constant.EthereumCalldata `json:"field_source" default:"ethereum_calldata"`
 	paramObj
 }
 
@@ -3626,7 +3626,7 @@ type IntentNewPolicyRuleParamsConditionEthereumTypedDataDomain struct {
 	Value    IntentNewPolicyRuleParamsConditionEthereumTypedDataDomainValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_typed_data_domain".
-	FieldSource constant.EthereumTypedDataDomain `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTypedDataDomain `json:"field_source" default:"ethereum_typed_data_domain"`
 	paramObj
 }
 
@@ -3675,7 +3675,7 @@ type IntentNewPolicyRuleParamsConditionEthereumTypedDataMessage struct {
 	Value     IntentNewPolicyRuleParamsConditionEthereumTypedDataMessageValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_typed_data_message".
-	FieldSource constant.EthereumTypedDataMessage `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTypedDataMessage `json:"field_source" default:"ethereum_typed_data_message"`
 	paramObj
 }
 
@@ -3750,7 +3750,7 @@ type IntentNewPolicyRuleParamsConditionEthereum7702Authorization struct {
 	Value    IntentNewPolicyRuleParamsConditionEthereum7702AuthorizationValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_7702_authorization".
-	FieldSource constant.Ethereum7702Authorization `json:"field_source" api:"required"`
+	FieldSource constant.Ethereum7702Authorization `json:"field_source" default:"ethereum_7702_authorization"`
 	paramObj
 }
 
@@ -3798,7 +3798,7 @@ type IntentNewPolicyRuleParamsConditionSolanaProgramInstruction struct {
 	Value    IntentNewPolicyRuleParamsConditionSolanaProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_program_instruction".
-	FieldSource constant.SolanaProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaProgramInstruction `json:"field_source" default:"solana_program_instruction"`
 	paramObj
 }
 
@@ -3847,7 +3847,7 @@ type IntentNewPolicyRuleParamsConditionSolanaSystemProgramInstruction struct {
 	Value    IntentNewPolicyRuleParamsConditionSolanaSystemProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_system_program_instruction".
-	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" default:"solana_system_program_instruction"`
 	paramObj
 }
 
@@ -3898,7 +3898,7 @@ type IntentNewPolicyRuleParamsConditionSolanaTokenProgramInstruction struct {
 	Value    IntentNewPolicyRuleParamsConditionSolanaTokenProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_token_program_instruction".
-	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" default:"solana_token_program_instruction"`
 	paramObj
 }
 
@@ -3945,7 +3945,7 @@ type IntentNewPolicyRuleParamsConditionSystem struct {
 	Operator string                                             `json:"operator,omitzero" api:"required"`
 	Value    IntentNewPolicyRuleParamsConditionSystemValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as "system".
-	FieldSource constant.System `json:"field_source" api:"required"`
+	FieldSource constant.System `json:"field_source" default:"system"`
 	paramObj
 }
 
@@ -4217,7 +4217,7 @@ type IntentUpdatePolicyParamsRuleConditionEthereumTransaction struct {
 	Value    IntentUpdatePolicyParamsRuleConditionEthereumTransactionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_transaction".
-	FieldSource constant.EthereumTransaction `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTransaction `json:"field_source" default:"ethereum_transaction"`
 	paramObj
 }
 
@@ -4267,7 +4267,7 @@ type IntentUpdatePolicyParamsRuleConditionEthereumCalldata struct {
 	Value    IntentUpdatePolicyParamsRuleConditionEthereumCalldataValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_calldata".
-	FieldSource constant.EthereumCalldata `json:"field_source" api:"required"`
+	FieldSource constant.EthereumCalldata `json:"field_source" default:"ethereum_calldata"`
 	paramObj
 }
 
@@ -4312,7 +4312,7 @@ type IntentUpdatePolicyParamsRuleConditionEthereumTypedDataDomain struct {
 	Value    IntentUpdatePolicyParamsRuleConditionEthereumTypedDataDomainValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_typed_data_domain".
-	FieldSource constant.EthereumTypedDataDomain `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTypedDataDomain `json:"field_source" default:"ethereum_typed_data_domain"`
 	paramObj
 }
 
@@ -4361,7 +4361,7 @@ type IntentUpdatePolicyParamsRuleConditionEthereumTypedDataMessage struct {
 	Value     IntentUpdatePolicyParamsRuleConditionEthereumTypedDataMessageValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_typed_data_message".
-	FieldSource constant.EthereumTypedDataMessage `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTypedDataMessage `json:"field_source" default:"ethereum_typed_data_message"`
 	paramObj
 }
 
@@ -4436,7 +4436,7 @@ type IntentUpdatePolicyParamsRuleConditionEthereum7702Authorization struct {
 	Value    IntentUpdatePolicyParamsRuleConditionEthereum7702AuthorizationValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_7702_authorization".
-	FieldSource constant.Ethereum7702Authorization `json:"field_source" api:"required"`
+	FieldSource constant.Ethereum7702Authorization `json:"field_source" default:"ethereum_7702_authorization"`
 	paramObj
 }
 
@@ -4484,7 +4484,7 @@ type IntentUpdatePolicyParamsRuleConditionSolanaProgramInstruction struct {
 	Value    IntentUpdatePolicyParamsRuleConditionSolanaProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_program_instruction".
-	FieldSource constant.SolanaProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaProgramInstruction `json:"field_source" default:"solana_program_instruction"`
 	paramObj
 }
 
@@ -4533,7 +4533,7 @@ type IntentUpdatePolicyParamsRuleConditionSolanaSystemProgramInstruction struct 
 	Value    IntentUpdatePolicyParamsRuleConditionSolanaSystemProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_system_program_instruction".
-	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" default:"solana_system_program_instruction"`
 	paramObj
 }
 
@@ -4584,7 +4584,7 @@ type IntentUpdatePolicyParamsRuleConditionSolanaTokenProgramInstruction struct {
 	Value    IntentUpdatePolicyParamsRuleConditionSolanaTokenProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_token_program_instruction".
-	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" default:"solana_token_program_instruction"`
 	paramObj
 }
 
@@ -4631,7 +4631,7 @@ type IntentUpdatePolicyParamsRuleConditionSystem struct {
 	Operator string                                                `json:"operator,omitzero" api:"required"`
 	Value    IntentUpdatePolicyParamsRuleConditionSystemValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as "system".
-	FieldSource constant.System `json:"field_source" api:"required"`
+	FieldSource constant.System `json:"field_source" default:"system"`
 	paramObj
 }
 
@@ -4772,7 +4772,7 @@ type IntentUpdatePolicyRuleParamsConditionEthereumTransaction struct {
 	Value    IntentUpdatePolicyRuleParamsConditionEthereumTransactionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_transaction".
-	FieldSource constant.EthereumTransaction `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTransaction `json:"field_source" default:"ethereum_transaction"`
 	paramObj
 }
 
@@ -4822,7 +4822,7 @@ type IntentUpdatePolicyRuleParamsConditionEthereumCalldata struct {
 	Value    IntentUpdatePolicyRuleParamsConditionEthereumCalldataValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_calldata".
-	FieldSource constant.EthereumCalldata `json:"field_source" api:"required"`
+	FieldSource constant.EthereumCalldata `json:"field_source" default:"ethereum_calldata"`
 	paramObj
 }
 
@@ -4867,7 +4867,7 @@ type IntentUpdatePolicyRuleParamsConditionEthereumTypedDataDomain struct {
 	Value    IntentUpdatePolicyRuleParamsConditionEthereumTypedDataDomainValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_typed_data_domain".
-	FieldSource constant.EthereumTypedDataDomain `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTypedDataDomain `json:"field_source" default:"ethereum_typed_data_domain"`
 	paramObj
 }
 
@@ -4916,7 +4916,7 @@ type IntentUpdatePolicyRuleParamsConditionEthereumTypedDataMessage struct {
 	Value     IntentUpdatePolicyRuleParamsConditionEthereumTypedDataMessageValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_typed_data_message".
-	FieldSource constant.EthereumTypedDataMessage `json:"field_source" api:"required"`
+	FieldSource constant.EthereumTypedDataMessage `json:"field_source" default:"ethereum_typed_data_message"`
 	paramObj
 }
 
@@ -4991,7 +4991,7 @@ type IntentUpdatePolicyRuleParamsConditionEthereum7702Authorization struct {
 	Value    IntentUpdatePolicyRuleParamsConditionEthereum7702AuthorizationValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "ethereum_7702_authorization".
-	FieldSource constant.Ethereum7702Authorization `json:"field_source" api:"required"`
+	FieldSource constant.Ethereum7702Authorization `json:"field_source" default:"ethereum_7702_authorization"`
 	paramObj
 }
 
@@ -5039,7 +5039,7 @@ type IntentUpdatePolicyRuleParamsConditionSolanaProgramInstruction struct {
 	Value    IntentUpdatePolicyRuleParamsConditionSolanaProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_program_instruction".
-	FieldSource constant.SolanaProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaProgramInstruction `json:"field_source" default:"solana_program_instruction"`
 	paramObj
 }
 
@@ -5088,7 +5088,7 @@ type IntentUpdatePolicyRuleParamsConditionSolanaSystemProgramInstruction struct 
 	Value    IntentUpdatePolicyRuleParamsConditionSolanaSystemProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_system_program_instruction".
-	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" default:"solana_system_program_instruction"`
 	paramObj
 }
 
@@ -5139,7 +5139,7 @@ type IntentUpdatePolicyRuleParamsConditionSolanaTokenProgramInstruction struct {
 	Value    IntentUpdatePolicyRuleParamsConditionSolanaTokenProgramInstructionValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as
 	// "solana_token_program_instruction".
-	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" api:"required"`
+	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" default:"solana_token_program_instruction"`
 	paramObj
 }
 
@@ -5186,7 +5186,7 @@ type IntentUpdatePolicyRuleParamsConditionSystem struct {
 	Operator string                                                `json:"operator,omitzero" api:"required"`
 	Value    IntentUpdatePolicyRuleParamsConditionSystemValueUnion `json:"value,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as "system".
-	FieldSource constant.System `json:"field_source" api:"required"`
+	FieldSource constant.System `json:"field_source" default:"system"`
 	paramObj
 }
 

@@ -8085,7 +8085,7 @@ type WalletInitImportParamsBodyHD struct {
 	// The entropy type of the wallet to import.
 	//
 	// This field can be elided, and will marshal its zero value as "hd".
-	EntropyType constant.HD `json:"entropy_type" api:"required"`
+	EntropyType constant.HD `json:"entropy_type" default:"hd"`
 	paramObj
 }
 
@@ -8119,7 +8119,7 @@ type WalletInitImportParamsBodyPrivateKey struct {
 	// Any of "HPKE".
 	EncryptionType string `json:"encryption_type,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as "private-key".
-	EntropyType constant.PrivateKey `json:"entropy_type" api:"required"`
+	EntropyType constant.PrivateKey `json:"entropy_type" default:"private-key"`
 	paramObj
 }
 
@@ -8206,7 +8206,7 @@ type WalletSubmitImportParamsWalletHD struct {
 	// The entropy type of the wallet to import.
 	//
 	// This field can be elided, and will marshal its zero value as "hd".
-	EntropyType constant.HD `json:"entropy_type" api:"required"`
+	EntropyType constant.HD `json:"entropy_type" default:"hd"`
 	paramObj
 }
 
@@ -8248,7 +8248,7 @@ type WalletSubmitImportParamsWalletPrivateKey struct {
 	// configurations.
 	HpkeConfig HpkeImportConfig `json:"hpke_config,omitzero"`
 	// This field can be elided, and will marshal its zero value as "private-key".
-	EntropyType constant.PrivateKey `json:"entropy_type" api:"required"`
+	EntropyType constant.PrivateKey `json:"entropy_type" default:"private-key"`
 	paramObj
 }
 
