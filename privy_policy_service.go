@@ -15,10 +15,11 @@ type PrivyPolicyService struct {
 	// Directly embed the generated PolicyService to expose all its methods through PrivyPolicyService
 	PolicyService
 
-	jwtExchanger jwtexchange.JwtExchanger
-	baseURL      string
-	appID        string
-	logger       logger
+	jwtExchanger          jwtexchange.JwtExchanger
+	baseURL               string
+	appID                 string
+	defaultRequestExpiryMs int64
+	logger                logger
 }
 
 // newPrivyPolicyService creates a new wrapped policy service.
@@ -28,14 +29,16 @@ func newPrivyPolicyService(
 	jwtExchanger jwtexchange.JwtExchanger,
 	baseURL string,
 	appID string,
+	defaultRequestExpiryMs int64,
 	logger logger,
 ) *PrivyPolicyService {
 	return &PrivyPolicyService{
-		PolicyService: service,
-		jwtExchanger:  jwtExchanger,
-		baseURL:       baseURL,
-		appID:         appID,
-		logger:        logger,
+		PolicyService:          service,
+		jwtExchanger:           jwtExchanger,
+		baseURL:                baseURL,
+		appID:                  appID,
+		defaultRequestExpiryMs: defaultRequestExpiryMs,
+		logger:                 logger,
 	}
 }
 

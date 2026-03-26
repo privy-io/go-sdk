@@ -28,6 +28,12 @@ type PrivyClientOptions struct {
 	// If not provided, defaults to LogLevelNone (no logging).
 	// Available levels: LogLevelNone, LogLevelError, LogLevelInfo, LogLevelDebug, LogLevelVerbose
 	LogLevel LogLevel
+
+	// DefaultRequestExpiryMs sets the default request expiry duration in milliseconds (optional).
+	// This is used as the offset from the current time to compute the "privy-request-expiry" header.
+	// If not provided, defaults to 15 minutes (900000 ms).
+	// Can be overridden per-request, where applicable, using WithRequestExpiry.
+	DefaultRequestExpiryMs int64
 }
 
 // PrivyClient is the main entrypoint for the Privy API Go SDK.
@@ -111,22 +117,28 @@ func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
 		baseURL = "https://api.privy.io"
 	}
 
+	// Resolve default request expiry (fallback to 15 minutes)
+	defaultRequestExpiryMs := opts.DefaultRequestExpiryMs
+	if defaultRequestExpiryMs == 0 {
+		defaultRequestExpiryMs = 15 * 60 * 1000
+	}
+
 	client := NewClient(requestOpts...)
 
 	// Create JWT exchange service (uses generated WalletService for AuthenticateWithJwt)
 	jwtExchange := newPrivyJwtExchangeService(&client.Wallets, logger)
 
 	// Create wallet service with jwtExchanger for authorization
-	wallets := newPrivyWalletService(client.Wallets, jwtExchange, baseURL, opts.AppID, logger)
+	wallets := newPrivyWalletService(client.Wallets, jwtExchange, baseURL, opts.AppID, defaultRequestExpiryMs, logger)
 
 	return &PrivyClient{
 		client:       client,
 		logger:       logger,
 		Wallets:      wallets,
 		Users:        newPrivyUserService(client.Users, logger),
-		Policies:     newPrivyPolicyService(client.Policies, jwtExchange, baseURL, opts.AppID, logger),
+		Policies:     newPrivyPolicyService(client.Policies, jwtExchange, baseURL, opts.AppID, defaultRequestExpiryMs, logger),
 		Transactions: newPrivyTransactionService(client.Transactions, logger),
-		KeyQuorums:   newPrivyKeyQuorumService(client.KeyQuorums, jwtExchange, baseURL, opts.AppID, logger),
+		KeyQuorums:   newPrivyKeyQuorumService(client.KeyQuorums, jwtExchange, baseURL, opts.AppID, defaultRequestExpiryMs, logger),
 		Analytics:    newPrivyAnalyticsService(client.Analytics, logger),
 		Apps:         newPrivyAppService(client.Apps, logger),
 		Aggregations: newPrivyAggregationService(client.Aggregations, logger),

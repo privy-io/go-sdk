@@ -4,22 +4,11 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"strings"
 
-	"github.com/privy-io/go-sdk/authorization"
 	"github.com/privy-io/go-sdk/internal/hpke"
 	"github.com/privy-io/go-sdk/internal/jwtexchange"
 	"github.com/privy-io/go-sdk/packages/param"
 )
-
-// applyRpcOptions applies the given options and returns the resulting rpcOptions.
-func applyRpcOptions(opts []RpcOption) *rpcOptions {
-	options := &rpcOptions{}
-	for _, opt := range opts {
-		opt(options)
-	}
-	return options
-}
 
 // PrivyWalletService wraps the generated WalletService with automatic
 // authorization signature generation for RPC calls.
@@ -27,10 +16,11 @@ type PrivyWalletService struct {
 	// Directly embed the generated WalletService to expose all its methods through PrivyWalletService
 	WalletService
 
-	jwtExchanger jwtexchange.JwtExchanger // For exchanging JWTs to auth keys
-	baseURL      string                   // API base URL
-	appID        string                   // App ID for headers
-	logger       logger
+	jwtExchanger           jwtexchange.JwtExchanger // For exchanging JWTs to auth keys
+	baseURL                string                   // API base URL
+	appID                  string                   // App ID for headers
+	defaultRequestExpiryMs int64                    // Default expiry in ms
+	logger                 logger
 
 	// Ethereum provides convenience methods for Ethereum wallet operations.
 	Ethereum *PrivyEthereumWalletService
@@ -46,14 +36,16 @@ func newPrivyWalletService(
 	jwtExchanger jwtexchange.JwtExchanger,
 	baseURL string,
 	appID string,
+	defaultRequestExpiryMs int64,
 	logger logger,
 ) *PrivyWalletService {
 	s := &PrivyWalletService{
-		WalletService: service,
-		jwtExchanger:  jwtExchanger,
-		baseURL:       baseURL,
-		appID:         appID,
-		logger:        logger,
+		WalletService:          service,
+		jwtExchanger:           jwtExchanger,
+		baseURL:                baseURL,
+		appID:                  appID,
+		defaultRequestExpiryMs: defaultRequestExpiryMs,
+		logger:                 logger,
 	}
 	s.Ethereum = newPrivyEthereumWalletService(s)
 	s.Solana = newPrivySolanaWalletService(s)
@@ -64,13 +56,13 @@ func newPrivyWalletService(
 //
 // This method wraps the generated WalletService.Rpc and handles:
 //   - Building the authorization signature from an AuthorizationContext
-//   - Setting the idempotency key header
+//   - Setting the idempotency key and request expiry headers
 //
 // Parameters:
 //   - ctx: Context for cancellation and timeouts
 //   - walletID: The wallet ID to execute the RPC on
-//   - params: The RPC parameters (callers can skip PrivyAuthorizationSignature and PrivyIdempotencyKey)
-//   - opts: use WithAuthorizationContext and WithIdempotencyKey
+//   - params: The RPC parameters (callers can skip PrivyAuthorizationSignature, PrivyIdempotencyKey, and PrivyRequestExpiry)
+//   - opts: use WithAuthorizationContext, WithIdempotencyKey, and WithRequestExpiry
 func (s *PrivyWalletService) Rpc(
 	ctx context.Context,
 	walletID string,
@@ -79,48 +71,34 @@ func (s *PrivyWalletService) Rpc(
 ) (*WalletRpcResponseUnion, error) {
 	options := applyRpcOptions(opts)
 
-	// Set idempotency key if provided
-	if options.IdempotencyKey != "" {
-		params.PrivyIdempotencyKey = param.NewOpt(options.IdempotencyKey)
+	requestExpiry := options.RequestExpiry
+	if requestExpiry == 0 {
+		requestExpiry = RequestExpiry(s.defaultRequestExpiryMs)
 	}
 
-	// Generate authorization signature if context is provided
-	if options.AuthorizationContext != nil {
-		// Build headers map
-		headers := map[string]string{
-			"privy-app-id": s.appID,
-		}
-		if options.IdempotencyKey != "" {
-			headers["privy-idempotency-key"] = options.IdempotencyKey
-		}
+	prepared, err := prepareRequest(ctx, s.appID, s.jwtExchanger, prepareRequestInput{
+		authorizationContext: options.AuthorizationContext,
+		idempotencyKey:       options.IdempotencyKey,
+		requestExpiry:        requestExpiry,
+		method:               "POST",
+		url:                  s.baseURL + "/v1/wallets/" + walletID + "/rpc",
+		body:                 params,
+	})
 
-		// Build signature input
-		sigInput := authorization.WalletApiRequestSignatureInput{
-			Version: 1,
-			Method:  "POST",
-			URL:     s.baseURL + "/v1/wallets/" + walletID + "/rpc",
-			Body:    params,
-			Headers: headers,
-		}
-
-		// Generate signatures
-		signatures, err := authorization.GenerateAuthorizationSignaturesForRequest(
-			ctx,
-			*options.AuthorizationContext,
-			sigInput,
-			s.jwtExchanger,
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		// Set the authorization header
-		if len(signatures) > 0 {
-			params.PrivyAuthorizationSignature = param.NewOpt(strings.Join(signatures, ","))
-		}
+	if err != nil {
+		return nil, err
 	}
 
-	// Call the underlying service
+	if prepared.PrivyAuthorizationSignature != nil {
+		params.PrivyAuthorizationSignature = param.NewOpt(*prepared.PrivyAuthorizationSignature)
+	}
+	if prepared.PrivyIdempotencyKey != nil {
+		params.PrivyIdempotencyKey = param.NewOpt(*prepared.PrivyIdempotencyKey)
+	}
+	if prepared.PrivyRequestExpiry != nil {
+		params.PrivyRequestExpiry = param.NewOpt(*prepared.PrivyRequestExpiry)
+	}
+
 	return s.WalletService.Rpc(ctx, walletID, params)
 }
 
@@ -128,12 +106,13 @@ func (s *PrivyWalletService) Rpc(
 //
 // This method wraps the generated WalletService.Update and handles:
 //   - Building the authorization signature from an AuthorizationContext
+//   - Setting the request expiry header
 //
 // Parameters:
 //   - ctx: Context for cancellation and timeouts
 //   - walletID: The wallet ID to update
-//   - params: The update parameters (callers can skip PrivyAuthorizationSignature)
-//   - opts: use WithAuthorizationContext
+//   - params: The update parameters (callers can skip PrivyAuthorizationSignature and PrivyRequestExpiry)
+//   - opts: use WithAuthorizationContext and WithRequestExpiry
 func (s *PrivyWalletService) Update(
 	ctx context.Context,
 	walletID string,
@@ -142,40 +121,30 @@ func (s *PrivyWalletService) Update(
 ) (*Wallet, error) {
 	options := applyRpcOptions(opts)
 
-	// Generate authorization signature if context is provided
-	if options.AuthorizationContext != nil {
-		// Build headers map
-		headers := map[string]string{
-			"privy-app-id": s.appID,
-		}
-
-		// Build signature input
-		sigInput := authorization.WalletApiRequestSignatureInput{
-			Version: 1,
-			Method:  "PATCH",
-			URL:     s.baseURL + "/v1/wallets/" + walletID,
-			Body:    params,
-			Headers: headers,
-		}
-
-		// Generate signatures
-		signatures, err := authorization.GenerateAuthorizationSignaturesForRequest(
-			ctx,
-			*options.AuthorizationContext,
-			sigInput,
-			s.jwtExchanger,
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		// Set the authorization header
-		if len(signatures) > 0 {
-			params.PrivyAuthorizationSignature = param.NewOpt(strings.Join(signatures, ","))
-		}
+	requestExpiry := options.RequestExpiry
+	if requestExpiry == 0 {
+		requestExpiry = RequestExpiry(s.defaultRequestExpiryMs)
 	}
 
-	// Call the underlying service
+	prepared, err := prepareRequest(ctx, s.appID, s.jwtExchanger, prepareRequestInput{
+		authorizationContext: options.AuthorizationContext,
+		idempotencyKey:       options.IdempotencyKey,
+		requestExpiry:        requestExpiry,
+		method:               "PATCH",
+		url:                  s.baseURL + "/v1/wallets/" + walletID,
+		body:                 params,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if prepared.PrivyAuthorizationSignature != nil {
+		params.PrivyAuthorizationSignature = param.NewOpt(*prepared.PrivyAuthorizationSignature)
+	}
+	if prepared.PrivyRequestExpiry != nil {
+		params.PrivyRequestExpiry = param.NewOpt(*prepared.PrivyRequestExpiry)
+	}
+
 	return s.WalletService.Update(ctx, walletID, params)
 }
 
@@ -183,13 +152,13 @@ func (s *PrivyWalletService) Update(
 //
 // This method wraps the generated WalletService.RawSign and handles:
 //   - Building the authorization signature from an AuthorizationContext
-//   - Setting the idempotency key header
+//   - Setting the idempotency key and request expiry headers
 //
 // Parameters:
 //   - ctx: Context for cancellation and timeouts
 //   - walletID: The wallet ID to sign with
-//   - params: The raw sign parameters (callers can skip PrivyAuthorizationSignature and PrivyIdempotencyKey)
-//   - opts: use WithAuthorizationContext and WithIdempotencyKey
+//   - params: The raw sign parameters (callers can skip PrivyAuthorizationSignature, PrivyIdempotencyKey, and PrivyRequestExpiry)
+//   - opts: use WithAuthorizationContext, WithIdempotencyKey, and WithRequestExpiry
 func (s *PrivyWalletService) RawSign(
 	ctx context.Context,
 	walletID string,
@@ -198,48 +167,33 @@ func (s *PrivyWalletService) RawSign(
 ) (*RawSignResponse, error) {
 	options := applyRpcOptions(opts)
 
-	// Set idempotency key if provided
-	if options.IdempotencyKey != "" {
-		params.PrivyIdempotencyKey = param.NewOpt(options.IdempotencyKey)
+	requestExpiry := options.RequestExpiry
+	if requestExpiry == 0 {
+		requestExpiry = RequestExpiry(s.defaultRequestExpiryMs)
 	}
 
-	// Generate authorization signature if context is provided
-	if options.AuthorizationContext != nil {
-		// Build headers map
-		headers := map[string]string{
-			"privy-app-id": s.appID,
-		}
-		if options.IdempotencyKey != "" {
-			headers["privy-idempotency-key"] = options.IdempotencyKey
-		}
-
-		// Build signature input
-		sigInput := authorization.WalletApiRequestSignatureInput{
-			Version: 1,
-			Method:  "POST",
-			URL:     s.baseURL + "/v1/wallets/" + walletID + "/raw_sign",
-			Body:    params,
-			Headers: headers,
-		}
-
-		// Generate signatures
-		signatures, err := authorization.GenerateAuthorizationSignaturesForRequest(
-			ctx,
-			*options.AuthorizationContext,
-			sigInput,
-			s.jwtExchanger,
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		// Set the authorization header
-		if len(signatures) > 0 {
-			params.PrivyAuthorizationSignature = param.NewOpt(strings.Join(signatures, ","))
-		}
+	prepared, err := prepareRequest(ctx, s.appID, s.jwtExchanger, prepareRequestInput{
+		authorizationContext: options.AuthorizationContext,
+		idempotencyKey:       options.IdempotencyKey,
+		requestExpiry:        requestExpiry,
+		method:               "POST",
+		url:                  s.baseURL + "/v1/wallets/" + walletID + "/raw_sign",
+		body:                 params,
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	// Call the underlying service
+	if prepared.PrivyAuthorizationSignature != nil {
+		params.PrivyAuthorizationSignature = param.NewOpt(*prepared.PrivyAuthorizationSignature)
+	}
+	if prepared.PrivyIdempotencyKey != nil {
+		params.PrivyIdempotencyKey = param.NewOpt(*prepared.PrivyIdempotencyKey)
+	}
+	if prepared.PrivyRequestExpiry != nil {
+		params.PrivyRequestExpiry = param.NewOpt(*prepared.PrivyRequestExpiry)
+	}
+
 	return s.WalletService.RawSign(ctx, walletID, params)
 }
 
@@ -393,18 +347,24 @@ type WalletExportResult struct {
 // This method wraps the generated WalletService.Export and handles:
 //   - Generating an ephemeral HPKE keypair for encryption
 //   - Building the authorization signature from an AuthorizationContext
+//   - Setting the request expiry header
 //   - Decrypting the response to extract the plaintext private key
 //
 // Parameters:
 //   - ctx: Context for cancellation and timeouts
 //   - walletID: The wallet ID to export
-//   - opts: use WithAuthorizationContext for owned wallets
+//   - opts: use WithAuthorizationContext and WithRequestExpiry
 func (s *PrivyWalletService) Export(
 	ctx context.Context,
 	walletID string,
 	opts ...RpcOption,
 ) (*WalletExportResult, error) {
 	options := applyRpcOptions(opts)
+
+	requestExpiry := options.RequestExpiry
+	if requestExpiry == 0 {
+		requestExpiry = RequestExpiry(s.defaultRequestExpiryMs)
+	}
 
 	recipient, err := hpke.NewHpkeRecipient()
 	if err != nil {
@@ -416,32 +376,23 @@ func (s *PrivyWalletService) Export(
 		RecipientPublicKey: base64.StdEncoding.EncodeToString(recipient.PublicKeySpki),
 	}
 
-	if options.AuthorizationContext != nil {
-		headers := map[string]string{
-			"privy-app-id": s.appID,
-		}
+	prepared, err := prepareRequest(ctx, s.appID, s.jwtExchanger, prepareRequestInput{
+		authorizationContext: options.AuthorizationContext,
+		idempotencyKey:       options.IdempotencyKey,
+		requestExpiry:        requestExpiry,
+		method:               "POST",
+		url:                  s.baseURL + "/v1/wallets/" + walletID + "/export",
+		body:                 params,
+	})
+	if err != nil {
+		return nil, err
+	}
 
-		sigInput := authorization.WalletApiRequestSignatureInput{
-			Version: 1,
-			Method:  "POST",
-			URL:     s.baseURL + "/v1/wallets/" + walletID + "/export",
-			Body:    params,
-			Headers: headers,
-		}
-
-		signatures, err := authorization.GenerateAuthorizationSignaturesForRequest(
-			ctx,
-			*options.AuthorizationContext,
-			sigInput,
-			s.jwtExchanger,
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		if len(signatures) > 0 {
-			params.PrivyAuthorizationSignature = param.NewOpt(strings.Join(signatures, ","))
-		}
+	if prepared.PrivyAuthorizationSignature != nil {
+		params.PrivyAuthorizationSignature = param.NewOpt(*prepared.PrivyAuthorizationSignature)
+	}
+	if prepared.PrivyRequestExpiry != nil {
+		params.PrivyRequestExpiry = param.NewOpt(*prepared.PrivyRequestExpiry)
 	}
 
 	response, err := s.WalletService.Export(ctx, walletID, params)

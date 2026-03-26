@@ -1,0 +1,120 @@
+package privyclient
+
+import (
+	"context"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/privy-io/go-sdk/authorization"
+	"github.com/privy-io/go-sdk/internal/jwtexchange"
+)
+
+// RequestExpiry computes a request expiry timestamp (Unix milliseconds)
+// from a duration offset. For example, RequestExpiry(20 * 60 * 1000)
+// returns a timestamp 20 minutes from now.
+func RequestExpiry(durationMsFromNow int64) int64 {
+	return time.Now().UnixMilli() + durationMsFromNow
+}
+
+// applyRpcOptions applies the given options and returns the resulting rpcOptions.
+func applyRpcOptions(opts []RpcOption) *rpcOptions {
+	options := &rpcOptions{}
+	for _, opt := range opts {
+		opt(options)
+	}
+	return options
+}
+
+// prepareRequestInput contains the request details for prepareRequest.
+type prepareRequestInput struct {
+	authorizationContext *authorization.AuthorizationContext
+	idempotencyKey       string
+	requestExpiry        int64  // Unix timestamp in milliseconds; 0 means not set
+	method               string // HTTP method: "POST", "PATCH", etc.
+	url                  string // Full request URL
+	body                 any    // Request body (JSON-serializable)
+}
+
+// PreparedRequest contains the headers computed by prepareRequest that should
+// be applied to the underlying API call. Mirrors the Node SDK's PreparedRequest.
+type PreparedRequest struct {
+	// PrivyAuthorizationSignature is the computed request signature header.
+	// Omitted if no authorization signature should be generated.
+	PrivyAuthorizationSignature *string
+
+	// PrivyIdempotencyKey is the idempotency key header, if set.
+	PrivyIdempotencyKey *string
+
+	// PrivyRequestExpiry is the request expiry header, if set.
+	PrivyRequestExpiry *string
+}
+
+// prepareRequest computes the authorization signature and assembles all
+// Privy-specific headers for an API request. Mirrors the Node SDK's prepareRequest.
+//
+// Parameters:
+//   - ctx: Context for cancellation and timeouts
+//   - appID: The Privy app ID
+//   - jwtExchanger: For exchanging user JWTs for authorization keys
+//   - input: The request details including authorization context, method, URL, body,
+//     and optional idempotency key and request expiry
+func prepareRequest(
+	ctx context.Context,
+	appID string,
+	jwtExchanger jwtexchange.JwtExchanger,
+	input prepareRequestInput,
+) (*PreparedRequest, error) {
+	result := &PreparedRequest{}
+
+	if input.idempotencyKey != "" {
+		result.PrivyIdempotencyKey = stringPtr(input.idempotencyKey)
+	}
+
+	if input.requestExpiry != 0 {
+		result.PrivyRequestExpiry = stringPtr(strconv.FormatInt(input.requestExpiry, 10))
+	}
+
+	// Generate authorization signature if context is provided
+	if input.authorizationContext != nil {
+		// Build headers for signature computation
+		sigHeaders := map[string]string{
+			"privy-app-id": appID,
+		}
+		if result.PrivyIdempotencyKey != nil {
+			sigHeaders["privy-idempotency-key"] = *result.PrivyIdempotencyKey
+		}
+		if result.PrivyRequestExpiry != nil {
+			sigHeaders["privy-request-expiry"] = *result.PrivyRequestExpiry
+		}
+
+		sigInput := authorization.WalletApiRequestSignatureInput{
+			Version: 1,
+			Method:  input.method,
+			URL:     input.url,
+			Body:    input.body,
+			Headers: sigHeaders,
+		}
+
+		signatures, err := authorization.GenerateAuthorizationSignaturesForRequest(
+			ctx,
+			*input.authorizationContext,
+			sigInput,
+			jwtExchanger,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		if len(signatures) > 0 {
+			result.PrivyAuthorizationSignature = stringPtr(strings.Join(signatures, ","))
+		}
+	}
+
+	return result, nil
+}
+
+func stringPtr(v string) *string {
+	return &v
+}
