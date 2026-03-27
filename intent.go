@@ -2773,15 +2773,15 @@ type IntentResponseUnionRequestDetailsBody struct {
 	// [SparkClaimStaticDepositRpcInputParamsResp],
 	// [SparkCreateLightningInvoiceRpcInputParamsResp],
 	// [SparkPayLightningInvoiceRpcInputParamsResp],
-	// [SparkSignMessageWithIdentityKeyRpcInputParamsResp],
-	// [ExportPrivateKeyRpcInputParams]
+	// [SparkSignMessageWithIdentityKeyRpcInputParamsResp], [PrivateKeyExportInput]
 	Params    IntentResponseUnionRequestDetailsBodyParams `json:"params"`
 	Address   string                                      `json:"address"`
 	ChainType string                                      `json:"chain_type"`
 	WalletID  string                                      `json:"wallet_id"`
 	Caip2     string                                      `json:"caip2"`
 	Sponsor   bool                                        `json:"sponsor"`
-	Network   string                                      `json:"network"`
+	// This field is from variant [WalletRpcRequestBodyUnion].
+	Network SparkNetwork `json:"network"`
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
 	AdditionalSigners []WalletIntentResponseRequestDetailsBodyAdditionalSigner `json:"additional_signers"`
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
@@ -2876,9 +2876,9 @@ type IntentResponseUnionRequestDetailsBodyParams struct {
 	// This field is from variant [SparkTransferTokensRpcInputParamsResp].
 	OutputSelectionStrategy SparkOutputSelectionStrategy `json:"output_selection_strategy"`
 	// This field is from variant [SparkTransferTokensRpcInputParamsResp].
-	SelectedOutputs []SparkTransferTokensRpcInputParamsSelectedOutputResp `json:"selected_outputs"`
-	TransactionID   string                                                `json:"transaction_id"`
-	OutputIndex     float64                                               `json:"output_index"`
+	SelectedOutputs []OutputWithPreviousTransactionData `json:"selected_outputs"`
+	TransactionID   string                              `json:"transaction_id"`
+	OutputIndex     float64                             `json:"output_index"`
 	// This field is from variant [SparkClaimStaticDepositRpcInputParamsResp].
 	CreditAmountSats float64 `json:"credit_amount_sats"`
 	// This field is from variant [SparkClaimStaticDepositRpcInputParamsResp].
@@ -2903,12 +2903,12 @@ type IntentResponseUnionRequestDetailsBodyParams struct {
 	PreferSpark bool `json:"prefer_spark"`
 	// This field is from variant [SparkSignMessageWithIdentityKeyRpcInputParamsResp].
 	Compact bool `json:"compact"`
-	// This field is from variant [ExportPrivateKeyRpcInputParams].
-	EncryptionType string `json:"encryption_type"`
-	// This field is from variant [ExportPrivateKeyRpcInputParams].
-	RecipientPublicKey string `json:"recipient_public_key"`
-	// This field is from variant [ExportPrivateKeyRpcInputParams].
-	ExportType string `json:"export_type"`
+	// This field is from variant [PrivateKeyExportInput].
+	EncryptionType HpkeEncryption `json:"encryption_type"`
+	// This field is from variant [PrivateKeyExportInput].
+	RecipientPublicKey RecipientPublicKey `json:"recipient_public_key"`
+	// This field is from variant [PrivateKeyExportInput].
+	ExportType ExportType `json:"export_type"`
 	JSON       struct {
 		Transaction             respjson.Field
 		Encoding                respjson.Field

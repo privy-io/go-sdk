@@ -143,7 +143,7 @@ func TestWalletInitImport(t *testing.T) {
 		OfPrivateKey: &privyclient.WalletInitImportParamsBodyPrivateKey{
 			Address:        "0xF1DBff66C993EE895C8cb176c30b07A559d76496",
 			ChainType:      privyclient.WalletImportSupportedChainsEthereum,
-			EncryptionType: "HPKE",
+			EncryptionType: privyclient.HpkeEncryptionHpke,
 		},
 	})
 	if err != nil {
@@ -176,7 +176,7 @@ func TestWalletSubmitImportWithOptionalParams(t *testing.T) {
 				ChainType:       privyclient.WalletImportSupportedChainsEthereum,
 				Ciphertext:      "PRoRXygG+YYSDBXjCopNYZmx8Z6nvdl1D0lpePTYZdZI2VGfK+LkFt+GlEJqdoi9",
 				EncapsulatedKey: "BOhR6xITDt5THJawHHJKrKdI9CBr2M/SDWzZZAaOW4gCMsSpC65U007WyKiwuuOVAo1BNm4YgcBBROuMmyIZXZk=",
-				EncryptionType:  "HPKE",
+				EncryptionType:  privyclient.HpkeEncryptionHpke,
 				HpkeConfig: privyclient.HpkeImportConfig{
 					Aad:           privyclient.String("aad"),
 					AeadAlgorithm: privyclient.HpkeAeadAlgorithmChacha20Poly1305,
@@ -253,7 +253,7 @@ func TestWalletExportWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"wallet_id",
 		privyclient.WalletExportParams{
-			EncryptionType:              privyclient.WalletExportParamsEncryptionTypeHpke,
+			EncryptionType:              privyclient.HpkeEncryptionHpke,
 			RecipientPublicKey:          "BDAZLOIdTaPycEYkgG0MvCzbIKJLli/yWkAV5yCa9yOsZ4JsrLweA5MnP8YIiY4k/RRzC+APhhO+P+Hoz/rt7Go=",
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
 			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
