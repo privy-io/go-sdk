@@ -37,6 +37,9 @@ type PrivyWalletService struct {
 
 	// Solana provides convenience methods for Solana wallet operations.
 	Solana *PrivySolanaWalletService
+
+	// Balance provides methods for querying wallet balances.
+	Balance *WalletBalanceService
 }
 
 // newPrivyWalletService creates a new wrapped wallet service.
@@ -57,6 +60,7 @@ func newPrivyWalletService(
 	}
 	s.Ethereum = newPrivyEthereumWalletService(s)
 	s.Solana = newPrivySolanaWalletService(s)
+	s.Balance = &service.Balance
 	return s
 }
 

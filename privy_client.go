@@ -51,6 +51,10 @@ type PrivyClient struct {
 	Analytics    *PrivyAnalyticsService
 	Apps         *PrivyAppService
 	Aggregations *PrivyAggregationService
+	Accounts     *PrivyAccountService
+	Yield        *PrivyYieldService
+	ClientAuth   *PrivyClientAuthService
+	Intents      *PrivyIntentService
 	Webhooks     *PrivyWebhookService
 	JwtExchange  *PrivyJwtExchangeService
 }
@@ -130,6 +134,10 @@ func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
 		Analytics:    newPrivyAnalyticsService(client.Analytics, logger),
 		Apps:         newPrivyAppService(client.Apps, logger),
 		Aggregations: newPrivyAggregationService(client.Aggregations, logger),
+		Accounts:     newPrivyAccountService(client.Accounts, logger),
+		Yield:        newPrivyYieldService(client.Yield, logger),
+		ClientAuth:   newPrivyClientAuthService(client.ClientAuth, logger),
+		Intents:      newPrivyIntentService(client.Intents, logger),
 		Webhooks:     newPrivyWebhookService(client.Webhooks, logger),
 		JwtExchange:  jwtExchange,
 	}
