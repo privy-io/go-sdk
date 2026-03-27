@@ -260,6 +260,90 @@ const (
 	SuiCommandNameMergeCoins      SuiCommandName = "MergeCoins"
 )
 
+// The encryption type of the wallet to import. Currently only supports `HPKE`.
+type HpkeEncryption string
+
+const (
+	HpkeEncryptionHpke HpkeEncryption = "HPKE"
+)
+
+type RecipientPublicKey = string
+
+// The export type. 'display' is for showing the key to the user in the UI,
+// 'client' is for exporting to the client application.
+type ExportType string
+
+const (
+	ExportTypeDisplay ExportType = "display"
+	ExportTypeClient  ExportType = "client"
+)
+
+// Input for exporting a wallet private key with HPKE encryption.
+type PrivateKeyExportInput struct {
+	// The encryption type of the wallet to import. Currently only supports `HPKE`.
+	//
+	// Any of "HPKE".
+	EncryptionType HpkeEncryption `json:"encryption_type" api:"required"`
+	// The recipient public key for HPKE encryption, in PEM or DER (base64-encoded)
+	// format.
+	RecipientPublicKey RecipientPublicKey `json:"recipient_public_key" api:"required"`
+	// The export type. 'display' is for showing the key to the user in the UI,
+	// 'client' is for exporting to the client application.
+	//
+	// Any of "display", "client".
+	ExportType ExportType `json:"export_type"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		EncryptionType     respjson.Field
+		RecipientPublicKey respjson.Field
+		ExportType         respjson.Field
+		ExtraFields        map[string]respjson.Field
+		raw                string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PrivateKeyExportInput) RawJSON() string { return r.JSON.raw }
+func (r *PrivateKeyExportInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this PrivateKeyExportInput to a PrivateKeyExportInputParam.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// PrivateKeyExportInputParam.Overrides()
+func (r PrivateKeyExportInput) ToParam() PrivateKeyExportInputParam {
+	return param.Override[PrivateKeyExportInputParam](json.RawMessage(r.RawJSON()))
+}
+
+// Input for exporting a wallet private key with HPKE encryption.
+//
+// The properties EncryptionType, RecipientPublicKey are required.
+type PrivateKeyExportInputParam struct {
+	// The encryption type of the wallet to import. Currently only supports `HPKE`.
+	//
+	// Any of "HPKE".
+	EncryptionType HpkeEncryption `json:"encryption_type,omitzero" api:"required"`
+	// The recipient public key for HPKE encryption, in PEM or DER (base64-encoded)
+	// format.
+	RecipientPublicKey RecipientPublicKey `json:"recipient_public_key" api:"required"`
+	// The export type. 'display' is for showing the key to the user in the UI,
+	// 'client' is for exporting to the client application.
+	//
+	// Any of "display", "client".
+	ExportType ExportType `json:"export_type,omitzero"`
+	paramObj
+}
+
+func (r PrivateKeyExportInputParam) MarshalJSON() (data []byte, err error) {
+	type shadow PrivateKeyExportInputParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *PrivateKeyExportInputParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // The chain type of the wallet to import. Currently supports `ethereum` and
 // `solana`.
 type WalletImportSupportedChains string
@@ -307,7 +391,8 @@ type ExportPrivateKeyRpcInput struct {
 	Address string `json:"address" api:"required"`
 	// Any of "exportPrivateKey".
 	Method ExportPrivateKeyRpcInputMethod `json:"method" api:"required"`
-	Params ExportPrivateKeyRpcInputParams `json:"params" api:"required"`
+	// Input for exporting a wallet private key with HPKE encryption.
+	Params PrivateKeyExportInput `json:"params" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Address     respjson.Field
@@ -340,36 +425,15 @@ const (
 	ExportPrivateKeyRpcInputMethodExportPrivateKey ExportPrivateKeyRpcInputMethod = "exportPrivateKey"
 )
 
-type ExportPrivateKeyRpcInputParams struct {
-	// Any of "HPKE".
-	EncryptionType     string `json:"encryption_type" api:"required"`
-	RecipientPublicKey string `json:"recipient_public_key" api:"required"`
-	// Any of "display", "client".
-	ExportType string `json:"export_type"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		EncryptionType     respjson.Field
-		RecipientPublicKey respjson.Field
-		ExportType         respjson.Field
-		ExtraFields        map[string]respjson.Field
-		raw                string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r ExportPrivateKeyRpcInputParams) RawJSON() string { return r.JSON.raw }
-func (r *ExportPrivateKeyRpcInputParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // Exports the private key of the wallet.
 //
 // The properties Address, Method, Params are required.
 type ExportPrivateKeyRpcInputParam struct {
 	Address string `json:"address" api:"required"`
 	// Any of "exportPrivateKey".
-	Method ExportPrivateKeyRpcInputMethod      `json:"method,omitzero" api:"required"`
-	Params ExportPrivateKeyRpcInputParamsParam `json:"params,omitzero" api:"required"`
+	Method ExportPrivateKeyRpcInputMethod `json:"method,omitzero" api:"required"`
+	// Input for exporting a wallet private key with HPKE encryption.
+	Params PrivateKeyExportInputParam `json:"params,omitzero" api:"required"`
 	paramObj
 }
 
@@ -381,36 +445,10 @@ func (r *ExportPrivateKeyRpcInputParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// The properties EncryptionType, RecipientPublicKey are required.
-type ExportPrivateKeyRpcInputParamsParam struct {
-	// Any of "HPKE".
-	EncryptionType     string `json:"encryption_type,omitzero" api:"required"`
-	RecipientPublicKey string `json:"recipient_public_key" api:"required"`
-	// Any of "display", "client".
-	ExportType string `json:"export_type,omitzero"`
-	paramObj
-}
-
-func (r ExportPrivateKeyRpcInputParamsParam) MarshalJSON() (data []byte, err error) {
-	type shadow ExportPrivateKeyRpcInputParamsParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *ExportPrivateKeyRpcInputParamsParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func init() {
-	apijson.RegisterFieldValidator[ExportPrivateKeyRpcInputParamsParam](
-		"encryption_type", "HPKE",
-	)
-	apijson.RegisterFieldValidator[ExportPrivateKeyRpcInputParamsParam](
-		"export_type", "display", "client",
-	)
-}
-
 // Response to the `exportPrivateKey` RPC.
 type ExportPrivateKeyRpcResponse struct {
-	Data ExportPrivateKeyRpcResponseData `json:"data" api:"required"`
+	// Input for exporting a wallet private key with HPKE encryption.
+	Data PrivateKeyExportInput `json:"data" api:"required"`
 	// Any of "exportPrivateKey".
 	Method ExportPrivateKeyRpcResponseMethod `json:"method" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -425,28 +463,6 @@ type ExportPrivateKeyRpcResponse struct {
 // Returns the unmodified JSON received from the API
 func (r ExportPrivateKeyRpcResponse) RawJSON() string { return r.JSON.raw }
 func (r *ExportPrivateKeyRpcResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type ExportPrivateKeyRpcResponseData struct {
-	// Any of "HPKE".
-	EncryptionType     string `json:"encryption_type" api:"required"`
-	RecipientPublicKey string `json:"recipient_public_key" api:"required"`
-	// Any of "display", "client".
-	ExportType string `json:"export_type"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		EncryptionType     respjson.Field
-		RecipientPublicKey respjson.Field
-		ExportType         respjson.Field
-		ExtraFields        map[string]respjson.Field
-		raw                string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r ExportPrivateKeyRpcResponseData) RawJSON() string { return r.JSON.raw }
-func (r *ExportPrivateKeyRpcResponseData) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -4407,6 +4423,415 @@ const (
 	SolanaSignMessageRpcResponseMethodSignMessage SolanaSignMessageRpcResponseMethod = "signMessage"
 )
 
+// The Spark network.
+type SparkNetwork string
+
+const (
+	SparkNetworkMainnet SparkNetwork = "MAINNET"
+	SparkNetworkRegtest SparkNetwork = "REGTEST"
+)
+
+// A Spark signing keyshare.
+type SparkSigningKeyshare struct {
+	OwnerIdentifiers []string          `json:"owner_identifiers" api:"required"`
+	PublicKey        string            `json:"public_key" api:"required"`
+	PublicShares     map[string]string `json:"public_shares" api:"required"`
+	Threshold        float64           `json:"threshold" api:"required"`
+	UpdatedTime      string            `json:"updated_time" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		OwnerIdentifiers respjson.Field
+		PublicKey        respjson.Field
+		PublicShares     respjson.Field
+		Threshold        respjson.Field
+		UpdatedTime      respjson.Field
+		ExtraFields      map[string]respjson.Field
+		raw              string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SparkSigningKeyshare) RawJSON() string { return r.JSON.raw }
+func (r *SparkSigningKeyshare) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A Spark wallet leaf node.
+type SparkWalletLeaf struct {
+	ID string `json:"id" api:"required"`
+	// The Spark network.
+	//
+	// Any of "MAINNET", "REGTEST".
+	Network                SparkNetwork `json:"network" api:"required"`
+	NodeTx                 string       `json:"node_tx" api:"required"`
+	OwnerIdentityPublicKey string       `json:"owner_identity_public_key" api:"required"`
+	RefundTx               string       `json:"refund_tx" api:"required"`
+	Status                 string       `json:"status" api:"required"`
+	TreeID                 string       `json:"tree_id" api:"required"`
+	Value                  float64      `json:"value" api:"required"`
+	VerifyingPublicKey     string       `json:"verifying_public_key" api:"required"`
+	Vout                   float64      `json:"vout" api:"required"`
+	ParentNodeID           string       `json:"parent_node_id"`
+	// A Spark signing keyshare.
+	SigningKeyshare SparkSigningKeyshare `json:"signing_keyshare"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID                     respjson.Field
+		Network                respjson.Field
+		NodeTx                 respjson.Field
+		OwnerIdentityPublicKey respjson.Field
+		RefundTx               respjson.Field
+		Status                 respjson.Field
+		TreeID                 respjson.Field
+		Value                  respjson.Field
+		VerifyingPublicKey     respjson.Field
+		Vout                   respjson.Field
+		ParentNodeID           respjson.Field
+		SigningKeyshare        respjson.Field
+		ExtraFields            map[string]respjson.Field
+		raw                    string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SparkWalletLeaf) RawJSON() string { return r.JSON.raw }
+func (r *SparkWalletLeaf) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A Spark transfer leaf.
+type SparkTransferLeaf struct {
+	IntermediateRefundTx string `json:"intermediate_refund_tx" api:"required"`
+	SecretCipher         string `json:"secret_cipher" api:"required"`
+	Signature            string `json:"signature" api:"required"`
+	// A Spark wallet leaf node.
+	Leaf SparkWalletLeaf `json:"leaf"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		IntermediateRefundTx respjson.Field
+		SecretCipher         respjson.Field
+		Signature            respjson.Field
+		Leaf                 respjson.Field
+		ExtraFields          map[string]respjson.Field
+		raw                  string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SparkTransferLeaf) RawJSON() string { return r.JSON.raw }
+func (r *SparkTransferLeaf) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A Spark transfer.
+type SparkTransfer struct {
+	ID                        string              `json:"id" api:"required"`
+	Leaves                    []SparkTransferLeaf `json:"leaves" api:"required"`
+	ReceiverIdentityPublicKey string              `json:"receiver_identity_public_key" api:"required"`
+	SenderIdentityPublicKey   string              `json:"sender_identity_public_key" api:"required"`
+	Status                    string              `json:"status" api:"required"`
+	TotalValue                float64             `json:"total_value" api:"required"`
+	TransferDirection         string              `json:"transfer_direction" api:"required"`
+	Type                      string              `json:"type" api:"required"`
+	CreatedTime               string              `json:"created_time"`
+	ExpiryTime                string              `json:"expiry_time"`
+	UpdatedTime               string              `json:"updated_time"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID                        respjson.Field
+		Leaves                    respjson.Field
+		ReceiverIdentityPublicKey respjson.Field
+		SenderIdentityPublicKey   respjson.Field
+		Status                    respjson.Field
+		TotalValue                respjson.Field
+		TransferDirection         respjson.Field
+		Type                      respjson.Field
+		CreatedTime               respjson.Field
+		ExpiryTime                respjson.Field
+		UpdatedTime               respjson.Field
+		ExtraFields               map[string]respjson.Field
+		raw                       string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SparkTransfer) RawJSON() string { return r.JSON.raw }
+func (r *SparkTransfer) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Metadata for a Spark user token.
+type SparkUserTokenMetadata struct {
+	Decimals           float64 `json:"decimals" api:"required"`
+	MaxSupply          string  `json:"max_supply" api:"required"`
+	RawTokenIdentifier string  `json:"raw_token_identifier" api:"required"`
+	TokenName          string  `json:"token_name" api:"required"`
+	TokenPublicKey     string  `json:"token_public_key" api:"required"`
+	TokenTicker        string  `json:"token_ticker" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Decimals           respjson.Field
+		MaxSupply          respjson.Field
+		RawTokenIdentifier respjson.Field
+		TokenName          respjson.Field
+		TokenPublicKey     respjson.Field
+		TokenTicker        respjson.Field
+		ExtraFields        map[string]respjson.Field
+		raw                string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SparkUserTokenMetadata) RawJSON() string { return r.JSON.raw }
+func (r *SparkUserTokenMetadata) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Balance of a Spark token.
+type SparkTokenBalance struct {
+	Balance string `json:"balance" api:"required"`
+	// Metadata for a Spark user token.
+	TokenMetadata SparkUserTokenMetadata `json:"token_metadata" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Balance       respjson.Field
+		TokenMetadata respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SparkTokenBalance) RawJSON() string { return r.JSON.raw }
+func (r *SparkTokenBalance) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The balance of a Spark wallet.
+type SparkBalance struct {
+	Balance       string                       `json:"balance" api:"required"`
+	TokenBalances map[string]SparkTokenBalance `json:"token_balances" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Balance       respjson.Field
+		TokenBalances respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SparkBalance) RawJSON() string { return r.JSON.raw }
+func (r *SparkBalance) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A Spark token output.
+type TokenOutput struct {
+	OwnerPublicKey                string  `json:"owner_public_key" api:"required"`
+	TokenAmount                   string  `json:"token_amount" api:"required"`
+	ID                            string  `json:"id"`
+	RevocationCommitment          string  `json:"revocation_commitment"`
+	TokenIdentifier               string  `json:"token_identifier"`
+	TokenPublicKey                string  `json:"token_public_key"`
+	WithdrawBondSats              float64 `json:"withdraw_bond_sats"`
+	WithdrawRelativeBlockLocktime float64 `json:"withdraw_relative_block_locktime"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		OwnerPublicKey                respjson.Field
+		TokenAmount                   respjson.Field
+		ID                            respjson.Field
+		RevocationCommitment          respjson.Field
+		TokenIdentifier               respjson.Field
+		TokenPublicKey                respjson.Field
+		WithdrawBondSats              respjson.Field
+		WithdrawRelativeBlockLocktime respjson.Field
+		ExtraFields                   map[string]respjson.Field
+		raw                           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TokenOutput) RawJSON() string { return r.JSON.raw }
+func (r *TokenOutput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TokenOutput to a TokenOutputParam.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TokenOutputParam.Overrides()
+func (r TokenOutput) ToParam() TokenOutputParam {
+	return param.Override[TokenOutputParam](json.RawMessage(r.RawJSON()))
+}
+
+// A Spark token output.
+//
+// The properties OwnerPublicKey, TokenAmount are required.
+type TokenOutputParam struct {
+	OwnerPublicKey                string             `json:"owner_public_key" api:"required"`
+	TokenAmount                   string             `json:"token_amount" api:"required"`
+	ID                            param.Opt[string]  `json:"id,omitzero"`
+	RevocationCommitment          param.Opt[string]  `json:"revocation_commitment,omitzero"`
+	TokenIdentifier               param.Opt[string]  `json:"token_identifier,omitzero"`
+	TokenPublicKey                param.Opt[string]  `json:"token_public_key,omitzero"`
+	WithdrawBondSats              param.Opt[float64] `json:"withdraw_bond_sats,omitzero"`
+	WithdrawRelativeBlockLocktime param.Opt[float64] `json:"withdraw_relative_block_locktime,omitzero"`
+	paramObj
+}
+
+func (r TokenOutputParam) MarshalJSON() (data []byte, err error) {
+	type shadow TokenOutputParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TokenOutputParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A Spark token output with its previous transaction data.
+type OutputWithPreviousTransactionData struct {
+	PreviousTransactionHash string  `json:"previous_transaction_hash" api:"required"`
+	PreviousTransactionVout float64 `json:"previous_transaction_vout" api:"required"`
+	// A Spark token output.
+	Output TokenOutput `json:"output"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		PreviousTransactionHash respjson.Field
+		PreviousTransactionVout respjson.Field
+		Output                  respjson.Field
+		ExtraFields             map[string]respjson.Field
+		raw                     string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r OutputWithPreviousTransactionData) RawJSON() string { return r.JSON.raw }
+func (r *OutputWithPreviousTransactionData) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this OutputWithPreviousTransactionData to a
+// OutputWithPreviousTransactionDataParam.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// OutputWithPreviousTransactionDataParam.Overrides()
+func (r OutputWithPreviousTransactionData) ToParam() OutputWithPreviousTransactionDataParam {
+	return param.Override[OutputWithPreviousTransactionDataParam](json.RawMessage(r.RawJSON()))
+}
+
+// A Spark token output with its previous transaction data.
+//
+// The properties PreviousTransactionHash, PreviousTransactionVout are required.
+type OutputWithPreviousTransactionDataParam struct {
+	PreviousTransactionHash string  `json:"previous_transaction_hash" api:"required"`
+	PreviousTransactionVout float64 `json:"previous_transaction_vout" api:"required"`
+	// A Spark token output.
+	Output TokenOutputParam `json:"output,omitzero"`
+	paramObj
+}
+
+func (r OutputWithPreviousTransactionDataParam) MarshalJSON() (data []byte, err error) {
+	type shadow OutputWithPreviousTransactionDataParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *OutputWithPreviousTransactionDataParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The fee for a Spark Lightning payment.
+type SparkLightningFee struct {
+	OriginalUnit  string  `json:"original_unit" api:"required"`
+	OriginalValue float64 `json:"original_value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		OriginalUnit  respjson.Field
+		OriginalValue respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SparkLightningFee) RawJSON() string { return r.JSON.raw }
+func (r *SparkLightningFee) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A Spark Lightning receive request.
+type SparkLightningReceiveRequest struct {
+	ID                        string `json:"id" api:"required"`
+	CreatedAt                 string `json:"created_at" api:"required"`
+	Network                   string `json:"network" api:"required"`
+	Status                    string `json:"status" api:"required"`
+	Typename                  string `json:"typename" api:"required"`
+	UpdatedAt                 string `json:"updated_at" api:"required"`
+	Invoice                   any    `json:"invoice"`
+	PaymentPreimage           string `json:"payment_preimage"`
+	ReceiverIdentityPublicKey string `json:"receiver_identity_public_key"`
+	Transfer                  any    `json:"transfer"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID                        respjson.Field
+		CreatedAt                 respjson.Field
+		Network                   respjson.Field
+		Status                    respjson.Field
+		Typename                  respjson.Field
+		UpdatedAt                 respjson.Field
+		Invoice                   respjson.Field
+		PaymentPreimage           respjson.Field
+		ReceiverIdentityPublicKey respjson.Field
+		Transfer                  respjson.Field
+		ExtraFields               map[string]respjson.Field
+		raw                       string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SparkLightningReceiveRequest) RawJSON() string { return r.JSON.raw }
+func (r *SparkLightningReceiveRequest) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A Spark Lightning send request.
+type SparkLightningSendRequest struct {
+	ID             string `json:"id" api:"required"`
+	CreatedAt      string `json:"created_at" api:"required"`
+	EncodedInvoice string `json:"encoded_invoice" api:"required"`
+	// The fee for a Spark Lightning payment.
+	Fee             SparkLightningFee `json:"fee" api:"required"`
+	IdempotencyKey  string            `json:"idempotency_key" api:"required"`
+	Network         string            `json:"network" api:"required"`
+	Status          string            `json:"status" api:"required"`
+	Typename        string            `json:"typename" api:"required"`
+	UpdatedAt       string            `json:"updated_at" api:"required"`
+	PaymentPreimage string            `json:"payment_preimage"`
+	Transfer        any               `json:"transfer"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID              respjson.Field
+		CreatedAt       respjson.Field
+		EncodedInvoice  respjson.Field
+		Fee             respjson.Field
+		IdempotencyKey  respjson.Field
+		Network         respjson.Field
+		Status          respjson.Field
+		Typename        respjson.Field
+		UpdatedAt       respjson.Field
+		PaymentPreimage respjson.Field
+		Transfer        respjson.Field
+		ExtraFields     map[string]respjson.Field
+		raw             string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SparkLightningSendRequest) RawJSON() string { return r.JSON.raw }
+func (r *SparkLightningSendRequest) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Parameters for the Spark `transfer` RPC.
 type SparkTransferRpcInputParamsResp struct {
 	AmountSats           float64 `json:"amount_sats" api:"required"`
@@ -4459,8 +4884,10 @@ type SparkTransferRpcInput struct {
 	Method SparkTransferRpcInputMethod `json:"method" api:"required"`
 	// Parameters for the Spark `transfer` RPC.
 	Params SparkTransferRpcInputParamsResp `json:"params" api:"required"`
+	// The Spark network.
+	//
 	// Any of "MAINNET", "REGTEST".
-	Network SparkTransferRpcInputNetwork `json:"network"`
+	Network SparkNetwork `json:"network"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Method      respjson.Field
@@ -4492,13 +4919,6 @@ const (
 	SparkTransferRpcInputMethodTransfer SparkTransferRpcInputMethod = "transfer"
 )
 
-type SparkTransferRpcInputNetwork string
-
-const (
-	SparkTransferRpcInputNetworkMainnet SparkTransferRpcInputNetwork = "MAINNET"
-	SparkTransferRpcInputNetworkRegtest SparkTransferRpcInputNetwork = "REGTEST"
-)
-
 // Transfers satoshis to a Spark address.
 //
 // The properties Method, Params are required.
@@ -4507,8 +4927,10 @@ type SparkTransferRpcInputParam struct {
 	Method SparkTransferRpcInputMethod `json:"method,omitzero" api:"required"`
 	// Parameters for the Spark `transfer` RPC.
 	Params SparkTransferRpcInputParams `json:"params,omitzero" api:"required"`
+	// The Spark network.
+	//
 	// Any of "MAINNET", "REGTEST".
-	Network SparkTransferRpcInputNetwork `json:"network,omitzero"`
+	Network SparkNetwork `json:"network,omitzero"`
 	paramObj
 }
 
@@ -4524,8 +4946,10 @@ func (r *SparkTransferRpcInputParam) UnmarshalJSON(data []byte) error {
 type SparkGetBalanceRpcInput struct {
 	// Any of "getBalance".
 	Method SparkGetBalanceRpcInputMethod `json:"method" api:"required"`
+	// The Spark network.
+	//
 	// Any of "MAINNET", "REGTEST".
-	Network SparkGetBalanceRpcInputNetwork `json:"network"`
+	Network SparkNetwork `json:"network"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Method      respjson.Field
@@ -4556,21 +4980,16 @@ const (
 	SparkGetBalanceRpcInputMethodGetBalance SparkGetBalanceRpcInputMethod = "getBalance"
 )
 
-type SparkGetBalanceRpcInputNetwork string
-
-const (
-	SparkGetBalanceRpcInputNetworkMainnet SparkGetBalanceRpcInputNetwork = "MAINNET"
-	SparkGetBalanceRpcInputNetworkRegtest SparkGetBalanceRpcInputNetwork = "REGTEST"
-)
-
 // Gets the balance of the Spark wallet.
 //
 // The property Method is required.
 type SparkGetBalanceRpcInputParam struct {
 	// Any of "getBalance".
 	Method SparkGetBalanceRpcInputMethod `json:"method,omitzero" api:"required"`
+	// The Spark network.
+	//
 	// Any of "MAINNET", "REGTEST".
-	Network SparkGetBalanceRpcInputNetwork `json:"network,omitzero"`
+	Network SparkNetwork `json:"network,omitzero"`
 	paramObj
 }
 
@@ -4598,8 +5017,8 @@ type SparkTransferTokensRpcInputParamsResp struct {
 	// Strategy for selecting outputs in a Spark token transfer.
 	//
 	// Any of "SMALL_FIRST", "LARGE_FIRST".
-	OutputSelectionStrategy SparkOutputSelectionStrategy                          `json:"output_selection_strategy"`
-	SelectedOutputs         []SparkTransferTokensRpcInputParamsSelectedOutputResp `json:"selected_outputs"`
+	OutputSelectionStrategy SparkOutputSelectionStrategy        `json:"output_selection_strategy"`
+	SelectedOutputs         []OutputWithPreviousTransactionData `json:"selected_outputs"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ReceiverSparkAddress    respjson.Field
@@ -4628,58 +5047,6 @@ func (r SparkTransferTokensRpcInputParamsResp) ToParam() SparkTransferTokensRpcI
 	return param.Override[SparkTransferTokensRpcInputParams](json.RawMessage(r.RawJSON()))
 }
 
-type SparkTransferTokensRpcInputParamsSelectedOutputResp struct {
-	PreviousTransactionHash string                                                    `json:"previous_transaction_hash" api:"required"`
-	PreviousTransactionVout float64                                                   `json:"previous_transaction_vout" api:"required"`
-	Output                  SparkTransferTokensRpcInputParamsSelectedOutputOutputResp `json:"output"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		PreviousTransactionHash respjson.Field
-		PreviousTransactionVout respjson.Field
-		Output                  respjson.Field
-		ExtraFields             map[string]respjson.Field
-		raw                     string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r SparkTransferTokensRpcInputParamsSelectedOutputResp) RawJSON() string { return r.JSON.raw }
-func (r *SparkTransferTokensRpcInputParamsSelectedOutputResp) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type SparkTransferTokensRpcInputParamsSelectedOutputOutputResp struct {
-	OwnerPublicKey                string  `json:"owner_public_key" api:"required"`
-	TokenAmount                   string  `json:"token_amount" api:"required"`
-	ID                            string  `json:"id"`
-	RevocationCommitment          string  `json:"revocation_commitment"`
-	TokenIdentifier               string  `json:"token_identifier"`
-	TokenPublicKey                string  `json:"token_public_key"`
-	WithdrawBondSats              float64 `json:"withdraw_bond_sats"`
-	WithdrawRelativeBlockLocktime float64 `json:"withdraw_relative_block_locktime"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		OwnerPublicKey                respjson.Field
-		TokenAmount                   respjson.Field
-		ID                            respjson.Field
-		RevocationCommitment          respjson.Field
-		TokenIdentifier               respjson.Field
-		TokenPublicKey                respjson.Field
-		WithdrawBondSats              respjson.Field
-		WithdrawRelativeBlockLocktime respjson.Field
-		ExtraFields                   map[string]respjson.Field
-		raw                           string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r SparkTransferTokensRpcInputParamsSelectedOutputOutputResp) RawJSON() string {
-	return r.JSON.raw
-}
-func (r *SparkTransferTokensRpcInputParamsSelectedOutputOutputResp) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // Parameters for the Spark `transferTokens` RPC.
 //
 // The properties ReceiverSparkAddress, TokenAmount, TokenIdentifier are required.
@@ -4690,8 +5057,8 @@ type SparkTransferTokensRpcInputParams struct {
 	// Strategy for selecting outputs in a Spark token transfer.
 	//
 	// Any of "SMALL_FIRST", "LARGE_FIRST".
-	OutputSelectionStrategy SparkOutputSelectionStrategy                      `json:"output_selection_strategy,omitzero"`
-	SelectedOutputs         []SparkTransferTokensRpcInputParamsSelectedOutput `json:"selected_outputs,omitzero"`
+	OutputSelectionStrategy SparkOutputSelectionStrategy             `json:"output_selection_strategy,omitzero"`
+	SelectedOutputs         []OutputWithPreviousTransactionDataParam `json:"selected_outputs,omitzero"`
 	paramObj
 }
 
@@ -4703,51 +5070,16 @@ func (r *SparkTransferTokensRpcInputParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// The properties PreviousTransactionHash, PreviousTransactionVout are required.
-type SparkTransferTokensRpcInputParamsSelectedOutput struct {
-	PreviousTransactionHash string                                                `json:"previous_transaction_hash" api:"required"`
-	PreviousTransactionVout float64                                               `json:"previous_transaction_vout" api:"required"`
-	Output                  SparkTransferTokensRpcInputParamsSelectedOutputOutput `json:"output,omitzero"`
-	paramObj
-}
-
-func (r SparkTransferTokensRpcInputParamsSelectedOutput) MarshalJSON() (data []byte, err error) {
-	type shadow SparkTransferTokensRpcInputParamsSelectedOutput
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *SparkTransferTokensRpcInputParamsSelectedOutput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The properties OwnerPublicKey, TokenAmount are required.
-type SparkTransferTokensRpcInputParamsSelectedOutputOutput struct {
-	OwnerPublicKey                string             `json:"owner_public_key" api:"required"`
-	TokenAmount                   string             `json:"token_amount" api:"required"`
-	ID                            param.Opt[string]  `json:"id,omitzero"`
-	RevocationCommitment          param.Opt[string]  `json:"revocation_commitment,omitzero"`
-	TokenIdentifier               param.Opt[string]  `json:"token_identifier,omitzero"`
-	TokenPublicKey                param.Opt[string]  `json:"token_public_key,omitzero"`
-	WithdrawBondSats              param.Opt[float64] `json:"withdraw_bond_sats,omitzero"`
-	WithdrawRelativeBlockLocktime param.Opt[float64] `json:"withdraw_relative_block_locktime,omitzero"`
-	paramObj
-}
-
-func (r SparkTransferTokensRpcInputParamsSelectedOutputOutput) MarshalJSON() (data []byte, err error) {
-	type shadow SparkTransferTokensRpcInputParamsSelectedOutputOutput
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *SparkTransferTokensRpcInputParamsSelectedOutputOutput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // Transfers tokens to a Spark address.
 type SparkTransferTokensRpcInput struct {
 	// Any of "transferTokens".
 	Method SparkTransferTokensRpcInputMethod `json:"method" api:"required"`
 	// Parameters for the Spark `transferTokens` RPC.
 	Params SparkTransferTokensRpcInputParamsResp `json:"params" api:"required"`
+	// The Spark network.
+	//
 	// Any of "MAINNET", "REGTEST".
-	Network SparkTransferTokensRpcInputNetwork `json:"network"`
+	Network SparkNetwork `json:"network"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Method      respjson.Field
@@ -4780,13 +5112,6 @@ const (
 	SparkTransferTokensRpcInputMethodTransferTokens SparkTransferTokensRpcInputMethod = "transferTokens"
 )
 
-type SparkTransferTokensRpcInputNetwork string
-
-const (
-	SparkTransferTokensRpcInputNetworkMainnet SparkTransferTokensRpcInputNetwork = "MAINNET"
-	SparkTransferTokensRpcInputNetworkRegtest SparkTransferTokensRpcInputNetwork = "REGTEST"
-)
-
 // Transfers tokens to a Spark address.
 //
 // The properties Method, Params are required.
@@ -4795,8 +5120,10 @@ type SparkTransferTokensRpcInputParam struct {
 	Method SparkTransferTokensRpcInputMethod `json:"method,omitzero" api:"required"`
 	// Parameters for the Spark `transferTokens` RPC.
 	Params SparkTransferTokensRpcInputParams `json:"params,omitzero" api:"required"`
+	// The Spark network.
+	//
 	// Any of "MAINNET", "REGTEST".
-	Network SparkTransferTokensRpcInputNetwork `json:"network,omitzero"`
+	Network SparkNetwork `json:"network,omitzero"`
 	paramObj
 }
 
@@ -4812,8 +5139,10 @@ func (r *SparkTransferTokensRpcInputParam) UnmarshalJSON(data []byte) error {
 type SparkGetStaticDepositAddressRpcInput struct {
 	// Any of "getStaticDepositAddress".
 	Method SparkGetStaticDepositAddressRpcInputMethod `json:"method" api:"required"`
+	// The Spark network.
+	//
 	// Any of "MAINNET", "REGTEST".
-	Network SparkGetStaticDepositAddressRpcInputNetwork `json:"network"`
+	Network SparkNetwork `json:"network"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Method      respjson.Field
@@ -4845,21 +5174,16 @@ const (
 	SparkGetStaticDepositAddressRpcInputMethodGetStaticDepositAddress SparkGetStaticDepositAddressRpcInputMethod = "getStaticDepositAddress"
 )
 
-type SparkGetStaticDepositAddressRpcInputNetwork string
-
-const (
-	SparkGetStaticDepositAddressRpcInputNetworkMainnet SparkGetStaticDepositAddressRpcInputNetwork = "MAINNET"
-	SparkGetStaticDepositAddressRpcInputNetworkRegtest SparkGetStaticDepositAddressRpcInputNetwork = "REGTEST"
-)
-
 // Gets a static deposit address for the Spark wallet.
 //
 // The property Method is required.
 type SparkGetStaticDepositAddressRpcInputParam struct {
 	// Any of "getStaticDepositAddress".
 	Method SparkGetStaticDepositAddressRpcInputMethod `json:"method,omitzero" api:"required"`
+	// The Spark network.
+	//
 	// Any of "MAINNET", "REGTEST".
-	Network SparkGetStaticDepositAddressRpcInputNetwork `json:"network,omitzero"`
+	Network SparkNetwork `json:"network,omitzero"`
 	paramObj
 }
 
@@ -4923,8 +5247,10 @@ type SparkGetClaimStaticDepositQuoteRpcInput struct {
 	Method SparkGetClaimStaticDepositQuoteRpcInputMethod `json:"method" api:"required"`
 	// Parameters for the Spark `getClaimStaticDepositQuote` RPC.
 	Params SparkGetClaimStaticDepositQuoteRpcInputParamsResp `json:"params" api:"required"`
+	// The Spark network.
+	//
 	// Any of "MAINNET", "REGTEST".
-	Network SparkGetClaimStaticDepositQuoteRpcInputNetwork `json:"network"`
+	Network SparkNetwork `json:"network"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Method      respjson.Field
@@ -4957,13 +5283,6 @@ const (
 	SparkGetClaimStaticDepositQuoteRpcInputMethodGetClaimStaticDepositQuote SparkGetClaimStaticDepositQuoteRpcInputMethod = "getClaimStaticDepositQuote"
 )
 
-type SparkGetClaimStaticDepositQuoteRpcInputNetwork string
-
-const (
-	SparkGetClaimStaticDepositQuoteRpcInputNetworkMainnet SparkGetClaimStaticDepositQuoteRpcInputNetwork = "MAINNET"
-	SparkGetClaimStaticDepositQuoteRpcInputNetworkRegtest SparkGetClaimStaticDepositQuoteRpcInputNetwork = "REGTEST"
-)
-
 // Gets a quote for claiming a static deposit.
 //
 // The properties Method, Params are required.
@@ -4972,8 +5291,10 @@ type SparkGetClaimStaticDepositQuoteRpcInputParam struct {
 	Method SparkGetClaimStaticDepositQuoteRpcInputMethod `json:"method,omitzero" api:"required"`
 	// Parameters for the Spark `getClaimStaticDepositQuote` RPC.
 	Params SparkGetClaimStaticDepositQuoteRpcInputParams `json:"params,omitzero" api:"required"`
+	// The Spark network.
+	//
 	// Any of "MAINNET", "REGTEST".
-	Network SparkGetClaimStaticDepositQuoteRpcInputNetwork `json:"network,omitzero"`
+	Network SparkNetwork `json:"network,omitzero"`
 	paramObj
 }
 
@@ -5043,8 +5364,10 @@ type SparkClaimStaticDepositRpcInput struct {
 	Method SparkClaimStaticDepositRpcInputMethod `json:"method" api:"required"`
 	// Parameters for the Spark `claimStaticDeposit` RPC.
 	Params SparkClaimStaticDepositRpcInputParamsResp `json:"params" api:"required"`
+	// The Spark network.
+	//
 	// Any of "MAINNET", "REGTEST".
-	Network SparkClaimStaticDepositRpcInputNetwork `json:"network"`
+	Network SparkNetwork `json:"network"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Method      respjson.Field
@@ -5077,13 +5400,6 @@ const (
 	SparkClaimStaticDepositRpcInputMethodClaimStaticDeposit SparkClaimStaticDepositRpcInputMethod = "claimStaticDeposit"
 )
 
-type SparkClaimStaticDepositRpcInputNetwork string
-
-const (
-	SparkClaimStaticDepositRpcInputNetworkMainnet SparkClaimStaticDepositRpcInputNetwork = "MAINNET"
-	SparkClaimStaticDepositRpcInputNetworkRegtest SparkClaimStaticDepositRpcInputNetwork = "REGTEST"
-)
-
 // Claims a static deposit into the Spark wallet.
 //
 // The properties Method, Params are required.
@@ -5092,8 +5408,10 @@ type SparkClaimStaticDepositRpcInputParam struct {
 	Method SparkClaimStaticDepositRpcInputMethod `json:"method,omitzero" api:"required"`
 	// Parameters for the Spark `claimStaticDeposit` RPC.
 	Params SparkClaimStaticDepositRpcInputParams `json:"params,omitzero" api:"required"`
+	// The Spark network.
+	//
 	// Any of "MAINNET", "REGTEST".
-	Network SparkClaimStaticDepositRpcInputNetwork `json:"network,omitzero"`
+	Network SparkNetwork `json:"network,omitzero"`
 	paramObj
 }
 
@@ -5169,8 +5487,10 @@ type SparkCreateLightningInvoiceRpcInput struct {
 	Method SparkCreateLightningInvoiceRpcInputMethod `json:"method" api:"required"`
 	// Parameters for the Spark `createLightningInvoice` RPC.
 	Params SparkCreateLightningInvoiceRpcInputParamsResp `json:"params" api:"required"`
+	// The Spark network.
+	//
 	// Any of "MAINNET", "REGTEST".
-	Network SparkCreateLightningInvoiceRpcInputNetwork `json:"network"`
+	Network SparkNetwork `json:"network"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Method      respjson.Field
@@ -5203,13 +5523,6 @@ const (
 	SparkCreateLightningInvoiceRpcInputMethodCreateLightningInvoice SparkCreateLightningInvoiceRpcInputMethod = "createLightningInvoice"
 )
 
-type SparkCreateLightningInvoiceRpcInputNetwork string
-
-const (
-	SparkCreateLightningInvoiceRpcInputNetworkMainnet SparkCreateLightningInvoiceRpcInputNetwork = "MAINNET"
-	SparkCreateLightningInvoiceRpcInputNetworkRegtest SparkCreateLightningInvoiceRpcInputNetwork = "REGTEST"
-)
-
 // Creates a Lightning invoice for the Spark wallet.
 //
 // The properties Method, Params are required.
@@ -5218,8 +5531,10 @@ type SparkCreateLightningInvoiceRpcInputParam struct {
 	Method SparkCreateLightningInvoiceRpcInputMethod `json:"method,omitzero" api:"required"`
 	// Parameters for the Spark `createLightningInvoice` RPC.
 	Params SparkCreateLightningInvoiceRpcInputParams `json:"params,omitzero" api:"required"`
+	// The Spark network.
+	//
 	// Any of "MAINNET", "REGTEST".
-	Network SparkCreateLightningInvoiceRpcInputNetwork `json:"network,omitzero"`
+	Network SparkNetwork `json:"network,omitzero"`
 	paramObj
 }
 
@@ -5289,8 +5604,10 @@ type SparkPayLightningInvoiceRpcInput struct {
 	Method SparkPayLightningInvoiceRpcInputMethod `json:"method" api:"required"`
 	// Parameters for the Spark `payLightningInvoice` RPC.
 	Params SparkPayLightningInvoiceRpcInputParamsResp `json:"params" api:"required"`
+	// The Spark network.
+	//
 	// Any of "MAINNET", "REGTEST".
-	Network SparkPayLightningInvoiceRpcInputNetwork `json:"network"`
+	Network SparkNetwork `json:"network"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Method      respjson.Field
@@ -5323,13 +5640,6 @@ const (
 	SparkPayLightningInvoiceRpcInputMethodPayLightningInvoice SparkPayLightningInvoiceRpcInputMethod = "payLightningInvoice"
 )
 
-type SparkPayLightningInvoiceRpcInputNetwork string
-
-const (
-	SparkPayLightningInvoiceRpcInputNetworkMainnet SparkPayLightningInvoiceRpcInputNetwork = "MAINNET"
-	SparkPayLightningInvoiceRpcInputNetworkRegtest SparkPayLightningInvoiceRpcInputNetwork = "REGTEST"
-)
-
 // Pays a Lightning invoice from the Spark wallet.
 //
 // The properties Method, Params are required.
@@ -5338,8 +5648,10 @@ type SparkPayLightningInvoiceRpcInputParam struct {
 	Method SparkPayLightningInvoiceRpcInputMethod `json:"method,omitzero" api:"required"`
 	// Parameters for the Spark `payLightningInvoice` RPC.
 	Params SparkPayLightningInvoiceRpcInputParams `json:"params,omitzero" api:"required"`
+	// The Spark network.
+	//
 	// Any of "MAINNET", "REGTEST".
-	Network SparkPayLightningInvoiceRpcInputNetwork `json:"network,omitzero"`
+	Network SparkNetwork `json:"network,omitzero"`
 	paramObj
 }
 
@@ -5403,8 +5715,10 @@ type SparkSignMessageWithIdentityKeyRpcInput struct {
 	Method SparkSignMessageWithIdentityKeyRpcInputMethod `json:"method" api:"required"`
 	// Parameters for the Spark `signMessageWithIdentityKey` RPC.
 	Params SparkSignMessageWithIdentityKeyRpcInputParamsResp `json:"params" api:"required"`
+	// The Spark network.
+	//
 	// Any of "MAINNET", "REGTEST".
-	Network SparkSignMessageWithIdentityKeyRpcInputNetwork `json:"network"`
+	Network SparkNetwork `json:"network"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Method      respjson.Field
@@ -5437,13 +5751,6 @@ const (
 	SparkSignMessageWithIdentityKeyRpcInputMethodSignMessageWithIdentityKey SparkSignMessageWithIdentityKeyRpcInputMethod = "signMessageWithIdentityKey"
 )
 
-type SparkSignMessageWithIdentityKeyRpcInputNetwork string
-
-const (
-	SparkSignMessageWithIdentityKeyRpcInputNetworkMainnet SparkSignMessageWithIdentityKeyRpcInputNetwork = "MAINNET"
-	SparkSignMessageWithIdentityKeyRpcInputNetworkRegtest SparkSignMessageWithIdentityKeyRpcInputNetwork = "REGTEST"
-)
-
 // Signs a message with the Spark identity key.
 //
 // The properties Method, Params are required.
@@ -5452,8 +5759,10 @@ type SparkSignMessageWithIdentityKeyRpcInputParam struct {
 	Method SparkSignMessageWithIdentityKeyRpcInputMethod `json:"method,omitzero" api:"required"`
 	// Parameters for the Spark `signMessageWithIdentityKey` RPC.
 	Params SparkSignMessageWithIdentityKeyRpcInputParams `json:"params,omitzero" api:"required"`
+	// The Spark network.
+	//
 	// Any of "MAINNET", "REGTEST".
-	Network SparkSignMessageWithIdentityKeyRpcInputNetwork `json:"network,omitzero"`
+	Network SparkNetwork `json:"network,omitzero"`
 	paramObj
 }
 
@@ -5469,7 +5778,8 @@ func (r *SparkSignMessageWithIdentityKeyRpcInputParam) UnmarshalJSON(data []byte
 type SparkTransferRpcResponse struct {
 	// Any of "transfer".
 	Method SparkTransferRpcResponseMethod `json:"method" api:"required"`
-	Data   SparkTransferRpcResponseData   `json:"data"`
+	// A Spark transfer.
+	Data SparkTransfer `json:"data"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Method      respjson.Field
@@ -5491,132 +5801,12 @@ const (
 	SparkTransferRpcResponseMethodTransfer SparkTransferRpcResponseMethod = "transfer"
 )
 
-type SparkTransferRpcResponseData struct {
-	ID                        string                             `json:"id" api:"required"`
-	Leaves                    []SparkTransferRpcResponseDataLeaf `json:"leaves" api:"required"`
-	ReceiverIdentityPublicKey string                             `json:"receiver_identity_public_key" api:"required"`
-	SenderIdentityPublicKey   string                             `json:"sender_identity_public_key" api:"required"`
-	Status                    string                             `json:"status" api:"required"`
-	TotalValue                float64                            `json:"total_value" api:"required"`
-	TransferDirection         string                             `json:"transfer_direction" api:"required"`
-	Type                      string                             `json:"type" api:"required"`
-	CreatedTime               string                             `json:"created_time"`
-	ExpiryTime                string                             `json:"expiry_time"`
-	UpdatedTime               string                             `json:"updated_time"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID                        respjson.Field
-		Leaves                    respjson.Field
-		ReceiverIdentityPublicKey respjson.Field
-		SenderIdentityPublicKey   respjson.Field
-		Status                    respjson.Field
-		TotalValue                respjson.Field
-		TransferDirection         respjson.Field
-		Type                      respjson.Field
-		CreatedTime               respjson.Field
-		ExpiryTime                respjson.Field
-		UpdatedTime               respjson.Field
-		ExtraFields               map[string]respjson.Field
-		raw                       string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r SparkTransferRpcResponseData) RawJSON() string { return r.JSON.raw }
-func (r *SparkTransferRpcResponseData) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type SparkTransferRpcResponseDataLeaf struct {
-	IntermediateRefundTx string                               `json:"intermediate_refund_tx" api:"required"`
-	SecretCipher         string                               `json:"secret_cipher" api:"required"`
-	Signature            string                               `json:"signature" api:"required"`
-	Leaf                 SparkTransferRpcResponseDataLeafLeaf `json:"leaf"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		IntermediateRefundTx respjson.Field
-		SecretCipher         respjson.Field
-		Signature            respjson.Field
-		Leaf                 respjson.Field
-		ExtraFields          map[string]respjson.Field
-		raw                  string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r SparkTransferRpcResponseDataLeaf) RawJSON() string { return r.JSON.raw }
-func (r *SparkTransferRpcResponseDataLeaf) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type SparkTransferRpcResponseDataLeafLeaf struct {
-	ID string `json:"id" api:"required"`
-	// Any of "MAINNET", "REGTEST".
-	Network                string                                              `json:"network" api:"required"`
-	NodeTx                 string                                              `json:"node_tx" api:"required"`
-	OwnerIdentityPublicKey string                                              `json:"owner_identity_public_key" api:"required"`
-	RefundTx               string                                              `json:"refund_tx" api:"required"`
-	Status                 string                                              `json:"status" api:"required"`
-	TreeID                 string                                              `json:"tree_id" api:"required"`
-	Value                  float64                                             `json:"value" api:"required"`
-	VerifyingPublicKey     string                                              `json:"verifying_public_key" api:"required"`
-	Vout                   float64                                             `json:"vout" api:"required"`
-	ParentNodeID           string                                              `json:"parent_node_id"`
-	SigningKeyshare        SparkTransferRpcResponseDataLeafLeafSigningKeyshare `json:"signing_keyshare"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID                     respjson.Field
-		Network                respjson.Field
-		NodeTx                 respjson.Field
-		OwnerIdentityPublicKey respjson.Field
-		RefundTx               respjson.Field
-		Status                 respjson.Field
-		TreeID                 respjson.Field
-		Value                  respjson.Field
-		VerifyingPublicKey     respjson.Field
-		Vout                   respjson.Field
-		ParentNodeID           respjson.Field
-		SigningKeyshare        respjson.Field
-		ExtraFields            map[string]respjson.Field
-		raw                    string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r SparkTransferRpcResponseDataLeafLeaf) RawJSON() string { return r.JSON.raw }
-func (r *SparkTransferRpcResponseDataLeafLeaf) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type SparkTransferRpcResponseDataLeafLeafSigningKeyshare struct {
-	OwnerIdentifiers []string          `json:"owner_identifiers" api:"required"`
-	PublicKey        string            `json:"public_key" api:"required"`
-	PublicShares     map[string]string `json:"public_shares" api:"required"`
-	Threshold        float64           `json:"threshold" api:"required"`
-	UpdatedTime      string            `json:"updated_time" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		OwnerIdentifiers respjson.Field
-		PublicKey        respjson.Field
-		PublicShares     respjson.Field
-		Threshold        respjson.Field
-		UpdatedTime      respjson.Field
-		ExtraFields      map[string]respjson.Field
-		raw              string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r SparkTransferRpcResponseDataLeafLeafSigningKeyshare) RawJSON() string { return r.JSON.raw }
-func (r *SparkTransferRpcResponseDataLeafLeafSigningKeyshare) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // Response to the Spark `getBalance` RPC.
 type SparkGetBalanceRpcResponse struct {
 	// Any of "getBalance".
 	Method SparkGetBalanceRpcResponseMethod `json:"method" api:"required"`
-	Data   SparkGetBalanceRpcResponseData   `json:"data"`
+	// The balance of a Spark wallet.
+	Data SparkBalance `json:"data"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Method      respjson.Field
@@ -5637,68 +5827,6 @@ type SparkGetBalanceRpcResponseMethod string
 const (
 	SparkGetBalanceRpcResponseMethodGetBalance SparkGetBalanceRpcResponseMethod = "getBalance"
 )
-
-type SparkGetBalanceRpcResponseData struct {
-	Balance       string                                                `json:"balance" api:"required"`
-	TokenBalances map[string]SparkGetBalanceRpcResponseDataTokenBalance `json:"token_balances" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Balance       respjson.Field
-		TokenBalances respjson.Field
-		ExtraFields   map[string]respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r SparkGetBalanceRpcResponseData) RawJSON() string { return r.JSON.raw }
-func (r *SparkGetBalanceRpcResponseData) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type SparkGetBalanceRpcResponseDataTokenBalance struct {
-	Balance       string                                                  `json:"balance" api:"required"`
-	TokenMetadata SparkGetBalanceRpcResponseDataTokenBalanceTokenMetadata `json:"token_metadata" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Balance       respjson.Field
-		TokenMetadata respjson.Field
-		ExtraFields   map[string]respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r SparkGetBalanceRpcResponseDataTokenBalance) RawJSON() string { return r.JSON.raw }
-func (r *SparkGetBalanceRpcResponseDataTokenBalance) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type SparkGetBalanceRpcResponseDataTokenBalanceTokenMetadata struct {
-	Decimals           float64 `json:"decimals" api:"required"`
-	MaxSupply          string  `json:"max_supply" api:"required"`
-	RawTokenIdentifier string  `json:"raw_token_identifier" api:"required"`
-	TokenName          string  `json:"token_name" api:"required"`
-	TokenPublicKey     string  `json:"token_public_key" api:"required"`
-	TokenTicker        string  `json:"token_ticker" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Decimals           respjson.Field
-		MaxSupply          respjson.Field
-		RawTokenIdentifier respjson.Field
-		TokenName          respjson.Field
-		TokenPublicKey     respjson.Field
-		TokenTicker        respjson.Field
-		ExtraFields        map[string]respjson.Field
-		raw                string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r SparkGetBalanceRpcResponseDataTokenBalanceTokenMetadata) RawJSON() string { return r.JSON.raw }
-func (r *SparkGetBalanceRpcResponseDataTokenBalanceTokenMetadata) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
 
 // Data returned by the Spark `transferTokens` RPC.
 type SparkTransferTokensRpcResponseData struct {
@@ -5888,7 +6016,8 @@ const (
 type SparkCreateLightningInvoiceRpcResponse struct {
 	// Any of "createLightningInvoice".
 	Method SparkCreateLightningInvoiceRpcResponseMethod `json:"method" api:"required"`
-	Data   SparkCreateLightningInvoiceRpcResponseData   `json:"data"`
+	// A Spark Lightning receive request.
+	Data SparkLightningReceiveRequest `json:"data"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Method      respjson.Field
@@ -5910,45 +6039,12 @@ const (
 	SparkCreateLightningInvoiceRpcResponseMethodCreateLightningInvoice SparkCreateLightningInvoiceRpcResponseMethod = "createLightningInvoice"
 )
 
-type SparkCreateLightningInvoiceRpcResponseData struct {
-	ID                        string `json:"id" api:"required"`
-	CreatedAt                 string `json:"created_at" api:"required"`
-	Network                   string `json:"network" api:"required"`
-	Status                    string `json:"status" api:"required"`
-	Typename                  string `json:"typename" api:"required"`
-	UpdatedAt                 string `json:"updated_at" api:"required"`
-	Invoice                   any    `json:"invoice"`
-	PaymentPreimage           string `json:"payment_preimage"`
-	ReceiverIdentityPublicKey string `json:"receiver_identity_public_key"`
-	Transfer                  any    `json:"transfer"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID                        respjson.Field
-		CreatedAt                 respjson.Field
-		Network                   respjson.Field
-		Status                    respjson.Field
-		Typename                  respjson.Field
-		UpdatedAt                 respjson.Field
-		Invoice                   respjson.Field
-		PaymentPreimage           respjson.Field
-		ReceiverIdentityPublicKey respjson.Field
-		Transfer                  respjson.Field
-		ExtraFields               map[string]respjson.Field
-		raw                       string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r SparkCreateLightningInvoiceRpcResponseData) RawJSON() string { return r.JSON.raw }
-func (r *SparkCreateLightningInvoiceRpcResponseData) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // Response to the Spark `payLightningInvoice` RPC.
 type SparkPayLightningInvoiceRpcResponse struct {
 	// Any of "payLightningInvoice".
-	Method SparkPayLightningInvoiceRpcResponseMethod    `json:"method" api:"required"`
-	Data   SparkPayLightningInvoiceRpcResponseDataUnion `json:"data"`
+	Method SparkPayLightningInvoiceRpcResponseMethod `json:"method" api:"required"`
+	// A Spark transfer.
+	Data SparkPayLightningInvoiceRpcResponseDataUnion `json:"data"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Method      respjson.Field
@@ -5971,50 +6067,47 @@ const (
 )
 
 // SparkPayLightningInvoiceRpcResponseDataUnion contains all possible properties
-// and values from [SparkPayLightningInvoiceRpcResponseDataObject],
-// [SparkPayLightningInvoiceRpcResponseDataObject].
+// and values from [SparkTransfer], [SparkLightningSendRequest].
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 type SparkPayLightningInvoiceRpcResponseDataUnion struct {
-	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataObject].
 	ID string `json:"id"`
-	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataObject].
-	Leaves []SparkPayLightningInvoiceRpcResponseDataObjectLeaf `json:"leaves"`
-	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataObject].
+	// This field is from variant [SparkTransfer].
+	Leaves []SparkTransferLeaf `json:"leaves"`
+	// This field is from variant [SparkTransfer].
 	ReceiverIdentityPublicKey string `json:"receiver_identity_public_key"`
-	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataObject].
+	// This field is from variant [SparkTransfer].
 	SenderIdentityPublicKey string `json:"sender_identity_public_key"`
-	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataObject].
-	Status string `json:"status"`
-	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataObject].
+	Status                  string `json:"status"`
+	// This field is from variant [SparkTransfer].
 	TotalValue float64 `json:"total_value"`
-	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataObject].
+	// This field is from variant [SparkTransfer].
 	TransferDirection string `json:"transfer_direction"`
-	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataObject].
+	// This field is from variant [SparkTransfer].
 	Type string `json:"type"`
-	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataObject].
+	// This field is from variant [SparkTransfer].
 	CreatedTime string `json:"created_time"`
-	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataObject].
+	// This field is from variant [SparkTransfer].
 	ExpiryTime string `json:"expiry_time"`
-	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataObject].
+	// This field is from variant [SparkTransfer].
 	UpdatedTime string `json:"updated_time"`
-	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataObject].
+	// This field is from variant [SparkLightningSendRequest].
 	CreatedAt string `json:"created_at"`
-	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataObject].
+	// This field is from variant [SparkLightningSendRequest].
 	EncodedInvoice string `json:"encoded_invoice"`
-	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataObject].
-	Fee SparkPayLightningInvoiceRpcResponseDataObjectFee `json:"fee"`
-	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataObject].
+	// This field is from variant [SparkLightningSendRequest].
+	Fee SparkLightningFee `json:"fee"`
+	// This field is from variant [SparkLightningSendRequest].
 	IdempotencyKey string `json:"idempotency_key"`
-	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataObject].
+	// This field is from variant [SparkLightningSendRequest].
 	Network string `json:"network"`
-	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataObject].
+	// This field is from variant [SparkLightningSendRequest].
 	Typename string `json:"typename"`
-	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataObject].
+	// This field is from variant [SparkLightningSendRequest].
 	UpdatedAt string `json:"updated_at"`
-	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataObject].
+	// This field is from variant [SparkLightningSendRequest].
 	PaymentPreimage string `json:"payment_preimage"`
-	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataObject].
+	// This field is from variant [SparkLightningSendRequest].
 	Transfer any `json:"transfer"`
 	JSON     struct {
 		ID                        respjson.Field
@@ -6041,12 +6134,12 @@ type SparkPayLightningInvoiceRpcResponseDataUnion struct {
 	} `json:"-"`
 }
 
-func (u SparkPayLightningInvoiceRpcResponseDataUnion) AsSparkPayLightningInvoiceRpcResponseDataObject() (v SparkPayLightningInvoiceRpcResponseDataObject) {
+func (u SparkPayLightningInvoiceRpcResponseDataUnion) AsSparkTransfer() (v SparkTransfer) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u SparkPayLightningInvoiceRpcResponseDataUnion) AsVariant2() (v SparkPayLightningInvoiceRpcResponseDataObject) {
+func (u SparkPayLightningInvoiceRpcResponseDataUnion) AsSparkLightningSendRequest() (v SparkLightningSendRequest) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -6055,129 +6148,6 @@ func (u SparkPayLightningInvoiceRpcResponseDataUnion) AsVariant2() (v SparkPayLi
 func (u SparkPayLightningInvoiceRpcResponseDataUnion) RawJSON() string { return u.JSON.raw }
 
 func (r *SparkPayLightningInvoiceRpcResponseDataUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type SparkPayLightningInvoiceRpcResponseDataObject struct {
-	ID                        string                                              `json:"id" api:"required"`
-	Leaves                    []SparkPayLightningInvoiceRpcResponseDataObjectLeaf `json:"leaves" api:"required"`
-	ReceiverIdentityPublicKey string                                              `json:"receiver_identity_public_key" api:"required"`
-	SenderIdentityPublicKey   string                                              `json:"sender_identity_public_key" api:"required"`
-	Status                    string                                              `json:"status" api:"required"`
-	TotalValue                float64                                             `json:"total_value" api:"required"`
-	TransferDirection         string                                              `json:"transfer_direction" api:"required"`
-	Type                      string                                              `json:"type" api:"required"`
-	CreatedTime               string                                              `json:"created_time"`
-	ExpiryTime                string                                              `json:"expiry_time"`
-	UpdatedTime               string                                              `json:"updated_time"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID                        respjson.Field
-		Leaves                    respjson.Field
-		ReceiverIdentityPublicKey respjson.Field
-		SenderIdentityPublicKey   respjson.Field
-		Status                    respjson.Field
-		TotalValue                respjson.Field
-		TransferDirection         respjson.Field
-		Type                      respjson.Field
-		CreatedTime               respjson.Field
-		ExpiryTime                respjson.Field
-		UpdatedTime               respjson.Field
-		ExtraFields               map[string]respjson.Field
-		raw                       string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r SparkPayLightningInvoiceRpcResponseDataObject) RawJSON() string { return r.JSON.raw }
-func (r *SparkPayLightningInvoiceRpcResponseDataObject) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type SparkPayLightningInvoiceRpcResponseDataObjectLeaf struct {
-	IntermediateRefundTx string                                                `json:"intermediate_refund_tx" api:"required"`
-	SecretCipher         string                                                `json:"secret_cipher" api:"required"`
-	Signature            string                                                `json:"signature" api:"required"`
-	Leaf                 SparkPayLightningInvoiceRpcResponseDataObjectLeafLeaf `json:"leaf"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		IntermediateRefundTx respjson.Field
-		SecretCipher         respjson.Field
-		Signature            respjson.Field
-		Leaf                 respjson.Field
-		ExtraFields          map[string]respjson.Field
-		raw                  string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r SparkPayLightningInvoiceRpcResponseDataObjectLeaf) RawJSON() string { return r.JSON.raw }
-func (r *SparkPayLightningInvoiceRpcResponseDataObjectLeaf) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type SparkPayLightningInvoiceRpcResponseDataObjectLeafLeaf struct {
-	ID string `json:"id" api:"required"`
-	// Any of "MAINNET", "REGTEST".
-	Network                string                                                               `json:"network" api:"required"`
-	NodeTx                 string                                                               `json:"node_tx" api:"required"`
-	OwnerIdentityPublicKey string                                                               `json:"owner_identity_public_key" api:"required"`
-	RefundTx               string                                                               `json:"refund_tx" api:"required"`
-	Status                 string                                                               `json:"status" api:"required"`
-	TreeID                 string                                                               `json:"tree_id" api:"required"`
-	Value                  float64                                                              `json:"value" api:"required"`
-	VerifyingPublicKey     string                                                               `json:"verifying_public_key" api:"required"`
-	Vout                   float64                                                              `json:"vout" api:"required"`
-	ParentNodeID           string                                                               `json:"parent_node_id"`
-	SigningKeyshare        SparkPayLightningInvoiceRpcResponseDataObjectLeafLeafSigningKeyshare `json:"signing_keyshare"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID                     respjson.Field
-		Network                respjson.Field
-		NodeTx                 respjson.Field
-		OwnerIdentityPublicKey respjson.Field
-		RefundTx               respjson.Field
-		Status                 respjson.Field
-		TreeID                 respjson.Field
-		Value                  respjson.Field
-		VerifyingPublicKey     respjson.Field
-		Vout                   respjson.Field
-		ParentNodeID           respjson.Field
-		SigningKeyshare        respjson.Field
-		ExtraFields            map[string]respjson.Field
-		raw                    string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r SparkPayLightningInvoiceRpcResponseDataObjectLeafLeaf) RawJSON() string { return r.JSON.raw }
-func (r *SparkPayLightningInvoiceRpcResponseDataObjectLeafLeaf) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type SparkPayLightningInvoiceRpcResponseDataObjectLeafLeafSigningKeyshare struct {
-	OwnerIdentifiers []string          `json:"owner_identifiers" api:"required"`
-	PublicKey        string            `json:"public_key" api:"required"`
-	PublicShares     map[string]string `json:"public_shares" api:"required"`
-	Threshold        float64           `json:"threshold" api:"required"`
-	UpdatedTime      string            `json:"updated_time" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		OwnerIdentifiers respjson.Field
-		PublicKey        respjson.Field
-		PublicShares     respjson.Field
-		Threshold        respjson.Field
-		UpdatedTime      respjson.Field
-		ExtraFields      map[string]respjson.Field
-		raw              string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r SparkPayLightningInvoiceRpcResponseDataObjectLeafLeafSigningKeyshare) RawJSON() string {
-	return r.JSON.raw
-}
-func (r *SparkPayLightningInvoiceRpcResponseDataObjectLeafLeafSigningKeyshare) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -6434,16 +6404,16 @@ type WalletRpcRequestBodyUnion struct {
 	// [SparkClaimStaticDepositRpcInputParamsResp],
 	// [SparkCreateLightningInvoiceRpcInputParamsResp],
 	// [SparkPayLightningInvoiceRpcInputParamsResp],
-	// [SparkSignMessageWithIdentityKeyRpcInputParamsResp],
-	// [ExportPrivateKeyRpcInputParams]
+	// [SparkSignMessageWithIdentityKeyRpcInputParamsResp], [PrivateKeyExportInput]
 	Params    WalletRpcRequestBodyUnionParams `json:"params"`
 	Address   string                          `json:"address"`
 	ChainType string                          `json:"chain_type"`
 	WalletID  string                          `json:"wallet_id"`
 	Caip2     string                          `json:"caip2"`
 	Sponsor   bool                            `json:"sponsor"`
-	Network   string                          `json:"network"`
-	JSON      struct {
+	// This field is from variant [SparkTransferRpcInput].
+	Network SparkNetwork `json:"network"`
+	JSON    struct {
 		Method    respjson.Field
 		Params    respjson.Field
 		Address   respjson.Field
@@ -6699,9 +6669,9 @@ type WalletRpcRequestBodyUnionParams struct {
 	// This field is from variant [SparkTransferTokensRpcInputParamsResp].
 	OutputSelectionStrategy SparkOutputSelectionStrategy `json:"output_selection_strategy"`
 	// This field is from variant [SparkTransferTokensRpcInputParamsResp].
-	SelectedOutputs []SparkTransferTokensRpcInputParamsSelectedOutputResp `json:"selected_outputs"`
-	TransactionID   string                                                `json:"transaction_id"`
-	OutputIndex     float64                                               `json:"output_index"`
+	SelectedOutputs []OutputWithPreviousTransactionData `json:"selected_outputs"`
+	TransactionID   string                              `json:"transaction_id"`
+	OutputIndex     float64                             `json:"output_index"`
 	// This field is from variant [SparkClaimStaticDepositRpcInputParamsResp].
 	CreditAmountSats float64 `json:"credit_amount_sats"`
 	// This field is from variant [SparkClaimStaticDepositRpcInputParamsResp].
@@ -6726,12 +6696,12 @@ type WalletRpcRequestBodyUnionParams struct {
 	PreferSpark bool `json:"prefer_spark"`
 	// This field is from variant [SparkSignMessageWithIdentityKeyRpcInputParamsResp].
 	Compact bool `json:"compact"`
-	// This field is from variant [ExportPrivateKeyRpcInputParams].
-	EncryptionType string `json:"encryption_type"`
-	// This field is from variant [ExportPrivateKeyRpcInputParams].
-	RecipientPublicKey string `json:"recipient_public_key"`
-	// This field is from variant [ExportPrivateKeyRpcInputParams].
-	ExportType string `json:"export_type"`
+	// This field is from variant [PrivateKeyExportInput].
+	EncryptionType HpkeEncryption `json:"encryption_type"`
+	// This field is from variant [PrivateKeyExportInput].
+	RecipientPublicKey RecipientPublicKey `json:"recipient_public_key"`
+	// This field is from variant [PrivateKeyExportInput].
+	ExportType ExportType `json:"export_type"`
 	JSON       struct {
 		Transaction             respjson.Field
 		Encoding                respjson.Field
@@ -7206,7 +7176,7 @@ func WalletRpcRequestBodyParamOfSignMessageWithIdentityKey(params SparkSignMessa
 	return WalletRpcRequestBodyUnionParam{OfSignMessageWithIdentityKey: &signMessageWithIdentityKey}
 }
 
-func WalletRpcRequestBodyParamOfExportPrivateKey(address string, method ExportPrivateKeyRpcInputMethod, params ExportPrivateKeyRpcInputParamsParam) WalletRpcRequestBodyUnionParam {
+func WalletRpcRequestBodyParamOfExportPrivateKey(address string, method ExportPrivateKeyRpcInputMethod, params PrivateKeyExportInputParam) WalletRpcRequestBodyUnionParam {
 	var exportPrivateKey ExportPrivateKeyRpcInputParam
 	exportPrivateKey.Address = address
 	exportPrivateKey.Method = method
@@ -7319,15 +7289,13 @@ type WalletRpcResponseUnion struct {
 	// [EthereumSign7702AuthorizationRpcResponseData],
 	// [EthereumSecp256k1SignRpcResponseData], [SolanaSignMessageRpcResponseData],
 	// [SolanaSignTransactionRpcResponseData],
-	// [SolanaSignAndSendTransactionRpcResponseData], [SparkTransferRpcResponseData],
-	// [SparkGetBalanceRpcResponseData], [SparkTransferTokensRpcResponseData],
+	// [SolanaSignAndSendTransactionRpcResponseData], [SparkTransfer], [SparkBalance],
+	// [SparkTransferTokensRpcResponseData],
 	// [SparkGetStaticDepositAddressRpcResponseData],
 	// [SparkGetClaimStaticDepositQuoteRpcResponseData],
-	// [SparkClaimStaticDepositRpcResponseData],
-	// [SparkCreateLightningInvoiceRpcResponseData],
+	// [SparkClaimStaticDepositRpcResponseData], [SparkLightningReceiveRequest],
 	// [SparkPayLightningInvoiceRpcResponseDataUnion],
-	// [SparkSignMessageWithIdentityKeyRpcResponseData],
-	// [ExportPrivateKeyRpcResponseData]
+	// [SparkSignMessageWithIdentityKeyRpcResponseData], [PrivateKeyExportInput]
 	Data WalletRpcResponseUnionData `json:"data"`
 	// Any of "personal_sign", "eth_signTypedData_v4", "eth_signTransaction",
 	// "eth_sendTransaction", "eth_signUserOperation", "eth_sign7702Authorization",
@@ -7569,22 +7537,36 @@ type WalletRpcResponseUnionData struct {
 	// This field is from variant [EthereumSign7702AuthorizationRpcResponseData].
 	Authorization EthereumSign7702AuthorizationRpcResponseDataAuthorization `json:"authorization"`
 	ID            string                                                    `json:"id"`
-	// This field is a union of [[]SparkTransferRpcResponseDataLeaf],
-	// [[]SparkPayLightningInvoiceRpcResponseDataObjectLeaf]
-	Leaves                    WalletRpcResponseUnionDataLeaves `json:"leaves"`
-	ReceiverIdentityPublicKey string                           `json:"receiver_identity_public_key"`
-	SenderIdentityPublicKey   string                           `json:"sender_identity_public_key"`
-	Status                    string                           `json:"status"`
-	TotalValue                float64                          `json:"total_value"`
-	TransferDirection         string                           `json:"transfer_direction"`
-	Type                      string                           `json:"type"`
-	CreatedTime               string                           `json:"created_time"`
-	ExpiryTime                string                           `json:"expiry_time"`
-	UpdatedTime               string                           `json:"updated_time"`
-	// This field is from variant [SparkGetBalanceRpcResponseData].
+	// This field is from variant [SparkTransfer],
+	// [SparkPayLightningInvoiceRpcResponseDataUnion].
+	Leaves                    []SparkTransferLeaf `json:"leaves"`
+	ReceiverIdentityPublicKey string              `json:"receiver_identity_public_key"`
+	// This field is from variant [SparkTransfer],
+	// [SparkPayLightningInvoiceRpcResponseDataUnion].
+	SenderIdentityPublicKey string `json:"sender_identity_public_key"`
+	Status                  string `json:"status"`
+	// This field is from variant [SparkTransfer],
+	// [SparkPayLightningInvoiceRpcResponseDataUnion].
+	TotalValue float64 `json:"total_value"`
+	// This field is from variant [SparkTransfer],
+	// [SparkPayLightningInvoiceRpcResponseDataUnion].
+	TransferDirection string `json:"transfer_direction"`
+	// This field is from variant [SparkTransfer],
+	// [SparkPayLightningInvoiceRpcResponseDataUnion].
+	Type string `json:"type"`
+	// This field is from variant [SparkTransfer],
+	// [SparkPayLightningInvoiceRpcResponseDataUnion].
+	CreatedTime string `json:"created_time"`
+	// This field is from variant [SparkTransfer],
+	// [SparkPayLightningInvoiceRpcResponseDataUnion].
+	ExpiryTime string `json:"expiry_time"`
+	// This field is from variant [SparkTransfer],
+	// [SparkPayLightningInvoiceRpcResponseDataUnion].
+	UpdatedTime string `json:"updated_time"`
+	// This field is from variant [SparkBalance].
 	Balance string `json:"balance"`
-	// This field is from variant [SparkGetBalanceRpcResponseData].
-	TokenBalances map[string]SparkGetBalanceRpcResponseDataTokenBalance `json:"token_balances"`
+	// This field is from variant [SparkBalance].
+	TokenBalances map[string]SparkTokenBalance `json:"token_balances"`
 	// This field is from variant [SparkGetStaticDepositAddressRpcResponseData].
 	Address string `json:"address"`
 	// This field is from variant [SparkGetClaimStaticDepositQuoteRpcResponseData].
@@ -7597,22 +7579,22 @@ type WalletRpcResponseUnionData struct {
 	CreatedAt  string `json:"created_at"`
 	Typename   string `json:"typename"`
 	UpdatedAt  string `json:"updated_at"`
-	// This field is from variant [SparkCreateLightningInvoiceRpcResponseData].
+	// This field is from variant [SparkLightningReceiveRequest].
 	Invoice         any    `json:"invoice"`
 	PaymentPreimage string `json:"payment_preimage"`
 	Transfer        any    `json:"transfer"`
 	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataUnion].
 	EncodedInvoice string `json:"encoded_invoice"`
 	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataUnion].
-	Fee SparkPayLightningInvoiceRpcResponseDataObjectFee `json:"fee"`
+	Fee SparkLightningFee `json:"fee"`
 	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataUnion].
 	IdempotencyKey string `json:"idempotency_key"`
-	// This field is from variant [ExportPrivateKeyRpcResponseData].
-	EncryptionType string `json:"encryption_type"`
-	// This field is from variant [ExportPrivateKeyRpcResponseData].
-	RecipientPublicKey string `json:"recipient_public_key"`
-	// This field is from variant [ExportPrivateKeyRpcResponseData].
-	ExportType string `json:"export_type"`
+	// This field is from variant [PrivateKeyExportInput].
+	EncryptionType HpkeEncryption `json:"encryption_type"`
+	// This field is from variant [PrivateKeyExportInput].
+	RecipientPublicKey RecipientPublicKey `json:"recipient_public_key"`
+	// This field is from variant [PrivateKeyExportInput].
+	ExportType ExportType `json:"export_type"`
 	JSON       struct {
 		Encoding                  respjson.Field
 		Signature                 respjson.Field
@@ -7661,34 +7643,6 @@ func (r *WalletRpcResponseUnionData) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// WalletRpcResponseUnionDataLeaves is an implicit subunion of
-// [WalletRpcResponseUnion]. WalletRpcResponseUnionDataLeaves provides convenient
-// access to the sub-properties of the union.
-//
-// For type safety it is recommended to directly use a variant of the
-// [WalletRpcResponseUnion].
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfSparkTransferRpcResponseDataLeaves
-// OfSparkPayLightningInvoiceRpcResponseDataObjectLeaves]
-type WalletRpcResponseUnionDataLeaves struct {
-	// This field will be present if the value is a
-	// [[]SparkTransferRpcResponseDataLeaf] instead of an object.
-	OfSparkTransferRpcResponseDataLeaves []SparkTransferRpcResponseDataLeaf `json:",inline"`
-	// This field will be present if the value is a
-	// [[]SparkPayLightningInvoiceRpcResponseDataObjectLeaf] instead of an object.
-	OfSparkPayLightningInvoiceRpcResponseDataObjectLeaves []SparkPayLightningInvoiceRpcResponseDataObjectLeaf `json:",inline"`
-	JSON                                                  struct {
-		OfSparkTransferRpcResponseDataLeaves                  respjson.Field
-		OfSparkPayLightningInvoiceRpcResponseDataObjectLeaves respjson.Field
-		raw                                                   string
-	} `json:"-"`
-}
-
-func (r *WalletRpcResponseUnionDataLeaves) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // Request body for wallet authentication with HPKE-encrypted response.
 //
 // The properties EncryptionType, RecipientPublicKey, UserJwt are required.
@@ -7728,7 +7682,7 @@ type WalletInitImportResponse struct {
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
 	//
 	// Any of "HPKE".
-	EncryptionType WalletInitImportResponseEncryptionType `json:"encryption_type" api:"required"`
+	EncryptionType HpkeEncryption `json:"encryption_type" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		EncryptionPublicKey respjson.Field
@@ -7743,13 +7697,6 @@ func (r WalletInitImportResponse) RawJSON() string { return r.JSON.raw }
 func (r *WalletInitImportResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-// The encryption type of the wallet to import. Currently only supports `HPKE`.
-type WalletInitImportResponseEncryptionType string
-
-const (
-	WalletInitImportResponseEncryptionTypeHpke WalletInitImportResponseEncryptionType = "HPKE"
-)
 
 // WalletAuthenticateWithJwtResponseUnion contains all possible properties and
 // values from [WalletAuthenticateWithJwtResponseWithEncryption],
@@ -7872,7 +7819,7 @@ type WalletExportResponse struct {
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
 	//
 	// Any of "HPKE".
-	EncryptionType WalletExportResponseEncryptionType `json:"encryption_type" api:"required"`
+	EncryptionType HpkeEncryption `json:"encryption_type" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Ciphertext      respjson.Field
@@ -7888,13 +7835,6 @@ func (r WalletExportResponse) RawJSON() string { return r.JSON.raw }
 func (r *WalletExportResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-// The encryption type of the wallet to import. Currently only supports `HPKE`.
-type WalletExportResponseEncryptionType string
-
-const (
-	WalletExportResponseEncryptionTypeHpke WalletExportResponseEncryptionType = "HPKE"
-)
 
 type WalletNewParams struct {
 	// The wallet chain types.
@@ -8079,7 +8019,7 @@ type WalletInitImportParamsBodyHD struct {
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
 	//
 	// Any of "HPKE".
-	EncryptionType string `json:"encryption_type,omitzero" api:"required"`
+	EncryptionType HpkeEncryption `json:"encryption_type,omitzero" api:"required"`
 	// The index of the wallet to import.
 	Index int64 `json:"index" api:"required"`
 	// The entropy type of the wallet to import.
@@ -8097,12 +8037,6 @@ func (r *WalletInitImportParamsBodyHD) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func init() {
-	apijson.RegisterFieldValidator[WalletInitImportParamsBodyHD](
-		"encryption_type", "HPKE",
-	)
-}
-
 // The input for private key wallets.
 //
 // The properties Address, ChainType, EncryptionType, EntropyType are required.
@@ -8117,7 +8051,7 @@ type WalletInitImportParamsBodyPrivateKey struct {
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
 	//
 	// Any of "HPKE".
-	EncryptionType string `json:"encryption_type,omitzero" api:"required"`
+	EncryptionType HpkeEncryption `json:"encryption_type,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as "private-key".
 	EntropyType constant.PrivateKey `json:"entropy_type" default:"private-key"`
 	paramObj
@@ -8129,12 +8063,6 @@ func (r WalletInitImportParamsBodyPrivateKey) MarshalJSON() (data []byte, err er
 }
 func (r *WalletInitImportParamsBodyPrivateKey) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
-}
-
-func init() {
-	apijson.RegisterFieldValidator[WalletInitImportParamsBodyPrivateKey](
-		"encryption_type", "HPKE",
-	)
 }
 
 type WalletSubmitImportParams struct {
@@ -8196,7 +8124,7 @@ type WalletSubmitImportParamsWalletHD struct {
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
 	//
 	// Any of "HPKE".
-	EncryptionType string `json:"encryption_type,omitzero" api:"required"`
+	EncryptionType HpkeEncryption `json:"encryption_type,omitzero" api:"required"`
 	// The index of the wallet to import.
 	Index int64 `json:"index" api:"required"`
 	// Optional HPKE configuration for wallet import decryption. These parameters allow
@@ -8218,12 +8146,6 @@ func (r *WalletSubmitImportParamsWalletHD) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func init() {
-	apijson.RegisterFieldValidator[WalletSubmitImportParamsWalletHD](
-		"encryption_type", "HPKE",
-	)
-}
-
 // The properties Address, ChainType, Ciphertext, EncapsulatedKey, EncryptionType,
 // EntropyType are required.
 type WalletSubmitImportParamsWalletPrivateKey struct {
@@ -8242,7 +8164,7 @@ type WalletSubmitImportParamsWalletPrivateKey struct {
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
 	//
 	// Any of "HPKE".
-	EncryptionType string `json:"encryption_type,omitzero" api:"required"`
+	EncryptionType HpkeEncryption `json:"encryption_type,omitzero" api:"required"`
 	// Optional HPKE configuration for wallet import decryption. These parameters allow
 	// importing wallets encrypted by external providers that use different HPKE
 	// configurations.
@@ -8258,12 +8180,6 @@ func (r WalletSubmitImportParamsWalletPrivateKey) MarshalJSON() (data []byte, er
 }
 func (r *WalletSubmitImportParamsWalletPrivateKey) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
-}
-
-func init() {
-	apijson.RegisterFieldValidator[WalletSubmitImportParamsWalletPrivateKey](
-		"encryption_type", "HPKE",
-	)
 }
 
 // The property SignerID is required.
@@ -8342,7 +8258,7 @@ type WalletExportParams struct {
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
 	//
 	// Any of "HPKE".
-	EncryptionType WalletExportParamsEncryptionType `json:"encryption_type,omitzero" api:"required"`
+	EncryptionType HpkeEncryption `json:"encryption_type,omitzero" api:"required"`
 	// The base64-encoded encryption public key to encrypt the wallet private key with.
 	RecipientPublicKey string `json:"recipient_public_key" api:"required"`
 	// Request authorization signature. If multiple signatures are required, they
@@ -8361,13 +8277,6 @@ func (r WalletExportParams) MarshalJSON() (data []byte, err error) {
 func (r *WalletExportParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-// The encryption type of the wallet to import. Currently only supports `HPKE`.
-type WalletExportParamsEncryptionType string
-
-const (
-	WalletExportParamsEncryptionTypeHpke WalletExportParamsEncryptionType = "HPKE"
-)
 
 type WalletRawSignParams struct {
 	// Provide either `hash` (to sign a pre-computed hash) OR `bytes`, `encoding`, and
