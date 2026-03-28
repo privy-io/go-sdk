@@ -58,8 +58,10 @@ func TestKeyQuorums(t *testing.T) {
 	}
 
 	kq1 := createKeyQuorum(t, ctx, client, KeyQuorumNewParams{
-		DisplayName: String("test-key-quorum"),
-		PublicKeys:  []string{pair1.PublicKey, pair2.PublicKey},
+		KeyQuorumCreateRequestBody: KeyQuorumCreateRequestBody{
+			DisplayName: String("test-key-quorum"),
+			PublicKeys:  []string{pair1.PublicKey, pair2.PublicKey},
+		},
 	}, authorization.AuthorizationContext{
 		PrivateKeys: []string{pair1.PrivateKey, pair2.PrivateKey},
 	})
@@ -74,7 +76,9 @@ func TestKeyQuorums(t *testing.T) {
 			ctx,
 			kq1.ID,
 			KeyQuorumUpdateParams{
-				DisplayName: String("go-sdk-test-key-quorum-updated"),
+				KeyQuorumUpdateRequestBody: KeyQuorumUpdateRequestBodyParam{
+					DisplayName: String("go-sdk-test-key-quorum-updated"),
+				},
 			},
 			WithAuthorizationContext(authCtx),
 		)

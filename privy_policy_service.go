@@ -109,7 +109,7 @@ func (s *PrivyPolicyService) Delete(
 	policyID string,
 	params PolicyDeleteParams,
 	opts ...RpcOption,
-) (*PolicyDeleteResponse, error) {
+) (*SuccessResponse, error) {
 	options := applyRpcOptions(opts)
 
 	// Generate authorization signature if context is provided
@@ -219,7 +219,7 @@ func (s *PrivyPolicyService) DeleteRule(
 	ruleID string,
 	params PolicyDeleteRuleParams,
 	opts ...RpcOption,
-) (*PolicyDeleteRuleResponse, error) {
+) (*SuccessResponse, error) {
 	options := applyRpcOptions(opts)
 
 	// Generate authorization signature if context is provided

@@ -25,13 +25,15 @@ func (s *PrivyEthereumWalletService) Sign7702Authorization(
 	params EthereumSign7702AuthorizationRpcInputParams,
 	opts ...RpcOption,
 ) (*EthereumSign7702AuthorizationRpcResponseData, error) {
-	input := EthereumSign7702AuthorizationRpcInput{
+	input := EthereumSign7702AuthorizationRpcInputParam{
 		Method: EthereumSign7702AuthorizationRpcInputMethodEthSign7702Authorization,
 		Params: params,
 	}
 
 	rpcParams := WalletRpcParams{
-		OfEthSign7702Authorization: &input,
+		WalletRpcRequestBody: WalletRpcRequestBodyUnionParam{
+			OfEthSign7702Authorization: &input,
+		},
 	}
 
 	response, err := s.walletService.Rpc(ctx, walletID, rpcParams, opts...)
@@ -54,13 +56,15 @@ func (s *PrivyEthereumWalletService) SignUserOperation(
 	params EthereumSignUserOperationRpcInputParams,
 	opts ...RpcOption,
 ) (*EthereumSignUserOperationRpcResponseData, error) {
-	input := EthereumSignUserOperationRpcInput{
+	input := EthereumSignUserOperationRpcInputParam{
 		Method: EthereumSignUserOperationRpcInputMethodEthSignUserOperation,
 		Params: params,
 	}
 
 	rpcParams := WalletRpcParams{
-		OfEthSignUserOperation: &input,
+		WalletRpcRequestBody: WalletRpcRequestBodyUnionParam{
+			OfEthSignUserOperation: &input,
+		},
 	}
 
 	response, err := s.walletService.Rpc(ctx, walletID, rpcParams, opts...)
@@ -83,13 +87,15 @@ func (s *PrivyEthereumWalletService) SignSecp256k1(
 	params EthereumSecp256k1SignRpcInputParams,
 	opts ...RpcOption,
 ) (*EthereumSecp256k1SignRpcResponseData, error) {
-	input := EthereumSecp256k1SignRpcInput{
+	input := EthereumSecp256k1SignRpcInputParam{
 		Method: EthereumSecp256k1SignRpcInputMethodSecp256k1Sign,
 		Params: params,
 	}
 
 	rpcParams := WalletRpcParams{
-		OfSecp256k1Sign: &input,
+		WalletRpcRequestBody: WalletRpcRequestBodyUnionParam{
+			OfSecp256k1Sign: &input,
+		},
 	}
 
 	response, err := s.walletService.Rpc(ctx, walletID, rpcParams, opts...)
@@ -147,7 +153,7 @@ func (s *PrivyEthereumWalletService) signMessage(
 	encoding EthereumPersonalSignRpcInputParamsEncoding,
 	opts ...RpcOption,
 ) (*EthereumPersonalSignRpcResponseData, error) {
-	input := EthereumPersonalSignRpcInput{
+	input := EthereumPersonalSignRpcInputParam{
 		Method: EthereumPersonalSignRpcInputMethodPersonalSign,
 		Params: EthereumPersonalSignRpcInputParams{
 			Message:  message,
@@ -156,7 +162,9 @@ func (s *PrivyEthereumWalletService) signMessage(
 	}
 
 	params := WalletRpcParams{
-		OfPersonalSign: &input,
+		WalletRpcRequestBody: WalletRpcRequestBodyUnionParam{
+			OfPersonalSign: &input,
+		},
 	}
 
 	response, err := s.walletService.Rpc(ctx, walletID, params, opts...)
@@ -179,13 +187,15 @@ func (s *PrivyEthereumWalletService) SignTypedData(
 	params EthereumSignTypedDataRpcInputParams,
 	opts ...RpcOption,
 ) (*EthereumSignTypedDataRpcResponseData, error) {
-	input := EthereumSignTypedDataRpcInput{
+	input := EthereumSignTypedDataRpcInputParam{
 		Method: EthereumSignTypedDataRpcInputMethodEthSignTypedDataV4,
 		Params: params,
 	}
 
 	rpcParams := WalletRpcParams{
-		OfEthSignTypedDataV4: &input,
+		WalletRpcRequestBody: WalletRpcRequestBodyUnionParam{
+			OfEthSignTypedDataV4: &input,
+		},
 	}
 
 	response, err := s.walletService.Rpc(ctx, walletID, rpcParams, opts...)
@@ -208,13 +218,15 @@ func (s *PrivyEthereumWalletService) SignTransaction(
 	params EthereumSignTransactionRpcInputParams,
 	opts ...RpcOption,
 ) (*EthereumSignTransactionRpcResponseData, error) {
-	input := EthereumSignTransactionRpcInput{
+	input := EthereumSignTransactionRpcInputParam{
 		Method: EthereumSignTransactionRpcInputMethodEthSignTransaction,
 		Params: params,
 	}
 
 	rpcParams := WalletRpcParams{
-		OfEthSignTransaction: &input,
+		WalletRpcRequestBody: WalletRpcRequestBodyUnionParam{
+			OfEthSignTransaction: &input,
+		},
 	}
 
 	response, err := s.walletService.Rpc(ctx, walletID, rpcParams, opts...)
@@ -238,14 +250,16 @@ func (s *PrivyEthereumWalletService) SendTransaction(
 	params EthereumSendTransactionRpcInputParams,
 	opts ...RpcOption,
 ) (*EthereumSendTransactionRpcResponseData, error) {
-	input := EthereumSendTransactionRpcInput{
+	input := EthereumSendTransactionRpcInputParam{
 		Caip2:  caip2,
 		Method: EthereumSendTransactionRpcInputMethodEthSendTransaction,
 		Params: params,
 	}
 
 	rpcParams := WalletRpcParams{
-		OfEthSendTransaction: &input,
+		WalletRpcRequestBody: WalletRpcRequestBodyUnionParam{
+			OfEthSendTransaction: &input,
+		},
 	}
 
 	response, err := s.walletService.Rpc(ctx, walletID, rpcParams, opts...)

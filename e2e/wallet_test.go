@@ -116,7 +116,9 @@ func TestWallets(t *testing.T) {
 			ctx,
 			walletID,
 			WalletUpdateParams{
-				Owner: param.NullStruct[WalletUpdateParamsOwnerUnion](),
+				WalletUpdateRequestBody: WalletUpdateRequestBody{
+					Owner: param.NullStruct[WalletUpdateRequestBodyOwnerUnion](),
+				},
 			},
 			WithAuthorizationContext(authCtx),
 		)
@@ -138,8 +140,10 @@ func TestWallets(t *testing.T) {
 			ctx,
 			walletID,
 			WalletUpdateParams{
-				Owner: WalletUpdateParamsOwnerUnion{
-					OfPublicKeyOwner: &WalletUpdateParamsOwnerPublicKeyOwner{PublicKey: res.p256KeyPair.PublicKey},
+				WalletUpdateRequestBody: WalletUpdateRequestBody{
+					Owner: WalletUpdateRequestBodyOwnerUnion{
+						OfPublicKeyOwner: &WalletUpdateRequestBodyOwnerPublicKeyOwner{PublicKey: res.p256KeyPair.PublicKey},
+					},
 				},
 			},
 			WithAuthorizationContext(authCtx),
@@ -387,9 +391,11 @@ func TestWallets(t *testing.T) {
 					ctx,
 					wallet.id,
 					WalletRawSignParams{
-						Params: WalletRawSignParamsParamsUnion{
-							OfHash: &WalletRawSignParamsParamsHash{
-								Hash: hash,
+						RawSignInput: RawSignInput{
+							Params: RawSignInputParamsUnion{
+								OfRawSignHashs: &RawSignHashParams{
+									Hash: hash,
+								},
 							},
 						},
 					},
@@ -402,7 +408,7 @@ func TestWallets(t *testing.T) {
 				if result.Data.Signature == "" {
 					t.Error("expected signature to be non-empty")
 				}
-				if result.Method != WalletRawSignResponseMethodRawSign {
+				if result.Method != RawSignResponseMethodRawSign {
 					t.Errorf("expected method to be raw_sign, got %s", result.Method)
 				}
 			})
