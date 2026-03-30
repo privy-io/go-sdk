@@ -72,8 +72,8 @@ func (s *PrivyWalletService) Rpc(
 	options := applyRpcOptions(opts)
 
 	requestExpiry := options.RequestExpiry
-	if requestExpiry == 0 {
-		requestExpiry = RequestExpiry(s.defaultRequestExpiryMs)
+	if requestExpiry == nil {
+		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
 	prepared, err := prepareRequest(ctx, s.appID, s.jwtExchanger, prepareRequestInput{
@@ -89,14 +89,14 @@ func (s *PrivyWalletService) Rpc(
 		return nil, err
 	}
 
-	if prepared.PrivyAuthorizationSignature != nil {
-		params.PrivyAuthorizationSignature = param.NewOpt(*prepared.PrivyAuthorizationSignature)
+	if prepared.privyAuthorizationSignature != nil {
+		params.PrivyAuthorizationSignature = param.NewOpt(*prepared.privyAuthorizationSignature)
 	}
-	if prepared.PrivyIdempotencyKey != nil {
-		params.PrivyIdempotencyKey = param.NewOpt(*prepared.PrivyIdempotencyKey)
+	if prepared.privyIdempotencyKey != nil {
+		params.PrivyIdempotencyKey = param.NewOpt(*prepared.privyIdempotencyKey)
 	}
-	if prepared.PrivyRequestExpiry != nil {
-		params.PrivyRequestExpiry = param.NewOpt(*prepared.PrivyRequestExpiry)
+	if prepared.privyRequestExpiry != nil {
+		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
 	}
 
 	return s.WalletService.Rpc(ctx, walletID, params)
@@ -122,8 +122,8 @@ func (s *PrivyWalletService) Update(
 	options := applyRpcOptions(opts)
 
 	requestExpiry := options.RequestExpiry
-	if requestExpiry == 0 {
-		requestExpiry = RequestExpiry(s.defaultRequestExpiryMs)
+	if requestExpiry == nil {
+		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
 	prepared, err := prepareRequest(ctx, s.appID, s.jwtExchanger, prepareRequestInput{
@@ -138,11 +138,11 @@ func (s *PrivyWalletService) Update(
 		return nil, err
 	}
 
-	if prepared.PrivyAuthorizationSignature != nil {
-		params.PrivyAuthorizationSignature = param.NewOpt(*prepared.PrivyAuthorizationSignature)
+	if prepared.privyAuthorizationSignature != nil {
+		params.PrivyAuthorizationSignature = param.NewOpt(*prepared.privyAuthorizationSignature)
 	}
-	if prepared.PrivyRequestExpiry != nil {
-		params.PrivyRequestExpiry = param.NewOpt(*prepared.PrivyRequestExpiry)
+	if prepared.privyRequestExpiry != nil {
+		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
 	}
 
 	return s.WalletService.Update(ctx, walletID, params)
@@ -168,8 +168,8 @@ func (s *PrivyWalletService) RawSign(
 	options := applyRpcOptions(opts)
 
 	requestExpiry := options.RequestExpiry
-	if requestExpiry == 0 {
-		requestExpiry = RequestExpiry(s.defaultRequestExpiryMs)
+	if requestExpiry == nil {
+		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
 	prepared, err := prepareRequest(ctx, s.appID, s.jwtExchanger, prepareRequestInput{
@@ -184,14 +184,14 @@ func (s *PrivyWalletService) RawSign(
 		return nil, err
 	}
 
-	if prepared.PrivyAuthorizationSignature != nil {
-		params.PrivyAuthorizationSignature = param.NewOpt(*prepared.PrivyAuthorizationSignature)
+	if prepared.privyAuthorizationSignature != nil {
+		params.PrivyAuthorizationSignature = param.NewOpt(*prepared.privyAuthorizationSignature)
 	}
-	if prepared.PrivyIdempotencyKey != nil {
-		params.PrivyIdempotencyKey = param.NewOpt(*prepared.PrivyIdempotencyKey)
+	if prepared.privyIdempotencyKey != nil {
+		params.PrivyIdempotencyKey = param.NewOpt(*prepared.privyIdempotencyKey)
 	}
-	if prepared.PrivyRequestExpiry != nil {
-		params.PrivyRequestExpiry = param.NewOpt(*prepared.PrivyRequestExpiry)
+	if prepared.privyRequestExpiry != nil {
+		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
 	}
 
 	return s.WalletService.RawSign(ctx, walletID, params)
@@ -362,8 +362,8 @@ func (s *PrivyWalletService) Export(
 	options := applyRpcOptions(opts)
 
 	requestExpiry := options.RequestExpiry
-	if requestExpiry == 0 {
-		requestExpiry = RequestExpiry(s.defaultRequestExpiryMs)
+	if requestExpiry == nil {
+		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
 	recipient, err := hpke.NewHpkeRecipient()
@@ -388,11 +388,11 @@ func (s *PrivyWalletService) Export(
 		return nil, err
 	}
 
-	if prepared.PrivyAuthorizationSignature != nil {
-		params.PrivyAuthorizationSignature = param.NewOpt(*prepared.PrivyAuthorizationSignature)
+	if prepared.privyAuthorizationSignature != nil {
+		params.PrivyAuthorizationSignature = param.NewOpt(*prepared.privyAuthorizationSignature)
 	}
-	if prepared.PrivyRequestExpiry != nil {
-		params.PrivyRequestExpiry = param.NewOpt(*prepared.PrivyRequestExpiry)
+	if prepared.privyRequestExpiry != nil {
+		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
 	}
 
 	response, err := s.WalletService.Export(ctx, walletID, params)

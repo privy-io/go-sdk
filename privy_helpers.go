@@ -29,25 +29,25 @@ func applyRpcOptions(opts []RpcOption) *rpcOptions {
 // prepareRequestInput contains the request details for prepareRequest.
 type prepareRequestInput struct {
 	authorizationContext *authorization.AuthorizationContext
-	idempotencyKey       string
-	requestExpiry        int64  // Unix timestamp in milliseconds; 0 means not set
+	idempotencyKey       *string
+	requestExpiry        *int64
 	method               string // HTTP method: "POST", "PATCH", etc.
 	url                  string // Full request URL
 	body                 any    // Request body (JSON-serializable)
 }
 
-// PreparedRequest contains the headers computed by prepareRequest that should
+// preparedRequest contains the headers computed by prepareRequest that should
 // be applied to the underlying API call. Mirrors the Node SDK's PreparedRequest.
-type PreparedRequest struct {
-	// PrivyAuthorizationSignature is the computed request signature header.
-	// Omitted if no authorization signature should be generated.
-	PrivyAuthorizationSignature *string
+type preparedRequest struct {
+	// privyAuthorizationSignature is the computed request signature header.
+	// Nil if no authorization signature should be generated.
+	privyAuthorizationSignature *string
 
-	// PrivyIdempotencyKey is the idempotency key header, if set.
-	PrivyIdempotencyKey *string
+	// privyIdempotencyKey is the idempotency key header, if set.
+	privyIdempotencyKey *string
 
-	// PrivyRequestExpiry is the request expiry header, if set.
-	PrivyRequestExpiry *string
+	// privyRequestExpiry is the request expiry header, if set.
+	privyRequestExpiry *string
 }
 
 // prepareRequest computes the authorization signature and assembles all
@@ -64,15 +64,15 @@ func prepareRequest(
 	appID string,
 	jwtExchanger jwtexchange.JwtExchanger,
 	input prepareRequestInput,
-) (*PreparedRequest, error) {
-	result := &PreparedRequest{}
+) (*preparedRequest, error) {
+	result := &preparedRequest{}
 
-	if input.idempotencyKey != "" {
-		result.PrivyIdempotencyKey = stringPtr(input.idempotencyKey)
+	if input.idempotencyKey != nil {
+		result.privyIdempotencyKey = input.idempotencyKey
 	}
 
-	if input.requestExpiry != 0 {
-		result.PrivyRequestExpiry = stringPtr(strconv.FormatInt(input.requestExpiry, 10))
+	if input.requestExpiry != nil {
+		result.privyRequestExpiry = stringPtr(strconv.FormatInt(*input.requestExpiry, 10))
 	}
 
 	// Generate authorization signature if context is provided
@@ -81,11 +81,11 @@ func prepareRequest(
 		sigHeaders := map[string]string{
 			"privy-app-id": appID,
 		}
-		if result.PrivyIdempotencyKey != nil {
-			sigHeaders["privy-idempotency-key"] = *result.PrivyIdempotencyKey
+		if result.privyIdempotencyKey != nil {
+			sigHeaders["privy-idempotency-key"] = *result.privyIdempotencyKey
 		}
-		if result.PrivyRequestExpiry != nil {
-			sigHeaders["privy-request-expiry"] = *result.PrivyRequestExpiry
+		if result.privyRequestExpiry != nil {
+			sigHeaders["privy-request-expiry"] = *result.privyRequestExpiry
 		}
 
 		sigInput := authorization.WalletApiRequestSignatureInput{
@@ -108,7 +108,7 @@ func prepareRequest(
 		}
 
 		if len(signatures) > 0 {
-			result.PrivyAuthorizationSignature = stringPtr(strings.Join(signatures, ","))
+			result.privyAuthorizationSignature = stringPtr(strings.Join(signatures, ","))
 		}
 	}
 
@@ -116,5 +116,9 @@ func prepareRequest(
 }
 
 func stringPtr(v string) *string {
+	return &v
+}
+
+func int64Ptr(v int64) *int64 {
 	return &v
 }
