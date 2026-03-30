@@ -3,9 +3,12 @@
 package privyclient
 
 import (
+	"encoding/json"
+
 	"github.com/privy-io/go-sdk/internal/apijson"
 	"github.com/privy-io/go-sdk/option"
 	"github.com/privy-io/go-sdk/packages/param"
+	"github.com/privy-io/go-sdk/packages/respjson"
 )
 
 // EmbeddedWalletService contains methods and other services that help with
@@ -25,6 +28,147 @@ func NewEmbeddedWalletService(opts ...option.RequestOption) (r EmbeddedWalletSer
 	r = EmbeddedWalletService{}
 	r.Options = opts
 	return
+}
+
+// The supported smart wallet providers.
+type SmartWalletType string
+
+const (
+	SmartWalletTypeSafe                SmartWalletType = "safe"
+	SmartWalletTypeKernel              SmartWalletType = "kernel"
+	SmartWalletTypeLightAccount        SmartWalletType = "light_account"
+	SmartWalletTypeBiconomy            SmartWalletType = "biconomy"
+	SmartWalletTypeCoinbaseSmartWallet SmartWalletType = "coinbase_smart_wallet"
+	SmartWalletTypeThirdweb            SmartWalletType = "thirdweb"
+)
+
+// The Alchemy paymaster context for a smart wallet network configuration.
+type AlchemyPaymasterContext struct {
+	PolicyID string `json:"policy_id" api:"required" format:"uuid"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		PolicyID    respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AlchemyPaymasterContext) RawJSON() string { return r.JSON.raw }
+func (r *AlchemyPaymasterContext) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Network configuration for a smart wallet.
+type SmartWalletNetworkConfiguration struct {
+	BundlerURL string `json:"bundler_url" api:"required"`
+	ChainID    string `json:"chain_id" api:"required"`
+	ChainName  string `json:"chain_name"`
+	// The Alchemy paymaster context for a smart wallet network configuration.
+	PaymasterContext AlchemyPaymasterContext `json:"paymaster_context"`
+	PaymasterURL     string                  `json:"paymaster_url"`
+	RpcURL           string                  `json:"rpc_url"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		BundlerURL       respjson.Field
+		ChainID          respjson.Field
+		ChainName        respjson.Field
+		PaymasterContext respjson.Field
+		PaymasterURL     respjson.Field
+		RpcURL           respjson.Field
+		ExtraFields      map[string]respjson.Field
+		raw              string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SmartWalletNetworkConfiguration) RawJSON() string { return r.JSON.raw }
+func (r *SmartWalletNetworkConfiguration) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A disabled smart wallet configuration.
+type SmartWalletConfigurationDisabled struct {
+	// Any of false.
+	Enabled bool `json:"enabled" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Enabled     respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SmartWalletConfigurationDisabled) RawJSON() string { return r.JSON.raw }
+func (r *SmartWalletConfigurationDisabled) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// An enabled smart wallet configuration.
+type SmartWalletConfigurationEnabled struct {
+	ConfiguredNetworks []SmartWalletNetworkConfiguration `json:"configured_networks" api:"required"`
+	// Any of true.
+	Enabled bool `json:"enabled" api:"required"`
+	// The supported smart wallet providers.
+	//
+	// Any of "safe", "kernel", "light_account", "biconomy", "coinbase_smart_wallet",
+	// "thirdweb".
+	SmartWalletType    SmartWalletType `json:"smart_wallet_type" api:"required"`
+	SmartWalletVersion string          `json:"smart_wallet_version"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ConfiguredNetworks respjson.Field
+		Enabled            respjson.Field
+		SmartWalletType    respjson.Field
+		SmartWalletVersion respjson.Field
+		ExtraFields        map[string]respjson.Field
+		raw                string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SmartWalletConfigurationEnabled) RawJSON() string { return r.JSON.raw }
+func (r *SmartWalletConfigurationEnabled) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// SmartWalletConfigurationUnion contains all possible properties and values from
+// [SmartWalletConfigurationDisabled], [SmartWalletConfigurationEnabled].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type SmartWalletConfigurationUnion struct {
+	Enabled bool `json:"enabled"`
+	// This field is from variant [SmartWalletConfigurationEnabled].
+	ConfiguredNetworks []SmartWalletNetworkConfiguration `json:"configured_networks"`
+	// This field is from variant [SmartWalletConfigurationEnabled].
+	SmartWalletType SmartWalletType `json:"smart_wallet_type"`
+	// This field is from variant [SmartWalletConfigurationEnabled].
+	SmartWalletVersion string `json:"smart_wallet_version"`
+	JSON               struct {
+		Enabled            respjson.Field
+		ConfiguredNetworks respjson.Field
+		SmartWalletType    respjson.Field
+		SmartWalletVersion respjson.Field
+		raw                string
+	} `json:"-"`
+}
+
+func (u SmartWalletConfigurationUnion) AsSmartWalletConfigurationDisabled() (v SmartWalletConfigurationDisabled) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u SmartWalletConfigurationUnion) AsSmartWalletConfigurationEnabled() (v SmartWalletConfigurationEnabled) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u SmartWalletConfigurationUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *SmartWalletConfigurationUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
 // An additional signer configuration for a wallet.

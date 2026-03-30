@@ -361,24 +361,12 @@ const (
 	LinkedAccountEthereumWalletClientUnknown LinkedAccountEthereumWalletClient = "unknown"
 )
 
-// The provider for a smart wallet.
-type SmartWalletType string
-
-const (
-	SmartWalletTypeSafe                SmartWalletType = "safe"
-	SmartWalletTypeKernel              SmartWalletType = "kernel"
-	SmartWalletTypeLightAccount        SmartWalletType = "light_account"
-	SmartWalletTypeBiconomy            SmartWalletType = "biconomy"
-	SmartWalletTypeCoinbaseSmartWallet SmartWalletType = "coinbase_smart_wallet"
-	SmartWalletTypeThirdweb            SmartWalletType = "thirdweb"
-)
-
 // A smart wallet account linked to the user.
 type LinkedAccountSmartWallet struct {
 	Address          string  `json:"address" api:"required"`
 	FirstVerifiedAt  float64 `json:"first_verified_at" api:"required"`
 	LatestVerifiedAt float64 `json:"latest_verified_at" api:"required"`
-	// The provider for a smart wallet.
+	// The supported smart wallet providers.
 	//
 	// Any of "safe", "kernel", "light_account", "biconomy", "coinbase_smart_wallet",
 	// "thirdweb".

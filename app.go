@@ -4,7 +4,6 @@ package privyclient
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -313,29 +312,30 @@ type AppResponse struct {
 	LogoURL                     string                            `json:"logo_url" api:"required"`
 	MaxLinkedWalletsPerUser     float64                           `json:"max_linked_wallets_per_user" api:"required"`
 	// Any of "sms", "totp", "passkey".
-	MfaMethods                  []string                          `json:"mfa_methods" api:"required"`
-	Name                        string                            `json:"name" api:"required"`
-	PasskeyAuth                 bool                              `json:"passkey_auth" api:"required"`
-	PasskeysForSignupEnabled    bool                              `json:"passkeys_for_signup_enabled" api:"required"`
-	PrivacyPolicyURL            string                            `json:"privacy_policy_url" api:"required"`
-	RequireUsersAcceptTerms     bool                              `json:"require_users_accept_terms" api:"required"`
-	ShowWalletLoginFirst        bool                              `json:"show_wallet_login_first" api:"required"`
-	SmartWalletConfig           AppResponseSmartWalletConfigUnion `json:"smart_wallet_config" api:"required"`
-	SMSAuth                     bool                              `json:"sms_auth" api:"required"`
-	SolanaWalletAuth            bool                              `json:"solana_wallet_auth" api:"required"`
-	SpotifyOAuth                bool                              `json:"spotify_oauth" api:"required"`
-	TelegramAuth                bool                              `json:"telegram_auth" api:"required"`
-	TermsAndConditionsURL       string                            `json:"terms_and_conditions_url" api:"required"`
-	Theme                       string                            `json:"theme" api:"required"`
-	TiktokOAuth                 bool                              `json:"tiktok_oauth" api:"required"`
-	TwitchOAuth                 bool                              `json:"twitch_oauth" api:"required"`
-	TwitterOAuth                bool                              `json:"twitter_oauth" api:"required"`
-	TwitterOAuthOnMobileEnabled bool                              `json:"twitter_oauth_on_mobile_enabled" api:"required"`
-	VerificationKey             string                            `json:"verification_key" api:"required"`
-	WalletAuth                  bool                              `json:"wallet_auth" api:"required"`
-	WalletConnectCloudProjectID string                            `json:"wallet_connect_cloud_project_id" api:"required"`
-	WhatsappEnabled             bool                              `json:"whatsapp_enabled" api:"required"`
-	CaptchaSiteKey              string                            `json:"captcha_site_key"`
+	MfaMethods               []string `json:"mfa_methods" api:"required"`
+	Name                     string   `json:"name" api:"required"`
+	PasskeyAuth              bool     `json:"passkey_auth" api:"required"`
+	PasskeysForSignupEnabled bool     `json:"passkeys_for_signup_enabled" api:"required"`
+	PrivacyPolicyURL         string   `json:"privacy_policy_url" api:"required"`
+	RequireUsersAcceptTerms  bool     `json:"require_users_accept_terms" api:"required"`
+	ShowWalletLoginFirst     bool     `json:"show_wallet_login_first" api:"required"`
+	// The configuration object for smart wallets.
+	SmartWalletConfig           SmartWalletConfigurationUnion `json:"smart_wallet_config" api:"required"`
+	SMSAuth                     bool                          `json:"sms_auth" api:"required"`
+	SolanaWalletAuth            bool                          `json:"solana_wallet_auth" api:"required"`
+	SpotifyOAuth                bool                          `json:"spotify_oauth" api:"required"`
+	TelegramAuth                bool                          `json:"telegram_auth" api:"required"`
+	TermsAndConditionsURL       string                        `json:"terms_and_conditions_url" api:"required"`
+	Theme                       string                        `json:"theme" api:"required"`
+	TiktokOAuth                 bool                          `json:"tiktok_oauth" api:"required"`
+	TwitchOAuth                 bool                          `json:"twitch_oauth" api:"required"`
+	TwitterOAuth                bool                          `json:"twitter_oauth" api:"required"`
+	TwitterOAuthOnMobileEnabled bool                          `json:"twitter_oauth_on_mobile_enabled" api:"required"`
+	VerificationKey             string                        `json:"verification_key" api:"required"`
+	WalletAuth                  bool                          `json:"wallet_auth" api:"required"`
+	WalletConnectCloudProjectID string                        `json:"wallet_connect_cloud_project_id" api:"required"`
+	WhatsappEnabled             bool                          `json:"whatsapp_enabled" api:"required"`
+	CaptchaSiteKey              string                        `json:"captcha_site_key"`
 	// Configuration for funding and on-ramp options.
 	FundingConfig FundingConfigResponseSchema `json:"funding_config"`
 	// Configuration for Telegram authentication.
@@ -461,131 +461,6 @@ const (
 	AppResponseEnabledCaptchaProviderTurnstile AppResponseEnabledCaptchaProvider = "turnstile"
 	AppResponseEnabledCaptchaProviderHcaptcha  AppResponseEnabledCaptchaProvider = "hcaptcha"
 )
-
-// AppResponseSmartWalletConfigUnion contains all possible properties and values
-// from [AppResponseSmartWalletConfigEnabled],
-// [AppResponseSmartWalletConfigObject].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-type AppResponseSmartWalletConfigUnion struct {
-	Enabled bool `json:"enabled"`
-	// This field is from variant [AppResponseSmartWalletConfigObject].
-	ConfiguredNetworks []AppResponseSmartWalletConfigObjectConfiguredNetwork `json:"configured_networks"`
-	// This field is from variant [AppResponseSmartWalletConfigObject].
-	SmartWalletType string `json:"smart_wallet_type"`
-	// This field is from variant [AppResponseSmartWalletConfigObject].
-	SmartWalletVersion string `json:"smart_wallet_version"`
-	JSON               struct {
-		Enabled            respjson.Field
-		ConfiguredNetworks respjson.Field
-		SmartWalletType    respjson.Field
-		SmartWalletVersion respjson.Field
-		raw                string
-	} `json:"-"`
-}
-
-func (u AppResponseSmartWalletConfigUnion) AsAppResponseSmartWalletConfigEnabled() (v AppResponseSmartWalletConfigEnabled) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u AppResponseSmartWalletConfigUnion) AsAppResponseSmartWalletConfigObject() (v AppResponseSmartWalletConfigObject) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u AppResponseSmartWalletConfigUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *AppResponseSmartWalletConfigUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type AppResponseSmartWalletConfigEnabled struct {
-	// Any of false.
-	Enabled bool `json:"enabled" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Enabled     respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AppResponseSmartWalletConfigEnabled) RawJSON() string { return r.JSON.raw }
-func (r *AppResponseSmartWalletConfigEnabled) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type AppResponseSmartWalletConfigObject struct {
-	ConfiguredNetworks []AppResponseSmartWalletConfigObjectConfiguredNetwork `json:"configured_networks" api:"required"`
-	// Any of true.
-	Enabled bool `json:"enabled" api:"required"`
-	// Any of "safe", "kernel", "light_account", "biconomy", "coinbase_smart_wallet",
-	// "thirdweb".
-	SmartWalletType    string `json:"smart_wallet_type" api:"required"`
-	SmartWalletVersion string `json:"smart_wallet_version"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ConfiguredNetworks respjson.Field
-		Enabled            respjson.Field
-		SmartWalletType    respjson.Field
-		SmartWalletVersion respjson.Field
-		ExtraFields        map[string]respjson.Field
-		raw                string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AppResponseSmartWalletConfigObject) RawJSON() string { return r.JSON.raw }
-func (r *AppResponseSmartWalletConfigObject) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type AppResponseSmartWalletConfigObjectConfiguredNetwork struct {
-	BundlerURL       string                                                              `json:"bundler_url" api:"required"`
-	ChainID          string                                                              `json:"chain_id" api:"required"`
-	ChainName        string                                                              `json:"chain_name"`
-	PaymasterContext AppResponseSmartWalletConfigObjectConfiguredNetworkPaymasterContext `json:"paymaster_context"`
-	PaymasterURL     string                                                              `json:"paymaster_url"`
-	RpcURL           string                                                              `json:"rpc_url"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		BundlerURL       respjson.Field
-		ChainID          respjson.Field
-		ChainName        respjson.Field
-		PaymasterContext respjson.Field
-		PaymasterURL     respjson.Field
-		RpcURL           respjson.Field
-		ExtraFields      map[string]respjson.Field
-		raw              string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AppResponseSmartWalletConfigObjectConfiguredNetwork) RawJSON() string { return r.JSON.raw }
-func (r *AppResponseSmartWalletConfigObjectConfiguredNetwork) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type AppResponseSmartWalletConfigObjectConfiguredNetworkPaymasterContext struct {
-	PolicyID string `json:"policy_id" api:"required" format:"uuid"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		PolicyID    respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AppResponseSmartWalletConfigObjectConfiguredNetworkPaymasterContext) RawJSON() string {
-	return r.JSON.raw
-}
-func (r *AppResponseSmartWalletConfigObjectConfiguredNetworkPaymasterContext) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
 
 // Allowlist invite input for an email address.
 //

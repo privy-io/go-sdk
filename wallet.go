@@ -2839,13 +2839,13 @@ type EthereumSignUserOperationRpcInputParamsUserOperationResp struct {
 	MaxFeePerGas                  string `json:"max_fee_per_gas" api:"required"`
 	MaxPriorityFeePerGas          string `json:"max_priority_fee_per_gas" api:"required"`
 	Nonce                         string `json:"nonce" api:"required"`
-	Paymaster                     string `json:"paymaster" api:"required"`
-	PaymasterData                 string `json:"paymaster_data" api:"required"`
-	PaymasterPostOpGasLimit       string `json:"paymaster_post_op_gas_limit" api:"required"`
-	PaymasterVerificationGasLimit string `json:"paymaster_verification_gas_limit" api:"required"`
 	PreVerificationGas            string `json:"pre_verification_gas" api:"required"`
 	Sender                        string `json:"sender" api:"required"`
 	VerificationGasLimit          string `json:"verification_gas_limit" api:"required"`
+	Paymaster                     string `json:"paymaster"`
+	PaymasterData                 string `json:"paymaster_data"`
+	PaymasterPostOpGasLimit       string `json:"paymaster_post_op_gas_limit"`
+	PaymasterVerificationGasLimit string `json:"paymaster_verification_gas_limit"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		CallData                      respjson.Field
@@ -2853,13 +2853,13 @@ type EthereumSignUserOperationRpcInputParamsUserOperationResp struct {
 		MaxFeePerGas                  respjson.Field
 		MaxPriorityFeePerGas          respjson.Field
 		Nonce                         respjson.Field
+		PreVerificationGas            respjson.Field
+		Sender                        respjson.Field
+		VerificationGasLimit          respjson.Field
 		Paymaster                     respjson.Field
 		PaymasterData                 respjson.Field
 		PaymasterPostOpGasLimit       respjson.Field
 		PaymasterVerificationGasLimit respjson.Field
-		PreVerificationGas            respjson.Field
-		Sender                        respjson.Field
-		VerificationGasLimit          respjson.Field
 		ExtraFields                   map[string]respjson.Field
 		raw                           string
 	} `json:"-"`
@@ -2906,22 +2906,20 @@ func (u *EthereumSignUserOperationRpcInputParamsChainIDUnion) UnmarshalJSON(data
 }
 
 // The properties CallData, CallGasLimit, MaxFeePerGas, MaxPriorityFeePerGas,
-// Nonce, Paymaster, PaymasterData, PaymasterPostOpGasLimit,
-// PaymasterVerificationGasLimit, PreVerificationGas, Sender, VerificationGasLimit
-// are required.
+// Nonce, PreVerificationGas, Sender, VerificationGasLimit are required.
 type EthereumSignUserOperationRpcInputParamsUserOperation struct {
-	CallData                      string `json:"call_data" api:"required"`
-	CallGasLimit                  string `json:"call_gas_limit" api:"required"`
-	MaxFeePerGas                  string `json:"max_fee_per_gas" api:"required"`
-	MaxPriorityFeePerGas          string `json:"max_priority_fee_per_gas" api:"required"`
-	Nonce                         string `json:"nonce" api:"required"`
-	Paymaster                     string `json:"paymaster" api:"required"`
-	PaymasterData                 string `json:"paymaster_data" api:"required"`
-	PaymasterPostOpGasLimit       string `json:"paymaster_post_op_gas_limit" api:"required"`
-	PaymasterVerificationGasLimit string `json:"paymaster_verification_gas_limit" api:"required"`
-	PreVerificationGas            string `json:"pre_verification_gas" api:"required"`
-	Sender                        string `json:"sender" api:"required"`
-	VerificationGasLimit          string `json:"verification_gas_limit" api:"required"`
+	CallData                      string            `json:"call_data" api:"required"`
+	CallGasLimit                  string            `json:"call_gas_limit" api:"required"`
+	MaxFeePerGas                  string            `json:"max_fee_per_gas" api:"required"`
+	MaxPriorityFeePerGas          string            `json:"max_priority_fee_per_gas" api:"required"`
+	Nonce                         string            `json:"nonce" api:"required"`
+	PreVerificationGas            string            `json:"pre_verification_gas" api:"required"`
+	Sender                        string            `json:"sender" api:"required"`
+	VerificationGasLimit          string            `json:"verification_gas_limit" api:"required"`
+	Paymaster                     param.Opt[string] `json:"paymaster,omitzero"`
+	PaymasterData                 param.Opt[string] `json:"paymaster_data,omitzero"`
+	PaymasterPostOpGasLimit       param.Opt[string] `json:"paymaster_post_op_gas_limit,omitzero"`
+	PaymasterVerificationGasLimit param.Opt[string] `json:"paymaster_verification_gas_limit,omitzero"`
 	paramObj
 }
 
