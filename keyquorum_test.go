@@ -28,7 +28,7 @@ func TestKeyQuorumNewWithOptionalParams(t *testing.T) {
 		option.WithAppSecret("My App Secret"),
 	)
 	_, err := client.KeyQuorums.New(context.TODO(), privyclient.KeyQuorumNewParams{
-		KeyQuorumCreateParams: privyclient.KeyQuorumCreateParams{
+		KeyQuorumCreateRequestBody: privyclient.KeyQuorumCreateRequestBody{
 			AuthorizationThreshold: privyclient.Float(1),
 			DisplayName:            privyclient.String("Prod key quorum"),
 			KeyQuorumIDs:           []string{"string"},
@@ -63,7 +63,7 @@ func TestKeyQuorumUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"key_quorum_id",
 		privyclient.KeyQuorumUpdateParams{
-			KeyQuorumUpdateParams: privyclient.KeyQuorumUpdateParams{
+			KeyQuorumUpdateRequestBody: privyclient.KeyQuorumUpdateRequestBodyParam{
 				AuthorizationThreshold: privyclient.Float(1),
 				DisplayName:            privyclient.String("Prod key quorum"),
 				KeyQuorumIDs:           []string{"string"},
