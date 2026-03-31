@@ -101,7 +101,7 @@ func (s *PrivyKeyQuorumService) Delete(
 	keyQuorumID string,
 	params KeyQuorumDeleteParams,
 	opts ...RpcOption,
-) (*KeyQuorumDeleteResponse, error) {
+) (*SuccessResponse, error) {
 	options := applyRpcOptions(opts)
 
 	// Generate authorization signature if context is provided

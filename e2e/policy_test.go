@@ -95,7 +95,7 @@ func TestPolicies(t *testing.T) {
 
 	policy := createPolicy(t, ctx, client, PolicyNewParams{
 		Name:      "go-sdk-test-policy",
-		ChainType: PolicyNewParamsChainTypeEthereum,
+		ChainType: WalletChainTypeEthereum,
 		Version:   PolicyNewParamsVersion1_0,
 		Rules:     []PolicyNewParamsRule{},
 		Owner: PolicyNewParamsOwnerUnion{
@@ -107,7 +107,7 @@ func TestPolicies(t *testing.T) {
 		PrivateKeys: []string{pair.PrivateKey},
 	})
 
-	if policy.ChainType != PolicyChainTypeEthereum {
+	if policy.ChainType != WalletChainTypeEthereum {
 		t.Errorf("expected chain_type to be ethereum, got %s", policy.ChainType)
 	}
 
@@ -162,7 +162,7 @@ func TestPolicyRules(t *testing.T) {
 
 	policy := createPolicy(t, ctx, client, PolicyNewParams{
 		Name:      "go-sdk-test-policy-for-rules",
-		ChainType: PolicyNewParamsChainTypeEthereum,
+		ChainType: WalletChainTypeEthereum,
 		Version:   PolicyNewParamsVersion1_0,
 		Rules:     []PolicyNewParamsRule{},
 		Owner: PolicyNewParamsOwnerUnion{

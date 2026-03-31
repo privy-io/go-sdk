@@ -97,8 +97,10 @@ func setupTestWalletResources(t *testing.T, client *PrivyClient) *testWalletReso
 
 	// Create key quorum with quorum key + user
 	quorum, err := client.KeyQuorums.New(ctx, KeyQuorumNewParams{
-		PublicKeys: []string{quorumKeyPair.PublicKey},
-		UserIDs:    []string{user.ID},
+		KeyQuorumCreateRequestBody: KeyQuorumCreateRequestBody{
+			PublicKeys: []string{quorumKeyPair.PublicKey},
+			UserIDs:    []string{user.ID},
+		},
 	})
 	if err != nil {
 		t.Fatalf("failed to create key quorum: %v", err)
