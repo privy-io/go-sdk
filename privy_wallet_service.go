@@ -67,9 +67,9 @@ func (s *PrivyWalletService) Rpc(
 	ctx context.Context,
 	walletID string,
 	params WalletRpcParams,
-	opts ...RpcOption,
+	opts ...RequestOption,
 ) (*WalletRpcResponseUnion, error) {
-	options := applyRpcOptions(opts)
+	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
 	if requestExpiry == nil {
@@ -117,9 +117,9 @@ func (s *PrivyWalletService) Update(
 	ctx context.Context,
 	walletID string,
 	params WalletUpdateParams,
-	opts ...RpcOption,
+	opts ...RequestOption,
 ) (*Wallet, error) {
-	options := applyRpcOptions(opts)
+	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
 	if requestExpiry == nil {
@@ -163,9 +163,9 @@ func (s *PrivyWalletService) RawSign(
 	ctx context.Context,
 	walletID string,
 	params WalletRawSignParams,
-	opts ...RpcOption,
+	opts ...RequestOption,
 ) (*RawSignResponse, error) {
-	options := applyRpcOptions(opts)
+	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
 	if requestExpiry == nil {
@@ -357,9 +357,9 @@ type WalletExportResult struct {
 func (s *PrivyWalletService) Export(
 	ctx context.Context,
 	walletID string,
-	opts ...RpcOption,
+	opts ...RequestOption,
 ) (*WalletExportResult, error) {
-	options := applyRpcOptions(opts)
+	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
 	if requestExpiry == nil {

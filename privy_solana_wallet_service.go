@@ -23,7 +23,7 @@ func (s *PrivySolanaWalletService) SignMessage(
 	ctx context.Context,
 	walletID string,
 	message string,
-	opts ...RpcOption,
+	opts ...RequestOption,
 ) (*SolanaSignMessageRpcResponseData, error) {
 	input := SolanaSignMessageRpcInputParam{
 		Method: SolanaSignMessageRpcInputMethodSignMessage,
@@ -58,7 +58,7 @@ func (s *PrivySolanaWalletService) SignMessageBytes(
 	ctx context.Context,
 	walletID string,
 	message []byte,
-	opts ...RpcOption,
+	opts ...RequestOption,
 ) (*SolanaSignMessageRpcResponseData, error) {
 	return s.SignMessage(ctx, walletID, base64.StdEncoding.EncodeToString(message), opts...)
 }
@@ -68,7 +68,7 @@ func (s *PrivySolanaWalletService) SignTransaction(
 	ctx context.Context,
 	walletID string,
 	params SolanaSignTransactionRpcInputParams,
-	opts ...RpcOption,
+	opts ...RequestOption,
 ) (*SolanaSignTransactionRpcResponseData, error) {
 	input := SolanaSignTransactionRpcInputParam{
 		Method: SolanaSignTransactionRpcInputMethodSignTransaction,
@@ -100,7 +100,7 @@ func (s *PrivySolanaWalletService) SignTransactionBytes(
 	ctx context.Context,
 	walletID string,
 	transaction []byte,
-	opts ...RpcOption,
+	opts ...RequestOption,
 ) (*SolanaSignTransactionRpcResponseData, error) {
 	params := SolanaSignTransactionRpcInputParams{
 		Transaction: base64.StdEncoding.EncodeToString(transaction),
@@ -116,7 +116,7 @@ func (s *PrivySolanaWalletService) SignAndSendTransaction(
 	walletID string,
 	caip2 string,
 	params SolanaSignAndSendTransactionRpcInputParams,
-	opts ...RpcOption,
+	opts ...RequestOption,
 ) (*SolanaSignAndSendTransactionRpcResponseData, error) {
 	input := SolanaSignAndSendTransactionRpcInputParam{
 		Caip2:  caip2,
@@ -150,7 +150,7 @@ func (s *PrivySolanaWalletService) SignAndSendTransactionBytes(
 	walletID string,
 	caip2 string,
 	transaction []byte,
-	opts ...RpcOption,
+	opts ...RequestOption,
 ) (*SolanaSignAndSendTransactionRpcResponseData, error) {
 	params := SolanaSignAndSendTransactionRpcInputParams{
 		Transaction: base64.StdEncoding.EncodeToString(transaction),

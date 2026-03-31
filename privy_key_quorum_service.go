@@ -49,9 +49,9 @@ func (s *PrivyKeyQuorumService) Update(
 	ctx context.Context,
 	keyQuorumID string,
 	params KeyQuorumUpdateParams,
-	opts ...RpcOption,
+	opts ...RequestOption,
 ) (*KeyQuorum, error) {
-	options := applyRpcOptions(opts)
+	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
 	if requestExpiry == nil {
@@ -90,9 +90,9 @@ func (s *PrivyKeyQuorumService) Delete(
 	ctx context.Context,
 	keyQuorumID string,
 	params KeyQuorumDeleteParams,
-	opts ...RpcOption,
+	opts ...RequestOption,
 ) (*SuccessResponse, error) {
-	options := applyRpcOptions(opts)
+	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
 	if requestExpiry == nil {

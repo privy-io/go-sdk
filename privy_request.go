@@ -17,11 +17,11 @@ func RequestExpiry(durationMsFromNow int64) int64 {
 	return time.Now().UnixMilli() + durationMsFromNow
 }
 
-// applyRpcOptions applies the given options and returns the resulting rpcOptions.
-func applyRpcOptions(opts []RpcOption) *rpcOptions {
-	options := &rpcOptions{}
+// applyRequestOptions applies the given options and returns the resulting requestOptions.
+func applyRequestOptions(opts []RequestOption) *requestOptions {
+	options := &requestOptions{}
 	for _, opt := range opts {
-		opt(options)
+		opt.applyOption(options)
 	}
 	return options
 }

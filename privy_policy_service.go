@@ -55,9 +55,9 @@ func (s *PrivyPolicyService) Update(
 	ctx context.Context,
 	policyID string,
 	params PolicyUpdateParams,
-	opts ...RpcOption,
+	opts ...RequestOption,
 ) (*Policy, error) {
-	options := applyRpcOptions(opts)
+	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
 	if requestExpiry == nil {
@@ -100,9 +100,9 @@ func (s *PrivyPolicyService) Delete(
 	ctx context.Context,
 	policyID string,
 	params PolicyDeleteParams,
-	opts ...RpcOption,
+	opts ...RequestOption,
 ) (*SuccessResponse, error) {
-	options := applyRpcOptions(opts)
+	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
 	if requestExpiry == nil {
@@ -145,9 +145,9 @@ func (s *PrivyPolicyService) NewRule(
 	ctx context.Context,
 	policyID string,
 	params PolicyNewRuleParams,
-	opts ...RpcOption,
+	opts ...RequestOption,
 ) (*PolicyNewRuleResponse, error) {
-	options := applyRpcOptions(opts)
+	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
 	if requestExpiry == nil {
@@ -190,9 +190,9 @@ func (s *PrivyPolicyService) DeleteRule(
 	ctx context.Context,
 	ruleID string,
 	params PolicyDeleteRuleParams,
-	opts ...RpcOption,
+	opts ...RequestOption,
 ) (*SuccessResponse, error) {
-	options := applyRpcOptions(opts)
+	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
 	if requestExpiry == nil {
@@ -235,9 +235,9 @@ func (s *PrivyPolicyService) UpdateRule(
 	ctx context.Context,
 	ruleID string,
 	params PolicyUpdateRuleParams,
-	opts ...RpcOption,
+	opts ...RequestOption,
 ) (*PolicyUpdateRuleResponse, error) {
-	options := applyRpcOptions(opts)
+	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
 	if requestExpiry == nil {
