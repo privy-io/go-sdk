@@ -2,9 +2,7 @@ package privyclient
 
 import (
 	"context"
-	"strings"
 
-	"github.com/privy-io/go-sdk/authorization"
 	"github.com/privy-io/go-sdk/internal/jwtexchange"
 	"github.com/privy-io/go-sdk/packages/param"
 )
@@ -46,12 +44,13 @@ func newPrivyPolicyService(
 //
 // This method wraps the generated PolicyService.Update and handles:
 //   - Building the authorization signature from an AuthorizationContext
+//   - Setting the request expiry header
 //
 // Parameters:
 //   - ctx: Context for cancellation and timeouts
 //   - policyID: The policy ID to update
-//   - params: The update parameters (callers can skip PrivyAuthorizationSignature)
-//   - opts: use WithAuthorizationContext
+//   - params: The update parameters (callers can skip PrivyAuthorizationSignature and PrivyRequestExpiry)
+//   - opts: use WithAuthorizationContext and WithRequestExpiry
 func (s *PrivyPolicyService) Update(
 	ctx context.Context,
 	policyID string,
@@ -60,40 +59,29 @@ func (s *PrivyPolicyService) Update(
 ) (*Policy, error) {
 	options := applyRpcOptions(opts)
 
-	// Generate authorization signature if context is provided
-	if options.AuthorizationContext != nil {
-		// Build headers map
-		headers := map[string]string{
-			"privy-app-id": s.appID,
-		}
-
-		// Build signature input
-		sigInput := authorization.WalletApiRequestSignatureInput{
-			Version: 1,
-			Method:  "PATCH",
-			URL:     s.baseURL + "/v1/policies/" + policyID,
-			Body:    params,
-			Headers: headers,
-		}
-
-		// Generate signatures
-		signatures, err := authorization.GenerateAuthorizationSignaturesForRequest(
-			ctx,
-			*options.AuthorizationContext,
-			sigInput,
-			s.jwtExchanger,
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		// Set the authorization header
-		if len(signatures) > 0 {
-			params.PrivyAuthorizationSignature = param.NewOpt(strings.Join(signatures, ","))
-		}
+	requestExpiry := options.RequestExpiry
+	if requestExpiry == nil {
+		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
-	// Call the underlying service
+	prepared, err := prepareRequest(ctx, s.appID, s.jwtExchanger, prepareRequestInput{
+		authorizationContext: options.AuthorizationContext,
+		requestExpiry:        requestExpiry,
+		method:               "PATCH",
+		url:                  s.baseURL + "/v1/policies/" + policyID,
+		body:                 params,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if prepared.privyAuthorizationSignature != nil {
+		params.PrivyAuthorizationSignature = param.NewOpt(*prepared.privyAuthorizationSignature)
+	}
+	if prepared.privyRequestExpiry != nil {
+		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
+	}
+
 	return s.PolicyService.Update(ctx, policyID, params)
 }
 
@@ -101,12 +89,13 @@ func (s *PrivyPolicyService) Update(
 //
 // This method wraps the generated PolicyService.Delete and handles:
 //   - Building the authorization signature from an AuthorizationContext
+//   - Setting the request expiry header
 //
 // Parameters:
 //   - ctx: Context for cancellation and timeouts
 //   - policyID: The policy ID to delete
-//   - params: The delete parameters (callers can skip PrivyAuthorizationSignature)
-//   - opts: use WithAuthorizationContext
+//   - params: The delete parameters (callers can skip PrivyAuthorizationSignature and PrivyRequestExpiry)
+//   - opts: use WithAuthorizationContext and WithRequestExpiry
 func (s *PrivyPolicyService) Delete(
 	ctx context.Context,
 	policyID string,
@@ -115,40 +104,29 @@ func (s *PrivyPolicyService) Delete(
 ) (*SuccessResponse, error) {
 	options := applyRpcOptions(opts)
 
-	// Generate authorization signature if context is provided
-	if options.AuthorizationContext != nil {
-		// Build headers map
-		headers := map[string]string{
-			"privy-app-id": s.appID,
-		}
-
-		// Build signature input
-		sigInput := authorization.WalletApiRequestSignatureInput{
-			Version: 1,
-			Method:  "DELETE",
-			URL:     s.baseURL + "/v1/policies/" + policyID,
-			Body:    "",
-			Headers: headers,
-		}
-
-		// Generate signatures
-		signatures, err := authorization.GenerateAuthorizationSignaturesForRequest(
-			ctx,
-			*options.AuthorizationContext,
-			sigInput,
-			s.jwtExchanger,
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		// Set the authorization header
-		if len(signatures) > 0 {
-			params.PrivyAuthorizationSignature = param.NewOpt(strings.Join(signatures, ","))
-		}
+	requestExpiry := options.RequestExpiry
+	if requestExpiry == nil {
+		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
-	// Call the underlying service
+	prepared, err := prepareRequest(ctx, s.appID, s.jwtExchanger, prepareRequestInput{
+		authorizationContext: options.AuthorizationContext,
+		requestExpiry:        requestExpiry,
+		method:               "DELETE",
+		url:                  s.baseURL + "/v1/policies/" + policyID,
+		body:                 "",
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if prepared.privyAuthorizationSignature != nil {
+		params.PrivyAuthorizationSignature = param.NewOpt(*prepared.privyAuthorizationSignature)
+	}
+	if prepared.privyRequestExpiry != nil {
+		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
+	}
+
 	return s.PolicyService.Delete(ctx, policyID, params)
 }
 
@@ -156,12 +134,13 @@ func (s *PrivyPolicyService) Delete(
 //
 // This method wraps the generated PolicyService.NewRule and handles:
 //   - Building the authorization signature from an AuthorizationContext
+//   - Setting the request expiry header
 //
 // Parameters:
 //   - ctx: Context for cancellation and timeouts
 //   - policyID: The policy ID to add a rule to
-//   - params: The new rule parameters (callers can skip PrivyAuthorizationSignature)
-//   - opts: use WithAuthorizationContext
+//   - params: The new rule parameters (callers can skip PrivyAuthorizationSignature and PrivyRequestExpiry)
+//   - opts: use WithAuthorizationContext and WithRequestExpiry
 func (s *PrivyPolicyService) NewRule(
 	ctx context.Context,
 	policyID string,
@@ -170,40 +149,29 @@ func (s *PrivyPolicyService) NewRule(
 ) (*PolicyNewRuleResponse, error) {
 	options := applyRpcOptions(opts)
 
-	// Generate authorization signature if context is provided
-	if options.AuthorizationContext != nil {
-		// Build headers map
-		headers := map[string]string{
-			"privy-app-id": s.appID,
-		}
-
-		// Build signature input
-		sigInput := authorization.WalletApiRequestSignatureInput{
-			Version: 1,
-			Method:  "POST",
-			URL:     s.baseURL + "/v1/policies/" + policyID + "/rules",
-			Body:    params,
-			Headers: headers,
-		}
-
-		// Generate signatures
-		signatures, err := authorization.GenerateAuthorizationSignaturesForRequest(
-			ctx,
-			*options.AuthorizationContext,
-			sigInput,
-			s.jwtExchanger,
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		// Set the authorization header
-		if len(signatures) > 0 {
-			params.PrivyAuthorizationSignature = param.NewOpt(strings.Join(signatures, ","))
-		}
+	requestExpiry := options.RequestExpiry
+	if requestExpiry == nil {
+		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
-	// Call the underlying service
+	prepared, err := prepareRequest(ctx, s.appID, s.jwtExchanger, prepareRequestInput{
+		authorizationContext: options.AuthorizationContext,
+		requestExpiry:        requestExpiry,
+		method:               "POST",
+		url:                  s.baseURL + "/v1/policies/" + policyID + "/rules",
+		body:                 params,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if prepared.privyAuthorizationSignature != nil {
+		params.PrivyAuthorizationSignature = param.NewOpt(*prepared.privyAuthorizationSignature)
+	}
+	if prepared.privyRequestExpiry != nil {
+		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
+	}
+
 	return s.PolicyService.NewRule(ctx, policyID, params)
 }
 
@@ -211,12 +179,13 @@ func (s *PrivyPolicyService) NewRule(
 //
 // This method wraps the generated PolicyService.DeleteRule and handles:
 //   - Building the authorization signature from an AuthorizationContext
+//   - Setting the request expiry header
 //
 // Parameters:
 //   - ctx: Context for cancellation and timeouts
 //   - ruleID: The rule ID to delete
-//   - params: The delete parameters (callers can skip PrivyAuthorizationSignature)
-//   - opts: use WithAuthorizationContext
+//   - params: The delete parameters (callers can skip PrivyAuthorizationSignature and PrivyRequestExpiry)
+//   - opts: use WithAuthorizationContext and WithRequestExpiry
 func (s *PrivyPolicyService) DeleteRule(
 	ctx context.Context,
 	ruleID string,
@@ -225,40 +194,29 @@ func (s *PrivyPolicyService) DeleteRule(
 ) (*SuccessResponse, error) {
 	options := applyRpcOptions(opts)
 
-	// Generate authorization signature if context is provided
-	if options.AuthorizationContext != nil {
-		// Build headers map
-		headers := map[string]string{
-			"privy-app-id": s.appID,
-		}
-
-		// Build signature input
-		sigInput := authorization.WalletApiRequestSignatureInput{
-			Version: 1,
-			Method:  "DELETE",
-			URL:     s.baseURL + "/v1/policies/" + params.PolicyID + "/rules/" + ruleID,
-			Body:    "",
-			Headers: headers,
-		}
-
-		// Generate signatures
-		signatures, err := authorization.GenerateAuthorizationSignaturesForRequest(
-			ctx,
-			*options.AuthorizationContext,
-			sigInput,
-			s.jwtExchanger,
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		// Set the authorization header
-		if len(signatures) > 0 {
-			params.PrivyAuthorizationSignature = param.NewOpt(strings.Join(signatures, ","))
-		}
+	requestExpiry := options.RequestExpiry
+	if requestExpiry == nil {
+		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
-	// Call the underlying service
+	prepared, err := prepareRequest(ctx, s.appID, s.jwtExchanger, prepareRequestInput{
+		authorizationContext: options.AuthorizationContext,
+		requestExpiry:        requestExpiry,
+		method:               "DELETE",
+		url:                  s.baseURL + "/v1/policies/" + params.PolicyID + "/rules/" + ruleID,
+		body:                 "",
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if prepared.privyAuthorizationSignature != nil {
+		params.PrivyAuthorizationSignature = param.NewOpt(*prepared.privyAuthorizationSignature)
+	}
+	if prepared.privyRequestExpiry != nil {
+		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
+	}
+
 	return s.PolicyService.DeleteRule(ctx, ruleID, params)
 }
 
@@ -266,12 +224,13 @@ func (s *PrivyPolicyService) DeleteRule(
 //
 // This method wraps the generated PolicyService.UpdateRule and handles:
 //   - Building the authorization signature from an AuthorizationContext
+//   - Setting the request expiry header
 //
 // Parameters:
 //   - ctx: Context for cancellation and timeouts
 //   - ruleID: The rule ID to update
-//   - params: The update parameters (callers can skip PrivyAuthorizationSignature)
-//   - opts: use WithAuthorizationContext
+//   - params: The update parameters (callers can skip PrivyAuthorizationSignature and PrivyRequestExpiry)
+//   - opts: use WithAuthorizationContext and WithRequestExpiry
 func (s *PrivyPolicyService) UpdateRule(
 	ctx context.Context,
 	ruleID string,
@@ -280,39 +239,28 @@ func (s *PrivyPolicyService) UpdateRule(
 ) (*PolicyUpdateRuleResponse, error) {
 	options := applyRpcOptions(opts)
 
-	// Generate authorization signature if context is provided
-	if options.AuthorizationContext != nil {
-		// Build headers map
-		headers := map[string]string{
-			"privy-app-id": s.appID,
-		}
-
-		// Build signature input
-		sigInput := authorization.WalletApiRequestSignatureInput{
-			Version: 1,
-			Method:  "PATCH",
-			URL:     s.baseURL + "/v1/policies/" + params.PolicyID + "/rules/" + ruleID,
-			Body:    params,
-			Headers: headers,
-		}
-
-		// Generate signatures
-		signatures, err := authorization.GenerateAuthorizationSignaturesForRequest(
-			ctx,
-			*options.AuthorizationContext,
-			sigInput,
-			s.jwtExchanger,
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		// Set the authorization header
-		if len(signatures) > 0 {
-			params.PrivyAuthorizationSignature = param.NewOpt(strings.Join(signatures, ","))
-		}
+	requestExpiry := options.RequestExpiry
+	if requestExpiry == nil {
+		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
-	// Call the underlying service
+	prepared, err := prepareRequest(ctx, s.appID, s.jwtExchanger, prepareRequestInput{
+		authorizationContext: options.AuthorizationContext,
+		requestExpiry:        requestExpiry,
+		method:               "PATCH",
+		url:                  s.baseURL + "/v1/policies/" + params.PolicyID + "/rules/" + ruleID,
+		body:                 params,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if prepared.privyAuthorizationSignature != nil {
+		params.PrivyAuthorizationSignature = param.NewOpt(*prepared.privyAuthorizationSignature)
+	}
+	if prepared.privyRequestExpiry != nil {
+		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
+	}
+
 	return s.PolicyService.UpdateRule(ctx, ruleID, params)
 }

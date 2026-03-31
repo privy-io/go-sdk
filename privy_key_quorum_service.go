@@ -2,9 +2,7 @@ package privyclient
 
 import (
 	"context"
-	"strings"
 
-	"github.com/privy-io/go-sdk/authorization"
 	"github.com/privy-io/go-sdk/internal/jwtexchange"
 	"github.com/privy-io/go-sdk/packages/param"
 )
@@ -45,8 +43,8 @@ func newPrivyKeyQuorumService(
 // Parameters:
 //   - ctx: Context for cancellation and timeouts
 //   - keyQuorumID: The key quorum ID to update
-//   - params: The update parameters (callers can skip PrivyAuthorizationSignature)
-//   - opts: use WithAuthorizationContext
+//   - params: The update parameters (callers can skip PrivyAuthorizationSignature and PrivyRequestExpiry)
+//   - opts: use WithAuthorizationContext and WithRequestExpiry
 func (s *PrivyKeyQuorumService) Update(
 	ctx context.Context,
 	keyQuorumID string,
@@ -55,40 +53,29 @@ func (s *PrivyKeyQuorumService) Update(
 ) (*KeyQuorum, error) {
 	options := applyRpcOptions(opts)
 
-	// Generate authorization signature if context is provided
-	if options.AuthorizationContext != nil {
-		// Build headers map
-		headers := map[string]string{
-			"privy-app-id": s.appID,
-		}
-
-		// Build signature input
-		sigInput := authorization.WalletApiRequestSignatureInput{
-			Version: 1,
-			Method:  "PATCH",
-			URL:     s.baseURL + "/v1/key_quorums/" + keyQuorumID,
-			Body:    params,
-			Headers: headers,
-		}
-
-		// Generate signatures
-		signatures, err := authorization.GenerateAuthorizationSignaturesForRequest(
-			ctx,
-			*options.AuthorizationContext,
-			sigInput,
-			s.jwtExchanger,
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		// Set the authorization header
-		if len(signatures) > 0 {
-			params.PrivyAuthorizationSignature = param.NewOpt(strings.Join(signatures, ","))
-		}
+	requestExpiry := options.RequestExpiry
+	if requestExpiry == nil {
+		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
-	// Call the underlying service
+	prepared, err := prepareRequest(ctx, s.appID, s.jwtExchanger, prepareRequestInput{
+		authorizationContext: options.AuthorizationContext,
+		requestExpiry:        requestExpiry,
+		method:               "PATCH",
+		url:                  s.baseURL + "/v1/key_quorums/" + keyQuorumID,
+		body:                 params,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if prepared.privyAuthorizationSignature != nil {
+		params.PrivyAuthorizationSignature = param.NewOpt(*prepared.privyAuthorizationSignature)
+	}
+	if prepared.privyRequestExpiry != nil {
+		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
+	}
+
 	return s.KeyQuorumService.Update(ctx, keyQuorumID, params)
 }
 
@@ -97,8 +84,8 @@ func (s *PrivyKeyQuorumService) Update(
 // Parameters:
 //   - ctx: Context for cancellation and timeouts
 //   - keyQuorumID: The key quorum ID to delete
-//   - params: The delete parameters (callers can skip PrivyAuthorizationSignature)
-//   - opts: use WithAuthorizationContext
+//   - params: The delete parameters (callers can skip PrivyAuthorizationSignature and PrivyRequestExpiry)
+//   - opts: use WithAuthorizationContext and WithRequestExpiry
 func (s *PrivyKeyQuorumService) Delete(
 	ctx context.Context,
 	keyQuorumID string,
@@ -107,39 +94,28 @@ func (s *PrivyKeyQuorumService) Delete(
 ) (*SuccessResponse, error) {
 	options := applyRpcOptions(opts)
 
-	// Generate authorization signature if context is provided
-	if options.AuthorizationContext != nil {
-		// Build headers map
-		headers := map[string]string{
-			"privy-app-id": s.appID,
-		}
-
-		// Build signature input
-		sigInput := authorization.WalletApiRequestSignatureInput{
-			Version: 1,
-			Method:  "DELETE",
-			URL:     s.baseURL + "/v1/key_quorums/" + keyQuorumID,
-			Body:    params,
-			Headers: headers,
-		}
-
-		// Generate signatures
-		signatures, err := authorization.GenerateAuthorizationSignaturesForRequest(
-			ctx,
-			*options.AuthorizationContext,
-			sigInput,
-			s.jwtExchanger,
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		// Set the authorization header
-		if len(signatures) > 0 {
-			params.PrivyAuthorizationSignature = param.NewOpt(strings.Join(signatures, ","))
-		}
+	requestExpiry := options.RequestExpiry
+	if requestExpiry == nil {
+		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
-	// Call the underlying service
+	prepared, err := prepareRequest(ctx, s.appID, s.jwtExchanger, prepareRequestInput{
+		authorizationContext: options.AuthorizationContext,
+		requestExpiry:        requestExpiry,
+		method:               "DELETE",
+		url:                  s.baseURL + "/v1/key_quorums/" + keyQuorumID,
+		body:                 params,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if prepared.privyAuthorizationSignature != nil {
+		params.PrivyAuthorizationSignature = param.NewOpt(*prepared.privyAuthorizationSignature)
+	}
+	if prepared.privyRequestExpiry != nil {
+		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
+	}
+
 	return s.KeyQuorumService.Delete(ctx, keyQuorumID, params)
 }
