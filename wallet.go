@@ -195,76 +195,6 @@ func (r *WalletService) Rpc(ctx context.Context, walletID string, params WalletR
 	return res, err
 }
 
-// OwnerInputUnion contains all possible properties and values from
-// [OwnerUserIDInput], [OwnerPublicKeyInput].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-type OwnerInputUnion struct {
-	// This field is from variant [OwnerUserIDInput].
-	UserID string `json:"user_id"`
-	// This field is from variant [OwnerPublicKeyInput].
-	PublicKey P256PublicKey `json:"public_key"`
-	JSON      struct {
-		UserID    respjson.Field
-		PublicKey respjson.Field
-		raw       string
-	} `json:"-"`
-}
-
-func (u OwnerInputUnion) AsOwnerUserIDInput() (v OwnerUserIDInput) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u OwnerInputUnion) AsOwnerPublicKeyInput() (v OwnerPublicKeyInput) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u OwnerInputUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *OwnerInputUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// ToParam converts this OwnerInputUnion to a OwnerInputUnionParam.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// OwnerInputUnionParam.Overrides()
-func (r OwnerInputUnion) ToParam() OwnerInputUnionParam {
-	return param.Override[OwnerInputUnionParam](json.RawMessage(r.RawJSON()))
-}
-
-func OwnerInputParamOfOwnerUserIDInput(userID string) OwnerInputUnionParam {
-	var variant OwnerUserIDInputParam
-	variant.UserID = userID
-	return OwnerInputUnionParam{OfOwnerUserIDInput: &variant}
-}
-
-func OwnerInputParamOfOwnerPublicKeyInput(publicKey P256PublicKey) OwnerInputUnionParam {
-	var variant OwnerPublicKeyInputParam
-	variant.PublicKey = publicKey
-	return OwnerInputUnionParam{OfOwnerPublicKeyInput: &variant}
-}
-
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type OwnerInputUnionParam struct {
-	OfOwnerUserIDInput    *OwnerUserIDInputParam    `json:",omitzero,inline"`
-	OfOwnerPublicKeyInput *OwnerPublicKeyInputParam `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u OwnerInputUnionParam) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfOwnerUserIDInput, u.OfOwnerPublicKeyInput)
-}
-func (u *OwnerInputUnionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
 // The wallet chain types that support curve-based signing.
 type CurveSigningChainType string
 
@@ -300,152 +230,6 @@ const (
 	WalletChainTypeSpark         WalletChainType = "spark"
 )
 
-type KeyQuorumID = string
-
-type P256PublicKey = string
-
-// Owner input specifying a Privy user ID.
-type OwnerUserIDInput struct {
-	UserID string `json:"user_id" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		UserID      respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r OwnerUserIDInput) RawJSON() string { return r.JSON.raw }
-func (r *OwnerUserIDInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// ToParam converts this OwnerUserIDInput to a OwnerUserIDInputParam.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// OwnerUserIDInputParam.Overrides()
-func (r OwnerUserIDInput) ToParam() OwnerUserIDInputParam {
-	return param.Override[OwnerUserIDInputParam](json.RawMessage(r.RawJSON()))
-}
-
-// Owner input specifying a Privy user ID.
-//
-// The property UserID is required.
-type OwnerUserIDInputParam struct {
-	UserID string `json:"user_id" api:"required"`
-	paramObj
-}
-
-func (r OwnerUserIDInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow OwnerUserIDInputParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *OwnerUserIDInputParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Owner input specifying a P-256 public key.
-type OwnerPublicKeyInput struct {
-	// A P-256 (secp256r1) public key.
-	PublicKey P256PublicKey `json:"public_key" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		PublicKey   respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r OwnerPublicKeyInput) RawJSON() string { return r.JSON.raw }
-func (r *OwnerPublicKeyInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// ToParam converts this OwnerPublicKeyInput to a OwnerPublicKeyInputParam.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// OwnerPublicKeyInputParam.Overrides()
-func (r OwnerPublicKeyInput) ToParam() OwnerPublicKeyInputParam {
-	return param.Override[OwnerPublicKeyInputParam](json.RawMessage(r.RawJSON()))
-}
-
-// Owner input specifying a P-256 public key.
-//
-// The property PublicKey is required.
-type OwnerPublicKeyInputParam struct {
-	// A P-256 (secp256r1) public key.
-	PublicKey P256PublicKey `json:"public_key" api:"required"`
-	paramObj
-}
-
-func (r OwnerPublicKeyInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow OwnerPublicKeyInputParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *OwnerPublicKeyInputParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type PolicyInput []string
-
-// A single additional signer for a wallet, with an optional policy override.
-type AdditionalSignerItemInput struct {
-	// A unique identifier for a key quorum.
-	SignerID KeyQuorumID `json:"signer_id" api:"required" format:"cuid2"`
-	// An optional list of up to one policy ID to enforce on the wallet.
-	OverridePolicyIDs PolicyInput `json:"override_policy_ids" format:"cuid2"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		SignerID          respjson.Field
-		OverridePolicyIDs respjson.Field
-		ExtraFields       map[string]respjson.Field
-		raw               string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AdditionalSignerItemInput) RawJSON() string { return r.JSON.raw }
-func (r *AdditionalSignerItemInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// ToParam converts this AdditionalSignerItemInput to a
-// AdditionalSignerItemInputParam.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// AdditionalSignerItemInputParam.Overrides()
-func (r AdditionalSignerItemInput) ToParam() AdditionalSignerItemInputParam {
-	return param.Override[AdditionalSignerItemInputParam](json.RawMessage(r.RawJSON()))
-}
-
-// A single additional signer for a wallet, with an optional policy override.
-//
-// The property SignerID is required.
-type AdditionalSignerItemInputParam struct {
-	// A unique identifier for a key quorum.
-	SignerID KeyQuorumID `json:"signer_id" api:"required" format:"cuid2"`
-	// An optional list of up to one policy ID to enforce on the wallet.
-	OverridePolicyIDs PolicyInput `json:"override_policy_ids,omitzero" format:"cuid2"`
-	paramObj
-}
-
-func (r AdditionalSignerItemInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow AdditionalSignerItemInputParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *AdditionalSignerItemInputParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type AdditionalSignerInput []AdditionalSignerItemInput
-
-type AdditionalSignerInputParam []AdditionalSignerItemInputParam
-
 // Information about the custodian managing this wallet.
 type WalletCustodian struct {
 	// The custodian responsible for the wallet.
@@ -466,6 +250,15 @@ func (r WalletCustodian) RawJSON() string { return r.JSON.raw }
 func (r *WalletCustodian) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// SUI transaction commands allowlist for raw_sign endpoint policy evaluation
+type SuiCommandName string
+
+const (
+	SuiCommandNameTransferObjects SuiCommandName = "TransferObjects"
+	SuiCommandNameSplitCoins      SuiCommandName = "SplitCoins"
+	SuiCommandNameMergeCoins      SuiCommandName = "MergeCoins"
+)
 
 // The encryption type of the wallet to import. Currently only supports `HPKE`.
 type HpkeEncryption string
@@ -593,68 +386,6 @@ func (r *HpkeImportConfig) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type Hex = string
-
-// QuantityUnion contains all possible properties and values from [Hex], [int64].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfInt]
-type QuantityUnion struct {
-	// This field will be present if the value is a [Hex] instead of an object.
-	OfString Hex `json:",inline"`
-	// This field will be present if the value is a [int64] instead of an object.
-	OfInt int64 `json:",inline"`
-	JSON  struct {
-		OfString respjson.Field
-		OfInt    respjson.Field
-		raw      string
-	} `json:"-"`
-}
-
-func (u QuantityUnion) AsString() (v Hex) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u QuantityUnion) AsInt() (v int64) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u QuantityUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *QuantityUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// ToParam converts this QuantityUnion to a QuantityUnionParam.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// QuantityUnionParam.Overrides()
-func (r QuantityUnion) ToParam() QuantityUnionParam {
-	return param.Override[QuantityUnionParam](json.RawMessage(r.RawJSON()))
-}
-
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type QuantityUnionParam struct {
-	OfString param.Opt[Hex]   `json:",omitzero,inline"`
-	OfInt    param.Opt[int64] `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u QuantityUnionParam) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfString, u.OfInt)
-}
-func (u *QuantityUnionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
 // Exports the private key of the wallet.
 type ExportPrivateKeyRpcInput struct {
 	Address string `json:"address" api:"required"`
@@ -745,8 +476,8 @@ const (
 //
 // The property Hash is required.
 type RawSignHashParams struct {
-	// A hex-encoded string prefixed with '0x'.
-	Hash Hex `json:"hash" api:"required"`
+	// The hash to sign.
+	Hash string `json:"hash" api:"required"`
 	paramObj
 }
 
@@ -801,7 +532,7 @@ func (r *RawSignBytesParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func RawSignInputParamsOfRawSignHashs(hash Hex) RawSignInputParamsUnion {
+func RawSignInputParamsOfRawSignHashs(hash string) RawSignInputParamsUnion {
 	var variant RawSignHashParams
 	variant.Hash = hash
 	return RawSignInputParamsUnion{OfRawSignHashs: &variant}
@@ -852,9 +583,8 @@ func (r *RawSignInput) UnmarshalJSON(data []byte) error {
 // Data returned by the `raw_sign` RPC.
 type RawSignResponseData struct {
 	// Any of "hex".
-	Encoding RawSignResponseDataEncoding `json:"encoding" api:"required"`
-	// A hex-encoded string prefixed with '0x'.
-	Signature Hex `json:"signature" api:"required"`
+	Encoding  RawSignResponseDataEncoding `json:"encoding" api:"required"`
+	Signature string                      `json:"signature" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Encoding    respjson.Field
@@ -902,337 +632,6 @@ type RawSignResponseMethod string
 const (
 	RawSignResponseMethodRawSign RawSignResponseMethod = "raw_sign"
 )
-
-// A signed EIP-7702 authorization that delegates code execution to a contract
-// address.
-type EthereumSign7702Authorization struct {
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	ChainID  QuantityUnion `json:"chain_id" api:"required"`
-	Contract string        `json:"contract" api:"required"`
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	Nonce QuantityUnion `json:"nonce" api:"required"`
-	// A hex-encoded string prefixed with '0x'.
-	R Hex `json:"r" api:"required"`
-	// A hex-encoded string prefixed with '0x'.
-	S       Hex     `json:"s" api:"required"`
-	YParity float64 `json:"y_parity" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ChainID     respjson.Field
-		Contract    respjson.Field
-		Nonce       respjson.Field
-		R           respjson.Field
-		S           respjson.Field
-		YParity     respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r EthereumSign7702Authorization) RawJSON() string { return r.JSON.raw }
-func (r *EthereumSign7702Authorization) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// ToParam converts this EthereumSign7702Authorization to a
-// EthereumSign7702AuthorizationParam.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// EthereumSign7702AuthorizationParam.Overrides()
-func (r EthereumSign7702Authorization) ToParam() EthereumSign7702AuthorizationParam {
-	return param.Override[EthereumSign7702AuthorizationParam](json.RawMessage(r.RawJSON()))
-}
-
-// A signed EIP-7702 authorization that delegates code execution to a contract
-// address.
-//
-// The properties ChainID, Contract, Nonce, R, S, YParity are required.
-type EthereumSign7702AuthorizationParam struct {
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	ChainID  QuantityUnionParam `json:"chain_id,omitzero" api:"required"`
-	Contract string             `json:"contract" api:"required"`
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	Nonce QuantityUnionParam `json:"nonce,omitzero" api:"required"`
-	// A hex-encoded string prefixed with '0x'.
-	R Hex `json:"r" api:"required"`
-	// A hex-encoded string prefixed with '0x'.
-	S       Hex     `json:"s" api:"required"`
-	YParity float64 `json:"y_parity" api:"required"`
-	paramObj
-}
-
-func (r EthereumSign7702AuthorizationParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumSign7702AuthorizationParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *EthereumSign7702AuthorizationParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// An unsigned Ethereum transaction object.
-type UnsignedEthereumTransaction struct {
-	AuthorizationList []EthereumSign7702Authorization `json:"authorization_list"`
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	ChainID QuantityUnion `json:"chain_id"`
-	// A hex-encoded string prefixed with '0x'.
-	Data Hex    `json:"data"`
-	From string `json:"from"`
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	GasLimit QuantityUnion `json:"gas_limit"`
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	GasPrice QuantityUnion `json:"gas_price"`
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	MaxFeePerGas QuantityUnion `json:"max_fee_per_gas"`
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	MaxPriorityFeePerGas QuantityUnion `json:"max_priority_fee_per_gas"`
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	Nonce QuantityUnion `json:"nonce"`
-	To    string        `json:"to"`
-	// Any of 0, 1, 2, 4.
-	Type float64 `json:"type"`
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	Value QuantityUnion `json:"value"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		AuthorizationList    respjson.Field
-		ChainID              respjson.Field
-		Data                 respjson.Field
-		From                 respjson.Field
-		GasLimit             respjson.Field
-		GasPrice             respjson.Field
-		MaxFeePerGas         respjson.Field
-		MaxPriorityFeePerGas respjson.Field
-		Nonce                respjson.Field
-		To                   respjson.Field
-		Type                 respjson.Field
-		Value                respjson.Field
-		ExtraFields          map[string]respjson.Field
-		raw                  string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r UnsignedEthereumTransaction) RawJSON() string { return r.JSON.raw }
-func (r *UnsignedEthereumTransaction) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// ToParam converts this UnsignedEthereumTransaction to a
-// UnsignedEthereumTransactionParam.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// UnsignedEthereumTransactionParam.Overrides()
-func (r UnsignedEthereumTransaction) ToParam() UnsignedEthereumTransactionParam {
-	return param.Override[UnsignedEthereumTransactionParam](json.RawMessage(r.RawJSON()))
-}
-
-// An unsigned Ethereum transaction object.
-type UnsignedEthereumTransactionParam struct {
-	// A hex-encoded string prefixed with '0x'.
-	Data              param.Opt[Hex]                       `json:"data,omitzero"`
-	From              param.Opt[string]                    `json:"from,omitzero"`
-	To                param.Opt[string]                    `json:"to,omitzero"`
-	AuthorizationList []EthereumSign7702AuthorizationParam `json:"authorization_list,omitzero"`
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	ChainID QuantityUnionParam `json:"chain_id,omitzero"`
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	GasLimit QuantityUnionParam `json:"gas_limit,omitzero"`
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	GasPrice QuantityUnionParam `json:"gas_price,omitzero"`
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	MaxFeePerGas QuantityUnionParam `json:"max_fee_per_gas,omitzero"`
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	MaxPriorityFeePerGas QuantityUnionParam `json:"max_priority_fee_per_gas,omitzero"`
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	Nonce QuantityUnionParam `json:"nonce,omitzero"`
-	// Any of 0, 1, 2, 4.
-	Type float64 `json:"type,omitzero"`
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	Value QuantityUnionParam `json:"value,omitzero"`
-	paramObj
-}
-
-func (r UnsignedEthereumTransactionParam) MarshalJSON() (data []byte, err error) {
-	type shadow UnsignedEthereumTransactionParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *UnsignedEthereumTransactionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func init() {
-	apijson.RegisterFieldValidator[UnsignedEthereumTransactionParam](
-		"type", 0, 1, 2, 4,
-	)
-}
-
-// An ERC-4337 user operation.
-type UserOperationInput struct {
-	// A hex-encoded string prefixed with '0x'.
-	CallData Hex `json:"call_data" api:"required"`
-	// A hex-encoded string prefixed with '0x'.
-	CallGasLimit Hex `json:"call_gas_limit" api:"required"`
-	// A hex-encoded string prefixed with '0x'.
-	MaxFeePerGas Hex `json:"max_fee_per_gas" api:"required"`
-	// A hex-encoded string prefixed with '0x'.
-	MaxPriorityFeePerGas Hex `json:"max_priority_fee_per_gas" api:"required"`
-	// A hex-encoded string prefixed with '0x'.
-	Nonce Hex `json:"nonce" api:"required"`
-	// A hex-encoded string prefixed with '0x'.
-	PreVerificationGas Hex    `json:"pre_verification_gas" api:"required"`
-	Sender             string `json:"sender" api:"required"`
-	// A hex-encoded string prefixed with '0x'.
-	VerificationGasLimit Hex    `json:"verification_gas_limit" api:"required"`
-	Paymaster            string `json:"paymaster"`
-	// A hex-encoded string prefixed with '0x'.
-	PaymasterData Hex `json:"paymaster_data"`
-	// A hex-encoded string prefixed with '0x'.
-	PaymasterPostOpGasLimit Hex `json:"paymaster_post_op_gas_limit"`
-	// A hex-encoded string prefixed with '0x'.
-	PaymasterVerificationGasLimit Hex `json:"paymaster_verification_gas_limit"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		CallData                      respjson.Field
-		CallGasLimit                  respjson.Field
-		MaxFeePerGas                  respjson.Field
-		MaxPriorityFeePerGas          respjson.Field
-		Nonce                         respjson.Field
-		PreVerificationGas            respjson.Field
-		Sender                        respjson.Field
-		VerificationGasLimit          respjson.Field
-		Paymaster                     respjson.Field
-		PaymasterData                 respjson.Field
-		PaymasterPostOpGasLimit       respjson.Field
-		PaymasterVerificationGasLimit respjson.Field
-		ExtraFields                   map[string]respjson.Field
-		raw                           string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r UserOperationInput) RawJSON() string { return r.JSON.raw }
-func (r *UserOperationInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// ToParam converts this UserOperationInput to a UserOperationInputParam.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// UserOperationInputParam.Overrides()
-func (r UserOperationInput) ToParam() UserOperationInputParam {
-	return param.Override[UserOperationInputParam](json.RawMessage(r.RawJSON()))
-}
-
-// An ERC-4337 user operation.
-//
-// The properties CallData, CallGasLimit, MaxFeePerGas, MaxPriorityFeePerGas,
-// Nonce, PreVerificationGas, Sender, VerificationGasLimit are required.
-type UserOperationInputParam struct {
-	// A hex-encoded string prefixed with '0x'.
-	CallData Hex `json:"call_data" api:"required"`
-	// A hex-encoded string prefixed with '0x'.
-	CallGasLimit Hex `json:"call_gas_limit" api:"required"`
-	// A hex-encoded string prefixed with '0x'.
-	MaxFeePerGas Hex `json:"max_fee_per_gas" api:"required"`
-	// A hex-encoded string prefixed with '0x'.
-	MaxPriorityFeePerGas Hex `json:"max_priority_fee_per_gas" api:"required"`
-	// A hex-encoded string prefixed with '0x'.
-	Nonce Hex `json:"nonce" api:"required"`
-	// A hex-encoded string prefixed with '0x'.
-	PreVerificationGas Hex    `json:"pre_verification_gas" api:"required"`
-	Sender             string `json:"sender" api:"required"`
-	// A hex-encoded string prefixed with '0x'.
-	VerificationGasLimit Hex               `json:"verification_gas_limit" api:"required"`
-	Paymaster            param.Opt[string] `json:"paymaster,omitzero"`
-	// A hex-encoded string prefixed with '0x'.
-	PaymasterData param.Opt[Hex] `json:"paymaster_data,omitzero"`
-	// A hex-encoded string prefixed with '0x'.
-	PaymasterPostOpGasLimit param.Opt[Hex] `json:"paymaster_post_op_gas_limit,omitzero"`
-	// A hex-encoded string prefixed with '0x'.
-	PaymasterVerificationGasLimit param.Opt[Hex] `json:"paymaster_verification_gas_limit,omitzero"`
-	paramObj
-}
-
-func (r UserOperationInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow UserOperationInputParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *UserOperationInputParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type TypedDataDomainInputParams map[string]any
-
-// A single field definition in an EIP-712 typed data type.
-type TypedDataTypeFieldInput struct {
-	Name string `json:"name" api:"required"`
-	Type string `json:"type" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Name        respjson.Field
-		Type        respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r TypedDataTypeFieldInput) RawJSON() string { return r.JSON.raw }
-func (r *TypedDataTypeFieldInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// ToParam converts this TypedDataTypeFieldInput to a TypedDataTypeFieldInputParam.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// TypedDataTypeFieldInputParam.Overrides()
-func (r TypedDataTypeFieldInput) ToParam() TypedDataTypeFieldInputParam {
-	return param.Override[TypedDataTypeFieldInputParam](json.RawMessage(r.RawJSON()))
-}
-
-// A single field definition in an EIP-712 typed data type.
-//
-// The properties Name, Type are required.
-type TypedDataTypeFieldInputParam struct {
-	Name string `json:"name" api:"required"`
-	Type string `json:"type" api:"required"`
-	paramObj
-}
-
-func (r TypedDataTypeFieldInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow TypedDataTypeFieldInputParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *TypedDataTypeFieldInputParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type TypedDataTypesInputParamsResp map[string][]TypedDataTypeFieldInput
-
-type TypedDataTypesInputParams map[string][]TypedDataTypeFieldInputParam
 
 // Parameters for the EVM `personal_sign` RPC.
 type EthereumPersonalSignRpcInputParamsResp struct {
@@ -1364,8 +763,7 @@ func (r *EthereumPersonalSignRpcInputParam) UnmarshalJSON(data []byte) error {
 
 // Parameters for the EVM `eth_signTransaction` RPC.
 type EthereumSignTransactionRpcInputParamsResp struct {
-	// An unsigned Ethereum transaction object.
-	Transaction UnsignedEthereumTransaction `json:"transaction" api:"required"`
+	Transaction EthereumSignTransactionRpcInputParamsTransactionResp `json:"transaction" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Transaction respjson.Field
@@ -1390,12 +788,420 @@ func (r EthereumSignTransactionRpcInputParamsResp) ToParam() EthereumSignTransac
 	return param.Override[EthereumSignTransactionRpcInputParams](json.RawMessage(r.RawJSON()))
 }
 
+type EthereumSignTransactionRpcInputParamsTransactionResp struct {
+	AuthorizationList    []EthereumSignTransactionRpcInputParamsTransactionAuthorizationListResp       `json:"authorization_list"`
+	ChainID              EthereumSignTransactionRpcInputParamsTransactionChainIDUnionResp              `json:"chain_id"`
+	Data                 string                                                                        `json:"data"`
+	From                 string                                                                        `json:"from"`
+	GasLimit             EthereumSignTransactionRpcInputParamsTransactionGasLimitUnionResp             `json:"gas_limit"`
+	GasPrice             EthereumSignTransactionRpcInputParamsTransactionGasPriceUnionResp             `json:"gas_price"`
+	MaxFeePerGas         EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnionResp         `json:"max_fee_per_gas"`
+	MaxPriorityFeePerGas EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionResp `json:"max_priority_fee_per_gas"`
+	Nonce                EthereumSignTransactionRpcInputParamsTransactionNonceUnionResp                `json:"nonce"`
+	To                   string                                                                        `json:"to"`
+	// Any of 0, 1, 2, 4.
+	Type  float64                                                        `json:"type"`
+	Value EthereumSignTransactionRpcInputParamsTransactionValueUnionResp `json:"value"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		AuthorizationList    respjson.Field
+		ChainID              respjson.Field
+		Data                 respjson.Field
+		From                 respjson.Field
+		GasLimit             respjson.Field
+		GasPrice             respjson.Field
+		MaxFeePerGas         respjson.Field
+		MaxPriorityFeePerGas respjson.Field
+		Nonce                respjson.Field
+		To                   respjson.Field
+		Type                 respjson.Field
+		Value                respjson.Field
+		ExtraFields          map[string]respjson.Field
+		raw                  string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EthereumSignTransactionRpcInputParamsTransactionResp) RawJSON() string { return r.JSON.raw }
+func (r *EthereumSignTransactionRpcInputParamsTransactionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type EthereumSignTransactionRpcInputParamsTransactionAuthorizationListResp struct {
+	ChainID  EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionResp `json:"chain_id" api:"required"`
+	Contract string                                                                            `json:"contract" api:"required"`
+	Nonce    EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnionResp   `json:"nonce" api:"required"`
+	R        string                                                                            `json:"r" api:"required"`
+	S        string                                                                            `json:"s" api:"required"`
+	YParity  float64                                                                           `json:"y_parity" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ChainID     respjson.Field
+		Contract    respjson.Field
+		Nonce       respjson.Field
+		R           respjson.Field
+		S           respjson.Field
+		YParity     respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EthereumSignTransactionRpcInputParamsTransactionAuthorizationListResp) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *EthereumSignTransactionRpcInputParamsTransactionAuthorizationListResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionResp
+// contains all possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionResp struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionResp) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionResp) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionResp) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnionResp
+// contains all possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnionResp struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnionResp) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnionResp) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnionResp) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSignTransactionRpcInputParamsTransactionChainIDUnionResp contains all
+// possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSignTransactionRpcInputParamsTransactionChainIDUnionResp struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionChainIDUnionResp) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionChainIDUnionResp) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSignTransactionRpcInputParamsTransactionChainIDUnionResp) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSignTransactionRpcInputParamsTransactionChainIDUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSignTransactionRpcInputParamsTransactionGasLimitUnionResp contains all
+// possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSignTransactionRpcInputParamsTransactionGasLimitUnionResp struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionGasLimitUnionResp) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionGasLimitUnionResp) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSignTransactionRpcInputParamsTransactionGasLimitUnionResp) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSignTransactionRpcInputParamsTransactionGasLimitUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSignTransactionRpcInputParamsTransactionGasPriceUnionResp contains all
+// possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSignTransactionRpcInputParamsTransactionGasPriceUnionResp struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionGasPriceUnionResp) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionGasPriceUnionResp) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSignTransactionRpcInputParamsTransactionGasPriceUnionResp) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSignTransactionRpcInputParamsTransactionGasPriceUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnionResp contains
+// all possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnionResp struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnionResp) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnionResp) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnionResp) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionResp
+// contains all possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionResp struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionResp) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionResp) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionResp) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSignTransactionRpcInputParamsTransactionNonceUnionResp contains all
+// possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSignTransactionRpcInputParamsTransactionNonceUnionResp struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionNonceUnionResp) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionNonceUnionResp) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSignTransactionRpcInputParamsTransactionNonceUnionResp) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSignTransactionRpcInputParamsTransactionNonceUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSignTransactionRpcInputParamsTransactionValueUnionResp contains all
+// possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSignTransactionRpcInputParamsTransactionValueUnionResp struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionValueUnionResp) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionValueUnionResp) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSignTransactionRpcInputParamsTransactionValueUnionResp) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSignTransactionRpcInputParamsTransactionValueUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Parameters for the EVM `eth_signTransaction` RPC.
 //
 // The property Transaction is required.
 type EthereumSignTransactionRpcInputParams struct {
-	// An unsigned Ethereum transaction object.
-	Transaction UnsignedEthereumTransactionParam `json:"transaction,omitzero" api:"required"`
+	Transaction EthereumSignTransactionRpcInputParamsTransaction `json:"transaction,omitzero" api:"required"`
 	paramObj
 }
 
@@ -1405,6 +1211,200 @@ func (r EthereumSignTransactionRpcInputParams) MarshalJSON() (data []byte, err e
 }
 func (r *EthereumSignTransactionRpcInputParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+type EthereumSignTransactionRpcInputParamsTransaction struct {
+	Data                 param.Opt[string]                                                         `json:"data,omitzero"`
+	From                 param.Opt[string]                                                         `json:"from,omitzero"`
+	To                   param.Opt[string]                                                         `json:"to,omitzero"`
+	AuthorizationList    []EthereumSignTransactionRpcInputParamsTransactionAuthorizationList       `json:"authorization_list,omitzero"`
+	ChainID              EthereumSignTransactionRpcInputParamsTransactionChainIDUnion              `json:"chain_id,omitzero"`
+	GasLimit             EthereumSignTransactionRpcInputParamsTransactionGasLimitUnion             `json:"gas_limit,omitzero"`
+	GasPrice             EthereumSignTransactionRpcInputParamsTransactionGasPriceUnion             `json:"gas_price,omitzero"`
+	MaxFeePerGas         EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnion         `json:"max_fee_per_gas,omitzero"`
+	MaxPriorityFeePerGas EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnion `json:"max_priority_fee_per_gas,omitzero"`
+	Nonce                EthereumSignTransactionRpcInputParamsTransactionNonceUnion                `json:"nonce,omitzero"`
+	// Any of 0, 1, 2, 4.
+	Type  float64                                                    `json:"type,omitzero"`
+	Value EthereumSignTransactionRpcInputParamsTransactionValueUnion `json:"value,omitzero"`
+	paramObj
+}
+
+func (r EthereumSignTransactionRpcInputParamsTransaction) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSignTransactionRpcInputParamsTransaction
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *EthereumSignTransactionRpcInputParamsTransaction) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func init() {
+	apijson.RegisterFieldValidator[EthereumSignTransactionRpcInputParamsTransaction](
+		"type", 0, 1, 2, 4,
+	)
+}
+
+// The properties ChainID, Contract, Nonce, R, S, YParity are required.
+type EthereumSignTransactionRpcInputParamsTransactionAuthorizationList struct {
+	ChainID  EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnion `json:"chain_id,omitzero" api:"required"`
+	Contract string                                                                        `json:"contract" api:"required"`
+	Nonce    EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnion   `json:"nonce,omitzero" api:"required"`
+	R        string                                                                        `json:"r" api:"required"`
+	S        string                                                                        `json:"s" api:"required"`
+	YParity  float64                                                                       `json:"y_parity" api:"required"`
+	paramObj
+}
+
+func (r EthereumSignTransactionRpcInputParamsTransactionAuthorizationList) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSignTransactionRpcInputParamsTransactionAuthorizationList
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *EthereumSignTransactionRpcInputParamsTransactionAuthorizationList) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnion struct {
+	OfString param.Opt[string] `json:",omitzero,inline"`
+	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfInt)
+}
+func (u *EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnion struct {
+	OfString param.Opt[string] `json:",omitzero,inline"`
+	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfInt)
+}
+func (u *EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type EthereumSignTransactionRpcInputParamsTransactionChainIDUnion struct {
+	OfString param.Opt[string] `json:",omitzero,inline"`
+	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionChainIDUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfInt)
+}
+func (u *EthereumSignTransactionRpcInputParamsTransactionChainIDUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type EthereumSignTransactionRpcInputParamsTransactionGasLimitUnion struct {
+	OfString param.Opt[string] `json:",omitzero,inline"`
+	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionGasLimitUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfInt)
+}
+func (u *EthereumSignTransactionRpcInputParamsTransactionGasLimitUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type EthereumSignTransactionRpcInputParamsTransactionGasPriceUnion struct {
+	OfString param.Opt[string] `json:",omitzero,inline"`
+	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionGasPriceUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfInt)
+}
+func (u *EthereumSignTransactionRpcInputParamsTransactionGasPriceUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnion struct {
+	OfString param.Opt[string] `json:",omitzero,inline"`
+	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfInt)
+}
+func (u *EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnion struct {
+	OfString param.Opt[string] `json:",omitzero,inline"`
+	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfInt)
+}
+func (u *EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type EthereumSignTransactionRpcInputParamsTransactionNonceUnion struct {
+	OfString param.Opt[string] `json:",omitzero,inline"`
+	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionNonceUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfInt)
+}
+func (u *EthereumSignTransactionRpcInputParamsTransactionNonceUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type EthereumSignTransactionRpcInputParamsTransactionValueUnion struct {
+	OfString param.Opt[string] `json:",omitzero,inline"`
+	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u EthereumSignTransactionRpcInputParamsTransactionValueUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfInt)
+}
+func (u *EthereumSignTransactionRpcInputParamsTransactionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
 }
 
 // Executes the EVM `eth_signTransaction` RPC to sign a transaction.
@@ -1482,8 +1482,7 @@ func (r *EthereumSignTransactionRpcInputParam) UnmarshalJSON(data []byte) error 
 
 // Parameters for the EVM `eth_sendTransaction` RPC.
 type EthereumSendTransactionRpcInputParamsResp struct {
-	// An unsigned Ethereum transaction object.
-	Transaction UnsignedEthereumTransaction `json:"transaction" api:"required"`
+	Transaction EthereumSendTransactionRpcInputParamsTransactionResp `json:"transaction" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Transaction respjson.Field
@@ -1508,12 +1507,420 @@ func (r EthereumSendTransactionRpcInputParamsResp) ToParam() EthereumSendTransac
 	return param.Override[EthereumSendTransactionRpcInputParams](json.RawMessage(r.RawJSON()))
 }
 
+type EthereumSendTransactionRpcInputParamsTransactionResp struct {
+	AuthorizationList    []EthereumSendTransactionRpcInputParamsTransactionAuthorizationListResp       `json:"authorization_list"`
+	ChainID              EthereumSendTransactionRpcInputParamsTransactionChainIDUnionResp              `json:"chain_id"`
+	Data                 string                                                                        `json:"data"`
+	From                 string                                                                        `json:"from"`
+	GasLimit             EthereumSendTransactionRpcInputParamsTransactionGasLimitUnionResp             `json:"gas_limit"`
+	GasPrice             EthereumSendTransactionRpcInputParamsTransactionGasPriceUnionResp             `json:"gas_price"`
+	MaxFeePerGas         EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnionResp         `json:"max_fee_per_gas"`
+	MaxPriorityFeePerGas EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionResp `json:"max_priority_fee_per_gas"`
+	Nonce                EthereumSendTransactionRpcInputParamsTransactionNonceUnionResp                `json:"nonce"`
+	To                   string                                                                        `json:"to"`
+	// Any of 0, 1, 2, 4.
+	Type  float64                                                        `json:"type"`
+	Value EthereumSendTransactionRpcInputParamsTransactionValueUnionResp `json:"value"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		AuthorizationList    respjson.Field
+		ChainID              respjson.Field
+		Data                 respjson.Field
+		From                 respjson.Field
+		GasLimit             respjson.Field
+		GasPrice             respjson.Field
+		MaxFeePerGas         respjson.Field
+		MaxPriorityFeePerGas respjson.Field
+		Nonce                respjson.Field
+		To                   respjson.Field
+		Type                 respjson.Field
+		Value                respjson.Field
+		ExtraFields          map[string]respjson.Field
+		raw                  string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EthereumSendTransactionRpcInputParamsTransactionResp) RawJSON() string { return r.JSON.raw }
+func (r *EthereumSendTransactionRpcInputParamsTransactionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type EthereumSendTransactionRpcInputParamsTransactionAuthorizationListResp struct {
+	ChainID  EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionResp `json:"chain_id" api:"required"`
+	Contract string                                                                            `json:"contract" api:"required"`
+	Nonce    EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnionResp   `json:"nonce" api:"required"`
+	R        string                                                                            `json:"r" api:"required"`
+	S        string                                                                            `json:"s" api:"required"`
+	YParity  float64                                                                           `json:"y_parity" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ChainID     respjson.Field
+		Contract    respjson.Field
+		Nonce       respjson.Field
+		R           respjson.Field
+		S           respjson.Field
+		YParity     respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EthereumSendTransactionRpcInputParamsTransactionAuthorizationListResp) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *EthereumSendTransactionRpcInputParamsTransactionAuthorizationListResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionResp
+// contains all possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionResp struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionResp) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionResp) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionResp) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnionResp
+// contains all possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnionResp struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnionResp) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnionResp) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnionResp) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSendTransactionRpcInputParamsTransactionChainIDUnionResp contains all
+// possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSendTransactionRpcInputParamsTransactionChainIDUnionResp struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionChainIDUnionResp) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionChainIDUnionResp) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSendTransactionRpcInputParamsTransactionChainIDUnionResp) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSendTransactionRpcInputParamsTransactionChainIDUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSendTransactionRpcInputParamsTransactionGasLimitUnionResp contains all
+// possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSendTransactionRpcInputParamsTransactionGasLimitUnionResp struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionGasLimitUnionResp) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionGasLimitUnionResp) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSendTransactionRpcInputParamsTransactionGasLimitUnionResp) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSendTransactionRpcInputParamsTransactionGasLimitUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSendTransactionRpcInputParamsTransactionGasPriceUnionResp contains all
+// possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSendTransactionRpcInputParamsTransactionGasPriceUnionResp struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionGasPriceUnionResp) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionGasPriceUnionResp) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSendTransactionRpcInputParamsTransactionGasPriceUnionResp) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSendTransactionRpcInputParamsTransactionGasPriceUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnionResp contains
+// all possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnionResp struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnionResp) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnionResp) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnionResp) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionResp
+// contains all possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionResp struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionResp) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionResp) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionResp) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSendTransactionRpcInputParamsTransactionNonceUnionResp contains all
+// possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSendTransactionRpcInputParamsTransactionNonceUnionResp struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionNonceUnionResp) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionNonceUnionResp) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSendTransactionRpcInputParamsTransactionNonceUnionResp) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSendTransactionRpcInputParamsTransactionNonceUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSendTransactionRpcInputParamsTransactionValueUnionResp contains all
+// possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSendTransactionRpcInputParamsTransactionValueUnionResp struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionValueUnionResp) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionValueUnionResp) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSendTransactionRpcInputParamsTransactionValueUnionResp) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSendTransactionRpcInputParamsTransactionValueUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Parameters for the EVM `eth_sendTransaction` RPC.
 //
 // The property Transaction is required.
 type EthereumSendTransactionRpcInputParams struct {
-	// An unsigned Ethereum transaction object.
-	Transaction UnsignedEthereumTransactionParam `json:"transaction,omitzero" api:"required"`
+	Transaction EthereumSendTransactionRpcInputParamsTransaction `json:"transaction,omitzero" api:"required"`
 	paramObj
 }
 
@@ -1525,20 +1932,212 @@ func (r *EthereumSendTransactionRpcInputParams) UnmarshalJSON(data []byte) error
 	return apijson.UnmarshalRoot(data, r)
 }
 
+type EthereumSendTransactionRpcInputParamsTransaction struct {
+	Data                 param.Opt[string]                                                         `json:"data,omitzero"`
+	From                 param.Opt[string]                                                         `json:"from,omitzero"`
+	To                   param.Opt[string]                                                         `json:"to,omitzero"`
+	AuthorizationList    []EthereumSendTransactionRpcInputParamsTransactionAuthorizationList       `json:"authorization_list,omitzero"`
+	ChainID              EthereumSendTransactionRpcInputParamsTransactionChainIDUnion              `json:"chain_id,omitzero"`
+	GasLimit             EthereumSendTransactionRpcInputParamsTransactionGasLimitUnion             `json:"gas_limit,omitzero"`
+	GasPrice             EthereumSendTransactionRpcInputParamsTransactionGasPriceUnion             `json:"gas_price,omitzero"`
+	MaxFeePerGas         EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnion         `json:"max_fee_per_gas,omitzero"`
+	MaxPriorityFeePerGas EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnion `json:"max_priority_fee_per_gas,omitzero"`
+	Nonce                EthereumSendTransactionRpcInputParamsTransactionNonceUnion                `json:"nonce,omitzero"`
+	// Any of 0, 1, 2, 4.
+	Type  float64                                                    `json:"type,omitzero"`
+	Value EthereumSendTransactionRpcInputParamsTransactionValueUnion `json:"value,omitzero"`
+	paramObj
+}
+
+func (r EthereumSendTransactionRpcInputParamsTransaction) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSendTransactionRpcInputParamsTransaction
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *EthereumSendTransactionRpcInputParamsTransaction) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func init() {
+	apijson.RegisterFieldValidator[EthereumSendTransactionRpcInputParamsTransaction](
+		"type", 0, 1, 2, 4,
+	)
+}
+
+// The properties ChainID, Contract, Nonce, R, S, YParity are required.
+type EthereumSendTransactionRpcInputParamsTransactionAuthorizationList struct {
+	ChainID  EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnion `json:"chain_id,omitzero" api:"required"`
+	Contract string                                                                        `json:"contract" api:"required"`
+	Nonce    EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnion   `json:"nonce,omitzero" api:"required"`
+	R        string                                                                        `json:"r" api:"required"`
+	S        string                                                                        `json:"s" api:"required"`
+	YParity  float64                                                                       `json:"y_parity" api:"required"`
+	paramObj
+}
+
+func (r EthereumSendTransactionRpcInputParamsTransactionAuthorizationList) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSendTransactionRpcInputParamsTransactionAuthorizationList
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *EthereumSendTransactionRpcInputParamsTransactionAuthorizationList) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnion struct {
+	OfString param.Opt[string] `json:",omitzero,inline"`
+	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfInt)
+}
+func (u *EthereumSendTransactionRpcInputParamsTransactionAuthorizationListChainIDUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnion struct {
+	OfString param.Opt[string] `json:",omitzero,inline"`
+	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfInt)
+}
+func (u *EthereumSendTransactionRpcInputParamsTransactionAuthorizationListNonceUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type EthereumSendTransactionRpcInputParamsTransactionChainIDUnion struct {
+	OfString param.Opt[string] `json:",omitzero,inline"`
+	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionChainIDUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfInt)
+}
+func (u *EthereumSendTransactionRpcInputParamsTransactionChainIDUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type EthereumSendTransactionRpcInputParamsTransactionGasLimitUnion struct {
+	OfString param.Opt[string] `json:",omitzero,inline"`
+	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionGasLimitUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfInt)
+}
+func (u *EthereumSendTransactionRpcInputParamsTransactionGasLimitUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type EthereumSendTransactionRpcInputParamsTransactionGasPriceUnion struct {
+	OfString param.Opt[string] `json:",omitzero,inline"`
+	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionGasPriceUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfInt)
+}
+func (u *EthereumSendTransactionRpcInputParamsTransactionGasPriceUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnion struct {
+	OfString param.Opt[string] `json:",omitzero,inline"`
+	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfInt)
+}
+func (u *EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnion struct {
+	OfString param.Opt[string] `json:",omitzero,inline"`
+	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfInt)
+}
+func (u *EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type EthereumSendTransactionRpcInputParamsTransactionNonceUnion struct {
+	OfString param.Opt[string] `json:",omitzero,inline"`
+	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionNonceUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfInt)
+}
+func (u *EthereumSendTransactionRpcInputParamsTransactionNonceUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type EthereumSendTransactionRpcInputParamsTransactionValueUnion struct {
+	OfString param.Opt[string] `json:",omitzero,inline"`
+	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u EthereumSendTransactionRpcInputParamsTransactionValueUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfInt)
+}
+func (u *EthereumSendTransactionRpcInputParamsTransactionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
 // Executes the EVM `eth_sendTransaction` RPC to sign and broadcast a transaction.
 type EthereumSendTransactionRpcInput struct {
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
-	Caip2 Caip2 `json:"caip2" api:"required"`
+	Caip2 string `json:"caip2" api:"required"`
 	// Any of "eth_sendTransaction".
 	Method EthereumSendTransactionRpcInputMethod `json:"method" api:"required"`
 	// Parameters for the EVM `eth_sendTransaction` RPC.
 	Params  EthereumSendTransactionRpcInputParamsResp `json:"params" api:"required"`
 	Address string                                    `json:"address"`
 	// Any of "ethereum".
-	ChainType   EthereumSendTransactionRpcInputChainType `json:"chain_type"`
-	ReferenceID string                                   `json:"reference_id"`
-	Sponsor     bool                                     `json:"sponsor"`
-	WalletID    string                                   `json:"wallet_id"`
+	ChainType EthereumSendTransactionRpcInputChainType `json:"chain_type"`
+	Sponsor   bool                                     `json:"sponsor"`
+	WalletID  string                                   `json:"wallet_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2       respjson.Field
@@ -1546,7 +2145,6 @@ type EthereumSendTransactionRpcInput struct {
 		Params      respjson.Field
 		Address     respjson.Field
 		ChainType   respjson.Field
-		ReferenceID respjson.Field
 		Sponsor     respjson.Field
 		WalletID    respjson.Field
 		ExtraFields map[string]respjson.Field
@@ -1586,16 +2184,14 @@ const (
 //
 // The properties Caip2, Method, Params are required.
 type EthereumSendTransactionRpcInputParam struct {
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
-	Caip2 Caip2 `json:"caip2" api:"required"`
+	Caip2 string `json:"caip2" api:"required"`
 	// Any of "eth_sendTransaction".
 	Method EthereumSendTransactionRpcInputMethod `json:"method,omitzero" api:"required"`
 	// Parameters for the EVM `eth_sendTransaction` RPC.
-	Params      EthereumSendTransactionRpcInputParams `json:"params,omitzero" api:"required"`
-	Address     param.Opt[string]                     `json:"address,omitzero"`
-	ReferenceID param.Opt[string]                     `json:"reference_id,omitzero"`
-	Sponsor     param.Opt[bool]                       `json:"sponsor,omitzero"`
-	WalletID    param.Opt[string]                     `json:"wallet_id,omitzero"`
+	Params   EthereumSendTransactionRpcInputParams `json:"params,omitzero" api:"required"`
+	Address  param.Opt[string]                     `json:"address,omitzero"`
+	Sponsor  param.Opt[bool]                       `json:"sponsor,omitzero"`
+	WalletID param.Opt[string]                     `json:"wallet_id,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumSendTransactionRpcInputChainType `json:"chain_type,omitzero"`
 	paramObj
@@ -1611,12 +2207,10 @@ func (r *EthereumSendTransactionRpcInputParam) UnmarshalJSON(data []byte) error 
 
 // EIP-712 typed data object.
 type EthereumTypedDataInput struct {
-	// The domain parameters for EIP-712 typed data signing.
-	Domain      TypedDataDomainInputParams `json:"domain" api:"required"`
-	Message     map[string]any             `json:"message" api:"required"`
-	PrimaryType string                     `json:"primary_type" api:"required"`
-	// The type definitions for EIP-712 typed data signing.
-	Types TypedDataTypesInputParamsResp `json:"types" api:"required"`
+	Domain      map[string]any                          `json:"domain" api:"required"`
+	Message     map[string]any                          `json:"message" api:"required"`
+	PrimaryType string                                  `json:"primary_type" api:"required"`
+	Types       map[string][]EthereumTypedDataInputType `json:"types" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Domain      respjson.Field
@@ -1643,16 +2237,32 @@ func (r EthereumTypedDataInput) ToParam() EthereumTypedDataInputParam {
 	return param.Override[EthereumTypedDataInputParam](json.RawMessage(r.RawJSON()))
 }
 
+type EthereumTypedDataInputType struct {
+	Name string `json:"name" api:"required"`
+	Type string `json:"type" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Name        respjson.Field
+		Type        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EthereumTypedDataInputType) RawJSON() string { return r.JSON.raw }
+func (r *EthereumTypedDataInputType) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // EIP-712 typed data object.
 //
 // The properties Domain, Message, PrimaryType, Types are required.
 type EthereumTypedDataInputParam struct {
-	// The domain parameters for EIP-712 typed data signing.
-	Domain      TypedDataDomainInputParams `json:"domain,omitzero" api:"required"`
-	Message     map[string]any             `json:"message,omitzero" api:"required"`
-	PrimaryType string                     `json:"primary_type" api:"required"`
-	// The type definitions for EIP-712 typed data signing.
-	Types TypedDataTypesInputParams `json:"types,omitzero" api:"required"`
+	Domain      map[string]any                               `json:"domain,omitzero" api:"required"`
+	Message     map[string]any                               `json:"message,omitzero" api:"required"`
+	PrimaryType string                                       `json:"primary_type" api:"required"`
+	Types       map[string][]EthereumTypedDataInputTypeParam `json:"types,omitzero" api:"required"`
 	paramObj
 }
 
@@ -1661,6 +2271,21 @@ func (r EthereumTypedDataInputParam) MarshalJSON() (data []byte, err error) {
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *EthereumTypedDataInputParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The properties Name, Type are required.
+type EthereumTypedDataInputTypeParam struct {
+	Name string `json:"name" api:"required"`
+	Type string `json:"type" api:"required"`
+	paramObj
+}
+
+func (r EthereumTypedDataInputTypeParam) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumTypedDataInputTypeParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *EthereumTypedDataInputTypeParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -1786,8 +2411,7 @@ func (r *EthereumSignTypedDataRpcInputParam) UnmarshalJSON(data []byte) error {
 
 // Parameters for the EVM `secp256k1_sign` RPC.
 type EthereumSecp256k1SignRpcInputParamsResp struct {
-	// A hex-encoded string prefixed with '0x'.
-	Hash Hex `json:"hash" api:"required"`
+	Hash string `json:"hash" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Hash        respjson.Field
@@ -1816,8 +2440,7 @@ func (r EthereumSecp256k1SignRpcInputParamsResp) ToParam() EthereumSecp256k1Sign
 //
 // The property Hash is required.
 type EthereumSecp256k1SignRpcInputParams struct {
-	// A hex-encoded string prefixed with '0x'.
-	Hash Hex `json:"hash" api:"required"`
+	Hash string `json:"hash" api:"required"`
 	paramObj
 }
 
@@ -1904,15 +2527,11 @@ func (r *EthereumSecp256k1SignRpcInputParam) UnmarshalJSON(data []byte) error {
 
 // Parameters for the EVM `eth_sign7702Authorization` RPC.
 type EthereumSign7702AuthorizationRpcInputParamsResp struct {
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	ChainID  QuantityUnion `json:"chain_id" api:"required"`
-	Contract string        `json:"contract" api:"required"`
+	ChainID  EthereumSign7702AuthorizationRpcInputParamsChainIDUnionResp `json:"chain_id" api:"required"`
+	Contract string                                                      `json:"contract" api:"required"`
 	// Any of "self".
-	Executor EthereumSign7702AuthorizationRpcInputParamsExecutor `json:"executor"`
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	Nonce QuantityUnion `json:"nonce"`
+	Executor EthereumSign7702AuthorizationRpcInputParamsExecutor       `json:"executor"`
+	Nonce    EthereumSign7702AuthorizationRpcInputParamsNonceUnionResp `json:"nonce"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ChainID     respjson.Field
@@ -1940,25 +2559,97 @@ func (r EthereumSign7702AuthorizationRpcInputParamsResp) ToParam() EthereumSign7
 	return param.Override[EthereumSign7702AuthorizationRpcInputParams](json.RawMessage(r.RawJSON()))
 }
 
+// EthereumSign7702AuthorizationRpcInputParamsChainIDUnionResp contains all
+// possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSign7702AuthorizationRpcInputParamsChainIDUnionResp struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSign7702AuthorizationRpcInputParamsChainIDUnionResp) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSign7702AuthorizationRpcInputParamsChainIDUnionResp) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSign7702AuthorizationRpcInputParamsChainIDUnionResp) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSign7702AuthorizationRpcInputParamsChainIDUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 type EthereumSign7702AuthorizationRpcInputParamsExecutor string
 
 const (
 	EthereumSign7702AuthorizationRpcInputParamsExecutorSelf EthereumSign7702AuthorizationRpcInputParamsExecutor = "self"
 )
 
+// EthereumSign7702AuthorizationRpcInputParamsNonceUnionResp contains all possible
+// properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSign7702AuthorizationRpcInputParamsNonceUnionResp struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSign7702AuthorizationRpcInputParamsNonceUnionResp) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSign7702AuthorizationRpcInputParamsNonceUnionResp) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSign7702AuthorizationRpcInputParamsNonceUnionResp) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSign7702AuthorizationRpcInputParamsNonceUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Parameters for the EVM `eth_sign7702Authorization` RPC.
 //
 // The properties ChainID, Contract are required.
 type EthereumSign7702AuthorizationRpcInputParams struct {
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	ChainID  QuantityUnionParam `json:"chain_id,omitzero" api:"required"`
-	Contract string             `json:"contract" api:"required"`
+	ChainID  EthereumSign7702AuthorizationRpcInputParamsChainIDUnion `json:"chain_id,omitzero" api:"required"`
+	Contract string                                                  `json:"contract" api:"required"`
 	// Any of "self".
-	Executor EthereumSign7702AuthorizationRpcInputParamsExecutor `json:"executor,omitzero"`
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	Nonce QuantityUnionParam `json:"nonce,omitzero"`
+	Executor EthereumSign7702AuthorizationRpcInputParamsExecutor   `json:"executor,omitzero"`
+	Nonce    EthereumSign7702AuthorizationRpcInputParamsNonceUnion `json:"nonce,omitzero"`
 	paramObj
 }
 
@@ -1968,6 +2659,38 @@ func (r EthereumSign7702AuthorizationRpcInputParams) MarshalJSON() (data []byte,
 }
 func (r *EthereumSign7702AuthorizationRpcInputParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type EthereumSign7702AuthorizationRpcInputParamsChainIDUnion struct {
+	OfString param.Opt[string] `json:",omitzero,inline"`
+	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u EthereumSign7702AuthorizationRpcInputParamsChainIDUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfInt)
+}
+func (u *EthereumSign7702AuthorizationRpcInputParamsChainIDUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type EthereumSign7702AuthorizationRpcInputParamsNonceUnion struct {
+	OfString param.Opt[string] `json:",omitzero,inline"`
+	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u EthereumSign7702AuthorizationRpcInputParamsNonceUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfInt)
+}
+func (u *EthereumSign7702AuthorizationRpcInputParamsNonceUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
 }
 
 // Signs an EIP-7702 authorization.
@@ -2045,12 +2768,9 @@ func (r *EthereumSign7702AuthorizationRpcInputParam) UnmarshalJSON(data []byte) 
 
 // Parameters for the EVM `eth_signUserOperation` RPC.
 type EthereumSignUserOperationRpcInputParamsResp struct {
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	ChainID  QuantityUnion `json:"chain_id" api:"required"`
-	Contract string        `json:"contract" api:"required"`
-	// An ERC-4337 user operation.
-	UserOperation UserOperationInput `json:"user_operation" api:"required"`
+	ChainID       EthereumSignUserOperationRpcInputParamsChainIDUnionResp  `json:"chain_id" api:"required"`
+	Contract      string                                                   `json:"contract" api:"required"`
+	UserOperation EthereumSignUserOperationRpcInputParamsUserOperationResp `json:"user_operation" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ChainID       respjson.Field
@@ -2077,16 +2797,87 @@ func (r EthereumSignUserOperationRpcInputParamsResp) ToParam() EthereumSignUserO
 	return param.Override[EthereumSignUserOperationRpcInputParams](json.RawMessage(r.RawJSON()))
 }
 
+// EthereumSignUserOperationRpcInputParamsChainIDUnionResp contains all possible
+// properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSignUserOperationRpcInputParamsChainIDUnionResp struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSignUserOperationRpcInputParamsChainIDUnionResp) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSignUserOperationRpcInputParamsChainIDUnionResp) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSignUserOperationRpcInputParamsChainIDUnionResp) RawJSON() string { return u.JSON.raw }
+
+func (r *EthereumSignUserOperationRpcInputParamsChainIDUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type EthereumSignUserOperationRpcInputParamsUserOperationResp struct {
+	CallData                      string `json:"call_data" api:"required"`
+	CallGasLimit                  string `json:"call_gas_limit" api:"required"`
+	MaxFeePerGas                  string `json:"max_fee_per_gas" api:"required"`
+	MaxPriorityFeePerGas          string `json:"max_priority_fee_per_gas" api:"required"`
+	Nonce                         string `json:"nonce" api:"required"`
+	PreVerificationGas            string `json:"pre_verification_gas" api:"required"`
+	Sender                        string `json:"sender" api:"required"`
+	VerificationGasLimit          string `json:"verification_gas_limit" api:"required"`
+	Paymaster                     string `json:"paymaster"`
+	PaymasterData                 string `json:"paymaster_data"`
+	PaymasterPostOpGasLimit       string `json:"paymaster_post_op_gas_limit"`
+	PaymasterVerificationGasLimit string `json:"paymaster_verification_gas_limit"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		CallData                      respjson.Field
+		CallGasLimit                  respjson.Field
+		MaxFeePerGas                  respjson.Field
+		MaxPriorityFeePerGas          respjson.Field
+		Nonce                         respjson.Field
+		PreVerificationGas            respjson.Field
+		Sender                        respjson.Field
+		VerificationGasLimit          respjson.Field
+		Paymaster                     respjson.Field
+		PaymasterData                 respjson.Field
+		PaymasterPostOpGasLimit       respjson.Field
+		PaymasterVerificationGasLimit respjson.Field
+		ExtraFields                   map[string]respjson.Field
+		raw                           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EthereumSignUserOperationRpcInputParamsUserOperationResp) RawJSON() string { return r.JSON.raw }
+func (r *EthereumSignUserOperationRpcInputParamsUserOperationResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Parameters for the EVM `eth_signUserOperation` RPC.
 //
 // The properties ChainID, Contract, UserOperation are required.
 type EthereumSignUserOperationRpcInputParams struct {
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	ChainID  QuantityUnionParam `json:"chain_id,omitzero" api:"required"`
-	Contract string             `json:"contract" api:"required"`
-	// An ERC-4337 user operation.
-	UserOperation UserOperationInputParam `json:"user_operation,omitzero" api:"required"`
+	ChainID       EthereumSignUserOperationRpcInputParamsChainIDUnion  `json:"chain_id,omitzero" api:"required"`
+	Contract      string                                               `json:"contract" api:"required"`
+	UserOperation EthereumSignUserOperationRpcInputParamsUserOperation `json:"user_operation,omitzero" api:"required"`
 	paramObj
 }
 
@@ -2095,6 +2886,48 @@ func (r EthereumSignUserOperationRpcInputParams) MarshalJSON() (data []byte, err
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *EthereumSignUserOperationRpcInputParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type EthereumSignUserOperationRpcInputParamsChainIDUnion struct {
+	OfString param.Opt[string] `json:",omitzero,inline"`
+	OfInt    param.Opt[int64]  `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u EthereumSignUserOperationRpcInputParamsChainIDUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfInt)
+}
+func (u *EthereumSignUserOperationRpcInputParamsChainIDUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+// The properties CallData, CallGasLimit, MaxFeePerGas, MaxPriorityFeePerGas,
+// Nonce, PreVerificationGas, Sender, VerificationGasLimit are required.
+type EthereumSignUserOperationRpcInputParamsUserOperation struct {
+	CallData                      string            `json:"call_data" api:"required"`
+	CallGasLimit                  string            `json:"call_gas_limit" api:"required"`
+	MaxFeePerGas                  string            `json:"max_fee_per_gas" api:"required"`
+	MaxPriorityFeePerGas          string            `json:"max_priority_fee_per_gas" api:"required"`
+	Nonce                         string            `json:"nonce" api:"required"`
+	PreVerificationGas            string            `json:"pre_verification_gas" api:"required"`
+	Sender                        string            `json:"sender" api:"required"`
+	VerificationGasLimit          string            `json:"verification_gas_limit" api:"required"`
+	Paymaster                     param.Opt[string] `json:"paymaster,omitzero"`
+	PaymasterData                 param.Opt[string] `json:"paymaster_data,omitzero"`
+	PaymasterPostOpGasLimit       param.Opt[string] `json:"paymaster_post_op_gas_limit,omitzero"`
+	PaymasterVerificationGasLimit param.Opt[string] `json:"paymaster_verification_gas_limit,omitzero"`
+	paramObj
+}
+
+func (r EthereumSignUserOperationRpcInputParamsUserOperation) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumSignUserOperationRpcInputParamsUserOperation
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *EthereumSignUserOperationRpcInputParamsUserOperation) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2168,186 +3001,6 @@ func (r EthereumSignUserOperationRpcInputParam) MarshalJSON() (data []byte, err 
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *EthereumSignUserOperationRpcInputParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// A single call within a batched wallet_sendCalls request.
-type EthereumSendCallsCall struct {
-	To string `json:"to" api:"required"`
-	// A hex-encoded string prefixed with '0x'.
-	Data Hex `json:"data"`
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	Value QuantityUnion `json:"value"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		To          respjson.Field
-		Data        respjson.Field
-		Value       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r EthereumSendCallsCall) RawJSON() string { return r.JSON.raw }
-func (r *EthereumSendCallsCall) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// ToParam converts this EthereumSendCallsCall to a EthereumSendCallsCallParam.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// EthereumSendCallsCallParam.Overrides()
-func (r EthereumSendCallsCall) ToParam() EthereumSendCallsCallParam {
-	return param.Override[EthereumSendCallsCallParam](json.RawMessage(r.RawJSON()))
-}
-
-// A single call within a batched wallet_sendCalls request.
-//
-// The property To is required.
-type EthereumSendCallsCallParam struct {
-	To string `json:"to" api:"required"`
-	// A hex-encoded string prefixed with '0x'.
-	Data param.Opt[Hex] `json:"data,omitzero"`
-	// A quantity value that can be either a hex string starting with '0x' or a
-	// non-negative integer.
-	Value QuantityUnionParam `json:"value,omitzero"`
-	paramObj
-}
-
-func (r EthereumSendCallsCallParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumSendCallsCallParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *EthereumSendCallsCallParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Parameters for the `wallet_sendCalls` RPC.
-type EthereumSendCallsRpcInputParamsResp struct {
-	Calls []EthereumSendCallsCall `json:"calls" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Calls       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r EthereumSendCallsRpcInputParamsResp) RawJSON() string { return r.JSON.raw }
-func (r *EthereumSendCallsRpcInputParamsResp) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// ToParam converts this EthereumSendCallsRpcInputParamsResp to a
-// EthereumSendCallsRpcInputParams.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// EthereumSendCallsRpcInputParams.Overrides()
-func (r EthereumSendCallsRpcInputParamsResp) ToParam() EthereumSendCallsRpcInputParams {
-	return param.Override[EthereumSendCallsRpcInputParams](json.RawMessage(r.RawJSON()))
-}
-
-// Parameters for the `wallet_sendCalls` RPC.
-//
-// The property Calls is required.
-type EthereumSendCallsRpcInputParams struct {
-	Calls []EthereumSendCallsCallParam `json:"calls,omitzero" api:"required"`
-	paramObj
-}
-
-func (r EthereumSendCallsRpcInputParams) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumSendCallsRpcInputParams
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *EthereumSendCallsRpcInputParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Executes the `wallet_sendCalls` RPC (EIP-5792) to batch multiple calls into a
-// single atomic transaction.
-type EthereumSendCallsRpcInput struct {
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
-	Caip2 Caip2 `json:"caip2" api:"required"`
-	// Any of "wallet_sendCalls".
-	Method EthereumSendCallsRpcInputMethod `json:"method" api:"required"`
-	// Parameters for the `wallet_sendCalls` RPC.
-	Params  EthereumSendCallsRpcInputParamsResp `json:"params" api:"required"`
-	Address string                              `json:"address"`
-	// Any of "ethereum".
-	ChainType EthereumSendCallsRpcInputChainType `json:"chain_type"`
-	Sponsor   bool                               `json:"sponsor"`
-	WalletID  string                             `json:"wallet_id"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Caip2       respjson.Field
-		Method      respjson.Field
-		Params      respjson.Field
-		Address     respjson.Field
-		ChainType   respjson.Field
-		Sponsor     respjson.Field
-		WalletID    respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r EthereumSendCallsRpcInput) RawJSON() string { return r.JSON.raw }
-func (r *EthereumSendCallsRpcInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// ToParam converts this EthereumSendCallsRpcInput to a
-// EthereumSendCallsRpcInputParam.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// EthereumSendCallsRpcInputParam.Overrides()
-func (r EthereumSendCallsRpcInput) ToParam() EthereumSendCallsRpcInputParam {
-	return param.Override[EthereumSendCallsRpcInputParam](json.RawMessage(r.RawJSON()))
-}
-
-type EthereumSendCallsRpcInputMethod string
-
-const (
-	EthereumSendCallsRpcInputMethodWalletSendCalls EthereumSendCallsRpcInputMethod = "wallet_sendCalls"
-)
-
-type EthereumSendCallsRpcInputChainType string
-
-const (
-	EthereumSendCallsRpcInputChainTypeEthereum EthereumSendCallsRpcInputChainType = "ethereum"
-)
-
-// Executes the `wallet_sendCalls` RPC (EIP-5792) to batch multiple calls into a
-// single atomic transaction.
-//
-// The properties Caip2, Method, Params are required.
-type EthereumSendCallsRpcInputParam struct {
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
-	Caip2 Caip2 `json:"caip2" api:"required"`
-	// Any of "wallet_sendCalls".
-	Method EthereumSendCallsRpcInputMethod `json:"method,omitzero" api:"required"`
-	// Parameters for the `wallet_sendCalls` RPC.
-	Params   EthereumSendCallsRpcInputParams `json:"params,omitzero" api:"required"`
-	Address  param.Opt[string]               `json:"address,omitzero"`
-	Sponsor  param.Opt[bool]                 `json:"sponsor,omitzero"`
-	WalletID param.Opt[string]               `json:"wallet_id,omitzero"`
-	// Any of "ethereum".
-	ChainType EthereumSendCallsRpcInputChainType `json:"chain_type,omitzero"`
-	paramObj
-}
-
-func (r EthereumSendCallsRpcInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumSendCallsRpcInputParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *EthereumSendCallsRpcInputParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2459,19 +3112,15 @@ const (
 
 // Data returned by the EVM `eth_sendTransaction` RPC.
 type EthereumSendTransactionRpcResponseData struct {
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
-	Caip2         Caip2  `json:"caip2" api:"required"`
-	Hash          string `json:"hash" api:"required"`
-	ReferenceID   string `json:"reference_id" api:"nullable"`
-	TransactionID string `json:"transaction_id"`
-	// An unsigned Ethereum transaction object.
-	TransactionRequest UnsignedEthereumTransaction `json:"transaction_request"`
-	UserOperationHash  string                      `json:"user_operation_hash"`
+	Caip2              string                                                   `json:"caip2" api:"required"`
+	Hash               string                                                   `json:"hash" api:"required"`
+	TransactionID      string                                                   `json:"transaction_id"`
+	TransactionRequest EthereumSendTransactionRpcResponseDataTransactionRequest `json:"transaction_request"`
+	UserOperationHash  string                                                   `json:"user_operation_hash"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2              respjson.Field
 		Hash               respjson.Field
-		ReferenceID        respjson.Field
 		TransactionID      respjson.Field
 		TransactionRequest respjson.Field
 		UserOperationHash  respjson.Field
@@ -2483,6 +3132,415 @@ type EthereumSendTransactionRpcResponseData struct {
 // Returns the unmodified JSON received from the API
 func (r EthereumSendTransactionRpcResponseData) RawJSON() string { return r.JSON.raw }
 func (r *EthereumSendTransactionRpcResponseData) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type EthereumSendTransactionRpcResponseDataTransactionRequest struct {
+	AuthorizationList    []EthereumSendTransactionRpcResponseDataTransactionRequestAuthorizationList       `json:"authorization_list"`
+	ChainID              EthereumSendTransactionRpcResponseDataTransactionRequestChainIDUnion              `json:"chain_id"`
+	Data                 string                                                                            `json:"data"`
+	From                 string                                                                            `json:"from"`
+	GasLimit             EthereumSendTransactionRpcResponseDataTransactionRequestGasLimitUnion             `json:"gas_limit"`
+	GasPrice             EthereumSendTransactionRpcResponseDataTransactionRequestGasPriceUnion             `json:"gas_price"`
+	MaxFeePerGas         EthereumSendTransactionRpcResponseDataTransactionRequestMaxFeePerGasUnion         `json:"max_fee_per_gas"`
+	MaxPriorityFeePerGas EthereumSendTransactionRpcResponseDataTransactionRequestMaxPriorityFeePerGasUnion `json:"max_priority_fee_per_gas"`
+	Nonce                EthereumSendTransactionRpcResponseDataTransactionRequestNonceUnion                `json:"nonce"`
+	To                   string                                                                            `json:"to"`
+	// Any of 0, 1, 2, 4.
+	Type  float64                                                            `json:"type"`
+	Value EthereumSendTransactionRpcResponseDataTransactionRequestValueUnion `json:"value"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		AuthorizationList    respjson.Field
+		ChainID              respjson.Field
+		Data                 respjson.Field
+		From                 respjson.Field
+		GasLimit             respjson.Field
+		GasPrice             respjson.Field
+		MaxFeePerGas         respjson.Field
+		MaxPriorityFeePerGas respjson.Field
+		Nonce                respjson.Field
+		To                   respjson.Field
+		Type                 respjson.Field
+		Value                respjson.Field
+		ExtraFields          map[string]respjson.Field
+		raw                  string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EthereumSendTransactionRpcResponseDataTransactionRequest) RawJSON() string { return r.JSON.raw }
+func (r *EthereumSendTransactionRpcResponseDataTransactionRequest) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type EthereumSendTransactionRpcResponseDataTransactionRequestAuthorizationList struct {
+	ChainID  EthereumSendTransactionRpcResponseDataTransactionRequestAuthorizationListChainIDUnion `json:"chain_id" api:"required"`
+	Contract string                                                                                `json:"contract" api:"required"`
+	Nonce    EthereumSendTransactionRpcResponseDataTransactionRequestAuthorizationListNonceUnion   `json:"nonce" api:"required"`
+	R        string                                                                                `json:"r" api:"required"`
+	S        string                                                                                `json:"s" api:"required"`
+	YParity  float64                                                                               `json:"y_parity" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ChainID     respjson.Field
+		Contract    respjson.Field
+		Nonce       respjson.Field
+		R           respjson.Field
+		S           respjson.Field
+		YParity     respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EthereumSendTransactionRpcResponseDataTransactionRequestAuthorizationList) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *EthereumSendTransactionRpcResponseDataTransactionRequestAuthorizationList) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSendTransactionRpcResponseDataTransactionRequestAuthorizationListChainIDUnion
+// contains all possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSendTransactionRpcResponseDataTransactionRequestAuthorizationListChainIDUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestAuthorizationListChainIDUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestAuthorizationListChainIDUnion) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestAuthorizationListChainIDUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSendTransactionRpcResponseDataTransactionRequestAuthorizationListChainIDUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSendTransactionRpcResponseDataTransactionRequestAuthorizationListNonceUnion
+// contains all possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSendTransactionRpcResponseDataTransactionRequestAuthorizationListNonceUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestAuthorizationListNonceUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestAuthorizationListNonceUnion) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestAuthorizationListNonceUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSendTransactionRpcResponseDataTransactionRequestAuthorizationListNonceUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSendTransactionRpcResponseDataTransactionRequestChainIDUnion contains
+// all possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSendTransactionRpcResponseDataTransactionRequestChainIDUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestChainIDUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestChainIDUnion) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestChainIDUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSendTransactionRpcResponseDataTransactionRequestChainIDUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSendTransactionRpcResponseDataTransactionRequestGasLimitUnion contains
+// all possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSendTransactionRpcResponseDataTransactionRequestGasLimitUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestGasLimitUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestGasLimitUnion) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestGasLimitUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSendTransactionRpcResponseDataTransactionRequestGasLimitUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSendTransactionRpcResponseDataTransactionRequestGasPriceUnion contains
+// all possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSendTransactionRpcResponseDataTransactionRequestGasPriceUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestGasPriceUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestGasPriceUnion) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestGasPriceUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSendTransactionRpcResponseDataTransactionRequestGasPriceUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSendTransactionRpcResponseDataTransactionRequestMaxFeePerGasUnion
+// contains all possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSendTransactionRpcResponseDataTransactionRequestMaxFeePerGasUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestMaxFeePerGasUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestMaxFeePerGasUnion) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestMaxFeePerGasUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSendTransactionRpcResponseDataTransactionRequestMaxFeePerGasUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSendTransactionRpcResponseDataTransactionRequestMaxPriorityFeePerGasUnion
+// contains all possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSendTransactionRpcResponseDataTransactionRequestMaxPriorityFeePerGasUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestMaxPriorityFeePerGasUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestMaxPriorityFeePerGasUnion) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestMaxPriorityFeePerGasUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSendTransactionRpcResponseDataTransactionRequestMaxPriorityFeePerGasUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSendTransactionRpcResponseDataTransactionRequestNonceUnion contains all
+// possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSendTransactionRpcResponseDataTransactionRequestNonceUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestNonceUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestNonceUnion) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestNonceUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSendTransactionRpcResponseDataTransactionRequestNonceUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSendTransactionRpcResponseDataTransactionRequestValueUnion contains all
+// possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSendTransactionRpcResponseDataTransactionRequestValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestValueUnion) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSendTransactionRpcResponseDataTransactionRequestValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSendTransactionRpcResponseDataTransactionRequestValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2569,9 +3627,8 @@ const (
 // Data returned by the EVM `secp256k1_sign` RPC.
 type EthereumSecp256k1SignRpcResponseData struct {
 	// Any of "hex".
-	Encoding EthereumSecp256k1SignRpcResponseDataEncoding `json:"encoding" api:"required"`
-	// A hex-encoded string prefixed with '0x'.
-	Signature Hex `json:"signature" api:"required"`
+	Encoding  EthereumSecp256k1SignRpcResponseDataEncoding `json:"encoding" api:"required"`
+	Signature string                                       `json:"signature" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Encoding    respjson.Field
@@ -2622,9 +3679,7 @@ const (
 
 // Data returned by the EVM `eth_sign7702Authorization` RPC.
 type EthereumSign7702AuthorizationRpcResponseData struct {
-	// A signed EIP-7702 authorization that delegates code execution to a contract
-	// address.
-	Authorization EthereumSign7702Authorization `json:"authorization" api:"required"`
+	Authorization EthereumSign7702AuthorizationRpcResponseDataAuthorization `json:"authorization" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Authorization respjson.Field
@@ -2636,6 +3691,110 @@ type EthereumSign7702AuthorizationRpcResponseData struct {
 // Returns the unmodified JSON received from the API
 func (r EthereumSign7702AuthorizationRpcResponseData) RawJSON() string { return r.JSON.raw }
 func (r *EthereumSign7702AuthorizationRpcResponseData) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type EthereumSign7702AuthorizationRpcResponseDataAuthorization struct {
+	ChainID  EthereumSign7702AuthorizationRpcResponseDataAuthorizationChainIDUnion `json:"chain_id" api:"required"`
+	Contract string                                                                `json:"contract" api:"required"`
+	Nonce    EthereumSign7702AuthorizationRpcResponseDataAuthorizationNonceUnion   `json:"nonce" api:"required"`
+	R        string                                                                `json:"r" api:"required"`
+	S        string                                                                `json:"s" api:"required"`
+	YParity  float64                                                               `json:"y_parity" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ChainID     respjson.Field
+		Contract    respjson.Field
+		Nonce       respjson.Field
+		R           respjson.Field
+		S           respjson.Field
+		YParity     respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EthereumSign7702AuthorizationRpcResponseDataAuthorization) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *EthereumSign7702AuthorizationRpcResponseDataAuthorization) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSign7702AuthorizationRpcResponseDataAuthorizationChainIDUnion contains
+// all possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSign7702AuthorizationRpcResponseDataAuthorizationChainIDUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSign7702AuthorizationRpcResponseDataAuthorizationChainIDUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSign7702AuthorizationRpcResponseDataAuthorizationChainIDUnion) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSign7702AuthorizationRpcResponseDataAuthorizationChainIDUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSign7702AuthorizationRpcResponseDataAuthorizationChainIDUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumSign7702AuthorizationRpcResponseDataAuthorizationNonceUnion contains all
+// possible properties and values from [string], [int64].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type EthereumSign7702AuthorizationRpcResponseDataAuthorizationNonceUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u EthereumSign7702AuthorizationRpcResponseDataAuthorizationNonceUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumSign7702AuthorizationRpcResponseDataAuthorizationNonceUnion) AsInt() (v int64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumSign7702AuthorizationRpcResponseDataAuthorizationNonceUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *EthereumSign7702AuthorizationRpcResponseDataAuthorizationNonceUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2717,53 +3876,6 @@ type EthereumSignUserOperationRpcResponseMethod string
 
 const (
 	EthereumSignUserOperationRpcResponseMethodEthSignUserOperation EthereumSignUserOperationRpcResponseMethod = "eth_signUserOperation"
-)
-
-// Data returned by the `wallet_sendCalls` RPC.
-type EthereumSendCallsRpcResponseData struct {
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
-	Caip2         Caip2  `json:"caip2" api:"required"`
-	TransactionID string `json:"transaction_id" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Caip2         respjson.Field
-		TransactionID respjson.Field
-		ExtraFields   map[string]respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r EthereumSendCallsRpcResponseData) RawJSON() string { return r.JSON.raw }
-func (r *EthereumSendCallsRpcResponseData) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Response to the `wallet_sendCalls` RPC.
-type EthereumSendCallsRpcResponse struct {
-	// Data returned by the `wallet_sendCalls` RPC.
-	Data EthereumSendCallsRpcResponseData `json:"data" api:"required"`
-	// Any of "wallet_sendCalls".
-	Method EthereumSendCallsRpcResponseMethod `json:"method" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Data        respjson.Field
-		Method      respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r EthereumSendCallsRpcResponse) RawJSON() string { return r.JSON.raw }
-func (r *EthereumSendCallsRpcResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type EthereumSendCallsRpcResponseMethod string
-
-const (
-	EthereumSendCallsRpcResponseMethodWalletSendCalls EthereumSendCallsRpcResponseMethod = "wallet_sendCalls"
 )
 
 // Parameters for the SVM `signTransaction` RPC.
@@ -2950,18 +4062,16 @@ func (r *SolanaSignAndSendTransactionRpcInputParams) UnmarshalJSON(data []byte) 
 // Executes the SVM `signAndSendTransaction` RPC to sign and broadcast a
 // transaction.
 type SolanaSignAndSendTransactionRpcInput struct {
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
-	Caip2 Caip2 `json:"caip2" api:"required"`
+	Caip2 string `json:"caip2" api:"required"`
 	// Any of "signAndSendTransaction".
 	Method SolanaSignAndSendTransactionRpcInputMethod `json:"method" api:"required"`
 	// Parameters for the SVM `signAndSendTransaction` RPC.
 	Params  SolanaSignAndSendTransactionRpcInputParamsResp `json:"params" api:"required"`
 	Address string                                         `json:"address"`
 	// Any of "solana".
-	ChainType   SolanaSignAndSendTransactionRpcInputChainType `json:"chain_type"`
-	ReferenceID string                                        `json:"reference_id"`
-	Sponsor     bool                                          `json:"sponsor"`
-	WalletID    string                                        `json:"wallet_id"`
+	ChainType SolanaSignAndSendTransactionRpcInputChainType `json:"chain_type"`
+	Sponsor   bool                                          `json:"sponsor"`
+	WalletID  string                                        `json:"wallet_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2       respjson.Field
@@ -2969,7 +4079,6 @@ type SolanaSignAndSendTransactionRpcInput struct {
 		Params      respjson.Field
 		Address     respjson.Field
 		ChainType   respjson.Field
-		ReferenceID respjson.Field
 		Sponsor     respjson.Field
 		WalletID    respjson.Field
 		ExtraFields map[string]respjson.Field
@@ -3010,16 +4119,14 @@ const (
 //
 // The properties Caip2, Method, Params are required.
 type SolanaSignAndSendTransactionRpcInputParam struct {
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
-	Caip2 Caip2 `json:"caip2" api:"required"`
+	Caip2 string `json:"caip2" api:"required"`
 	// Any of "signAndSendTransaction".
 	Method SolanaSignAndSendTransactionRpcInputMethod `json:"method,omitzero" api:"required"`
 	// Parameters for the SVM `signAndSendTransaction` RPC.
-	Params      SolanaSignAndSendTransactionRpcInputParams `json:"params,omitzero" api:"required"`
-	Address     param.Opt[string]                          `json:"address,omitzero"`
-	ReferenceID param.Opt[string]                          `json:"reference_id,omitzero"`
-	Sponsor     param.Opt[bool]                            `json:"sponsor,omitzero"`
-	WalletID    param.Opt[string]                          `json:"wallet_id,omitzero"`
+	Params   SolanaSignAndSendTransactionRpcInputParams `json:"params,omitzero" api:"required"`
+	Address  param.Opt[string]                          `json:"address,omitzero"`
+	Sponsor  param.Opt[bool]                            `json:"sponsor,omitzero"`
+	WalletID param.Opt[string]                          `json:"wallet_id,omitzero"`
 	// Any of "solana".
 	ChainType SolanaSignAndSendTransactionRpcInputChainType `json:"chain_type,omitzero"`
 	paramObj
@@ -3215,16 +4322,13 @@ const (
 
 // Data returned by the SVM `signAndSendTransaction` RPC.
 type SolanaSignAndSendTransactionRpcResponseData struct {
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
-	Caip2         Caip2  `json:"caip2" api:"required"`
+	Caip2         string `json:"caip2" api:"required"`
 	Hash          string `json:"hash" api:"required"`
-	ReferenceID   string `json:"reference_id" api:"nullable"`
 	TransactionID string `json:"transaction_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2         respjson.Field
 		Hash          respjson.Field
-		ReferenceID   respjson.Field
 		TransactionID respjson.Field
 		ExtraFields   map[string]respjson.Field
 		raw           string
@@ -5263,9 +6367,9 @@ func (r *WalletUpdateRequestBodyOwnerUserOwner) UnmarshalJSON(data []byte) error
 // [EthereumSignTransactionRpcInput], [EthereumSendTransactionRpcInput],
 // [EthereumPersonalSignRpcInput], [EthereumSignTypedDataRpcInput],
 // [EthereumSecp256k1SignRpcInput], [EthereumSign7702AuthorizationRpcInput],
-// [EthereumSignUserOperationRpcInput], [EthereumSendCallsRpcInput],
-// [SolanaSignTransactionRpcInput], [SolanaSignAndSendTransactionRpcInput],
-// [SolanaSignMessageRpcInput], [SparkTransferRpcInput], [SparkGetBalanceRpcInput],
+// [EthereumSignUserOperationRpcInput], [SolanaSignTransactionRpcInput],
+// [SolanaSignAndSendTransactionRpcInput], [SolanaSignMessageRpcInput],
+// [SparkTransferRpcInput], [SparkGetBalanceRpcInput],
 // [SparkTransferTokensRpcInput], [SparkGetStaticDepositAddressRpcInput],
 // [SparkGetClaimStaticDepositQuoteRpcInput], [SparkClaimStaticDepositRpcInput],
 // [SparkCreateLightningInvoiceRpcInput], [SparkPayLightningInvoiceRpcInput],
@@ -5277,11 +6381,11 @@ func (r *WalletUpdateRequestBodyOwnerUserOwner) UnmarshalJSON(data []byte) error
 type WalletRpcRequestBodyUnion struct {
 	// Any of "eth_signTransaction", "eth_sendTransaction", "personal_sign",
 	// "eth_signTypedData_v4", "secp256k1_sign", "eth_sign7702Authorization",
-	// "eth_signUserOperation", "wallet_sendCalls", "signTransaction",
-	// "signAndSendTransaction", "signMessage", "transfer", "getBalance",
-	// "transferTokens", "getStaticDepositAddress", "getClaimStaticDepositQuote",
-	// "claimStaticDeposit", "createLightningInvoice", "payLightningInvoice",
-	// "signMessageWithIdentityKey", "exportPrivateKey".
+	// "eth_signUserOperation", "signTransaction", "signAndSendTransaction",
+	// "signMessage", "transfer", "getBalance", "transferTokens",
+	// "getStaticDepositAddress", "getClaimStaticDepositQuote", "claimStaticDeposit",
+	// "createLightningInvoice", "payLightningInvoice", "signMessageWithIdentityKey",
+	// "exportPrivateKey".
 	Method string `json:"method"`
 	// This field is a union of [EthereumSignTransactionRpcInputParamsResp],
 	// [EthereumSendTransactionRpcInputParamsResp],
@@ -5290,7 +6394,6 @@ type WalletRpcRequestBodyUnion struct {
 	// [EthereumSecp256k1SignRpcInputParamsResp],
 	// [EthereumSign7702AuthorizationRpcInputParamsResp],
 	// [EthereumSignUserOperationRpcInputParamsResp],
-	// [EthereumSendCallsRpcInputParamsResp],
 	// [SolanaSignTransactionRpcInputParamsResp],
 	// [SolanaSignAndSendTransactionRpcInputParamsResp],
 	// [SolanaSignMessageRpcInputParamsResp], [SparkTransferRpcInputParamsResp],
@@ -5304,23 +6407,20 @@ type WalletRpcRequestBodyUnion struct {
 	Address   string                          `json:"address"`
 	ChainType string                          `json:"chain_type"`
 	WalletID  string                          `json:"wallet_id"`
-	// This field is from variant [EthereumSendTransactionRpcInput].
-	Caip2       Caip2  `json:"caip2"`
-	ReferenceID string `json:"reference_id"`
-	Sponsor     bool   `json:"sponsor"`
+	Caip2     string                          `json:"caip2"`
+	Sponsor   bool                            `json:"sponsor"`
 	// This field is from variant [SparkTransferRpcInput].
 	Network SparkNetwork `json:"network"`
 	JSON    struct {
-		Method      respjson.Field
-		Params      respjson.Field
-		Address     respjson.Field
-		ChainType   respjson.Field
-		WalletID    respjson.Field
-		Caip2       respjson.Field
-		ReferenceID respjson.Field
-		Sponsor     respjson.Field
-		Network     respjson.Field
-		raw         string
+		Method    respjson.Field
+		Params    respjson.Field
+		Address   respjson.Field
+		ChainType respjson.Field
+		WalletID  respjson.Field
+		Caip2     respjson.Field
+		Sponsor   respjson.Field
+		Network   respjson.Field
+		raw       string
 	} `json:"-"`
 }
 
@@ -5338,7 +6438,6 @@ func (EthereumSignTypedDataRpcInput) implWalletRpcRequestBodyUnion()           {
 func (EthereumSecp256k1SignRpcInput) implWalletRpcRequestBodyUnion()           {}
 func (EthereumSign7702AuthorizationRpcInput) implWalletRpcRequestBodyUnion()   {}
 func (EthereumSignUserOperationRpcInput) implWalletRpcRequestBodyUnion()       {}
-func (EthereumSendCallsRpcInput) implWalletRpcRequestBodyUnion()               {}
 func (SolanaSignTransactionRpcInput) implWalletRpcRequestBodyUnion()           {}
 func (SolanaSignAndSendTransactionRpcInput) implWalletRpcRequestBodyUnion()    {}
 func (SolanaSignMessageRpcInput) implWalletRpcRequestBodyUnion()               {}
@@ -5363,7 +6462,6 @@ func (ExportPrivateKeyRpcInput) implWalletRpcRequestBodyUnion()                {
 //	case privyclient.EthereumSecp256k1SignRpcInput:
 //	case privyclient.EthereumSign7702AuthorizationRpcInput:
 //	case privyclient.EthereumSignUserOperationRpcInput:
-//	case privyclient.EthereumSendCallsRpcInput:
 //	case privyclient.SolanaSignTransactionRpcInput:
 //	case privyclient.SolanaSignAndSendTransactionRpcInput:
 //	case privyclient.SolanaSignMessageRpcInput:
@@ -5396,8 +6494,6 @@ func (u WalletRpcRequestBodyUnion) AsAny() anyWalletRpcRequestBody {
 		return u.AsEthSign7702Authorization()
 	case "eth_signUserOperation":
 		return u.AsEthSignUserOperation()
-	case "wallet_sendCalls":
-		return u.AsWalletSendCalls()
 	case "signTransaction":
 		return u.AsSignTransaction()
 	case "signAndSendTransaction":
@@ -5459,11 +6555,6 @@ func (u WalletRpcRequestBodyUnion) AsEthSign7702Authorization() (v EthereumSign7
 }
 
 func (u WalletRpcRequestBodyUnion) AsEthSignUserOperation() (v EthereumSignUserOperationRpcInput) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u WalletRpcRequestBodyUnion) AsWalletSendCalls() (v EthereumSendCallsRpcInput) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -5547,27 +6638,28 @@ func (r *WalletRpcRequestBodyUnion) UnmarshalJSON(data []byte) error {
 // For type safety it is recommended to directly use a variant of the
 // [WalletRpcRequestBodyUnion].
 type WalletRpcRequestBodyUnionParams struct {
-	// This field is a union of [UnsignedEthereumTransaction], [string], [string]
+	// This field is a union of [EthereumSignTransactionRpcInputParamsTransactionResp],
+	// [EthereumSendTransactionRpcInputParamsTransactionResp], [string], [string]
 	Transaction WalletRpcRequestBodyUnionParamsTransaction `json:"transaction"`
 	Encoding    string                                     `json:"encoding"`
 	Message     string                                     `json:"message"`
 	// This field is from variant [EthereumSignTypedDataRpcInputParamsResp].
 	TypedData EthereumTypedDataInput `json:"typed_data"`
 	// This field is from variant [EthereumSecp256k1SignRpcInputParamsResp].
-	Hash Hex `json:"hash"`
-	// This field is from variant [EthereumSign7702AuthorizationRpcInputParamsResp].
-	ChainID  QuantityUnion `json:"chain_id"`
-	Contract string        `json:"contract"`
+	Hash string `json:"hash"`
+	// This field is a union of
+	// [EthereumSign7702AuthorizationRpcInputParamsChainIDUnionResp],
+	// [EthereumSignUserOperationRpcInputParamsChainIDUnionResp]
+	ChainID  WalletRpcRequestBodyUnionParamsChainID `json:"chain_id"`
+	Contract string                                 `json:"contract"`
 	// This field is from variant [EthereumSign7702AuthorizationRpcInputParamsResp].
 	Executor EthereumSign7702AuthorizationRpcInputParamsExecutor `json:"executor"`
 	// This field is from variant [EthereumSign7702AuthorizationRpcInputParamsResp].
-	Nonce QuantityUnion `json:"nonce"`
+	Nonce EthereumSign7702AuthorizationRpcInputParamsNonceUnionResp `json:"nonce"`
 	// This field is from variant [EthereumSignUserOperationRpcInputParamsResp].
-	UserOperation UserOperationInput `json:"user_operation"`
-	// This field is from variant [EthereumSendCallsRpcInputParamsResp].
-	Calls                []EthereumSendCallsCall `json:"calls"`
-	AmountSats           float64                 `json:"amount_sats"`
-	ReceiverSparkAddress string                  `json:"receiver_spark_address"`
+	UserOperation        EthereumSignUserOperationRpcInputParamsUserOperationResp `json:"user_operation"`
+	AmountSats           float64                                                  `json:"amount_sats"`
+	ReceiverSparkAddress string                                                   `json:"receiver_spark_address"`
 	// This field is from variant [SparkTransferTokensRpcInputParamsResp].
 	TokenAmount float64 `json:"token_amount"`
 	// This field is from variant [SparkTransferTokensRpcInputParamsResp].
@@ -5619,7 +6711,6 @@ type WalletRpcRequestBodyUnionParams struct {
 		Executor                respjson.Field
 		Nonce                   respjson.Field
 		UserOperation           respjson.Field
-		Calls                   respjson.Field
 		AmountSats              respjson.Field
 		ReceiverSparkAddress    respjson.Field
 		TokenAmount             respjson.Field
@@ -5663,30 +6754,42 @@ func (r *WalletRpcRequestBodyUnionParams) UnmarshalJSON(data []byte) error {
 type WalletRpcRequestBodyUnionParamsTransaction struct {
 	// This field will be present if the value is a [string] instead of an object.
 	OfString string `json:",inline"`
-	// This field is from variant [UnsignedEthereumTransaction].
-	AuthorizationList []EthereumSign7702Authorization `json:"authorization_list"`
-	// This field is from variant [UnsignedEthereumTransaction].
-	ChainID QuantityUnion `json:"chain_id"`
-	// This field is from variant [UnsignedEthereumTransaction].
-	Data Hex `json:"data"`
-	// This field is from variant [UnsignedEthereumTransaction].
-	From string `json:"from"`
-	// This field is from variant [UnsignedEthereumTransaction].
-	GasLimit QuantityUnion `json:"gas_limit"`
-	// This field is from variant [UnsignedEthereumTransaction].
-	GasPrice QuantityUnion `json:"gas_price"`
-	// This field is from variant [UnsignedEthereumTransaction].
-	MaxFeePerGas QuantityUnion `json:"max_fee_per_gas"`
-	// This field is from variant [UnsignedEthereumTransaction].
-	MaxPriorityFeePerGas QuantityUnion `json:"max_priority_fee_per_gas"`
-	// This field is from variant [UnsignedEthereumTransaction].
-	Nonce QuantityUnion `json:"nonce"`
-	// This field is from variant [UnsignedEthereumTransaction].
-	To string `json:"to"`
-	// This field is from variant [UnsignedEthereumTransaction].
-	Type float64 `json:"type"`
-	// This field is from variant [UnsignedEthereumTransaction].
-	Value QuantityUnion `json:"value"`
+	// This field is a union of
+	// [[]EthereumSignTransactionRpcInputParamsTransactionAuthorizationListResp],
+	// [[]EthereumSendTransactionRpcInputParamsTransactionAuthorizationListResp]
+	AuthorizationList WalletRpcRequestBodyUnionParamsTransactionAuthorizationList `json:"authorization_list"`
+	// This field is a union of
+	// [EthereumSignTransactionRpcInputParamsTransactionChainIDUnionResp],
+	// [EthereumSendTransactionRpcInputParamsTransactionChainIDUnionResp]
+	ChainID WalletRpcRequestBodyUnionParamsTransactionChainID `json:"chain_id"`
+	Data    string                                            `json:"data"`
+	From    string                                            `json:"from"`
+	// This field is a union of
+	// [EthereumSignTransactionRpcInputParamsTransactionGasLimitUnionResp],
+	// [EthereumSendTransactionRpcInputParamsTransactionGasLimitUnionResp]
+	GasLimit WalletRpcRequestBodyUnionParamsTransactionGasLimit `json:"gas_limit"`
+	// This field is a union of
+	// [EthereumSignTransactionRpcInputParamsTransactionGasPriceUnionResp],
+	// [EthereumSendTransactionRpcInputParamsTransactionGasPriceUnionResp]
+	GasPrice WalletRpcRequestBodyUnionParamsTransactionGasPrice `json:"gas_price"`
+	// This field is a union of
+	// [EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnionResp],
+	// [EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnionResp]
+	MaxFeePerGas WalletRpcRequestBodyUnionParamsTransactionMaxFeePerGas `json:"max_fee_per_gas"`
+	// This field is a union of
+	// [EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionResp],
+	// [EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionResp]
+	MaxPriorityFeePerGas WalletRpcRequestBodyUnionParamsTransactionMaxPriorityFeePerGas `json:"max_priority_fee_per_gas"`
+	// This field is a union of
+	// [EthereumSignTransactionRpcInputParamsTransactionNonceUnionResp],
+	// [EthereumSendTransactionRpcInputParamsTransactionNonceUnionResp]
+	Nonce WalletRpcRequestBodyUnionParamsTransactionNonce `json:"nonce"`
+	To    string                                          `json:"to"`
+	Type  float64                                         `json:"type"`
+	// This field is a union of
+	// [EthereumSignTransactionRpcInputParamsTransactionValueUnionResp],
+	// [EthereumSendTransactionRpcInputParamsTransactionValueUnionResp]
+	Value WalletRpcRequestBodyUnionParamsTransactionValue `json:"value"`
 	JSON  struct {
 		OfString             respjson.Field
 		AuthorizationList    respjson.Field
@@ -5709,6 +6812,240 @@ func (r *WalletRpcRequestBodyUnionParamsTransaction) UnmarshalJSON(data []byte) 
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// WalletRpcRequestBodyUnionParamsTransactionAuthorizationList is an implicit
+// subunion of [WalletRpcRequestBodyUnion].
+// WalletRpcRequestBodyUnionParamsTransactionAuthorizationList provides convenient
+// access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [WalletRpcRequestBodyUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid:
+// OfEthereumSignTransactionRpcInputsTransactionAuthorizationListArray
+// OfEthereumSendTransactionRpcInputsTransactionAuthorizationListArray]
+type WalletRpcRequestBodyUnionParamsTransactionAuthorizationList struct {
+	// This field will be present if the value is a
+	// [[]EthereumSignTransactionRpcInputParamsTransactionAuthorizationListResp]
+	// instead of an object.
+	OfEthereumSignTransactionRpcInputsTransactionAuthorizationListArray []EthereumSignTransactionRpcInputParamsTransactionAuthorizationListResp `json:",inline"`
+	// This field will be present if the value is a
+	// [[]EthereumSendTransactionRpcInputParamsTransactionAuthorizationListResp]
+	// instead of an object.
+	OfEthereumSendTransactionRpcInputsTransactionAuthorizationListArray []EthereumSendTransactionRpcInputParamsTransactionAuthorizationListResp `json:",inline"`
+	JSON                                                                struct {
+		OfEthereumSignTransactionRpcInputsTransactionAuthorizationListArray respjson.Field
+		OfEthereumSendTransactionRpcInputsTransactionAuthorizationListArray respjson.Field
+		raw                                                                 string
+	} `json:"-"`
+}
+
+func (r *WalletRpcRequestBodyUnionParamsTransactionAuthorizationList) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// WalletRpcRequestBodyUnionParamsTransactionChainID is an implicit subunion of
+// [WalletRpcRequestBodyUnion]. WalletRpcRequestBodyUnionParamsTransactionChainID
+// provides convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [WalletRpcRequestBodyUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type WalletRpcRequestBodyUnionParamsTransactionChainID struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (r *WalletRpcRequestBodyUnionParamsTransactionChainID) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// WalletRpcRequestBodyUnionParamsTransactionGasLimit is an implicit subunion of
+// [WalletRpcRequestBodyUnion]. WalletRpcRequestBodyUnionParamsTransactionGasLimit
+// provides convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [WalletRpcRequestBodyUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type WalletRpcRequestBodyUnionParamsTransactionGasLimit struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (r *WalletRpcRequestBodyUnionParamsTransactionGasLimit) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// WalletRpcRequestBodyUnionParamsTransactionGasPrice is an implicit subunion of
+// [WalletRpcRequestBodyUnion]. WalletRpcRequestBodyUnionParamsTransactionGasPrice
+// provides convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [WalletRpcRequestBodyUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type WalletRpcRequestBodyUnionParamsTransactionGasPrice struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (r *WalletRpcRequestBodyUnionParamsTransactionGasPrice) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// WalletRpcRequestBodyUnionParamsTransactionMaxFeePerGas is an implicit subunion
+// of [WalletRpcRequestBodyUnion].
+// WalletRpcRequestBodyUnionParamsTransactionMaxFeePerGas provides convenient
+// access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [WalletRpcRequestBodyUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type WalletRpcRequestBodyUnionParamsTransactionMaxFeePerGas struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (r *WalletRpcRequestBodyUnionParamsTransactionMaxFeePerGas) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// WalletRpcRequestBodyUnionParamsTransactionMaxPriorityFeePerGas is an implicit
+// subunion of [WalletRpcRequestBodyUnion].
+// WalletRpcRequestBodyUnionParamsTransactionMaxPriorityFeePerGas provides
+// convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [WalletRpcRequestBodyUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type WalletRpcRequestBodyUnionParamsTransactionMaxPriorityFeePerGas struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (r *WalletRpcRequestBodyUnionParamsTransactionMaxPriorityFeePerGas) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// WalletRpcRequestBodyUnionParamsTransactionNonce is an implicit subunion of
+// [WalletRpcRequestBodyUnion]. WalletRpcRequestBodyUnionParamsTransactionNonce
+// provides convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [WalletRpcRequestBodyUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type WalletRpcRequestBodyUnionParamsTransactionNonce struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (r *WalletRpcRequestBodyUnionParamsTransactionNonce) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// WalletRpcRequestBodyUnionParamsTransactionValue is an implicit subunion of
+// [WalletRpcRequestBodyUnion]. WalletRpcRequestBodyUnionParamsTransactionValue
+// provides convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [WalletRpcRequestBodyUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type WalletRpcRequestBodyUnionParamsTransactionValue struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (r *WalletRpcRequestBodyUnionParamsTransactionValue) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// WalletRpcRequestBodyUnionParamsChainID is an implicit subunion of
+// [WalletRpcRequestBodyUnion]. WalletRpcRequestBodyUnionParamsChainID provides
+// convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [WalletRpcRequestBodyUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfInt]
+type WalletRpcRequestBodyUnionParamsChainID struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [int64] instead of an object.
+	OfInt int64 `json:",inline"`
+	JSON  struct {
+		OfString respjson.Field
+		OfInt    respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (r *WalletRpcRequestBodyUnionParamsChainID) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // ToParam converts this WalletRpcRequestBodyUnion to a
 // WalletRpcRequestBodyUnionParam.
 //
@@ -5725,7 +7062,7 @@ func WalletRpcRequestBodyParamOfEthSignTransaction(params EthereumSignTransactio
 	return WalletRpcRequestBodyUnionParam{OfEthSignTransaction: &ethSignTransaction}
 }
 
-func WalletRpcRequestBodyParamOfEthSendTransaction(caip2 Caip2, method EthereumSendTransactionRpcInputMethod, params EthereumSendTransactionRpcInputParams) WalletRpcRequestBodyUnionParam {
+func WalletRpcRequestBodyParamOfEthSendTransaction(caip2 string, method EthereumSendTransactionRpcInputMethod, params EthereumSendTransactionRpcInputParams) WalletRpcRequestBodyUnionParam {
 	var ethSendTransaction EthereumSendTransactionRpcInputParam
 	ethSendTransaction.Caip2 = caip2
 	ethSendTransaction.Method = method
@@ -5763,21 +7100,13 @@ func WalletRpcRequestBodyParamOfEthSignUserOperation(params EthereumSignUserOper
 	return WalletRpcRequestBodyUnionParam{OfEthSignUserOperation: &ethSignUserOperation}
 }
 
-func WalletRpcRequestBodyParamOfWalletSendCalls(caip2 Caip2, method EthereumSendCallsRpcInputMethod, params EthereumSendCallsRpcInputParams) WalletRpcRequestBodyUnionParam {
-	var walletSendCalls EthereumSendCallsRpcInputParam
-	walletSendCalls.Caip2 = caip2
-	walletSendCalls.Method = method
-	walletSendCalls.Params = params
-	return WalletRpcRequestBodyUnionParam{OfWalletSendCalls: &walletSendCalls}
-}
-
 func WalletRpcRequestBodyParamOfSignTransaction(params SolanaSignTransactionRpcInputParams) WalletRpcRequestBodyUnionParam {
 	var signTransaction SolanaSignTransactionRpcInputParam
 	signTransaction.Params = params
 	return WalletRpcRequestBodyUnionParam{OfSignTransaction: &signTransaction}
 }
 
-func WalletRpcRequestBodyParamOfSignAndSendTransaction(caip2 Caip2, method SolanaSignAndSendTransactionRpcInputMethod, params SolanaSignAndSendTransactionRpcInputParams) WalletRpcRequestBodyUnionParam {
+func WalletRpcRequestBodyParamOfSignAndSendTransaction(caip2 string, method SolanaSignAndSendTransactionRpcInputMethod, params SolanaSignAndSendTransactionRpcInputParams) WalletRpcRequestBodyUnionParam {
 	var signAndSendTransaction SolanaSignAndSendTransactionRpcInputParam
 	signAndSendTransaction.Caip2 = caip2
 	signAndSendTransaction.Method = method
@@ -5864,7 +7193,6 @@ type WalletRpcRequestBodyUnionParam struct {
 	OfSecp256k1Sign              *EthereumSecp256k1SignRpcInputParam           `json:",omitzero,inline"`
 	OfEthSign7702Authorization   *EthereumSign7702AuthorizationRpcInputParam   `json:",omitzero,inline"`
 	OfEthSignUserOperation       *EthereumSignUserOperationRpcInputParam       `json:",omitzero,inline"`
-	OfWalletSendCalls            *EthereumSendCallsRpcInputParam               `json:",omitzero,inline"`
 	OfSignTransaction            *SolanaSignTransactionRpcInputParam           `json:",omitzero,inline"`
 	OfSignAndSendTransaction     *SolanaSignAndSendTransactionRpcInputParam    `json:",omitzero,inline"`
 	OfSignMessage                *SolanaSignMessageRpcInputParam               `json:",omitzero,inline"`
@@ -5889,7 +7217,6 @@ func (u WalletRpcRequestBodyUnionParam) MarshalJSON() ([]byte, error) {
 		u.OfSecp256k1Sign,
 		u.OfEthSign7702Authorization,
 		u.OfEthSignUserOperation,
-		u.OfWalletSendCalls,
 		u.OfSignTransaction,
 		u.OfSignAndSendTransaction,
 		u.OfSignMessage,
@@ -5918,7 +7245,6 @@ func init() {
 		apijson.Discriminator[EthereumSecp256k1SignRpcInputParam]("secp256k1_sign"),
 		apijson.Discriminator[EthereumSign7702AuthorizationRpcInputParam]("eth_sign7702Authorization"),
 		apijson.Discriminator[EthereumSignUserOperationRpcInputParam]("eth_signUserOperation"),
-		apijson.Discriminator[EthereumSendCallsRpcInputParam]("wallet_sendCalls"),
 		apijson.Discriminator[SolanaSignTransactionRpcInputParam]("signTransaction"),
 		apijson.Discriminator[SolanaSignAndSendTransactionRpcInputParam]("signAndSendTransaction"),
 		apijson.Discriminator[SolanaSignMessageRpcInputParam]("signMessage"),
@@ -5940,10 +7266,10 @@ func init() {
 // [EthereumSignTransactionRpcResponse], [EthereumSendTransactionRpcResponse],
 // [EthereumSignUserOperationRpcResponse],
 // [EthereumSign7702AuthorizationRpcResponse], [EthereumSecp256k1SignRpcResponse],
-// [EthereumSendCallsRpcResponse], [SolanaSignMessageRpcResponse],
-// [SolanaSignTransactionRpcResponse], [SolanaSignAndSendTransactionRpcResponse],
-// [SparkTransferRpcResponse], [SparkGetBalanceRpcResponse],
-// [SparkTransferTokensRpcResponse], [SparkGetStaticDepositAddressRpcResponse],
+// [SolanaSignMessageRpcResponse], [SolanaSignTransactionRpcResponse],
+// [SolanaSignAndSendTransactionRpcResponse], [SparkTransferRpcResponse],
+// [SparkGetBalanceRpcResponse], [SparkTransferTokensRpcResponse],
+// [SparkGetStaticDepositAddressRpcResponse],
 // [SparkGetClaimStaticDepositQuoteRpcResponse],
 // [SparkClaimStaticDepositRpcResponse], [SparkCreateLightningInvoiceRpcResponse],
 // [SparkPayLightningInvoiceRpcResponse],
@@ -5959,8 +7285,8 @@ type WalletRpcResponseUnion struct {
 	// [EthereumSendTransactionRpcResponseData],
 	// [EthereumSignUserOperationRpcResponseData],
 	// [EthereumSign7702AuthorizationRpcResponseData],
-	// [EthereumSecp256k1SignRpcResponseData], [EthereumSendCallsRpcResponseData],
-	// [SolanaSignMessageRpcResponseData], [SolanaSignTransactionRpcResponseData],
+	// [EthereumSecp256k1SignRpcResponseData], [SolanaSignMessageRpcResponseData],
+	// [SolanaSignTransactionRpcResponseData],
 	// [SolanaSignAndSendTransactionRpcResponseData], [SparkTransfer], [SparkBalance],
 	// [SparkTransferTokensRpcResponseData],
 	// [SparkGetStaticDepositAddressRpcResponseData],
@@ -5971,11 +7297,10 @@ type WalletRpcResponseUnion struct {
 	Data WalletRpcResponseUnionData `json:"data"`
 	// Any of "personal_sign", "eth_signTypedData_v4", "eth_signTransaction",
 	// "eth_sendTransaction", "eth_signUserOperation", "eth_sign7702Authorization",
-	// "secp256k1_sign", "wallet_sendCalls", "signMessage", "signTransaction",
-	// "signAndSendTransaction", "transfer", "getBalance", "transferTokens",
-	// "getStaticDepositAddress", "getClaimStaticDepositQuote", "claimStaticDeposit",
-	// "createLightningInvoice", "payLightningInvoice", "signMessageWithIdentityKey",
-	// "exportPrivateKey".
+	// "secp256k1_sign", "signMessage", "signTransaction", "signAndSendTransaction",
+	// "transfer", "getBalance", "transferTokens", "getStaticDepositAddress",
+	// "getClaimStaticDepositQuote", "claimStaticDeposit", "createLightningInvoice",
+	// "payLightningInvoice", "signMessageWithIdentityKey", "exportPrivateKey".
 	Method string `json:"method"`
 	JSON   struct {
 		Data   respjson.Field
@@ -5997,7 +7322,6 @@ func (EthereumSendTransactionRpcResponse) implWalletRpcResponseUnion()         {
 func (EthereumSignUserOperationRpcResponse) implWalletRpcResponseUnion()       {}
 func (EthereumSign7702AuthorizationRpcResponse) implWalletRpcResponseUnion()   {}
 func (EthereumSecp256k1SignRpcResponse) implWalletRpcResponseUnion()           {}
-func (EthereumSendCallsRpcResponse) implWalletRpcResponseUnion()               {}
 func (SolanaSignMessageRpcResponse) implWalletRpcResponseUnion()               {}
 func (SolanaSignTransactionRpcResponse) implWalletRpcResponseUnion()           {}
 func (SolanaSignAndSendTransactionRpcResponse) implWalletRpcResponseUnion()    {}
@@ -6022,7 +7346,6 @@ func (ExportPrivateKeyRpcResponse) implWalletRpcResponseUnion()                {
 //	case privyclient.EthereumSignUserOperationRpcResponse:
 //	case privyclient.EthereumSign7702AuthorizationRpcResponse:
 //	case privyclient.EthereumSecp256k1SignRpcResponse:
-//	case privyclient.EthereumSendCallsRpcResponse:
 //	case privyclient.SolanaSignMessageRpcResponse:
 //	case privyclient.SolanaSignTransactionRpcResponse:
 //	case privyclient.SolanaSignAndSendTransactionRpcResponse:
@@ -6055,8 +7378,6 @@ func (u WalletRpcResponseUnion) AsAny() anyWalletRpcResponse {
 		return u.AsEthSign7702Authorization()
 	case "secp256k1_sign":
 		return u.AsSecp256k1Sign()
-	case "wallet_sendCalls":
-		return u.AsWalletSendCalls()
 	case "signMessage":
 		return u.AsSignMessage()
 	case "signTransaction":
@@ -6118,11 +7439,6 @@ func (u WalletRpcResponseUnion) AsEthSign7702Authorization() (v EthereumSign7702
 }
 
 func (u WalletRpcResponseUnion) AsSecp256k1Sign() (v EthereumSecp256k1SignRpcResponse) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u WalletRpcResponseUnion) AsWalletSendCalls() (v EthereumSendCallsRpcResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -6209,18 +7525,16 @@ type WalletRpcResponseUnionData struct {
 	Encoding          string `json:"encoding"`
 	Signature         string `json:"signature"`
 	SignedTransaction string `json:"signed_transaction"`
+	Caip2             string `json:"caip2"`
+	Hash              string `json:"hash"`
+	TransactionID     string `json:"transaction_id"`
 	// This field is from variant [EthereumSendTransactionRpcResponseData].
-	Caip2         Caip2  `json:"caip2"`
-	Hash          string `json:"hash"`
-	ReferenceID   string `json:"reference_id"`
-	TransactionID string `json:"transaction_id"`
-	// This field is from variant [EthereumSendTransactionRpcResponseData].
-	TransactionRequest UnsignedEthereumTransaction `json:"transaction_request"`
+	TransactionRequest EthereumSendTransactionRpcResponseDataTransactionRequest `json:"transaction_request"`
 	// This field is from variant [EthereumSendTransactionRpcResponseData].
 	UserOperationHash string `json:"user_operation_hash"`
 	// This field is from variant [EthereumSign7702AuthorizationRpcResponseData].
-	Authorization EthereumSign7702Authorization `json:"authorization"`
-	ID            string                        `json:"id"`
+	Authorization EthereumSign7702AuthorizationRpcResponseDataAuthorization `json:"authorization"`
+	ID            string                                                    `json:"id"`
 	// This field is from variant [SparkTransfer],
 	// [SparkPayLightningInvoiceRpcResponseDataUnion].
 	Leaves                    []SparkTransferLeaf `json:"leaves"`
@@ -6285,7 +7599,6 @@ type WalletRpcResponseUnionData struct {
 		SignedTransaction         respjson.Field
 		Caip2                     respjson.Field
 		Hash                      respjson.Field
-		ReferenceID               respjson.Field
 		TransactionID             respjson.Field
 		TransactionRequest        respjson.Field
 		UserOperationHash         respjson.Field
@@ -6359,83 +7672,6 @@ type WalletAuthenticateRequestBodyEncryptionType string
 
 const (
 	WalletAuthenticateRequestBodyEncryptionTypeHpke WalletAuthenticateRequestBodyEncryptionType = "HPKE"
-)
-
-// The source asset, amount, and chain for a token transfer.
-type TokenTransferSource struct {
-	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
-	// USDC, "0.01" for 0.01 ETH). Not in the smallest on-chain unit (wei, lamports,
-	// etc.).
-	Amount string `json:"amount" api:"required"`
-	// The asset to transfer. Supported: 'usdc', 'usdb', 'usdt' (stablecoins), 'eth'
-	// (native Ethereum), 'sol' (native Solana).
-	Asset string `json:"asset" api:"required"`
-	// The blockchain network on which to perform the transfer. Supported chains
-	// include: 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and their
-	// respective testnets.
-	Chain string `json:"chain" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Amount      respjson.Field
-		Asset       respjson.Field
-		Chain       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r TokenTransferSource) RawJSON() string { return r.JSON.raw }
-func (r *TokenTransferSource) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The destination address for a token transfer.
-type TokenTransferDestination struct {
-	// Recipient address (hex for EVM, base58 for Solana)
-	Address string `json:"address" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Address     respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r TokenTransferDestination) RawJSON() string { return r.JSON.raw }
-func (r *TokenTransferDestination) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Request body for initiating a sponsored token transfer from an embedded wallet.
-type CreateTokenTransferRequest struct {
-	// The destination address for a token transfer.
-	Destination TokenTransferDestination `json:"destination" api:"required"`
-	// The source asset, amount, and chain for a token transfer.
-	Source TokenTransferSource `json:"source" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Destination respjson.Field
-		Source      respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r CreateTokenTransferRequest) RawJSON() string { return r.JSON.raw }
-func (r *CreateTokenTransferRequest) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// SUI transaction commands allowlist for raw_sign endpoint policy evaluation
-type SuiCommandName string
-
-const (
-	SuiCommandNameTransferObjects SuiCommandName = "TransferObjects"
-	SuiCommandNameSplitCoins      SuiCommandName = "SplitCoins"
-	SuiCommandNameMergeCoins      SuiCommandName = "MergeCoins"
 )
 
 type WalletInitImportResponse struct {
@@ -6828,16 +8064,11 @@ func (r *WalletInitImportParamsBodyPrivateKey) UnmarshalJSON(data []byte) error 
 }
 
 type WalletSubmitImportParams struct {
-	Wallet  WalletSubmitImportParamsWalletUnion `json:"wallet,omitzero" api:"required"`
-	OwnerID param.Opt[string]                   `json:"owner_id,omitzero"`
-	// Additional signers for the wallet.
-	AdditionalSigners AdditionalSignerInputParam `json:"additional_signers,omitzero"`
-	// The owner of the resource. If you provide this, do not specify an owner_id as it
-	// will be generated automatically. When updating a wallet, you can set the owner
-	// to null to remove the owner.
-	Owner WalletSubmitImportParamsOwner `json:"owner,omitzero"`
-	// An optional list of up to one policy ID to enforce on the wallet.
-	PolicyIDs PolicyInput `json:"policy_ids,omitzero" format:"cuid2"`
+	Wallet            WalletSubmitImportParamsWalletUnion        `json:"wallet,omitzero" api:"required"`
+	OwnerID           param.Opt[string]                          `json:"owner_id,omitzero" format:"cuid2"`
+	Owner             WalletSubmitImportParamsOwnerUnion         `json:"owner,omitzero"`
+	AdditionalSigners []WalletSubmitImportParamsAdditionalSigner `json:"additional_signers,omitzero"`
+	PolicyIDs         []string                                   `json:"policy_ids,omitzero" format:"cuid2"`
 	paramObj
 }
 
@@ -6949,19 +8180,63 @@ func (r *WalletSubmitImportParamsWalletPrivateKey) UnmarshalJSON(data []byte) er
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// The owner of the resource. If you provide this, do not specify an owner_id as it
-// will be generated automatically. When updating a wallet, you can set the owner
-// to null to remove the owner.
-type WalletSubmitImportParamsOwner struct {
-	OwnerInputUnionParam
+// The property SignerID is required.
+type WalletSubmitImportParamsAdditionalSigner struct {
+	SignerID          string   `json:"signer_id" api:"required" format:"cuid2"`
+	OverridePolicyIDs []string `json:"override_policy_ids,omitzero" format:"cuid2"`
+	paramObj
 }
 
-func (r WalletSubmitImportParamsOwner) MarshalJSON() (data []byte, err error) {
-	type shadow struct {
-		*WalletSubmitImportParamsOwner
-		MarshalJSON bool `json:"-"` // Prevent inheriting [json.Marshaler] from the embedded field
-	}
-	return param.MarshalObject(r, shadow{&r, false})
+func (r WalletSubmitImportParamsAdditionalSigner) MarshalJSON() (data []byte, err error) {
+	type shadow WalletSubmitImportParamsAdditionalSigner
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *WalletSubmitImportParamsAdditionalSigner) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type WalletSubmitImportParamsOwnerUnion struct {
+	OfWalletSubmitImportsOwnerUserID    *WalletSubmitImportParamsOwnerUserID    `json:",omitzero,inline"`
+	OfWalletSubmitImportsOwnerPublicKey *WalletSubmitImportParamsOwnerPublicKey `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u WalletSubmitImportParamsOwnerUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfWalletSubmitImportsOwnerUserID, u.OfWalletSubmitImportsOwnerPublicKey)
+}
+func (u *WalletSubmitImportParamsOwnerUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+// The property UserID is required.
+type WalletSubmitImportParamsOwnerUserID struct {
+	UserID string `json:"user_id" api:"required"`
+	paramObj
+}
+
+func (r WalletSubmitImportParamsOwnerUserID) MarshalJSON() (data []byte, err error) {
+	type shadow WalletSubmitImportParamsOwnerUserID
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *WalletSubmitImportParamsOwnerUserID) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The property PublicKey is required.
+type WalletSubmitImportParamsOwnerPublicKey struct {
+	PublicKey string `json:"public_key" api:"required"`
+	paramObj
+}
+
+func (r WalletSubmitImportParamsOwnerPublicKey) MarshalJSON() (data []byte, err error) {
+	type shadow WalletSubmitImportParamsOwnerPublicKey
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *WalletSubmitImportParamsOwnerPublicKey) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
 type WalletAuthenticateWithJwtParams struct {
