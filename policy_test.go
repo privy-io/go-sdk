@@ -28,7 +28,7 @@ func TestPolicyNewWithOptionalParams(t *testing.T) {
 		option.WithAppSecret("My App Secret"),
 	)
 	_, err := client.Policies.New(context.TODO(), privyclient.PolicyNewParams{
-		ChainType: privyclient.PolicyNewParamsChainTypeEthereum,
+		ChainType: privyclient.WalletChainTypeEthereum,
 		Name:      "x",
 		Rules: []privyclient.PolicyNewParamsRule{{
 			Action: "ALLOW",

@@ -166,42 +166,42 @@ func TestIntentRpcWithOptionalParams(t *testing.T) {
 				OfEthSignTransaction: &privyclient.EthereumSignTransactionRpcInputParam{
 					Method: privyclient.EthereumSignTransactionRpcInputMethodEthSignTransaction,
 					Params: privyclient.EthereumSignTransactionRpcInputParams{
-						Transaction: privyclient.EthereumSignTransactionRpcInputParamsTransaction{
-							AuthorizationList: []privyclient.EthereumSignTransactionRpcInputParamsTransactionAuthorizationList{{
-								ChainID: privyclient.EthereumSignTransactionRpcInputParamsTransactionAuthorizationListChainIDUnion{
+						Transaction: privyclient.UnsignedEthereumTransactionParam{
+							AuthorizationList: []privyclient.EthereumSign7702AuthorizationParam{{
+								ChainID: privyclient.QuantityUnionParam{
 									OfString: privyclient.String("string"),
 								},
 								Contract: "contract",
-								Nonce: privyclient.EthereumSignTransactionRpcInputParamsTransactionAuthorizationListNonceUnion{
+								Nonce: privyclient.QuantityUnionParam{
 									OfString: privyclient.String("string"),
 								},
-								R:       "r",
-								S:       "s",
+								R:       "string",
+								S:       "string",
 								YParity: 0,
 							}},
-							ChainID: privyclient.EthereumSignTransactionRpcInputParamsTransactionChainIDUnion{
+							ChainID: privyclient.QuantityUnionParam{
 								OfString: privyclient.String("string"),
 							},
-							Data: privyclient.String("data"),
+							Data: privyclient.String("string"),
 							From: privyclient.String("from"),
-							GasLimit: privyclient.EthereumSignTransactionRpcInputParamsTransactionGasLimitUnion{
+							GasLimit: privyclient.QuantityUnionParam{
 								OfString: privyclient.String("string"),
 							},
-							GasPrice: privyclient.EthereumSignTransactionRpcInputParamsTransactionGasPriceUnion{
+							GasPrice: privyclient.QuantityUnionParam{
 								OfString: privyclient.String("string"),
 							},
-							MaxFeePerGas: privyclient.EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnion{
+							MaxFeePerGas: privyclient.QuantityUnionParam{
 								OfString: privyclient.String("string"),
 							},
-							MaxPriorityFeePerGas: privyclient.EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnion{
+							MaxPriorityFeePerGas: privyclient.QuantityUnionParam{
 								OfString: privyclient.String("string"),
 							},
-							Nonce: privyclient.EthereumSignTransactionRpcInputParamsTransactionNonceUnion{
+							Nonce: privyclient.QuantityUnionParam{
 								OfString: privyclient.String("string"),
 							},
 							To:   privyclient.String("to"),
 							Type: 0,
-							Value: privyclient.EthereumSignTransactionRpcInputParamsTransactionValueUnion{
+							Value: privyclient.QuantityUnionParam{
 								OfString: privyclient.String("string"),
 							},
 						},
@@ -241,7 +241,7 @@ func TestIntentUpdateKeyQuorumWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"key_quorum_id",
 		privyclient.IntentUpdateKeyQuorumParams{
-			KeyQuorumUpdateParams: privyclient.KeyQuorumUpdateParams{
+			KeyQuorumUpdateRequestBody: privyclient.KeyQuorumUpdateRequestBodyParam{
 				AuthorizationThreshold: privyclient.Float(0),
 				DisplayName:            privyclient.String("display_name"),
 				KeyQuorumIDs:           []string{"string"},

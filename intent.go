@@ -224,6 +224,7 @@ const (
 
 // Request details for creating a rule via intent.
 type RuleIntentCreateRequestDetails struct {
+	// The rules that apply to each method the policy covers.
 	Body RuleIntentCreateRequestDetailsBody `json:"body" api:"required"`
 	// Any of "POST".
 	Method RuleIntentCreateRequestDetailsMethod `json:"method" api:"required"`
@@ -244,13 +245,18 @@ func (r *RuleIntentCreateRequestDetails) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// The rules that apply to each method the policy covers.
 type RuleIntentCreateRequestDetailsBody struct {
+	// Action to take if the conditions are true.
+	//
 	// Any of "ALLOW", "DENY".
 	Action     string                                             `json:"action" api:"required"`
 	Conditions []RuleIntentCreateRequestDetailsBodyConditionUnion `json:"conditions" api:"required"`
-	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signTypedData_v4",
-	// "eth_signUserOperation", "eth_sign7702Authorization", "signTransaction",
-	// "signAndSendTransaction", "signTransactionBytes", "exportPrivateKey", "\*".
+	// Method the rule applies to.
+	//
+	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
+	// "eth_signTypedData_v4", "eth_sign7702Authorization", "signTransaction",
+	// "signAndSendTransaction", "exportPrivateKey", "signTransactionBytes", "\*".
 	Method string `json:"method" api:"required"`
 	Name   string `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -271,35 +277,51 @@ func (r *RuleIntentCreateRequestDetailsBody) UnmarshalJSON(data []byte) error {
 }
 
 // RuleIntentCreateRequestDetailsBodyConditionUnion contains all possible
-// properties and values from [RuleIntentCreateRequestDetailsBodyConditionObject],
-// [RuleIntentCreateRequestDetailsBodyConditionObject],
-// [RuleIntentCreateRequestDetailsBodyConditionObject],
-// [RuleIntentCreateRequestDetailsBodyConditionObject],
-// [RuleIntentCreateRequestDetailsBodyConditionObject],
-// [RuleIntentCreateRequestDetailsBodyConditionObject],
-// [RuleIntentCreateRequestDetailsBodyConditionObject],
-// [RuleIntentCreateRequestDetailsBodyConditionObject],
-// [RuleIntentCreateRequestDetailsBodyConditionObject],
-// [RuleIntentCreateRequestDetailsBodyConditionObject],
-// [RuleIntentCreateRequestDetailsBodyConditionObject],
-// [RuleIntentCreateRequestDetailsBodyConditionObject],
-// [RuleIntentCreateRequestDetailsBodyConditionObject],
-// [RuleIntentCreateRequestDetailsBodyConditionObject].
+// properties and values from
+// [RuleIntentCreateRequestDetailsBodyConditionEthereumTransaction],
+// [RuleIntentCreateRequestDetailsBodyConditionEthereumCalldata],
+// [RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataDomain],
+// [RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataMessage],
+// [RuleIntentCreateRequestDetailsBodyConditionEthereum7702Authorization],
+// [RuleIntentCreateRequestDetailsBodyConditionSolanaProgramInstruction],
+// [RuleIntentCreateRequestDetailsBodyConditionSolanaSystemProgramInstruction],
+// [RuleIntentCreateRequestDetailsBodyConditionSolanaTokenProgramInstruction],
+// [RuleIntentCreateRequestDetailsBodyConditionSystem], [TronTransactionCondition],
+// [TronCalldataCondition], [SuiTransactionCommandCondition],
+// [SuiTransferObjectsCommandCondition], [AggregationCondition].
+//
+// Use the [RuleIntentCreateRequestDetailsBodyConditionUnion.AsAny] method to
+// switch on the variant.
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 type RuleIntentCreateRequestDetailsBodyConditionUnion struct {
-	// This field is from variant [RuleIntentCreateRequestDetailsBodyConditionObject].
-	Field RuleIntentCreateRequestDetailsBodyConditionObjectField `json:"field"`
-	// This field is from variant [RuleIntentCreateRequestDetailsBodyConditionObject].
+	Field string `json:"field"`
+	// Any of "ethereum_transaction", "ethereum_calldata",
+	// "ethereum_typed_data_domain", "ethereum_typed_data_message",
+	// "ethereum_7702_authorization", "solana_program_instruction",
+	// "solana_system_program_instruction", "solana_token_program_instruction",
+	// "system", "tron_transaction", "tron_trigger_smart_contract_data",
+	// "sui_transaction_command", "sui_transfer_objects_command", "reference".
 	FieldSource string `json:"field_source"`
-	// This field is from variant [RuleIntentCreateRequestDetailsBodyConditionObject].
-	Operator RuleIntentCreateRequestDetailsBodyConditionObjectOperator `json:"operator"`
-	// This field is from variant [RuleIntentCreateRequestDetailsBodyConditionObject].
-	Value RuleIntentCreateRequestDetailsBodyConditionObjectValueUnion `json:"value"`
-	// This field is from variant [RuleIntentCreateRequestDetailsBodyConditionObject].
-	Abi []RuleIntentCreateRequestDetailsBodyConditionObjectAbi `json:"abi"`
-	// This field is from variant [RuleIntentCreateRequestDetailsBodyConditionObject].
-	TypedData RuleIntentCreateRequestDetailsBodyConditionObjectTypedData `json:"typed_data"`
+	Operator    string `json:"operator"`
+	// This field is a union of
+	// [RuleIntentCreateRequestDetailsBodyConditionEthereumTransactionValueUnion],
+	// [RuleIntentCreateRequestDetailsBodyConditionEthereumCalldataValueUnion],
+	// [RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataDomainValueUnion],
+	// [RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataMessageValueUnion],
+	// [RuleIntentCreateRequestDetailsBodyConditionEthereum7702AuthorizationValueUnion],
+	// [RuleIntentCreateRequestDetailsBodyConditionSolanaProgramInstructionValueUnion],
+	// [RuleIntentCreateRequestDetailsBodyConditionSolanaSystemProgramInstructionValueUnion],
+	// [RuleIntentCreateRequestDetailsBodyConditionSolanaTokenProgramInstructionValueUnion],
+	// [RuleIntentCreateRequestDetailsBodyConditionSystemValueUnion],
+	// [TronTransactionConditionValueUnion], [TronCalldataConditionValueUnion],
+	// [SuiTransactionCommandConditionValueUnion],
+	// [SuiTransferObjectsCommandConditionValueUnion], [AggregationConditionValueUnion]
+	Value RuleIntentCreateRequestDetailsBodyConditionUnionValue `json:"value"`
+	Abi   any                                                   `json:"abi"`
+	// This field is from variant
+	// [RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataMessage].
+	TypedData RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataMessageTypedData `json:"typed_data"`
 	JSON      struct {
 		Field       respjson.Field
 		FieldSource respjson.Field
@@ -311,17 +333,157 @@ type RuleIntentCreateRequestDetailsBodyConditionUnion struct {
 	} `json:"-"`
 }
 
-func (u RuleIntentCreateRequestDetailsBodyConditionUnion) AsRuleIntentCreateRequestDetailsBodyConditionObject() (v RuleIntentCreateRequestDetailsBodyConditionObject) {
+// anyRuleIntentCreateRequestDetailsBodyCondition is implemented by each variant of
+// [RuleIntentCreateRequestDetailsBodyConditionUnion] to add type safety for the
+// return type of [RuleIntentCreateRequestDetailsBodyConditionUnion.AsAny]
+type anyRuleIntentCreateRequestDetailsBodyCondition interface {
+	implRuleIntentCreateRequestDetailsBodyConditionUnion()
+}
+
+func (RuleIntentCreateRequestDetailsBodyConditionEthereumTransaction) implRuleIntentCreateRequestDetailsBodyConditionUnion() {
+}
+func (RuleIntentCreateRequestDetailsBodyConditionEthereumCalldata) implRuleIntentCreateRequestDetailsBodyConditionUnion() {
+}
+func (RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataDomain) implRuleIntentCreateRequestDetailsBodyConditionUnion() {
+}
+func (RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataMessage) implRuleIntentCreateRequestDetailsBodyConditionUnion() {
+}
+func (RuleIntentCreateRequestDetailsBodyConditionEthereum7702Authorization) implRuleIntentCreateRequestDetailsBodyConditionUnion() {
+}
+func (RuleIntentCreateRequestDetailsBodyConditionSolanaProgramInstruction) implRuleIntentCreateRequestDetailsBodyConditionUnion() {
+}
+func (RuleIntentCreateRequestDetailsBodyConditionSolanaSystemProgramInstruction) implRuleIntentCreateRequestDetailsBodyConditionUnion() {
+}
+func (RuleIntentCreateRequestDetailsBodyConditionSolanaTokenProgramInstruction) implRuleIntentCreateRequestDetailsBodyConditionUnion() {
+}
+func (RuleIntentCreateRequestDetailsBodyConditionSystem) implRuleIntentCreateRequestDetailsBodyConditionUnion() {
+}
+func (TronTransactionCondition) implRuleIntentCreateRequestDetailsBodyConditionUnion()           {}
+func (TronCalldataCondition) implRuleIntentCreateRequestDetailsBodyConditionUnion()              {}
+func (SuiTransactionCommandCondition) implRuleIntentCreateRequestDetailsBodyConditionUnion()     {}
+func (SuiTransferObjectsCommandCondition) implRuleIntentCreateRequestDetailsBodyConditionUnion() {}
+func (AggregationCondition) implRuleIntentCreateRequestDetailsBodyConditionUnion()               {}
+
+// Use the following switch statement to find the correct variant
+//
+//	switch variant := RuleIntentCreateRequestDetailsBodyConditionUnion.AsAny().(type) {
+//	case privyclient.RuleIntentCreateRequestDetailsBodyConditionEthereumTransaction:
+//	case privyclient.RuleIntentCreateRequestDetailsBodyConditionEthereumCalldata:
+//	case privyclient.RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataDomain:
+//	case privyclient.RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataMessage:
+//	case privyclient.RuleIntentCreateRequestDetailsBodyConditionEthereum7702Authorization:
+//	case privyclient.RuleIntentCreateRequestDetailsBodyConditionSolanaProgramInstruction:
+//	case privyclient.RuleIntentCreateRequestDetailsBodyConditionSolanaSystemProgramInstruction:
+//	case privyclient.RuleIntentCreateRequestDetailsBodyConditionSolanaTokenProgramInstruction:
+//	case privyclient.RuleIntentCreateRequestDetailsBodyConditionSystem:
+//	case privyclient.TronTransactionCondition:
+//	case privyclient.TronCalldataCondition:
+//	case privyclient.SuiTransactionCommandCondition:
+//	case privyclient.SuiTransferObjectsCommandCondition:
+//	case privyclient.AggregationCondition:
+//	default:
+//	  fmt.Errorf("no variant present")
+//	}
+func (u RuleIntentCreateRequestDetailsBodyConditionUnion) AsAny() anyRuleIntentCreateRequestDetailsBodyCondition {
+	switch u.FieldSource {
+	case "ethereum_transaction":
+		return u.AsEthereumTransaction()
+	case "ethereum_calldata":
+		return u.AsEthereumCalldata()
+	case "ethereum_typed_data_domain":
+		return u.AsEthereumTypedDataDomain()
+	case "ethereum_typed_data_message":
+		return u.AsEthereumTypedDataMessage()
+	case "ethereum_7702_authorization":
+		return u.AsEthereum7702Authorization()
+	case "solana_program_instruction":
+		return u.AsSolanaProgramInstruction()
+	case "solana_system_program_instruction":
+		return u.AsSolanaSystemProgramInstruction()
+	case "solana_token_program_instruction":
+		return u.AsSolanaTokenProgramInstruction()
+	case "system":
+		return u.AsSystem()
+	case "tron_transaction":
+		return u.AsTronTransaction()
+	case "tron_trigger_smart_contract_data":
+		return u.AsTronTriggerSmartContractData()
+	case "sui_transaction_command":
+		return u.AsSuiTransactionCommand()
+	case "sui_transfer_objects_command":
+		return u.AsSuiTransferObjectsCommand()
+	case "reference":
+		return u.AsReference()
+	}
+	return nil
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionUnion) AsEthereumTransaction() (v RuleIntentCreateRequestDetailsBodyConditionEthereumTransaction) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u RuleIntentCreateRequestDetailsBodyConditionUnion) AsVariant2() (v RuleIntentCreateRequestDetailsBodyConditionObject) {
+func (u RuleIntentCreateRequestDetailsBodyConditionUnion) AsEthereumCalldata() (v RuleIntentCreateRequestDetailsBodyConditionEthereumCalldata) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u RuleIntentCreateRequestDetailsBodyConditionUnion) AsVariant3() (v RuleIntentCreateRequestDetailsBodyConditionObject) {
+func (u RuleIntentCreateRequestDetailsBodyConditionUnion) AsEthereumTypedDataDomain() (v RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataDomain) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionUnion) AsEthereumTypedDataMessage() (v RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataMessage) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionUnion) AsEthereum7702Authorization() (v RuleIntentCreateRequestDetailsBodyConditionEthereum7702Authorization) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionUnion) AsSolanaProgramInstruction() (v RuleIntentCreateRequestDetailsBodyConditionSolanaProgramInstruction) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionUnion) AsSolanaSystemProgramInstruction() (v RuleIntentCreateRequestDetailsBodyConditionSolanaSystemProgramInstruction) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionUnion) AsSolanaTokenProgramInstruction() (v RuleIntentCreateRequestDetailsBodyConditionSolanaTokenProgramInstruction) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionUnion) AsSystem() (v RuleIntentCreateRequestDetailsBodyConditionSystem) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionUnion) AsTronTransaction() (v TronTransactionCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionUnion) AsTronTriggerSmartContractData() (v TronCalldataCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionUnion) AsSuiTransactionCommand() (v SuiTransactionCommandCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionUnion) AsSuiTransferObjectsCommand() (v SuiTransferObjectsCommandCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionUnion) AsReference() (v AggregationCondition) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -333,14 +495,49 @@ func (r *RuleIntentCreateRequestDetailsBodyConditionUnion) UnmarshalJSON(data []
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type RuleIntentCreateRequestDetailsBodyConditionObject struct {
+// RuleIntentCreateRequestDetailsBodyConditionUnionValue is an implicit subunion of
+// [RuleIntentCreateRequestDetailsBodyConditionUnion].
+// RuleIntentCreateRequestDetailsBodyConditionUnionValue provides convenient access
+// to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [RuleIntentCreateRequestDetailsBodyConditionUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray OfSuiCommandName OfSuiCommandNameArray]
+type RuleIntentCreateRequestDetailsBodyConditionUnionValue struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	// This field will be present if the value is a [SuiCommandName] instead of an
+	// object.
+	OfSuiCommandName SuiCommandName `json:",inline"`
+	// This field will be present if the value is a [[]SuiCommandName] instead of an
+	// object.
+	OfSuiCommandNameArray []SuiCommandName `json:",inline"`
+	JSON                  struct {
+		OfString              respjson.Field
+		OfStringArray         respjson.Field
+		OfSuiCommandName      respjson.Field
+		OfSuiCommandNameArray respjson.Field
+		raw                   string
+	} `json:"-"`
+}
+
+func (r *RuleIntentCreateRequestDetailsBodyConditionUnionValue) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The verbatim Ethereum transaction object in an eth_signTransaction or
+// eth_sendTransaction request.
+type RuleIntentCreateRequestDetailsBodyConditionEthereumTransaction struct {
 	// Any of "to", "value", "chain_id".
-	Field RuleIntentCreateRequestDetailsBodyConditionObjectField `json:"field" api:"required"`
-	// Any of "ethereum_transaction".
-	FieldSource string `json:"field_source" api:"required"`
+	Field       string                       `json:"field" api:"required"`
+	FieldSource constant.EthereumTransaction `json:"field_source" default:"ethereum_transaction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator RuleIntentCreateRequestDetailsBodyConditionObjectOperator   `json:"operator" api:"required"`
-	Value    RuleIntentCreateRequestDetailsBodyConditionObjectValueUnion `json:"value" api:"required"`
+	Operator string                                                                   `json:"operator" api:"required"`
+	Value    RuleIntentCreateRequestDetailsBodyConditionEthereumTransactionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -353,39 +550,21 @@ type RuleIntentCreateRequestDetailsBodyConditionObject struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r RuleIntentCreateRequestDetailsBodyConditionObject) RawJSON() string { return r.JSON.raw }
-func (r *RuleIntentCreateRequestDetailsBodyConditionObject) UnmarshalJSON(data []byte) error {
+func (r RuleIntentCreateRequestDetailsBodyConditionEthereumTransaction) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentCreateRequestDetailsBodyConditionEthereumTransaction) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type RuleIntentCreateRequestDetailsBodyConditionObjectField string
-
-const (
-	RuleIntentCreateRequestDetailsBodyConditionObjectFieldTo      RuleIntentCreateRequestDetailsBodyConditionObjectField = "to"
-	RuleIntentCreateRequestDetailsBodyConditionObjectFieldValue   RuleIntentCreateRequestDetailsBodyConditionObjectField = "value"
-	RuleIntentCreateRequestDetailsBodyConditionObjectFieldChainID RuleIntentCreateRequestDetailsBodyConditionObjectField = "chain_id"
-)
-
-type RuleIntentCreateRequestDetailsBodyConditionObjectOperator string
-
-const (
-	RuleIntentCreateRequestDetailsBodyConditionObjectOperatorEq             RuleIntentCreateRequestDetailsBodyConditionObjectOperator = "eq"
-	RuleIntentCreateRequestDetailsBodyConditionObjectOperatorGt             RuleIntentCreateRequestDetailsBodyConditionObjectOperator = "gt"
-	RuleIntentCreateRequestDetailsBodyConditionObjectOperatorGte            RuleIntentCreateRequestDetailsBodyConditionObjectOperator = "gte"
-	RuleIntentCreateRequestDetailsBodyConditionObjectOperatorLt             RuleIntentCreateRequestDetailsBodyConditionObjectOperator = "lt"
-	RuleIntentCreateRequestDetailsBodyConditionObjectOperatorLte            RuleIntentCreateRequestDetailsBodyConditionObjectOperator = "lte"
-	RuleIntentCreateRequestDetailsBodyConditionObjectOperatorIn             RuleIntentCreateRequestDetailsBodyConditionObjectOperator = "in"
-	RuleIntentCreateRequestDetailsBodyConditionObjectOperatorInConditionSet RuleIntentCreateRequestDetailsBodyConditionObjectOperator = "in_condition_set"
-)
-
-// RuleIntentCreateRequestDetailsBodyConditionObjectValueUnion contains all
-// possible properties and values from [string], [[]string].
+// RuleIntentCreateRequestDetailsBodyConditionEthereumTransactionValueUnion
+// contains all possible properties and values from [string], [[]string].
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 //
 // If the underlying value is not a json object, one of the following properties
 // will be valid: OfString OfStringArray]
-type RuleIntentCreateRequestDetailsBodyConditionObjectValueUnion struct {
+type RuleIntentCreateRequestDetailsBodyConditionEthereumTransactionValueUnion struct {
 	// This field will be present if the value is a [string] instead of an object.
 	OfString string `json:",inline"`
 	// This field will be present if the value is a [[]string] instead of an object.
@@ -397,36 +576,578 @@ type RuleIntentCreateRequestDetailsBodyConditionObjectValueUnion struct {
 	} `json:"-"`
 }
 
-func (u RuleIntentCreateRequestDetailsBodyConditionObjectValueUnion) AsString() (v string) {
+func (u RuleIntentCreateRequestDetailsBodyConditionEthereumTransactionValueUnion) AsString() (v string) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u RuleIntentCreateRequestDetailsBodyConditionObjectValueUnion) AsStringArray() (v []string) {
+func (u RuleIntentCreateRequestDetailsBodyConditionEthereumTransactionValueUnion) AsStringArray() (v []string) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
 // Returns the unmodified JSON received from the API
-func (u RuleIntentCreateRequestDetailsBodyConditionObjectValueUnion) RawJSON() string {
+func (u RuleIntentCreateRequestDetailsBodyConditionEthereumTransactionValueUnion) RawJSON() string {
 	return u.JSON.raw
 }
 
-func (r *RuleIntentCreateRequestDetailsBodyConditionObjectValueUnion) UnmarshalJSON(data []byte) error {
+func (r *RuleIntentCreateRequestDetailsBodyConditionEthereumTransactionValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type RuleIntentCreateRequestDetailsBodyConditionOperator string
+// The decoded calldata in a smart contract interaction as the smart contract
+// method's parameters. Note that that 'ethereum_calldata' conditions must contain
+// an abi parameter with the JSON ABI of the smart contract.
+type RuleIntentCreateRequestDetailsBodyConditionEthereumCalldata struct {
+	Abi         any                       `json:"abi" api:"required"`
+	Field       string                    `json:"field" api:"required"`
+	FieldSource constant.EthereumCalldata `json:"field_source" default:"ethereum_calldata"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                `json:"operator" api:"required"`
+	Value    RuleIntentCreateRequestDetailsBodyConditionEthereumCalldataValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Abi         respjson.Field
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
 
-const (
-	RuleIntentCreateRequestDetailsBodyConditionOperatorEq             RuleIntentCreateRequestDetailsBodyConditionOperator = "eq"
-	RuleIntentCreateRequestDetailsBodyConditionOperatorGt             RuleIntentCreateRequestDetailsBodyConditionOperator = "gt"
-	RuleIntentCreateRequestDetailsBodyConditionOperatorGte            RuleIntentCreateRequestDetailsBodyConditionOperator = "gte"
-	RuleIntentCreateRequestDetailsBodyConditionOperatorLt             RuleIntentCreateRequestDetailsBodyConditionOperator = "lt"
-	RuleIntentCreateRequestDetailsBodyConditionOperatorLte            RuleIntentCreateRequestDetailsBodyConditionOperator = "lte"
-	RuleIntentCreateRequestDetailsBodyConditionOperatorIn             RuleIntentCreateRequestDetailsBodyConditionOperator = "in"
-	RuleIntentCreateRequestDetailsBodyConditionOperatorInConditionSet RuleIntentCreateRequestDetailsBodyConditionOperator = "in_condition_set"
-)
+// Returns the unmodified JSON received from the API
+func (r RuleIntentCreateRequestDetailsBodyConditionEthereumCalldata) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentCreateRequestDetailsBodyConditionEthereumCalldata) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentCreateRequestDetailsBodyConditionEthereumCalldataValueUnion contains
+// all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentCreateRequestDetailsBodyConditionEthereumCalldataValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionEthereumCalldataValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionEthereumCalldataValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentCreateRequestDetailsBodyConditionEthereumCalldataValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentCreateRequestDetailsBodyConditionEthereumCalldataValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Attributes from the signing domain that will verify the signature.
+type RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataDomain struct {
+	// Any of "chainId", "verifyingContract", "chain_id", "verifying_contract".
+	Field       string                           `json:"field" api:"required"`
+	FieldSource constant.EthereumTypedDataDomain `json:"field_source" default:"ethereum_typed_data_domain"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                       `json:"operator" api:"required"`
+	Value    RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataDomainValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataDomain) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataDomain) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataDomainValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataDomainValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataDomainValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataDomainValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataDomainValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataDomainValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// 'types' and 'primary_type' attributes of the TypedData JSON object defined in
+// EIP-712.
+type RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataMessage struct {
+	Field       string                            `json:"field" api:"required"`
+	FieldSource constant.EthereumTypedDataMessage `json:"field_source" default:"ethereum_typed_data_message"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator  string                                                                        `json:"operator" api:"required"`
+	TypedData RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataMessageTypedData  `json:"typed_data" api:"required"`
+	Value     RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataMessageValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		TypedData   respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataMessage) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataMessage) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataMessageTypedData struct {
+	PrimaryType string `json:"primary_type" api:"required"`
+	// The type definitions for EIP-712 typed data signing.
+	Types TypedDataTypesInputParamsResp `json:"types" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		PrimaryType respjson.Field
+		Types       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataMessageTypedData) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataMessageTypedData) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataMessageValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataMessageValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataMessageValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataMessageValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataMessageValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentCreateRequestDetailsBodyConditionEthereumTypedDataMessageValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Allowed contract addresses for eth_sign7702Authorization requests.
+type RuleIntentCreateRequestDetailsBodyConditionEthereum7702Authorization struct {
+	// Any of "contract".
+	Field       string                             `json:"field" api:"required"`
+	FieldSource constant.Ethereum7702Authorization `json:"field_source" default:"ethereum_7702_authorization"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                         `json:"operator" api:"required"`
+	Value    RuleIntentCreateRequestDetailsBodyConditionEthereum7702AuthorizationValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentCreateRequestDetailsBodyConditionEthereum7702Authorization) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentCreateRequestDetailsBodyConditionEthereum7702Authorization) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentCreateRequestDetailsBodyConditionEthereum7702AuthorizationValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentCreateRequestDetailsBodyConditionEthereum7702AuthorizationValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionEthereum7702AuthorizationValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionEthereum7702AuthorizationValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentCreateRequestDetailsBodyConditionEthereum7702AuthorizationValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentCreateRequestDetailsBodyConditionEthereum7702AuthorizationValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Solana Program attributes, enables allowlisting Solana Programs.
+type RuleIntentCreateRequestDetailsBodyConditionSolanaProgramInstruction struct {
+	// Any of "programId".
+	Field       string                            `json:"field" api:"required"`
+	FieldSource constant.SolanaProgramInstruction `json:"field_source" default:"solana_program_instruction"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                        `json:"operator" api:"required"`
+	Value    RuleIntentCreateRequestDetailsBodyConditionSolanaProgramInstructionValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentCreateRequestDetailsBodyConditionSolanaProgramInstruction) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentCreateRequestDetailsBodyConditionSolanaProgramInstruction) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentCreateRequestDetailsBodyConditionSolanaProgramInstructionValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentCreateRequestDetailsBodyConditionSolanaProgramInstructionValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionSolanaProgramInstructionValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionSolanaProgramInstructionValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentCreateRequestDetailsBodyConditionSolanaProgramInstructionValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentCreateRequestDetailsBodyConditionSolanaProgramInstructionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Solana System Program attributes, including more granular Transfer instruction
+// fields.
+type RuleIntentCreateRequestDetailsBodyConditionSolanaSystemProgramInstruction struct {
+	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
+	Field       string                                  `json:"field" api:"required"`
+	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" default:"solana_system_program_instruction"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                              `json:"operator" api:"required"`
+	Value    RuleIntentCreateRequestDetailsBodyConditionSolanaSystemProgramInstructionValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentCreateRequestDetailsBodyConditionSolanaSystemProgramInstruction) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentCreateRequestDetailsBodyConditionSolanaSystemProgramInstruction) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentCreateRequestDetailsBodyConditionSolanaSystemProgramInstructionValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentCreateRequestDetailsBodyConditionSolanaSystemProgramInstructionValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionSolanaSystemProgramInstructionValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionSolanaSystemProgramInstructionValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentCreateRequestDetailsBodyConditionSolanaSystemProgramInstructionValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentCreateRequestDetailsBodyConditionSolanaSystemProgramInstructionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Solana Token Program attributes, including more granular TransferChecked
+// instruction fields.
+type RuleIntentCreateRequestDetailsBodyConditionSolanaTokenProgramInstruction struct {
+	// Any of "instructionName", "Transfer.source", "Transfer.destination",
+	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
+	// "TransferChecked.destination", "TransferChecked.authority",
+	// "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint",
+	// "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account",
+	// "MintTo.authority", "MintTo.amount", "CloseAccount.account",
+	// "CloseAccount.destination", "CloseAccount.authority",
+	// "InitializeAccount3.account", "InitializeAccount3.mint",
+	// "InitializeAccount3.owner".
+	Field       string                                 `json:"field" api:"required"`
+	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" default:"solana_token_program_instruction"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                             `json:"operator" api:"required"`
+	Value    RuleIntentCreateRequestDetailsBodyConditionSolanaTokenProgramInstructionValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentCreateRequestDetailsBodyConditionSolanaTokenProgramInstruction) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentCreateRequestDetailsBodyConditionSolanaTokenProgramInstruction) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentCreateRequestDetailsBodyConditionSolanaTokenProgramInstructionValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentCreateRequestDetailsBodyConditionSolanaTokenProgramInstructionValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionSolanaTokenProgramInstructionValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionSolanaTokenProgramInstructionValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentCreateRequestDetailsBodyConditionSolanaTokenProgramInstructionValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentCreateRequestDetailsBodyConditionSolanaTokenProgramInstructionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// System attributes, including current unix timestamp (in seconds).
+type RuleIntentCreateRequestDetailsBodyConditionSystem struct {
+	// Any of "current_unix_timestamp".
+	Field       string          `json:"field" api:"required"`
+	FieldSource constant.System `json:"field_source" default:"system"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                      `json:"operator" api:"required"`
+	Value    RuleIntentCreateRequestDetailsBodyConditionSystemValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentCreateRequestDetailsBodyConditionSystem) RawJSON() string { return r.JSON.raw }
+func (r *RuleIntentCreateRequestDetailsBodyConditionSystem) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentCreateRequestDetailsBodyConditionSystemValueUnion contains all
+// possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentCreateRequestDetailsBodyConditionSystemValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionSystemValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentCreateRequestDetailsBodyConditionSystemValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentCreateRequestDetailsBodyConditionSystemValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentCreateRequestDetailsBodyConditionSystemValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 type RuleIntentCreateRequestDetailsMethod string
 
@@ -436,6 +1157,7 @@ const (
 
 // Request details for updating a rule via intent.
 type RuleIntentUpdateRequestDetails struct {
+	// The rules that apply to each method the policy covers.
 	Body RuleIntentUpdateRequestDetailsBody `json:"body" api:"required"`
 	// Any of "PATCH".
 	Method RuleIntentUpdateRequestDetailsMethod `json:"method" api:"required"`
@@ -456,13 +1178,18 @@ func (r *RuleIntentUpdateRequestDetails) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// The rules that apply to each method the policy covers.
 type RuleIntentUpdateRequestDetailsBody struct {
+	// Action to take if the conditions are true.
+	//
 	// Any of "ALLOW", "DENY".
 	Action     string                                             `json:"action" api:"required"`
 	Conditions []RuleIntentUpdateRequestDetailsBodyConditionUnion `json:"conditions" api:"required"`
-	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signTypedData_v4",
-	// "eth_signUserOperation", "eth_sign7702Authorization", "signTransaction",
-	// "signAndSendTransaction", "signTransactionBytes", "exportPrivateKey", "\*".
+	// Method the rule applies to.
+	//
+	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
+	// "eth_signTypedData_v4", "eth_sign7702Authorization", "signTransaction",
+	// "signAndSendTransaction", "exportPrivateKey", "signTransactionBytes", "\*".
 	Method string `json:"method" api:"required"`
 	Name   string `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -483,35 +1210,51 @@ func (r *RuleIntentUpdateRequestDetailsBody) UnmarshalJSON(data []byte) error {
 }
 
 // RuleIntentUpdateRequestDetailsBodyConditionUnion contains all possible
-// properties and values from [RuleIntentUpdateRequestDetailsBodyConditionObject],
-// [RuleIntentUpdateRequestDetailsBodyConditionObject],
-// [RuleIntentUpdateRequestDetailsBodyConditionObject],
-// [RuleIntentUpdateRequestDetailsBodyConditionObject],
-// [RuleIntentUpdateRequestDetailsBodyConditionObject],
-// [RuleIntentUpdateRequestDetailsBodyConditionObject],
-// [RuleIntentUpdateRequestDetailsBodyConditionObject],
-// [RuleIntentUpdateRequestDetailsBodyConditionObject],
-// [RuleIntentUpdateRequestDetailsBodyConditionObject],
-// [RuleIntentUpdateRequestDetailsBodyConditionObject],
-// [RuleIntentUpdateRequestDetailsBodyConditionObject],
-// [RuleIntentUpdateRequestDetailsBodyConditionObject],
-// [RuleIntentUpdateRequestDetailsBodyConditionObject],
-// [RuleIntentUpdateRequestDetailsBodyConditionObject].
+// properties and values from
+// [RuleIntentUpdateRequestDetailsBodyConditionEthereumTransaction],
+// [RuleIntentUpdateRequestDetailsBodyConditionEthereumCalldata],
+// [RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataDomain],
+// [RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataMessage],
+// [RuleIntentUpdateRequestDetailsBodyConditionEthereum7702Authorization],
+// [RuleIntentUpdateRequestDetailsBodyConditionSolanaProgramInstruction],
+// [RuleIntentUpdateRequestDetailsBodyConditionSolanaSystemProgramInstruction],
+// [RuleIntentUpdateRequestDetailsBodyConditionSolanaTokenProgramInstruction],
+// [RuleIntentUpdateRequestDetailsBodyConditionSystem], [TronTransactionCondition],
+// [TronCalldataCondition], [SuiTransactionCommandCondition],
+// [SuiTransferObjectsCommandCondition], [AggregationCondition].
+//
+// Use the [RuleIntentUpdateRequestDetailsBodyConditionUnion.AsAny] method to
+// switch on the variant.
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 type RuleIntentUpdateRequestDetailsBodyConditionUnion struct {
-	// This field is from variant [RuleIntentUpdateRequestDetailsBodyConditionObject].
-	Field RuleIntentUpdateRequestDetailsBodyConditionObjectField `json:"field"`
-	// This field is from variant [RuleIntentUpdateRequestDetailsBodyConditionObject].
+	Field string `json:"field"`
+	// Any of "ethereum_transaction", "ethereum_calldata",
+	// "ethereum_typed_data_domain", "ethereum_typed_data_message",
+	// "ethereum_7702_authorization", "solana_program_instruction",
+	// "solana_system_program_instruction", "solana_token_program_instruction",
+	// "system", "tron_transaction", "tron_trigger_smart_contract_data",
+	// "sui_transaction_command", "sui_transfer_objects_command", "reference".
 	FieldSource string `json:"field_source"`
-	// This field is from variant [RuleIntentUpdateRequestDetailsBodyConditionObject].
-	Operator RuleIntentUpdateRequestDetailsBodyConditionObjectOperator `json:"operator"`
-	// This field is from variant [RuleIntentUpdateRequestDetailsBodyConditionObject].
-	Value RuleIntentUpdateRequestDetailsBodyConditionObjectValueUnion `json:"value"`
-	// This field is from variant [RuleIntentUpdateRequestDetailsBodyConditionObject].
-	Abi []RuleIntentUpdateRequestDetailsBodyConditionObjectAbi `json:"abi"`
-	// This field is from variant [RuleIntentUpdateRequestDetailsBodyConditionObject].
-	TypedData RuleIntentUpdateRequestDetailsBodyConditionObjectTypedData `json:"typed_data"`
+	Operator    string `json:"operator"`
+	// This field is a union of
+	// [RuleIntentUpdateRequestDetailsBodyConditionEthereumTransactionValueUnion],
+	// [RuleIntentUpdateRequestDetailsBodyConditionEthereumCalldataValueUnion],
+	// [RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataDomainValueUnion],
+	// [RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataMessageValueUnion],
+	// [RuleIntentUpdateRequestDetailsBodyConditionEthereum7702AuthorizationValueUnion],
+	// [RuleIntentUpdateRequestDetailsBodyConditionSolanaProgramInstructionValueUnion],
+	// [RuleIntentUpdateRequestDetailsBodyConditionSolanaSystemProgramInstructionValueUnion],
+	// [RuleIntentUpdateRequestDetailsBodyConditionSolanaTokenProgramInstructionValueUnion],
+	// [RuleIntentUpdateRequestDetailsBodyConditionSystemValueUnion],
+	// [TronTransactionConditionValueUnion], [TronCalldataConditionValueUnion],
+	// [SuiTransactionCommandConditionValueUnion],
+	// [SuiTransferObjectsCommandConditionValueUnion], [AggregationConditionValueUnion]
+	Value RuleIntentUpdateRequestDetailsBodyConditionUnionValue `json:"value"`
+	Abi   any                                                   `json:"abi"`
+	// This field is from variant
+	// [RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataMessage].
+	TypedData RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataMessageTypedData `json:"typed_data"`
 	JSON      struct {
 		Field       respjson.Field
 		FieldSource respjson.Field
@@ -523,17 +1266,157 @@ type RuleIntentUpdateRequestDetailsBodyConditionUnion struct {
 	} `json:"-"`
 }
 
-func (u RuleIntentUpdateRequestDetailsBodyConditionUnion) AsRuleIntentUpdateRequestDetailsBodyConditionObject() (v RuleIntentUpdateRequestDetailsBodyConditionObject) {
+// anyRuleIntentUpdateRequestDetailsBodyCondition is implemented by each variant of
+// [RuleIntentUpdateRequestDetailsBodyConditionUnion] to add type safety for the
+// return type of [RuleIntentUpdateRequestDetailsBodyConditionUnion.AsAny]
+type anyRuleIntentUpdateRequestDetailsBodyCondition interface {
+	implRuleIntentUpdateRequestDetailsBodyConditionUnion()
+}
+
+func (RuleIntentUpdateRequestDetailsBodyConditionEthereumTransaction) implRuleIntentUpdateRequestDetailsBodyConditionUnion() {
+}
+func (RuleIntentUpdateRequestDetailsBodyConditionEthereumCalldata) implRuleIntentUpdateRequestDetailsBodyConditionUnion() {
+}
+func (RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataDomain) implRuleIntentUpdateRequestDetailsBodyConditionUnion() {
+}
+func (RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataMessage) implRuleIntentUpdateRequestDetailsBodyConditionUnion() {
+}
+func (RuleIntentUpdateRequestDetailsBodyConditionEthereum7702Authorization) implRuleIntentUpdateRequestDetailsBodyConditionUnion() {
+}
+func (RuleIntentUpdateRequestDetailsBodyConditionSolanaProgramInstruction) implRuleIntentUpdateRequestDetailsBodyConditionUnion() {
+}
+func (RuleIntentUpdateRequestDetailsBodyConditionSolanaSystemProgramInstruction) implRuleIntentUpdateRequestDetailsBodyConditionUnion() {
+}
+func (RuleIntentUpdateRequestDetailsBodyConditionSolanaTokenProgramInstruction) implRuleIntentUpdateRequestDetailsBodyConditionUnion() {
+}
+func (RuleIntentUpdateRequestDetailsBodyConditionSystem) implRuleIntentUpdateRequestDetailsBodyConditionUnion() {
+}
+func (TronTransactionCondition) implRuleIntentUpdateRequestDetailsBodyConditionUnion()           {}
+func (TronCalldataCondition) implRuleIntentUpdateRequestDetailsBodyConditionUnion()              {}
+func (SuiTransactionCommandCondition) implRuleIntentUpdateRequestDetailsBodyConditionUnion()     {}
+func (SuiTransferObjectsCommandCondition) implRuleIntentUpdateRequestDetailsBodyConditionUnion() {}
+func (AggregationCondition) implRuleIntentUpdateRequestDetailsBodyConditionUnion()               {}
+
+// Use the following switch statement to find the correct variant
+//
+//	switch variant := RuleIntentUpdateRequestDetailsBodyConditionUnion.AsAny().(type) {
+//	case privyclient.RuleIntentUpdateRequestDetailsBodyConditionEthereumTransaction:
+//	case privyclient.RuleIntentUpdateRequestDetailsBodyConditionEthereumCalldata:
+//	case privyclient.RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataDomain:
+//	case privyclient.RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataMessage:
+//	case privyclient.RuleIntentUpdateRequestDetailsBodyConditionEthereum7702Authorization:
+//	case privyclient.RuleIntentUpdateRequestDetailsBodyConditionSolanaProgramInstruction:
+//	case privyclient.RuleIntentUpdateRequestDetailsBodyConditionSolanaSystemProgramInstruction:
+//	case privyclient.RuleIntentUpdateRequestDetailsBodyConditionSolanaTokenProgramInstruction:
+//	case privyclient.RuleIntentUpdateRequestDetailsBodyConditionSystem:
+//	case privyclient.TronTransactionCondition:
+//	case privyclient.TronCalldataCondition:
+//	case privyclient.SuiTransactionCommandCondition:
+//	case privyclient.SuiTransferObjectsCommandCondition:
+//	case privyclient.AggregationCondition:
+//	default:
+//	  fmt.Errorf("no variant present")
+//	}
+func (u RuleIntentUpdateRequestDetailsBodyConditionUnion) AsAny() anyRuleIntentUpdateRequestDetailsBodyCondition {
+	switch u.FieldSource {
+	case "ethereum_transaction":
+		return u.AsEthereumTransaction()
+	case "ethereum_calldata":
+		return u.AsEthereumCalldata()
+	case "ethereum_typed_data_domain":
+		return u.AsEthereumTypedDataDomain()
+	case "ethereum_typed_data_message":
+		return u.AsEthereumTypedDataMessage()
+	case "ethereum_7702_authorization":
+		return u.AsEthereum7702Authorization()
+	case "solana_program_instruction":
+		return u.AsSolanaProgramInstruction()
+	case "solana_system_program_instruction":
+		return u.AsSolanaSystemProgramInstruction()
+	case "solana_token_program_instruction":
+		return u.AsSolanaTokenProgramInstruction()
+	case "system":
+		return u.AsSystem()
+	case "tron_transaction":
+		return u.AsTronTransaction()
+	case "tron_trigger_smart_contract_data":
+		return u.AsTronTriggerSmartContractData()
+	case "sui_transaction_command":
+		return u.AsSuiTransactionCommand()
+	case "sui_transfer_objects_command":
+		return u.AsSuiTransferObjectsCommand()
+	case "reference":
+		return u.AsReference()
+	}
+	return nil
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionUnion) AsEthereumTransaction() (v RuleIntentUpdateRequestDetailsBodyConditionEthereumTransaction) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u RuleIntentUpdateRequestDetailsBodyConditionUnion) AsVariant2() (v RuleIntentUpdateRequestDetailsBodyConditionObject) {
+func (u RuleIntentUpdateRequestDetailsBodyConditionUnion) AsEthereumCalldata() (v RuleIntentUpdateRequestDetailsBodyConditionEthereumCalldata) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u RuleIntentUpdateRequestDetailsBodyConditionUnion) AsVariant3() (v RuleIntentUpdateRequestDetailsBodyConditionObject) {
+func (u RuleIntentUpdateRequestDetailsBodyConditionUnion) AsEthereumTypedDataDomain() (v RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataDomain) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionUnion) AsEthereumTypedDataMessage() (v RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataMessage) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionUnion) AsEthereum7702Authorization() (v RuleIntentUpdateRequestDetailsBodyConditionEthereum7702Authorization) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionUnion) AsSolanaProgramInstruction() (v RuleIntentUpdateRequestDetailsBodyConditionSolanaProgramInstruction) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionUnion) AsSolanaSystemProgramInstruction() (v RuleIntentUpdateRequestDetailsBodyConditionSolanaSystemProgramInstruction) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionUnion) AsSolanaTokenProgramInstruction() (v RuleIntentUpdateRequestDetailsBodyConditionSolanaTokenProgramInstruction) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionUnion) AsSystem() (v RuleIntentUpdateRequestDetailsBodyConditionSystem) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionUnion) AsTronTransaction() (v TronTransactionCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionUnion) AsTronTriggerSmartContractData() (v TronCalldataCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionUnion) AsSuiTransactionCommand() (v SuiTransactionCommandCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionUnion) AsSuiTransferObjectsCommand() (v SuiTransferObjectsCommandCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionUnion) AsReference() (v AggregationCondition) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -545,14 +1428,49 @@ func (r *RuleIntentUpdateRequestDetailsBodyConditionUnion) UnmarshalJSON(data []
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type RuleIntentUpdateRequestDetailsBodyConditionObject struct {
+// RuleIntentUpdateRequestDetailsBodyConditionUnionValue is an implicit subunion of
+// [RuleIntentUpdateRequestDetailsBodyConditionUnion].
+// RuleIntentUpdateRequestDetailsBodyConditionUnionValue provides convenient access
+// to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [RuleIntentUpdateRequestDetailsBodyConditionUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray OfSuiCommandName OfSuiCommandNameArray]
+type RuleIntentUpdateRequestDetailsBodyConditionUnionValue struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	// This field will be present if the value is a [SuiCommandName] instead of an
+	// object.
+	OfSuiCommandName SuiCommandName `json:",inline"`
+	// This field will be present if the value is a [[]SuiCommandName] instead of an
+	// object.
+	OfSuiCommandNameArray []SuiCommandName `json:",inline"`
+	JSON                  struct {
+		OfString              respjson.Field
+		OfStringArray         respjson.Field
+		OfSuiCommandName      respjson.Field
+		OfSuiCommandNameArray respjson.Field
+		raw                   string
+	} `json:"-"`
+}
+
+func (r *RuleIntentUpdateRequestDetailsBodyConditionUnionValue) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The verbatim Ethereum transaction object in an eth_signTransaction or
+// eth_sendTransaction request.
+type RuleIntentUpdateRequestDetailsBodyConditionEthereumTransaction struct {
 	// Any of "to", "value", "chain_id".
-	Field RuleIntentUpdateRequestDetailsBodyConditionObjectField `json:"field" api:"required"`
-	// Any of "ethereum_transaction".
-	FieldSource string `json:"field_source" api:"required"`
+	Field       string                       `json:"field" api:"required"`
+	FieldSource constant.EthereumTransaction `json:"field_source" default:"ethereum_transaction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator RuleIntentUpdateRequestDetailsBodyConditionObjectOperator   `json:"operator" api:"required"`
-	Value    RuleIntentUpdateRequestDetailsBodyConditionObjectValueUnion `json:"value" api:"required"`
+	Operator string                                                                   `json:"operator" api:"required"`
+	Value    RuleIntentUpdateRequestDetailsBodyConditionEthereumTransactionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -565,39 +1483,21 @@ type RuleIntentUpdateRequestDetailsBodyConditionObject struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r RuleIntentUpdateRequestDetailsBodyConditionObject) RawJSON() string { return r.JSON.raw }
-func (r *RuleIntentUpdateRequestDetailsBodyConditionObject) UnmarshalJSON(data []byte) error {
+func (r RuleIntentUpdateRequestDetailsBodyConditionEthereumTransaction) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentUpdateRequestDetailsBodyConditionEthereumTransaction) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type RuleIntentUpdateRequestDetailsBodyConditionObjectField string
-
-const (
-	RuleIntentUpdateRequestDetailsBodyConditionObjectFieldTo      RuleIntentUpdateRequestDetailsBodyConditionObjectField = "to"
-	RuleIntentUpdateRequestDetailsBodyConditionObjectFieldValue   RuleIntentUpdateRequestDetailsBodyConditionObjectField = "value"
-	RuleIntentUpdateRequestDetailsBodyConditionObjectFieldChainID RuleIntentUpdateRequestDetailsBodyConditionObjectField = "chain_id"
-)
-
-type RuleIntentUpdateRequestDetailsBodyConditionObjectOperator string
-
-const (
-	RuleIntentUpdateRequestDetailsBodyConditionObjectOperatorEq             RuleIntentUpdateRequestDetailsBodyConditionObjectOperator = "eq"
-	RuleIntentUpdateRequestDetailsBodyConditionObjectOperatorGt             RuleIntentUpdateRequestDetailsBodyConditionObjectOperator = "gt"
-	RuleIntentUpdateRequestDetailsBodyConditionObjectOperatorGte            RuleIntentUpdateRequestDetailsBodyConditionObjectOperator = "gte"
-	RuleIntentUpdateRequestDetailsBodyConditionObjectOperatorLt             RuleIntentUpdateRequestDetailsBodyConditionObjectOperator = "lt"
-	RuleIntentUpdateRequestDetailsBodyConditionObjectOperatorLte            RuleIntentUpdateRequestDetailsBodyConditionObjectOperator = "lte"
-	RuleIntentUpdateRequestDetailsBodyConditionObjectOperatorIn             RuleIntentUpdateRequestDetailsBodyConditionObjectOperator = "in"
-	RuleIntentUpdateRequestDetailsBodyConditionObjectOperatorInConditionSet RuleIntentUpdateRequestDetailsBodyConditionObjectOperator = "in_condition_set"
-)
-
-// RuleIntentUpdateRequestDetailsBodyConditionObjectValueUnion contains all
-// possible properties and values from [string], [[]string].
+// RuleIntentUpdateRequestDetailsBodyConditionEthereumTransactionValueUnion
+// contains all possible properties and values from [string], [[]string].
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 //
 // If the underlying value is not a json object, one of the following properties
 // will be valid: OfString OfStringArray]
-type RuleIntentUpdateRequestDetailsBodyConditionObjectValueUnion struct {
+type RuleIntentUpdateRequestDetailsBodyConditionEthereumTransactionValueUnion struct {
 	// This field will be present if the value is a [string] instead of an object.
 	OfString string `json:",inline"`
 	// This field will be present if the value is a [[]string] instead of an object.
@@ -609,36 +1509,578 @@ type RuleIntentUpdateRequestDetailsBodyConditionObjectValueUnion struct {
 	} `json:"-"`
 }
 
-func (u RuleIntentUpdateRequestDetailsBodyConditionObjectValueUnion) AsString() (v string) {
+func (u RuleIntentUpdateRequestDetailsBodyConditionEthereumTransactionValueUnion) AsString() (v string) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u RuleIntentUpdateRequestDetailsBodyConditionObjectValueUnion) AsStringArray() (v []string) {
+func (u RuleIntentUpdateRequestDetailsBodyConditionEthereumTransactionValueUnion) AsStringArray() (v []string) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
 // Returns the unmodified JSON received from the API
-func (u RuleIntentUpdateRequestDetailsBodyConditionObjectValueUnion) RawJSON() string {
+func (u RuleIntentUpdateRequestDetailsBodyConditionEthereumTransactionValueUnion) RawJSON() string {
 	return u.JSON.raw
 }
 
-func (r *RuleIntentUpdateRequestDetailsBodyConditionObjectValueUnion) UnmarshalJSON(data []byte) error {
+func (r *RuleIntentUpdateRequestDetailsBodyConditionEthereumTransactionValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type RuleIntentUpdateRequestDetailsBodyConditionOperator string
+// The decoded calldata in a smart contract interaction as the smart contract
+// method's parameters. Note that that 'ethereum_calldata' conditions must contain
+// an abi parameter with the JSON ABI of the smart contract.
+type RuleIntentUpdateRequestDetailsBodyConditionEthereumCalldata struct {
+	Abi         any                       `json:"abi" api:"required"`
+	Field       string                    `json:"field" api:"required"`
+	FieldSource constant.EthereumCalldata `json:"field_source" default:"ethereum_calldata"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                `json:"operator" api:"required"`
+	Value    RuleIntentUpdateRequestDetailsBodyConditionEthereumCalldataValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Abi         respjson.Field
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
 
-const (
-	RuleIntentUpdateRequestDetailsBodyConditionOperatorEq             RuleIntentUpdateRequestDetailsBodyConditionOperator = "eq"
-	RuleIntentUpdateRequestDetailsBodyConditionOperatorGt             RuleIntentUpdateRequestDetailsBodyConditionOperator = "gt"
-	RuleIntentUpdateRequestDetailsBodyConditionOperatorGte            RuleIntentUpdateRequestDetailsBodyConditionOperator = "gte"
-	RuleIntentUpdateRequestDetailsBodyConditionOperatorLt             RuleIntentUpdateRequestDetailsBodyConditionOperator = "lt"
-	RuleIntentUpdateRequestDetailsBodyConditionOperatorLte            RuleIntentUpdateRequestDetailsBodyConditionOperator = "lte"
-	RuleIntentUpdateRequestDetailsBodyConditionOperatorIn             RuleIntentUpdateRequestDetailsBodyConditionOperator = "in"
-	RuleIntentUpdateRequestDetailsBodyConditionOperatorInConditionSet RuleIntentUpdateRequestDetailsBodyConditionOperator = "in_condition_set"
-)
+// Returns the unmodified JSON received from the API
+func (r RuleIntentUpdateRequestDetailsBodyConditionEthereumCalldata) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentUpdateRequestDetailsBodyConditionEthereumCalldata) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentUpdateRequestDetailsBodyConditionEthereumCalldataValueUnion contains
+// all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentUpdateRequestDetailsBodyConditionEthereumCalldataValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionEthereumCalldataValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionEthereumCalldataValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentUpdateRequestDetailsBodyConditionEthereumCalldataValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentUpdateRequestDetailsBodyConditionEthereumCalldataValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Attributes from the signing domain that will verify the signature.
+type RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataDomain struct {
+	// Any of "chainId", "verifyingContract", "chain_id", "verifying_contract".
+	Field       string                           `json:"field" api:"required"`
+	FieldSource constant.EthereumTypedDataDomain `json:"field_source" default:"ethereum_typed_data_domain"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                       `json:"operator" api:"required"`
+	Value    RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataDomainValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataDomain) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataDomain) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataDomainValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataDomainValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataDomainValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataDomainValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataDomainValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataDomainValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// 'types' and 'primary_type' attributes of the TypedData JSON object defined in
+// EIP-712.
+type RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataMessage struct {
+	Field       string                            `json:"field" api:"required"`
+	FieldSource constant.EthereumTypedDataMessage `json:"field_source" default:"ethereum_typed_data_message"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator  string                                                                        `json:"operator" api:"required"`
+	TypedData RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataMessageTypedData  `json:"typed_data" api:"required"`
+	Value     RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataMessageValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		TypedData   respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataMessage) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataMessage) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataMessageTypedData struct {
+	PrimaryType string `json:"primary_type" api:"required"`
+	// The type definitions for EIP-712 typed data signing.
+	Types TypedDataTypesInputParamsResp `json:"types" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		PrimaryType respjson.Field
+		Types       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataMessageTypedData) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataMessageTypedData) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataMessageValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataMessageValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataMessageValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataMessageValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataMessageValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentUpdateRequestDetailsBodyConditionEthereumTypedDataMessageValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Allowed contract addresses for eth_sign7702Authorization requests.
+type RuleIntentUpdateRequestDetailsBodyConditionEthereum7702Authorization struct {
+	// Any of "contract".
+	Field       string                             `json:"field" api:"required"`
+	FieldSource constant.Ethereum7702Authorization `json:"field_source" default:"ethereum_7702_authorization"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                         `json:"operator" api:"required"`
+	Value    RuleIntentUpdateRequestDetailsBodyConditionEthereum7702AuthorizationValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentUpdateRequestDetailsBodyConditionEthereum7702Authorization) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentUpdateRequestDetailsBodyConditionEthereum7702Authorization) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentUpdateRequestDetailsBodyConditionEthereum7702AuthorizationValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentUpdateRequestDetailsBodyConditionEthereum7702AuthorizationValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionEthereum7702AuthorizationValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionEthereum7702AuthorizationValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentUpdateRequestDetailsBodyConditionEthereum7702AuthorizationValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentUpdateRequestDetailsBodyConditionEthereum7702AuthorizationValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Solana Program attributes, enables allowlisting Solana Programs.
+type RuleIntentUpdateRequestDetailsBodyConditionSolanaProgramInstruction struct {
+	// Any of "programId".
+	Field       string                            `json:"field" api:"required"`
+	FieldSource constant.SolanaProgramInstruction `json:"field_source" default:"solana_program_instruction"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                        `json:"operator" api:"required"`
+	Value    RuleIntentUpdateRequestDetailsBodyConditionSolanaProgramInstructionValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentUpdateRequestDetailsBodyConditionSolanaProgramInstruction) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentUpdateRequestDetailsBodyConditionSolanaProgramInstruction) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentUpdateRequestDetailsBodyConditionSolanaProgramInstructionValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentUpdateRequestDetailsBodyConditionSolanaProgramInstructionValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionSolanaProgramInstructionValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionSolanaProgramInstructionValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentUpdateRequestDetailsBodyConditionSolanaProgramInstructionValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentUpdateRequestDetailsBodyConditionSolanaProgramInstructionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Solana System Program attributes, including more granular Transfer instruction
+// fields.
+type RuleIntentUpdateRequestDetailsBodyConditionSolanaSystemProgramInstruction struct {
+	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
+	Field       string                                  `json:"field" api:"required"`
+	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" default:"solana_system_program_instruction"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                              `json:"operator" api:"required"`
+	Value    RuleIntentUpdateRequestDetailsBodyConditionSolanaSystemProgramInstructionValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentUpdateRequestDetailsBodyConditionSolanaSystemProgramInstruction) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentUpdateRequestDetailsBodyConditionSolanaSystemProgramInstruction) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentUpdateRequestDetailsBodyConditionSolanaSystemProgramInstructionValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentUpdateRequestDetailsBodyConditionSolanaSystemProgramInstructionValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionSolanaSystemProgramInstructionValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionSolanaSystemProgramInstructionValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentUpdateRequestDetailsBodyConditionSolanaSystemProgramInstructionValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentUpdateRequestDetailsBodyConditionSolanaSystemProgramInstructionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Solana Token Program attributes, including more granular TransferChecked
+// instruction fields.
+type RuleIntentUpdateRequestDetailsBodyConditionSolanaTokenProgramInstruction struct {
+	// Any of "instructionName", "Transfer.source", "Transfer.destination",
+	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
+	// "TransferChecked.destination", "TransferChecked.authority",
+	// "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint",
+	// "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account",
+	// "MintTo.authority", "MintTo.amount", "CloseAccount.account",
+	// "CloseAccount.destination", "CloseAccount.authority",
+	// "InitializeAccount3.account", "InitializeAccount3.mint",
+	// "InitializeAccount3.owner".
+	Field       string                                 `json:"field" api:"required"`
+	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" default:"solana_token_program_instruction"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                             `json:"operator" api:"required"`
+	Value    RuleIntentUpdateRequestDetailsBodyConditionSolanaTokenProgramInstructionValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentUpdateRequestDetailsBodyConditionSolanaTokenProgramInstruction) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentUpdateRequestDetailsBodyConditionSolanaTokenProgramInstruction) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentUpdateRequestDetailsBodyConditionSolanaTokenProgramInstructionValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentUpdateRequestDetailsBodyConditionSolanaTokenProgramInstructionValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionSolanaTokenProgramInstructionValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionSolanaTokenProgramInstructionValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentUpdateRequestDetailsBodyConditionSolanaTokenProgramInstructionValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentUpdateRequestDetailsBodyConditionSolanaTokenProgramInstructionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// System attributes, including current unix timestamp (in seconds).
+type RuleIntentUpdateRequestDetailsBodyConditionSystem struct {
+	// Any of "current_unix_timestamp".
+	Field       string          `json:"field" api:"required"`
+	FieldSource constant.System `json:"field_source" default:"system"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                      `json:"operator" api:"required"`
+	Value    RuleIntentUpdateRequestDetailsBodyConditionSystemValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentUpdateRequestDetailsBodyConditionSystem) RawJSON() string { return r.JSON.raw }
+func (r *RuleIntentUpdateRequestDetailsBodyConditionSystem) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentUpdateRequestDetailsBodyConditionSystemValueUnion contains all
+// possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentUpdateRequestDetailsBodyConditionSystemValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionSystemValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentUpdateRequestDetailsBodyConditionSystemValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentUpdateRequestDetailsBodyConditionSystemValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentUpdateRequestDetailsBodyConditionSystemValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 type RuleIntentUpdateRequestDetailsMethod string
 
@@ -1276,12 +2718,17 @@ func (r *WalletIntentResponseRequestDetails) UnmarshalJSON(data []byte) error {
 }
 
 type WalletIntentResponseRequestDetailsBody struct {
-	AdditionalSigners      []WalletIntentResponseRequestDetailsBodyAdditionalSigner `json:"additional_signers"`
-	AuthorizationKeyIDs    []string                                                 `json:"authorization_key_ids"`
-	AuthorizationThreshold float64                                                  `json:"authorization_threshold"`
-	Owner                  WalletIntentResponseRequestDetailsBodyOwnerUnion         `json:"owner" api:"nullable"`
-	OwnerID                string                                                   `json:"owner_id" api:"nullable" format:"cuid2"`
-	PolicyIDs              []string                                                 `json:"policy_ids" format:"cuid2"`
+	// Additional signers for the wallet.
+	AdditionalSigners      AdditionalSignerInput `json:"additional_signers"`
+	AuthorizationKeyIDs    []string              `json:"authorization_key_ids"`
+	AuthorizationThreshold float64               `json:"authorization_threshold"`
+	// The owner of the resource. If you provide this, do not specify an owner_id as it
+	// will be generated automatically. When updating a wallet, you can set the owner
+	// to null to remove the owner.
+	Owner   WalletIntentResponseRequestDetailsBodyOwner `json:"owner"`
+	OwnerID string                                      `json:"owner_id" api:"nullable"`
+	// An optional list of up to one policy ID to enforce on the wallet.
+	PolicyIDs PolicyInput `json:"policy_ids" format:"cuid2"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		AdditionalSigners      respjson.Field
@@ -1301,88 +2748,21 @@ func (r *WalletIntentResponseRequestDetailsBody) UnmarshalJSON(data []byte) erro
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type WalletIntentResponseRequestDetailsBodyAdditionalSigner struct {
-	SignerID          string   `json:"signer_id" api:"required" format:"cuid2"`
-	OverridePolicyIDs []string `json:"override_policy_ids" format:"cuid2"`
+// The owner of the resource. If you provide this, do not specify an owner_id as it
+// will be generated automatically. When updating a wallet, you can set the owner
+// to null to remove the owner.
+type WalletIntentResponseRequestDetailsBodyOwner struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		SignerID          respjson.Field
-		OverridePolicyIDs respjson.Field
-		ExtraFields       map[string]respjson.Field
-		raw               string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r WalletIntentResponseRequestDetailsBodyAdditionalSigner) RawJSON() string { return r.JSON.raw }
-func (r *WalletIntentResponseRequestDetailsBodyAdditionalSigner) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// WalletIntentResponseRequestDetailsBodyOwnerUnion contains all possible
-// properties and values from [WalletIntentResponseRequestDetailsBodyOwnerUserID],
-// [WalletIntentResponseRequestDetailsBodyOwnerPublicKey].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-type WalletIntentResponseRequestDetailsBodyOwnerUnion struct {
-	// This field is from variant [WalletIntentResponseRequestDetailsBodyOwnerUserID].
-	UserID string `json:"user_id"`
-	// This field is from variant
-	// [WalletIntentResponseRequestDetailsBodyOwnerPublicKey].
-	PublicKey string `json:"public_key"`
-	JSON      struct {
-		UserID    respjson.Field
-		PublicKey respjson.Field
-		raw       string
-	} `json:"-"`
-}
-
-func (u WalletIntentResponseRequestDetailsBodyOwnerUnion) AsWalletIntentResponseRequestDetailsBodyOwnerUserID() (v WalletIntentResponseRequestDetailsBodyOwnerUserID) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u WalletIntentResponseRequestDetailsBodyOwnerUnion) AsWalletIntentResponseRequestDetailsBodyOwnerPublicKey() (v WalletIntentResponseRequestDetailsBodyOwnerPublicKey) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u WalletIntentResponseRequestDetailsBodyOwnerUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *WalletIntentResponseRequestDetailsBodyOwnerUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type WalletIntentResponseRequestDetailsBodyOwnerUserID struct {
-	UserID string `json:"user_id" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		UserID      respjson.Field
 		ExtraFields map[string]respjson.Field
 		raw         string
 	} `json:"-"`
+	OwnerInputUnion
 }
 
 // Returns the unmodified JSON received from the API
-func (r WalletIntentResponseRequestDetailsBodyOwnerUserID) RawJSON() string { return r.JSON.raw }
-func (r *WalletIntentResponseRequestDetailsBodyOwnerUserID) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type WalletIntentResponseRequestDetailsBodyOwnerPublicKey struct {
-	PublicKey string `json:"public_key" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		PublicKey   respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r WalletIntentResponseRequestDetailsBodyOwnerPublicKey) RawJSON() string { return r.JSON.raw }
-func (r *WalletIntentResponseRequestDetailsBodyOwnerPublicKey) UnmarshalJSON(data []byte) error {
+func (r WalletIntentResponseRequestDetailsBodyOwner) RawJSON() string { return r.JSON.raw }
+func (r *WalletIntentResponseRequestDetailsBodyOwner) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -1418,9 +2798,8 @@ type PolicyIntentResponse struct {
 	// ID of the user who created the intent. If undefined, the intent was created
 	// using the app secret
 	CreatedByID string `json:"created_by_id"`
-	// Current state of the policy before any changes. If undefined, the resource was
-	// deleted and no longer exists
-	CurrentResourceData PolicyIntentResponseCurrentResourceData `json:"current_resource_data"`
+	// A policy for controlling wallet operations.
+	CurrentResourceData Policy `json:"current_resource_data"`
 	// Human-readable reason for dismissal, present when status is 'dismissed'
 	DismissalReason string `json:"dismissal_reason"`
 	// Unix timestamp when the intent was dismissed, present when status is 'dismissed'
@@ -1485,9 +2864,13 @@ func (r *PolicyIntentResponseRequestDetails) UnmarshalJSON(data []byte) error {
 }
 
 type PolicyIntentResponseRequestDetailsBody struct {
-	Name    string                                           `json:"name"`
+	// Name to assign to policy.
+	Name string `json:"name"`
+	// The owner of the resource. If you provide this, do not specify an owner_id as it
+	// will be generated automatically. When updating a wallet, you can set the owner
+	// to null to remove the owner.
 	Owner   PolicyIntentResponseRequestDetailsBodyOwnerUnion `json:"owner" api:"nullable"`
-	OwnerID string                                           `json:"owner_id" api:"nullable" format:"cuid2"`
+	OwnerID string                                           `json:"owner_id" api:"nullable"`
 	Rules   []PolicyIntentResponseRequestDetailsBodyRule     `json:"rules"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -1507,29 +2890,31 @@ func (r *PolicyIntentResponseRequestDetailsBody) UnmarshalJSON(data []byte) erro
 }
 
 // PolicyIntentResponseRequestDetailsBodyOwnerUnion contains all possible
-// properties and values from [PolicyIntentResponseRequestDetailsBodyOwnerUserID],
-// [PolicyIntentResponseRequestDetailsBodyOwnerPublicKey].
+// properties and values from
+// [PolicyIntentResponseRequestDetailsBodyOwnerPublicKeyOwner],
+// [PolicyIntentResponseRequestDetailsBodyOwnerUserOwner].
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 type PolicyIntentResponseRequestDetailsBodyOwnerUnion struct {
-	// This field is from variant [PolicyIntentResponseRequestDetailsBodyOwnerUserID].
-	UserID string `json:"user_id"`
 	// This field is from variant
-	// [PolicyIntentResponseRequestDetailsBodyOwnerPublicKey].
+	// [PolicyIntentResponseRequestDetailsBodyOwnerPublicKeyOwner].
 	PublicKey string `json:"public_key"`
-	JSON      struct {
-		UserID    respjson.Field
+	// This field is from variant
+	// [PolicyIntentResponseRequestDetailsBodyOwnerUserOwner].
+	UserID string `json:"user_id"`
+	JSON   struct {
 		PublicKey respjson.Field
+		UserID    respjson.Field
 		raw       string
 	} `json:"-"`
 }
 
-func (u PolicyIntentResponseRequestDetailsBodyOwnerUnion) AsPolicyIntentResponseRequestDetailsBodyOwnerUserID() (v PolicyIntentResponseRequestDetailsBodyOwnerUserID) {
+func (u PolicyIntentResponseRequestDetailsBodyOwnerUnion) AsPublicKeyOwner() (v PolicyIntentResponseRequestDetailsBodyOwnerPublicKeyOwner) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u PolicyIntentResponseRequestDetailsBodyOwnerUnion) AsPolicyIntentResponseRequestDetailsBodyOwnerPublicKey() (v PolicyIntentResponseRequestDetailsBodyOwnerPublicKey) {
+func (u PolicyIntentResponseRequestDetailsBodyOwnerUnion) AsUserOwner() (v PolicyIntentResponseRequestDetailsBodyOwnerUserOwner) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -1541,23 +2926,10 @@ func (r *PolicyIntentResponseRequestDetailsBodyOwnerUnion) UnmarshalJSON(data []
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type PolicyIntentResponseRequestDetailsBodyOwnerUserID struct {
-	UserID string `json:"user_id" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		UserID      respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyIntentResponseRequestDetailsBodyOwnerUserID) RawJSON() string { return r.JSON.raw }
-func (r *PolicyIntentResponseRequestDetailsBodyOwnerUserID) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type PolicyIntentResponseRequestDetailsBodyOwnerPublicKey struct {
+// The P-256 public key of the owner of the resource, in base64-encoded DER format.
+// If you provide this, do not specify an owner_id as it will be generated
+// automatically.
+type PolicyIntentResponseRequestDetailsBodyOwnerPublicKeyOwner struct {
 	PublicKey string `json:"public_key" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -1568,18 +2940,44 @@ type PolicyIntentResponseRequestDetailsBodyOwnerPublicKey struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r PolicyIntentResponseRequestDetailsBodyOwnerPublicKey) RawJSON() string { return r.JSON.raw }
-func (r *PolicyIntentResponseRequestDetailsBodyOwnerPublicKey) UnmarshalJSON(data []byte) error {
+func (r PolicyIntentResponseRequestDetailsBodyOwnerPublicKeyOwner) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *PolicyIntentResponseRequestDetailsBodyOwnerPublicKeyOwner) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// The user ID of the owner of the resource. The user must already exist, and this
+// value must start with "did:privy:". If you provide this, do not specify an
+// owner_id as it will be generated automatically.
+type PolicyIntentResponseRequestDetailsBodyOwnerUserOwner struct {
+	UserID string `json:"user_id" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		UserID      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PolicyIntentResponseRequestDetailsBodyOwnerUserOwner) RawJSON() string { return r.JSON.raw }
+func (r *PolicyIntentResponseRequestDetailsBodyOwnerUserOwner) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The rules that apply to each method the policy covers.
 type PolicyIntentResponseRequestDetailsBodyRule struct {
+	// Action to take if the conditions are true.
+	//
 	// Any of "ALLOW", "DENY".
 	Action     string                                                     `json:"action" api:"required"`
 	Conditions []PolicyIntentResponseRequestDetailsBodyRuleConditionUnion `json:"conditions" api:"required"`
-	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signTypedData_v4",
-	// "eth_signUserOperation", "eth_sign7702Authorization", "signTransaction",
-	// "signAndSendTransaction", "signTransactionBytes", "exportPrivateKey", "\*".
+	// Method the rule applies to.
+	//
+	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
+	// "eth_signTypedData_v4", "eth_sign7702Authorization", "signTransaction",
+	// "signAndSendTransaction", "exportPrivateKey", "signTransactionBytes", "\*".
 	Method string `json:"method" api:"required"`
 	Name   string `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -1601,41 +2999,51 @@ func (r *PolicyIntentResponseRequestDetailsBodyRule) UnmarshalJSON(data []byte) 
 
 // PolicyIntentResponseRequestDetailsBodyRuleConditionUnion contains all possible
 // properties and values from
-// [PolicyIntentResponseRequestDetailsBodyRuleConditionObject],
-// [PolicyIntentResponseRequestDetailsBodyRuleConditionObject],
-// [PolicyIntentResponseRequestDetailsBodyRuleConditionObject],
-// [PolicyIntentResponseRequestDetailsBodyRuleConditionObject],
-// [PolicyIntentResponseRequestDetailsBodyRuleConditionObject],
-// [PolicyIntentResponseRequestDetailsBodyRuleConditionObject],
-// [PolicyIntentResponseRequestDetailsBodyRuleConditionObject],
-// [PolicyIntentResponseRequestDetailsBodyRuleConditionObject],
-// [PolicyIntentResponseRequestDetailsBodyRuleConditionObject],
-// [PolicyIntentResponseRequestDetailsBodyRuleConditionObject],
-// [PolicyIntentResponseRequestDetailsBodyRuleConditionObject],
-// [PolicyIntentResponseRequestDetailsBodyRuleConditionObject],
-// [PolicyIntentResponseRequestDetailsBodyRuleConditionObject],
-// [PolicyIntentResponseRequestDetailsBodyRuleConditionObject].
+// [PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTransaction],
+// [PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumCalldata],
+// [PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataDomain],
+// [PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataMessage],
+// [PolicyIntentResponseRequestDetailsBodyRuleConditionEthereum7702Authorization],
+// [PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaProgramInstruction],
+// [PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaSystemProgramInstruction],
+// [PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaTokenProgramInstruction],
+// [PolicyIntentResponseRequestDetailsBodyRuleConditionSystem],
+// [TronTransactionCondition], [TronCalldataCondition],
+// [SuiTransactionCommandCondition], [SuiTransferObjectsCommandCondition],
+// [AggregationCondition].
+//
+// Use the [PolicyIntentResponseRequestDetailsBodyRuleConditionUnion.AsAny] method
+// to switch on the variant.
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 type PolicyIntentResponseRequestDetailsBodyRuleConditionUnion struct {
-	// This field is from variant
-	// [PolicyIntentResponseRequestDetailsBodyRuleConditionObject].
-	Field PolicyIntentResponseRequestDetailsBodyRuleConditionObjectField `json:"field"`
-	// This field is from variant
-	// [PolicyIntentResponseRequestDetailsBodyRuleConditionObject].
+	Field string `json:"field"`
+	// Any of "ethereum_transaction", "ethereum_calldata",
+	// "ethereum_typed_data_domain", "ethereum_typed_data_message",
+	// "ethereum_7702_authorization", "solana_program_instruction",
+	// "solana_system_program_instruction", "solana_token_program_instruction",
+	// "system", "tron_transaction", "tron_trigger_smart_contract_data",
+	// "sui_transaction_command", "sui_transfer_objects_command", "reference".
 	FieldSource string `json:"field_source"`
+	Operator    string `json:"operator"`
+	// This field is a union of
+	// [PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTransactionValueUnion],
+	// [PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumCalldataValueUnion],
+	// [PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataDomainValueUnion],
+	// [PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataMessageValueUnion],
+	// [PolicyIntentResponseRequestDetailsBodyRuleConditionEthereum7702AuthorizationValueUnion],
+	// [PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaProgramInstructionValueUnion],
+	// [PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaSystemProgramInstructionValueUnion],
+	// [PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaTokenProgramInstructionValueUnion],
+	// [PolicyIntentResponseRequestDetailsBodyRuleConditionSystemValueUnion],
+	// [TronTransactionConditionValueUnion], [TronCalldataConditionValueUnion],
+	// [SuiTransactionCommandConditionValueUnion],
+	// [SuiTransferObjectsCommandConditionValueUnion], [AggregationConditionValueUnion]
+	Value PolicyIntentResponseRequestDetailsBodyRuleConditionUnionValue `json:"value"`
+	Abi   any                                                           `json:"abi"`
 	// This field is from variant
-	// [PolicyIntentResponseRequestDetailsBodyRuleConditionObject].
-	Operator PolicyIntentResponseRequestDetailsBodyRuleConditionObjectOperator `json:"operator"`
-	// This field is from variant
-	// [PolicyIntentResponseRequestDetailsBodyRuleConditionObject].
-	Value PolicyIntentResponseRequestDetailsBodyRuleConditionObjectValueUnion `json:"value"`
-	// This field is from variant
-	// [PolicyIntentResponseRequestDetailsBodyRuleConditionObject].
-	Abi []PolicyIntentResponseRequestDetailsBodyRuleConditionObjectAbi `json:"abi"`
-	// This field is from variant
-	// [PolicyIntentResponseRequestDetailsBodyRuleConditionObject].
-	TypedData PolicyIntentResponseRequestDetailsBodyRuleConditionObjectTypedData `json:"typed_data"`
+	// [PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataMessage].
+	TypedData PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataMessageTypedData `json:"typed_data"`
 	JSON      struct {
 		Field       respjson.Field
 		FieldSource respjson.Field
@@ -1647,17 +3055,160 @@ type PolicyIntentResponseRequestDetailsBodyRuleConditionUnion struct {
 	} `json:"-"`
 }
 
-func (u PolicyIntentResponseRequestDetailsBodyRuleConditionUnion) AsPolicyIntentResponseRequestDetailsBodyRuleConditionObject() (v PolicyIntentResponseRequestDetailsBodyRuleConditionObject) {
+// anyPolicyIntentResponseRequestDetailsBodyRuleCondition is implemented by each
+// variant of [PolicyIntentResponseRequestDetailsBodyRuleConditionUnion] to add
+// type safety for the return type of
+// [PolicyIntentResponseRequestDetailsBodyRuleConditionUnion.AsAny]
+type anyPolicyIntentResponseRequestDetailsBodyRuleCondition interface {
+	implPolicyIntentResponseRequestDetailsBodyRuleConditionUnion()
+}
+
+func (PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTransaction) implPolicyIntentResponseRequestDetailsBodyRuleConditionUnion() {
+}
+func (PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumCalldata) implPolicyIntentResponseRequestDetailsBodyRuleConditionUnion() {
+}
+func (PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataDomain) implPolicyIntentResponseRequestDetailsBodyRuleConditionUnion() {
+}
+func (PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataMessage) implPolicyIntentResponseRequestDetailsBodyRuleConditionUnion() {
+}
+func (PolicyIntentResponseRequestDetailsBodyRuleConditionEthereum7702Authorization) implPolicyIntentResponseRequestDetailsBodyRuleConditionUnion() {
+}
+func (PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaProgramInstruction) implPolicyIntentResponseRequestDetailsBodyRuleConditionUnion() {
+}
+func (PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaSystemProgramInstruction) implPolicyIntentResponseRequestDetailsBodyRuleConditionUnion() {
+}
+func (PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaTokenProgramInstruction) implPolicyIntentResponseRequestDetailsBodyRuleConditionUnion() {
+}
+func (PolicyIntentResponseRequestDetailsBodyRuleConditionSystem) implPolicyIntentResponseRequestDetailsBodyRuleConditionUnion() {
+}
+func (TronTransactionCondition) implPolicyIntentResponseRequestDetailsBodyRuleConditionUnion() {}
+func (TronCalldataCondition) implPolicyIntentResponseRequestDetailsBodyRuleConditionUnion()    {}
+func (SuiTransactionCommandCondition) implPolicyIntentResponseRequestDetailsBodyRuleConditionUnion() {
+}
+func (SuiTransferObjectsCommandCondition) implPolicyIntentResponseRequestDetailsBodyRuleConditionUnion() {
+}
+func (AggregationCondition) implPolicyIntentResponseRequestDetailsBodyRuleConditionUnion() {}
+
+// Use the following switch statement to find the correct variant
+//
+//	switch variant := PolicyIntentResponseRequestDetailsBodyRuleConditionUnion.AsAny().(type) {
+//	case privyclient.PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTransaction:
+//	case privyclient.PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumCalldata:
+//	case privyclient.PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataDomain:
+//	case privyclient.PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataMessage:
+//	case privyclient.PolicyIntentResponseRequestDetailsBodyRuleConditionEthereum7702Authorization:
+//	case privyclient.PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaProgramInstruction:
+//	case privyclient.PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaSystemProgramInstruction:
+//	case privyclient.PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaTokenProgramInstruction:
+//	case privyclient.PolicyIntentResponseRequestDetailsBodyRuleConditionSystem:
+//	case privyclient.TronTransactionCondition:
+//	case privyclient.TronCalldataCondition:
+//	case privyclient.SuiTransactionCommandCondition:
+//	case privyclient.SuiTransferObjectsCommandCondition:
+//	case privyclient.AggregationCondition:
+//	default:
+//	  fmt.Errorf("no variant present")
+//	}
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionUnion) AsAny() anyPolicyIntentResponseRequestDetailsBodyRuleCondition {
+	switch u.FieldSource {
+	case "ethereum_transaction":
+		return u.AsEthereumTransaction()
+	case "ethereum_calldata":
+		return u.AsEthereumCalldata()
+	case "ethereum_typed_data_domain":
+		return u.AsEthereumTypedDataDomain()
+	case "ethereum_typed_data_message":
+		return u.AsEthereumTypedDataMessage()
+	case "ethereum_7702_authorization":
+		return u.AsEthereum7702Authorization()
+	case "solana_program_instruction":
+		return u.AsSolanaProgramInstruction()
+	case "solana_system_program_instruction":
+		return u.AsSolanaSystemProgramInstruction()
+	case "solana_token_program_instruction":
+		return u.AsSolanaTokenProgramInstruction()
+	case "system":
+		return u.AsSystem()
+	case "tron_transaction":
+		return u.AsTronTransaction()
+	case "tron_trigger_smart_contract_data":
+		return u.AsTronTriggerSmartContractData()
+	case "sui_transaction_command":
+		return u.AsSuiTransactionCommand()
+	case "sui_transfer_objects_command":
+		return u.AsSuiTransferObjectsCommand()
+	case "reference":
+		return u.AsReference()
+	}
+	return nil
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionUnion) AsEthereumTransaction() (v PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTransaction) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u PolicyIntentResponseRequestDetailsBodyRuleConditionUnion) AsVariant2() (v PolicyIntentResponseRequestDetailsBodyRuleConditionObject) {
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionUnion) AsEthereumCalldata() (v PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumCalldata) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u PolicyIntentResponseRequestDetailsBodyRuleConditionUnion) AsVariant3() (v PolicyIntentResponseRequestDetailsBodyRuleConditionObject) {
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionUnion) AsEthereumTypedDataDomain() (v PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataDomain) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionUnion) AsEthereumTypedDataMessage() (v PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataMessage) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionUnion) AsEthereum7702Authorization() (v PolicyIntentResponseRequestDetailsBodyRuleConditionEthereum7702Authorization) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionUnion) AsSolanaProgramInstruction() (v PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaProgramInstruction) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionUnion) AsSolanaSystemProgramInstruction() (v PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaSystemProgramInstruction) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionUnion) AsSolanaTokenProgramInstruction() (v PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaTokenProgramInstruction) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionUnion) AsSystem() (v PolicyIntentResponseRequestDetailsBodyRuleConditionSystem) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionUnion) AsTronTransaction() (v TronTransactionCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionUnion) AsTronTriggerSmartContractData() (v TronCalldataCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionUnion) AsSuiTransactionCommand() (v SuiTransactionCommandCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionUnion) AsSuiTransferObjectsCommand() (v SuiTransferObjectsCommandCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionUnion) AsReference() (v AggregationCondition) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -1669,14 +3220,49 @@ func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionUnion) UnmarshalJSON
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type PolicyIntentResponseRequestDetailsBodyRuleConditionObject struct {
+// PolicyIntentResponseRequestDetailsBodyRuleConditionUnionValue is an implicit
+// subunion of [PolicyIntentResponseRequestDetailsBodyRuleConditionUnion].
+// PolicyIntentResponseRequestDetailsBodyRuleConditionUnionValue provides
+// convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [PolicyIntentResponseRequestDetailsBodyRuleConditionUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray OfSuiCommandName OfSuiCommandNameArray]
+type PolicyIntentResponseRequestDetailsBodyRuleConditionUnionValue struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	// This field will be present if the value is a [SuiCommandName] instead of an
+	// object.
+	OfSuiCommandName SuiCommandName `json:",inline"`
+	// This field will be present if the value is a [[]SuiCommandName] instead of an
+	// object.
+	OfSuiCommandNameArray []SuiCommandName `json:",inline"`
+	JSON                  struct {
+		OfString              respjson.Field
+		OfStringArray         respjson.Field
+		OfSuiCommandName      respjson.Field
+		OfSuiCommandNameArray respjson.Field
+		raw                   string
+	} `json:"-"`
+}
+
+func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionUnionValue) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The verbatim Ethereum transaction object in an eth_signTransaction or
+// eth_sendTransaction request.
+type PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTransaction struct {
 	// Any of "to", "value", "chain_id".
-	Field PolicyIntentResponseRequestDetailsBodyRuleConditionObjectField `json:"field" api:"required"`
-	// Any of "ethereum_transaction".
-	FieldSource string `json:"field_source" api:"required"`
+	Field       string                       `json:"field" api:"required"`
+	FieldSource constant.EthereumTransaction `json:"field_source" default:"ethereum_transaction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator PolicyIntentResponseRequestDetailsBodyRuleConditionObjectOperator   `json:"operator" api:"required"`
-	Value    PolicyIntentResponseRequestDetailsBodyRuleConditionObjectValueUnion `json:"value" api:"required"`
+	Operator string                                                                           `json:"operator" api:"required"`
+	Value    PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTransactionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -1689,41 +3275,577 @@ type PolicyIntentResponseRequestDetailsBodyRuleConditionObject struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r PolicyIntentResponseRequestDetailsBodyRuleConditionObject) RawJSON() string {
+func (r PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTransaction) RawJSON() string {
 	return r.JSON.raw
 }
-func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionObject) UnmarshalJSON(data []byte) error {
+func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTransaction) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type PolicyIntentResponseRequestDetailsBodyRuleConditionObjectField string
+// PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTransactionValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTransactionValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
 
-const (
-	PolicyIntentResponseRequestDetailsBodyRuleConditionObjectFieldTo      PolicyIntentResponseRequestDetailsBodyRuleConditionObjectField = "to"
-	PolicyIntentResponseRequestDetailsBodyRuleConditionObjectFieldValue   PolicyIntentResponseRequestDetailsBodyRuleConditionObjectField = "value"
-	PolicyIntentResponseRequestDetailsBodyRuleConditionObjectFieldChainID PolicyIntentResponseRequestDetailsBodyRuleConditionObjectField = "chain_id"
-)
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTransactionValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
 
-type PolicyIntentResponseRequestDetailsBodyRuleConditionObjectOperator string
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTransactionValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
 
-const (
-	PolicyIntentResponseRequestDetailsBodyRuleConditionObjectOperatorEq             PolicyIntentResponseRequestDetailsBodyRuleConditionObjectOperator = "eq"
-	PolicyIntentResponseRequestDetailsBodyRuleConditionObjectOperatorGt             PolicyIntentResponseRequestDetailsBodyRuleConditionObjectOperator = "gt"
-	PolicyIntentResponseRequestDetailsBodyRuleConditionObjectOperatorGte            PolicyIntentResponseRequestDetailsBodyRuleConditionObjectOperator = "gte"
-	PolicyIntentResponseRequestDetailsBodyRuleConditionObjectOperatorLt             PolicyIntentResponseRequestDetailsBodyRuleConditionObjectOperator = "lt"
-	PolicyIntentResponseRequestDetailsBodyRuleConditionObjectOperatorLte            PolicyIntentResponseRequestDetailsBodyRuleConditionObjectOperator = "lte"
-	PolicyIntentResponseRequestDetailsBodyRuleConditionObjectOperatorIn             PolicyIntentResponseRequestDetailsBodyRuleConditionObjectOperator = "in"
-	PolicyIntentResponseRequestDetailsBodyRuleConditionObjectOperatorInConditionSet PolicyIntentResponseRequestDetailsBodyRuleConditionObjectOperator = "in_condition_set"
-)
+// Returns the unmodified JSON received from the API
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTransactionValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
 
-// PolicyIntentResponseRequestDetailsBodyRuleConditionObjectValueUnion contains all
+func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTransactionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The decoded calldata in a smart contract interaction as the smart contract
+// method's parameters. Note that that 'ethereum_calldata' conditions must contain
+// an abi parameter with the JSON ABI of the smart contract.
+type PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumCalldata struct {
+	Abi         any                       `json:"abi" api:"required"`
+	Field       string                    `json:"field" api:"required"`
+	FieldSource constant.EthereumCalldata `json:"field_source" default:"ethereum_calldata"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                        `json:"operator" api:"required"`
+	Value    PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumCalldataValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Abi         respjson.Field
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumCalldata) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumCalldata) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumCalldataValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumCalldataValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumCalldataValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumCalldataValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumCalldataValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumCalldataValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Attributes from the signing domain that will verify the signature.
+type PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataDomain struct {
+	// Any of "chainId", "verifyingContract", "chain_id", "verifying_contract".
+	Field       string                           `json:"field" api:"required"`
+	FieldSource constant.EthereumTypedDataDomain `json:"field_source" default:"ethereum_typed_data_domain"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                               `json:"operator" api:"required"`
+	Value    PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataDomainValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataDomain) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataDomain) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataDomainValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataDomainValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataDomainValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataDomainValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataDomainValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataDomainValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// 'types' and 'primary_type' attributes of the TypedData JSON object defined in
+// EIP-712.
+type PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataMessage struct {
+	Field       string                            `json:"field" api:"required"`
+	FieldSource constant.EthereumTypedDataMessage `json:"field_source" default:"ethereum_typed_data_message"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator  string                                                                                `json:"operator" api:"required"`
+	TypedData PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataMessageTypedData  `json:"typed_data" api:"required"`
+	Value     PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataMessageValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		TypedData   respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataMessage) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataMessage) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataMessageTypedData struct {
+	PrimaryType string `json:"primary_type" api:"required"`
+	// The type definitions for EIP-712 typed data signing.
+	Types TypedDataTypesInputParamsResp `json:"types" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		PrimaryType respjson.Field
+		Types       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataMessageTypedData) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataMessageTypedData) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataMessageValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataMessageValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataMessageValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataMessageValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataMessageValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionEthereumTypedDataMessageValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Allowed contract addresses for eth_sign7702Authorization requests.
+type PolicyIntentResponseRequestDetailsBodyRuleConditionEthereum7702Authorization struct {
+	// Any of "contract".
+	Field       string                             `json:"field" api:"required"`
+	FieldSource constant.Ethereum7702Authorization `json:"field_source" default:"ethereum_7702_authorization"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                                 `json:"operator" api:"required"`
+	Value    PolicyIntentResponseRequestDetailsBodyRuleConditionEthereum7702AuthorizationValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PolicyIntentResponseRequestDetailsBodyRuleConditionEthereum7702Authorization) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionEthereum7702Authorization) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// PolicyIntentResponseRequestDetailsBodyRuleConditionEthereum7702AuthorizationValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type PolicyIntentResponseRequestDetailsBodyRuleConditionEthereum7702AuthorizationValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionEthereum7702AuthorizationValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionEthereum7702AuthorizationValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionEthereum7702AuthorizationValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionEthereum7702AuthorizationValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Solana Program attributes, enables allowlisting Solana Programs.
+type PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaProgramInstruction struct {
+	// Any of "programId".
+	Field       string                            `json:"field" api:"required"`
+	FieldSource constant.SolanaProgramInstruction `json:"field_source" default:"solana_program_instruction"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                                `json:"operator" api:"required"`
+	Value    PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaProgramInstructionValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaProgramInstruction) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaProgramInstruction) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaProgramInstructionValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaProgramInstructionValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaProgramInstructionValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaProgramInstructionValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaProgramInstructionValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaProgramInstructionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Solana System Program attributes, including more granular Transfer instruction
+// fields.
+type PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaSystemProgramInstruction struct {
+	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
+	Field       string                                  `json:"field" api:"required"`
+	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" default:"solana_system_program_instruction"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                                      `json:"operator" api:"required"`
+	Value    PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaSystemProgramInstructionValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaSystemProgramInstruction) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaSystemProgramInstruction) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaSystemProgramInstructionValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaSystemProgramInstructionValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaSystemProgramInstructionValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaSystemProgramInstructionValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaSystemProgramInstructionValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaSystemProgramInstructionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Solana Token Program attributes, including more granular TransferChecked
+// instruction fields.
+type PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaTokenProgramInstruction struct {
+	// Any of "instructionName", "Transfer.source", "Transfer.destination",
+	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
+	// "TransferChecked.destination", "TransferChecked.authority",
+	// "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint",
+	// "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account",
+	// "MintTo.authority", "MintTo.amount", "CloseAccount.account",
+	// "CloseAccount.destination", "CloseAccount.authority",
+	// "InitializeAccount3.account", "InitializeAccount3.mint",
+	// "InitializeAccount3.owner".
+	Field       string                                 `json:"field" api:"required"`
+	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" default:"solana_token_program_instruction"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                                     `json:"operator" api:"required"`
+	Value    PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaTokenProgramInstructionValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaTokenProgramInstruction) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaTokenProgramInstruction) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaTokenProgramInstructionValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaTokenProgramInstructionValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaTokenProgramInstructionValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaTokenProgramInstructionValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaTokenProgramInstructionValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionSolanaTokenProgramInstructionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// System attributes, including current unix timestamp (in seconds).
+type PolicyIntentResponseRequestDetailsBodyRuleConditionSystem struct {
+	// Any of "current_unix_timestamp".
+	Field       string          `json:"field" api:"required"`
+	FieldSource constant.System `json:"field_source" default:"system"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                              `json:"operator" api:"required"`
+	Value    PolicyIntentResponseRequestDetailsBodyRuleConditionSystemValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PolicyIntentResponseRequestDetailsBodyRuleConditionSystem) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionSystem) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// PolicyIntentResponseRequestDetailsBodyRuleConditionSystemValueUnion contains all
 // possible properties and values from [string], [[]string].
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 //
 // If the underlying value is not a json object, one of the following properties
 // will be valid: OfString OfStringArray]
-type PolicyIntentResponseRequestDetailsBodyRuleConditionObjectValueUnion struct {
+type PolicyIntentResponseRequestDetailsBodyRuleConditionSystemValueUnion struct {
 	// This field will be present if the value is a [string] instead of an object.
 	OfString string `json:",inline"`
 	// This field will be present if the value is a [[]string] instead of an object.
@@ -1735,268 +3857,24 @@ type PolicyIntentResponseRequestDetailsBodyRuleConditionObjectValueUnion struct 
 	} `json:"-"`
 }
 
-func (u PolicyIntentResponseRequestDetailsBodyRuleConditionObjectValueUnion) AsString() (v string) {
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionSystemValueUnion) AsString() (v string) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u PolicyIntentResponseRequestDetailsBodyRuleConditionObjectValueUnion) AsStringArray() (v []string) {
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionSystemValueUnion) AsStringArray() (v []string) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
 // Returns the unmodified JSON received from the API
-func (u PolicyIntentResponseRequestDetailsBodyRuleConditionObjectValueUnion) RawJSON() string {
+func (u PolicyIntentResponseRequestDetailsBodyRuleConditionSystemValueUnion) RawJSON() string {
 	return u.JSON.raw
 }
 
-func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionObjectValueUnion) UnmarshalJSON(data []byte) error {
+func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionSystemValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-type PolicyIntentResponseRequestDetailsBodyRuleConditionOperator string
-
-const (
-	PolicyIntentResponseRequestDetailsBodyRuleConditionOperatorEq             PolicyIntentResponseRequestDetailsBodyRuleConditionOperator = "eq"
-	PolicyIntentResponseRequestDetailsBodyRuleConditionOperatorGt             PolicyIntentResponseRequestDetailsBodyRuleConditionOperator = "gt"
-	PolicyIntentResponseRequestDetailsBodyRuleConditionOperatorGte            PolicyIntentResponseRequestDetailsBodyRuleConditionOperator = "gte"
-	PolicyIntentResponseRequestDetailsBodyRuleConditionOperatorLt             PolicyIntentResponseRequestDetailsBodyRuleConditionOperator = "lt"
-	PolicyIntentResponseRequestDetailsBodyRuleConditionOperatorLte            PolicyIntentResponseRequestDetailsBodyRuleConditionOperator = "lte"
-	PolicyIntentResponseRequestDetailsBodyRuleConditionOperatorIn             PolicyIntentResponseRequestDetailsBodyRuleConditionOperator = "in"
-	PolicyIntentResponseRequestDetailsBodyRuleConditionOperatorInConditionSet PolicyIntentResponseRequestDetailsBodyRuleConditionOperator = "in_condition_set"
-)
-
-// Current state of the policy before any changes. If undefined, the resource was
-// deleted and no longer exists
-type PolicyIntentResponseCurrentResourceData struct {
-	ID string `json:"id" api:"required"`
-	// The wallet chain types.
-	//
-	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
-	// "tron", "bitcoin-segwit", "near", "ton", "starknet", "spark".
-	ChainType WalletChainType                               `json:"chain_type" api:"required"`
-	CreatedAt float64                                       `json:"created_at" api:"required"`
-	Name      string                                        `json:"name" api:"required"`
-	OwnerID   string                                        `json:"owner_id" api:"required" format:"cuid2"`
-	Rules     []PolicyIntentResponseCurrentResourceDataRule `json:"rules" api:"required"`
-	// Any of "1.0".
-	Version string `json:"version" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID          respjson.Field
-		ChainType   respjson.Field
-		CreatedAt   respjson.Field
-		Name        respjson.Field
-		OwnerID     respjson.Field
-		Rules       respjson.Field
-		Version     respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyIntentResponseCurrentResourceData) RawJSON() string { return r.JSON.raw }
-func (r *PolicyIntentResponseCurrentResourceData) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type PolicyIntentResponseCurrentResourceDataRule struct {
-	ID string `json:"id" api:"required"`
-	// Any of "ALLOW", "DENY".
-	Action     string                                                      `json:"action" api:"required"`
-	Conditions []PolicyIntentResponseCurrentResourceDataRuleConditionUnion `json:"conditions" api:"required"`
-	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signTypedData_v4",
-	// "eth_signUserOperation", "eth_sign7702Authorization", "signTransaction",
-	// "signAndSendTransaction", "signTransactionBytes", "exportPrivateKey", "\*".
-	Method string `json:"method" api:"required"`
-	Name   string `json:"name" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID          respjson.Field
-		Action      respjson.Field
-		Conditions  respjson.Field
-		Method      respjson.Field
-		Name        respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyIntentResponseCurrentResourceDataRule) RawJSON() string { return r.JSON.raw }
-func (r *PolicyIntentResponseCurrentResourceDataRule) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// PolicyIntentResponseCurrentResourceDataRuleConditionUnion contains all possible
-// properties and values from
-// [PolicyIntentResponseCurrentResourceDataRuleConditionObject],
-// [PolicyIntentResponseCurrentResourceDataRuleConditionObject],
-// [PolicyIntentResponseCurrentResourceDataRuleConditionObject],
-// [PolicyIntentResponseCurrentResourceDataRuleConditionObject],
-// [PolicyIntentResponseCurrentResourceDataRuleConditionObject],
-// [PolicyIntentResponseCurrentResourceDataRuleConditionObject],
-// [PolicyIntentResponseCurrentResourceDataRuleConditionObject],
-// [PolicyIntentResponseCurrentResourceDataRuleConditionObject],
-// [PolicyIntentResponseCurrentResourceDataRuleConditionObject],
-// [PolicyIntentResponseCurrentResourceDataRuleConditionObject],
-// [PolicyIntentResponseCurrentResourceDataRuleConditionObject],
-// [PolicyIntentResponseCurrentResourceDataRuleConditionObject],
-// [PolicyIntentResponseCurrentResourceDataRuleConditionObject],
-// [PolicyIntentResponseCurrentResourceDataRuleConditionObject].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-type PolicyIntentResponseCurrentResourceDataRuleConditionUnion struct {
-	// This field is from variant
-	// [PolicyIntentResponseCurrentResourceDataRuleConditionObject].
-	Field PolicyIntentResponseCurrentResourceDataRuleConditionObjectField `json:"field"`
-	// This field is from variant
-	// [PolicyIntentResponseCurrentResourceDataRuleConditionObject].
-	FieldSource string `json:"field_source"`
-	// This field is from variant
-	// [PolicyIntentResponseCurrentResourceDataRuleConditionObject].
-	Operator PolicyIntentResponseCurrentResourceDataRuleConditionObjectOperator `json:"operator"`
-	// This field is from variant
-	// [PolicyIntentResponseCurrentResourceDataRuleConditionObject].
-	Value PolicyIntentResponseCurrentResourceDataRuleConditionObjectValueUnion `json:"value"`
-	// This field is from variant
-	// [PolicyIntentResponseCurrentResourceDataRuleConditionObject].
-	Abi []PolicyIntentResponseCurrentResourceDataRuleConditionObjectAbi `json:"abi"`
-	// This field is from variant
-	// [PolicyIntentResponseCurrentResourceDataRuleConditionObject].
-	TypedData PolicyIntentResponseCurrentResourceDataRuleConditionObjectTypedData `json:"typed_data"`
-	JSON      struct {
-		Field       respjson.Field
-		FieldSource respjson.Field
-		Operator    respjson.Field
-		Value       respjson.Field
-		Abi         respjson.Field
-		TypedData   respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-func (u PolicyIntentResponseCurrentResourceDataRuleConditionUnion) AsPolicyIntentResponseCurrentResourceDataRuleConditionObject() (v PolicyIntentResponseCurrentResourceDataRuleConditionObject) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u PolicyIntentResponseCurrentResourceDataRuleConditionUnion) AsVariant2() (v PolicyIntentResponseCurrentResourceDataRuleConditionObject) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u PolicyIntentResponseCurrentResourceDataRuleConditionUnion) AsVariant3() (v PolicyIntentResponseCurrentResourceDataRuleConditionObject) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u PolicyIntentResponseCurrentResourceDataRuleConditionUnion) RawJSON() string {
-	return u.JSON.raw
-}
-
-func (r *PolicyIntentResponseCurrentResourceDataRuleConditionUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type PolicyIntentResponseCurrentResourceDataRuleConditionObject struct {
-	// Any of "to", "value", "chain_id".
-	Field PolicyIntentResponseCurrentResourceDataRuleConditionObjectField `json:"field" api:"required"`
-	// Any of "ethereum_transaction".
-	FieldSource string `json:"field_source" api:"required"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator PolicyIntentResponseCurrentResourceDataRuleConditionObjectOperator   `json:"operator" api:"required"`
-	Value    PolicyIntentResponseCurrentResourceDataRuleConditionObjectValueUnion `json:"value" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Field       respjson.Field
-		FieldSource respjson.Field
-		Operator    respjson.Field
-		Value       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyIntentResponseCurrentResourceDataRuleConditionObject) RawJSON() string {
-	return r.JSON.raw
-}
-func (r *PolicyIntentResponseCurrentResourceDataRuleConditionObject) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type PolicyIntentResponseCurrentResourceDataRuleConditionObjectField string
-
-const (
-	PolicyIntentResponseCurrentResourceDataRuleConditionObjectFieldTo      PolicyIntentResponseCurrentResourceDataRuleConditionObjectField = "to"
-	PolicyIntentResponseCurrentResourceDataRuleConditionObjectFieldValue   PolicyIntentResponseCurrentResourceDataRuleConditionObjectField = "value"
-	PolicyIntentResponseCurrentResourceDataRuleConditionObjectFieldChainID PolicyIntentResponseCurrentResourceDataRuleConditionObjectField = "chain_id"
-)
-
-type PolicyIntentResponseCurrentResourceDataRuleConditionObjectOperator string
-
-const (
-	PolicyIntentResponseCurrentResourceDataRuleConditionObjectOperatorEq             PolicyIntentResponseCurrentResourceDataRuleConditionObjectOperator = "eq"
-	PolicyIntentResponseCurrentResourceDataRuleConditionObjectOperatorGt             PolicyIntentResponseCurrentResourceDataRuleConditionObjectOperator = "gt"
-	PolicyIntentResponseCurrentResourceDataRuleConditionObjectOperatorGte            PolicyIntentResponseCurrentResourceDataRuleConditionObjectOperator = "gte"
-	PolicyIntentResponseCurrentResourceDataRuleConditionObjectOperatorLt             PolicyIntentResponseCurrentResourceDataRuleConditionObjectOperator = "lt"
-	PolicyIntentResponseCurrentResourceDataRuleConditionObjectOperatorLte            PolicyIntentResponseCurrentResourceDataRuleConditionObjectOperator = "lte"
-	PolicyIntentResponseCurrentResourceDataRuleConditionObjectOperatorIn             PolicyIntentResponseCurrentResourceDataRuleConditionObjectOperator = "in"
-	PolicyIntentResponseCurrentResourceDataRuleConditionObjectOperatorInConditionSet PolicyIntentResponseCurrentResourceDataRuleConditionObjectOperator = "in_condition_set"
-)
-
-// PolicyIntentResponseCurrentResourceDataRuleConditionObjectValueUnion contains
-// all possible properties and values from [string], [[]string].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfStringArray]
-type PolicyIntentResponseCurrentResourceDataRuleConditionObjectValueUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [[]string] instead of an object.
-	OfStringArray []string `json:",inline"`
-	JSON          struct {
-		OfString      respjson.Field
-		OfStringArray respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-func (u PolicyIntentResponseCurrentResourceDataRuleConditionObjectValueUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u PolicyIntentResponseCurrentResourceDataRuleConditionObjectValueUnion) AsStringArray() (v []string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u PolicyIntentResponseCurrentResourceDataRuleConditionObjectValueUnion) RawJSON() string {
-	return u.JSON.raw
-}
-
-func (r *PolicyIntentResponseCurrentResourceDataRuleConditionObjectValueUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type PolicyIntentResponseCurrentResourceDataRuleConditionOperator string
-
-const (
-	PolicyIntentResponseCurrentResourceDataRuleConditionOperatorEq             PolicyIntentResponseCurrentResourceDataRuleConditionOperator = "eq"
-	PolicyIntentResponseCurrentResourceDataRuleConditionOperatorGt             PolicyIntentResponseCurrentResourceDataRuleConditionOperator = "gt"
-	PolicyIntentResponseCurrentResourceDataRuleConditionOperatorGte            PolicyIntentResponseCurrentResourceDataRuleConditionOperator = "gte"
-	PolicyIntentResponseCurrentResourceDataRuleConditionOperatorLt             PolicyIntentResponseCurrentResourceDataRuleConditionOperator = "lt"
-	PolicyIntentResponseCurrentResourceDataRuleConditionOperatorLte            PolicyIntentResponseCurrentResourceDataRuleConditionOperator = "lte"
-	PolicyIntentResponseCurrentResourceDataRuleConditionOperatorIn             PolicyIntentResponseCurrentResourceDataRuleConditionOperator = "in"
-	PolicyIntentResponseCurrentResourceDataRuleConditionOperatorInConditionSet PolicyIntentResponseCurrentResourceDataRuleConditionOperator = "in_condition_set"
-)
 
 // Response for a key quorum intent
 type KeyQuorumIntentResponse struct {
@@ -2078,7 +3956,7 @@ const (
 // endpoint
 type KeyQuorumIntentResponseRequestDetails struct {
 	// Request input for updating an existing key quorum.
-	Body KeyQuorumUpdateParamsResp `json:"body" api:"required"`
+	Body KeyQuorumUpdateRequestBody `json:"body" api:"required"`
 	// Any of "PATCH".
 	Method string `json:"method" api:"required"`
 	URL    string `json:"url" api:"required"`
@@ -2137,9 +4015,8 @@ type RuleIntentResponse struct {
 	DismissalReason string `json:"dismissal_reason"`
 	// Unix timestamp when the intent was dismissed, present when status is 'dismissed'
 	DismissedAt float64 `json:"dismissed_at"`
-	// Parent policy containing this rule, including sibling rules for contextual
-	// display
-	Policy RuleIntentResponsePolicy `json:"policy"`
+	// A policy for controlling wallet operations.
+	Policy Policy `json:"policy"`
 	// Unix timestamp when the intent was rejected, present when status is 'rejected'
 	RejectedAt float64 `json:"rejected_at"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -2182,12 +4059,16 @@ const (
 // the rule was deleted
 type RuleIntentResponseCurrentResourceData struct {
 	ID string `json:"id" api:"required"`
+	// Action to take if the conditions are true.
+	//
 	// Any of "ALLOW", "DENY".
 	Action     string                                                `json:"action" api:"required"`
 	Conditions []RuleIntentResponseCurrentResourceDataConditionUnion `json:"conditions" api:"required"`
-	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signTypedData_v4",
-	// "eth_signUserOperation", "eth_sign7702Authorization", "signTransaction",
-	// "signAndSendTransaction", "signTransactionBytes", "exportPrivateKey", "\*".
+	// Method the rule applies to.
+	//
+	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
+	// "eth_signTypedData_v4", "eth_sign7702Authorization", "signTransaction",
+	// "signAndSendTransaction", "exportPrivateKey", "signTransactionBytes", "\*".
 	Method string `json:"method" api:"required"`
 	Name   string `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -2210,41 +4091,51 @@ func (r *RuleIntentResponseCurrentResourceData) UnmarshalJSON(data []byte) error
 
 // RuleIntentResponseCurrentResourceDataConditionUnion contains all possible
 // properties and values from
-// [RuleIntentResponseCurrentResourceDataConditionObject],
-// [RuleIntentResponseCurrentResourceDataConditionObject],
-// [RuleIntentResponseCurrentResourceDataConditionObject],
-// [RuleIntentResponseCurrentResourceDataConditionObject],
-// [RuleIntentResponseCurrentResourceDataConditionObject],
-// [RuleIntentResponseCurrentResourceDataConditionObject],
-// [RuleIntentResponseCurrentResourceDataConditionObject],
-// [RuleIntentResponseCurrentResourceDataConditionObject],
-// [RuleIntentResponseCurrentResourceDataConditionObject],
-// [RuleIntentResponseCurrentResourceDataConditionObject],
-// [RuleIntentResponseCurrentResourceDataConditionObject],
-// [RuleIntentResponseCurrentResourceDataConditionObject],
-// [RuleIntentResponseCurrentResourceDataConditionObject],
-// [RuleIntentResponseCurrentResourceDataConditionObject].
+// [RuleIntentResponseCurrentResourceDataConditionEthereumTransaction],
+// [RuleIntentResponseCurrentResourceDataConditionEthereumCalldata],
+// [RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataDomain],
+// [RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataMessage],
+// [RuleIntentResponseCurrentResourceDataConditionEthereum7702Authorization],
+// [RuleIntentResponseCurrentResourceDataConditionSolanaProgramInstruction],
+// [RuleIntentResponseCurrentResourceDataConditionSolanaSystemProgramInstruction],
+// [RuleIntentResponseCurrentResourceDataConditionSolanaTokenProgramInstruction],
+// [RuleIntentResponseCurrentResourceDataConditionSystem],
+// [TronTransactionCondition], [TronCalldataCondition],
+// [SuiTransactionCommandCondition], [SuiTransferObjectsCommandCondition],
+// [AggregationCondition].
+//
+// Use the [RuleIntentResponseCurrentResourceDataConditionUnion.AsAny] method to
+// switch on the variant.
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 type RuleIntentResponseCurrentResourceDataConditionUnion struct {
-	// This field is from variant
-	// [RuleIntentResponseCurrentResourceDataConditionObject].
-	Field RuleIntentResponseCurrentResourceDataConditionObjectField `json:"field"`
-	// This field is from variant
-	// [RuleIntentResponseCurrentResourceDataConditionObject].
+	Field string `json:"field"`
+	// Any of "ethereum_transaction", "ethereum_calldata",
+	// "ethereum_typed_data_domain", "ethereum_typed_data_message",
+	// "ethereum_7702_authorization", "solana_program_instruction",
+	// "solana_system_program_instruction", "solana_token_program_instruction",
+	// "system", "tron_transaction", "tron_trigger_smart_contract_data",
+	// "sui_transaction_command", "sui_transfer_objects_command", "reference".
 	FieldSource string `json:"field_source"`
+	Operator    string `json:"operator"`
+	// This field is a union of
+	// [RuleIntentResponseCurrentResourceDataConditionEthereumTransactionValueUnion],
+	// [RuleIntentResponseCurrentResourceDataConditionEthereumCalldataValueUnion],
+	// [RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataDomainValueUnion],
+	// [RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataMessageValueUnion],
+	// [RuleIntentResponseCurrentResourceDataConditionEthereum7702AuthorizationValueUnion],
+	// [RuleIntentResponseCurrentResourceDataConditionSolanaProgramInstructionValueUnion],
+	// [RuleIntentResponseCurrentResourceDataConditionSolanaSystemProgramInstructionValueUnion],
+	// [RuleIntentResponseCurrentResourceDataConditionSolanaTokenProgramInstructionValueUnion],
+	// [RuleIntentResponseCurrentResourceDataConditionSystemValueUnion],
+	// [TronTransactionConditionValueUnion], [TronCalldataConditionValueUnion],
+	// [SuiTransactionCommandConditionValueUnion],
+	// [SuiTransferObjectsCommandConditionValueUnion], [AggregationConditionValueUnion]
+	Value RuleIntentResponseCurrentResourceDataConditionUnionValue `json:"value"`
+	Abi   any                                                      `json:"abi"`
 	// This field is from variant
-	// [RuleIntentResponseCurrentResourceDataConditionObject].
-	Operator RuleIntentResponseCurrentResourceDataConditionObjectOperator `json:"operator"`
-	// This field is from variant
-	// [RuleIntentResponseCurrentResourceDataConditionObject].
-	Value RuleIntentResponseCurrentResourceDataConditionObjectValueUnion `json:"value"`
-	// This field is from variant
-	// [RuleIntentResponseCurrentResourceDataConditionObject].
-	Abi []RuleIntentResponseCurrentResourceDataConditionObjectAbi `json:"abi"`
-	// This field is from variant
-	// [RuleIntentResponseCurrentResourceDataConditionObject].
-	TypedData RuleIntentResponseCurrentResourceDataConditionObjectTypedData `json:"typed_data"`
+	// [RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataMessage].
+	TypedData RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataMessageTypedData `json:"typed_data"`
 	JSON      struct {
 		Field       respjson.Field
 		FieldSource respjson.Field
@@ -2256,17 +4147,157 @@ type RuleIntentResponseCurrentResourceDataConditionUnion struct {
 	} `json:"-"`
 }
 
-func (u RuleIntentResponseCurrentResourceDataConditionUnion) AsRuleIntentResponseCurrentResourceDataConditionObject() (v RuleIntentResponseCurrentResourceDataConditionObject) {
+// anyRuleIntentResponseCurrentResourceDataCondition is implemented by each variant
+// of [RuleIntentResponseCurrentResourceDataConditionUnion] to add type safety for
+// the return type of [RuleIntentResponseCurrentResourceDataConditionUnion.AsAny]
+type anyRuleIntentResponseCurrentResourceDataCondition interface {
+	implRuleIntentResponseCurrentResourceDataConditionUnion()
+}
+
+func (RuleIntentResponseCurrentResourceDataConditionEthereumTransaction) implRuleIntentResponseCurrentResourceDataConditionUnion() {
+}
+func (RuleIntentResponseCurrentResourceDataConditionEthereumCalldata) implRuleIntentResponseCurrentResourceDataConditionUnion() {
+}
+func (RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataDomain) implRuleIntentResponseCurrentResourceDataConditionUnion() {
+}
+func (RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataMessage) implRuleIntentResponseCurrentResourceDataConditionUnion() {
+}
+func (RuleIntentResponseCurrentResourceDataConditionEthereum7702Authorization) implRuleIntentResponseCurrentResourceDataConditionUnion() {
+}
+func (RuleIntentResponseCurrentResourceDataConditionSolanaProgramInstruction) implRuleIntentResponseCurrentResourceDataConditionUnion() {
+}
+func (RuleIntentResponseCurrentResourceDataConditionSolanaSystemProgramInstruction) implRuleIntentResponseCurrentResourceDataConditionUnion() {
+}
+func (RuleIntentResponseCurrentResourceDataConditionSolanaTokenProgramInstruction) implRuleIntentResponseCurrentResourceDataConditionUnion() {
+}
+func (RuleIntentResponseCurrentResourceDataConditionSystem) implRuleIntentResponseCurrentResourceDataConditionUnion() {
+}
+func (TronTransactionCondition) implRuleIntentResponseCurrentResourceDataConditionUnion()           {}
+func (TronCalldataCondition) implRuleIntentResponseCurrentResourceDataConditionUnion()              {}
+func (SuiTransactionCommandCondition) implRuleIntentResponseCurrentResourceDataConditionUnion()     {}
+func (SuiTransferObjectsCommandCondition) implRuleIntentResponseCurrentResourceDataConditionUnion() {}
+func (AggregationCondition) implRuleIntentResponseCurrentResourceDataConditionUnion()               {}
+
+// Use the following switch statement to find the correct variant
+//
+//	switch variant := RuleIntentResponseCurrentResourceDataConditionUnion.AsAny().(type) {
+//	case privyclient.RuleIntentResponseCurrentResourceDataConditionEthereumTransaction:
+//	case privyclient.RuleIntentResponseCurrentResourceDataConditionEthereumCalldata:
+//	case privyclient.RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataDomain:
+//	case privyclient.RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataMessage:
+//	case privyclient.RuleIntentResponseCurrentResourceDataConditionEthereum7702Authorization:
+//	case privyclient.RuleIntentResponseCurrentResourceDataConditionSolanaProgramInstruction:
+//	case privyclient.RuleIntentResponseCurrentResourceDataConditionSolanaSystemProgramInstruction:
+//	case privyclient.RuleIntentResponseCurrentResourceDataConditionSolanaTokenProgramInstruction:
+//	case privyclient.RuleIntentResponseCurrentResourceDataConditionSystem:
+//	case privyclient.TronTransactionCondition:
+//	case privyclient.TronCalldataCondition:
+//	case privyclient.SuiTransactionCommandCondition:
+//	case privyclient.SuiTransferObjectsCommandCondition:
+//	case privyclient.AggregationCondition:
+//	default:
+//	  fmt.Errorf("no variant present")
+//	}
+func (u RuleIntentResponseCurrentResourceDataConditionUnion) AsAny() anyRuleIntentResponseCurrentResourceDataCondition {
+	switch u.FieldSource {
+	case "ethereum_transaction":
+		return u.AsEthereumTransaction()
+	case "ethereum_calldata":
+		return u.AsEthereumCalldata()
+	case "ethereum_typed_data_domain":
+		return u.AsEthereumTypedDataDomain()
+	case "ethereum_typed_data_message":
+		return u.AsEthereumTypedDataMessage()
+	case "ethereum_7702_authorization":
+		return u.AsEthereum7702Authorization()
+	case "solana_program_instruction":
+		return u.AsSolanaProgramInstruction()
+	case "solana_system_program_instruction":
+		return u.AsSolanaSystemProgramInstruction()
+	case "solana_token_program_instruction":
+		return u.AsSolanaTokenProgramInstruction()
+	case "system":
+		return u.AsSystem()
+	case "tron_transaction":
+		return u.AsTronTransaction()
+	case "tron_trigger_smart_contract_data":
+		return u.AsTronTriggerSmartContractData()
+	case "sui_transaction_command":
+		return u.AsSuiTransactionCommand()
+	case "sui_transfer_objects_command":
+		return u.AsSuiTransferObjectsCommand()
+	case "reference":
+		return u.AsReference()
+	}
+	return nil
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionUnion) AsEthereumTransaction() (v RuleIntentResponseCurrentResourceDataConditionEthereumTransaction) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u RuleIntentResponseCurrentResourceDataConditionUnion) AsVariant2() (v RuleIntentResponseCurrentResourceDataConditionObject) {
+func (u RuleIntentResponseCurrentResourceDataConditionUnion) AsEthereumCalldata() (v RuleIntentResponseCurrentResourceDataConditionEthereumCalldata) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u RuleIntentResponseCurrentResourceDataConditionUnion) AsVariant3() (v RuleIntentResponseCurrentResourceDataConditionObject) {
+func (u RuleIntentResponseCurrentResourceDataConditionUnion) AsEthereumTypedDataDomain() (v RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataDomain) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionUnion) AsEthereumTypedDataMessage() (v RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataMessage) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionUnion) AsEthereum7702Authorization() (v RuleIntentResponseCurrentResourceDataConditionEthereum7702Authorization) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionUnion) AsSolanaProgramInstruction() (v RuleIntentResponseCurrentResourceDataConditionSolanaProgramInstruction) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionUnion) AsSolanaSystemProgramInstruction() (v RuleIntentResponseCurrentResourceDataConditionSolanaSystemProgramInstruction) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionUnion) AsSolanaTokenProgramInstruction() (v RuleIntentResponseCurrentResourceDataConditionSolanaTokenProgramInstruction) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionUnion) AsSystem() (v RuleIntentResponseCurrentResourceDataConditionSystem) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionUnion) AsTronTransaction() (v TronTransactionCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionUnion) AsTronTriggerSmartContractData() (v TronCalldataCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionUnion) AsSuiTransactionCommand() (v SuiTransactionCommandCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionUnion) AsSuiTransferObjectsCommand() (v SuiTransferObjectsCommandCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionUnion) AsReference() (v AggregationCondition) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -2278,14 +4309,49 @@ func (r *RuleIntentResponseCurrentResourceDataConditionUnion) UnmarshalJSON(data
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type RuleIntentResponseCurrentResourceDataConditionObject struct {
+// RuleIntentResponseCurrentResourceDataConditionUnionValue is an implicit subunion
+// of [RuleIntentResponseCurrentResourceDataConditionUnion].
+// RuleIntentResponseCurrentResourceDataConditionUnionValue provides convenient
+// access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [RuleIntentResponseCurrentResourceDataConditionUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray OfSuiCommandName OfSuiCommandNameArray]
+type RuleIntentResponseCurrentResourceDataConditionUnionValue struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	// This field will be present if the value is a [SuiCommandName] instead of an
+	// object.
+	OfSuiCommandName SuiCommandName `json:",inline"`
+	// This field will be present if the value is a [[]SuiCommandName] instead of an
+	// object.
+	OfSuiCommandNameArray []SuiCommandName `json:",inline"`
+	JSON                  struct {
+		OfString              respjson.Field
+		OfStringArray         respjson.Field
+		OfSuiCommandName      respjson.Field
+		OfSuiCommandNameArray respjson.Field
+		raw                   string
+	} `json:"-"`
+}
+
+func (r *RuleIntentResponseCurrentResourceDataConditionUnionValue) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The verbatim Ethereum transaction object in an eth_signTransaction or
+// eth_sendTransaction request.
+type RuleIntentResponseCurrentResourceDataConditionEthereumTransaction struct {
 	// Any of "to", "value", "chain_id".
-	Field RuleIntentResponseCurrentResourceDataConditionObjectField `json:"field" api:"required"`
-	// Any of "ethereum_transaction".
-	FieldSource string `json:"field_source" api:"required"`
+	Field       string                       `json:"field" api:"required"`
+	FieldSource constant.EthereumTransaction `json:"field_source" default:"ethereum_transaction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator RuleIntentResponseCurrentResourceDataConditionObjectOperator   `json:"operator" api:"required"`
-	Value    RuleIntentResponseCurrentResourceDataConditionObjectValueUnion `json:"value" api:"required"`
+	Operator string                                                                      `json:"operator" api:"required"`
+	Value    RuleIntentResponseCurrentResourceDataConditionEthereumTransactionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -2298,39 +4364,575 @@ type RuleIntentResponseCurrentResourceDataConditionObject struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r RuleIntentResponseCurrentResourceDataConditionObject) RawJSON() string { return r.JSON.raw }
-func (r *RuleIntentResponseCurrentResourceDataConditionObject) UnmarshalJSON(data []byte) error {
+func (r RuleIntentResponseCurrentResourceDataConditionEthereumTransaction) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentResponseCurrentResourceDataConditionEthereumTransaction) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type RuleIntentResponseCurrentResourceDataConditionObjectField string
+// RuleIntentResponseCurrentResourceDataConditionEthereumTransactionValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentResponseCurrentResourceDataConditionEthereumTransactionValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
 
-const (
-	RuleIntentResponseCurrentResourceDataConditionObjectFieldTo      RuleIntentResponseCurrentResourceDataConditionObjectField = "to"
-	RuleIntentResponseCurrentResourceDataConditionObjectFieldValue   RuleIntentResponseCurrentResourceDataConditionObjectField = "value"
-	RuleIntentResponseCurrentResourceDataConditionObjectFieldChainID RuleIntentResponseCurrentResourceDataConditionObjectField = "chain_id"
-)
+func (u RuleIntentResponseCurrentResourceDataConditionEthereumTransactionValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
 
-type RuleIntentResponseCurrentResourceDataConditionObjectOperator string
+func (u RuleIntentResponseCurrentResourceDataConditionEthereumTransactionValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
 
-const (
-	RuleIntentResponseCurrentResourceDataConditionObjectOperatorEq             RuleIntentResponseCurrentResourceDataConditionObjectOperator = "eq"
-	RuleIntentResponseCurrentResourceDataConditionObjectOperatorGt             RuleIntentResponseCurrentResourceDataConditionObjectOperator = "gt"
-	RuleIntentResponseCurrentResourceDataConditionObjectOperatorGte            RuleIntentResponseCurrentResourceDataConditionObjectOperator = "gte"
-	RuleIntentResponseCurrentResourceDataConditionObjectOperatorLt             RuleIntentResponseCurrentResourceDataConditionObjectOperator = "lt"
-	RuleIntentResponseCurrentResourceDataConditionObjectOperatorLte            RuleIntentResponseCurrentResourceDataConditionObjectOperator = "lte"
-	RuleIntentResponseCurrentResourceDataConditionObjectOperatorIn             RuleIntentResponseCurrentResourceDataConditionObjectOperator = "in"
-	RuleIntentResponseCurrentResourceDataConditionObjectOperatorInConditionSet RuleIntentResponseCurrentResourceDataConditionObjectOperator = "in_condition_set"
-)
+// Returns the unmodified JSON received from the API
+func (u RuleIntentResponseCurrentResourceDataConditionEthereumTransactionValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
 
-// RuleIntentResponseCurrentResourceDataConditionObjectValueUnion contains all
+func (r *RuleIntentResponseCurrentResourceDataConditionEthereumTransactionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The decoded calldata in a smart contract interaction as the smart contract
+// method's parameters. Note that that 'ethereum_calldata' conditions must contain
+// an abi parameter with the JSON ABI of the smart contract.
+type RuleIntentResponseCurrentResourceDataConditionEthereumCalldata struct {
+	Abi         any                       `json:"abi" api:"required"`
+	Field       string                    `json:"field" api:"required"`
+	FieldSource constant.EthereumCalldata `json:"field_source" default:"ethereum_calldata"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                   `json:"operator" api:"required"`
+	Value    RuleIntentResponseCurrentResourceDataConditionEthereumCalldataValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Abi         respjson.Field
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentResponseCurrentResourceDataConditionEthereumCalldata) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentResponseCurrentResourceDataConditionEthereumCalldata) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentResponseCurrentResourceDataConditionEthereumCalldataValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentResponseCurrentResourceDataConditionEthereumCalldataValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionEthereumCalldataValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionEthereumCalldataValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentResponseCurrentResourceDataConditionEthereumCalldataValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentResponseCurrentResourceDataConditionEthereumCalldataValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Attributes from the signing domain that will verify the signature.
+type RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataDomain struct {
+	// Any of "chainId", "verifyingContract", "chain_id", "verifying_contract".
+	Field       string                           `json:"field" api:"required"`
+	FieldSource constant.EthereumTypedDataDomain `json:"field_source" default:"ethereum_typed_data_domain"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                          `json:"operator" api:"required"`
+	Value    RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataDomainValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataDomain) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataDomain) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataDomainValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataDomainValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataDomainValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataDomainValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataDomainValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataDomainValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// 'types' and 'primary_type' attributes of the TypedData JSON object defined in
+// EIP-712.
+type RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataMessage struct {
+	Field       string                            `json:"field" api:"required"`
+	FieldSource constant.EthereumTypedDataMessage `json:"field_source" default:"ethereum_typed_data_message"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator  string                                                                           `json:"operator" api:"required"`
+	TypedData RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataMessageTypedData  `json:"typed_data" api:"required"`
+	Value     RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataMessageValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		TypedData   respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataMessage) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataMessage) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataMessageTypedData struct {
+	PrimaryType string `json:"primary_type" api:"required"`
+	// The type definitions for EIP-712 typed data signing.
+	Types TypedDataTypesInputParamsResp `json:"types" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		PrimaryType respjson.Field
+		Types       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataMessageTypedData) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataMessageTypedData) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataMessageValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataMessageValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataMessageValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataMessageValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataMessageValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentResponseCurrentResourceDataConditionEthereumTypedDataMessageValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Allowed contract addresses for eth_sign7702Authorization requests.
+type RuleIntentResponseCurrentResourceDataConditionEthereum7702Authorization struct {
+	// Any of "contract".
+	Field       string                             `json:"field" api:"required"`
+	FieldSource constant.Ethereum7702Authorization `json:"field_source" default:"ethereum_7702_authorization"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                            `json:"operator" api:"required"`
+	Value    RuleIntentResponseCurrentResourceDataConditionEthereum7702AuthorizationValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentResponseCurrentResourceDataConditionEthereum7702Authorization) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentResponseCurrentResourceDataConditionEthereum7702Authorization) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentResponseCurrentResourceDataConditionEthereum7702AuthorizationValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentResponseCurrentResourceDataConditionEthereum7702AuthorizationValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionEthereum7702AuthorizationValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionEthereum7702AuthorizationValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentResponseCurrentResourceDataConditionEthereum7702AuthorizationValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentResponseCurrentResourceDataConditionEthereum7702AuthorizationValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Solana Program attributes, enables allowlisting Solana Programs.
+type RuleIntentResponseCurrentResourceDataConditionSolanaProgramInstruction struct {
+	// Any of "programId".
+	Field       string                            `json:"field" api:"required"`
+	FieldSource constant.SolanaProgramInstruction `json:"field_source" default:"solana_program_instruction"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                           `json:"operator" api:"required"`
+	Value    RuleIntentResponseCurrentResourceDataConditionSolanaProgramInstructionValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentResponseCurrentResourceDataConditionSolanaProgramInstruction) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentResponseCurrentResourceDataConditionSolanaProgramInstruction) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentResponseCurrentResourceDataConditionSolanaProgramInstructionValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentResponseCurrentResourceDataConditionSolanaProgramInstructionValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionSolanaProgramInstructionValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionSolanaProgramInstructionValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentResponseCurrentResourceDataConditionSolanaProgramInstructionValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentResponseCurrentResourceDataConditionSolanaProgramInstructionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Solana System Program attributes, including more granular Transfer instruction
+// fields.
+type RuleIntentResponseCurrentResourceDataConditionSolanaSystemProgramInstruction struct {
+	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
+	Field       string                                  `json:"field" api:"required"`
+	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" default:"solana_system_program_instruction"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                                 `json:"operator" api:"required"`
+	Value    RuleIntentResponseCurrentResourceDataConditionSolanaSystemProgramInstructionValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentResponseCurrentResourceDataConditionSolanaSystemProgramInstruction) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentResponseCurrentResourceDataConditionSolanaSystemProgramInstruction) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentResponseCurrentResourceDataConditionSolanaSystemProgramInstructionValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentResponseCurrentResourceDataConditionSolanaSystemProgramInstructionValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionSolanaSystemProgramInstructionValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionSolanaSystemProgramInstructionValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentResponseCurrentResourceDataConditionSolanaSystemProgramInstructionValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentResponseCurrentResourceDataConditionSolanaSystemProgramInstructionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Solana Token Program attributes, including more granular TransferChecked
+// instruction fields.
+type RuleIntentResponseCurrentResourceDataConditionSolanaTokenProgramInstruction struct {
+	// Any of "instructionName", "Transfer.source", "Transfer.destination",
+	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
+	// "TransferChecked.destination", "TransferChecked.authority",
+	// "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint",
+	// "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account",
+	// "MintTo.authority", "MintTo.amount", "CloseAccount.account",
+	// "CloseAccount.destination", "CloseAccount.authority",
+	// "InitializeAccount3.account", "InitializeAccount3.mint",
+	// "InitializeAccount3.owner".
+	Field       string                                 `json:"field" api:"required"`
+	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" default:"solana_token_program_instruction"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                                                `json:"operator" api:"required"`
+	Value    RuleIntentResponseCurrentResourceDataConditionSolanaTokenProgramInstructionValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentResponseCurrentResourceDataConditionSolanaTokenProgramInstruction) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *RuleIntentResponseCurrentResourceDataConditionSolanaTokenProgramInstruction) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentResponseCurrentResourceDataConditionSolanaTokenProgramInstructionValueUnion
+// contains all possible properties and values from [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type RuleIntentResponseCurrentResourceDataConditionSolanaTokenProgramInstructionValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionSolanaTokenProgramInstructionValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentResponseCurrentResourceDataConditionSolanaTokenProgramInstructionValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentResponseCurrentResourceDataConditionSolanaTokenProgramInstructionValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *RuleIntentResponseCurrentResourceDataConditionSolanaTokenProgramInstructionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// System attributes, including current unix timestamp (in seconds).
+type RuleIntentResponseCurrentResourceDataConditionSystem struct {
+	// Any of "current_unix_timestamp".
+	Field       string          `json:"field" api:"required"`
+	FieldSource constant.System `json:"field_source" default:"system"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator string                                                         `json:"operator" api:"required"`
+	Value    RuleIntentResponseCurrentResourceDataConditionSystemValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentResponseCurrentResourceDataConditionSystem) RawJSON() string { return r.JSON.raw }
+func (r *RuleIntentResponseCurrentResourceDataConditionSystem) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentResponseCurrentResourceDataConditionSystemValueUnion contains all
 // possible properties and values from [string], [[]string].
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 //
 // If the underlying value is not a json object, one of the following properties
 // will be valid: OfString OfStringArray]
-type RuleIntentResponseCurrentResourceDataConditionObjectValueUnion struct {
+type RuleIntentResponseCurrentResourceDataConditionSystemValueUnion struct {
 	// This field will be present if the value is a [string] instead of an object.
 	OfString string `json:",inline"`
 	// This field will be present if the value is a [[]string] instead of an object.
@@ -2342,255 +4944,24 @@ type RuleIntentResponseCurrentResourceDataConditionObjectValueUnion struct {
 	} `json:"-"`
 }
 
-func (u RuleIntentResponseCurrentResourceDataConditionObjectValueUnion) AsString() (v string) {
+func (u RuleIntentResponseCurrentResourceDataConditionSystemValueUnion) AsString() (v string) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u RuleIntentResponseCurrentResourceDataConditionObjectValueUnion) AsStringArray() (v []string) {
+func (u RuleIntentResponseCurrentResourceDataConditionSystemValueUnion) AsStringArray() (v []string) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
 // Returns the unmodified JSON received from the API
-func (u RuleIntentResponseCurrentResourceDataConditionObjectValueUnion) RawJSON() string {
+func (u RuleIntentResponseCurrentResourceDataConditionSystemValueUnion) RawJSON() string {
 	return u.JSON.raw
 }
 
-func (r *RuleIntentResponseCurrentResourceDataConditionObjectValueUnion) UnmarshalJSON(data []byte) error {
+func (r *RuleIntentResponseCurrentResourceDataConditionSystemValueUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-type RuleIntentResponseCurrentResourceDataConditionOperator string
-
-const (
-	RuleIntentResponseCurrentResourceDataConditionOperatorEq             RuleIntentResponseCurrentResourceDataConditionOperator = "eq"
-	RuleIntentResponseCurrentResourceDataConditionOperatorGt             RuleIntentResponseCurrentResourceDataConditionOperator = "gt"
-	RuleIntentResponseCurrentResourceDataConditionOperatorGte            RuleIntentResponseCurrentResourceDataConditionOperator = "gte"
-	RuleIntentResponseCurrentResourceDataConditionOperatorLt             RuleIntentResponseCurrentResourceDataConditionOperator = "lt"
-	RuleIntentResponseCurrentResourceDataConditionOperatorLte            RuleIntentResponseCurrentResourceDataConditionOperator = "lte"
-	RuleIntentResponseCurrentResourceDataConditionOperatorIn             RuleIntentResponseCurrentResourceDataConditionOperator = "in"
-	RuleIntentResponseCurrentResourceDataConditionOperatorInConditionSet RuleIntentResponseCurrentResourceDataConditionOperator = "in_condition_set"
-)
-
-// Parent policy containing this rule, including sibling rules for contextual
-// display
-type RuleIntentResponsePolicy struct {
-	ID string `json:"id" api:"required"`
-	// The wallet chain types.
-	//
-	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
-	// "tron", "bitcoin-segwit", "near", "ton", "starknet", "spark".
-	ChainType WalletChainType                `json:"chain_type" api:"required"`
-	CreatedAt float64                        `json:"created_at" api:"required"`
-	Name      string                         `json:"name" api:"required"`
-	OwnerID   string                         `json:"owner_id" api:"required" format:"cuid2"`
-	Rules     []RuleIntentResponsePolicyRule `json:"rules" api:"required"`
-	// Any of "1.0".
-	Version string `json:"version" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID          respjson.Field
-		ChainType   respjson.Field
-		CreatedAt   respjson.Field
-		Name        respjson.Field
-		OwnerID     respjson.Field
-		Rules       respjson.Field
-		Version     respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r RuleIntentResponsePolicy) RawJSON() string { return r.JSON.raw }
-func (r *RuleIntentResponsePolicy) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type RuleIntentResponsePolicyRule struct {
-	ID string `json:"id" api:"required"`
-	// Any of "ALLOW", "DENY".
-	Action     string                                       `json:"action" api:"required"`
-	Conditions []RuleIntentResponsePolicyRuleConditionUnion `json:"conditions" api:"required"`
-	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signTypedData_v4",
-	// "eth_signUserOperation", "eth_sign7702Authorization", "signTransaction",
-	// "signAndSendTransaction", "signTransactionBytes", "exportPrivateKey", "\*".
-	Method string `json:"method" api:"required"`
-	Name   string `json:"name" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID          respjson.Field
-		Action      respjson.Field
-		Conditions  respjson.Field
-		Method      respjson.Field
-		Name        respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r RuleIntentResponsePolicyRule) RawJSON() string { return r.JSON.raw }
-func (r *RuleIntentResponsePolicyRule) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// RuleIntentResponsePolicyRuleConditionUnion contains all possible properties and
-// values from [RuleIntentResponsePolicyRuleConditionObject],
-// [RuleIntentResponsePolicyRuleConditionObject],
-// [RuleIntentResponsePolicyRuleConditionObject],
-// [RuleIntentResponsePolicyRuleConditionObject],
-// [RuleIntentResponsePolicyRuleConditionObject],
-// [RuleIntentResponsePolicyRuleConditionObject],
-// [RuleIntentResponsePolicyRuleConditionObject],
-// [RuleIntentResponsePolicyRuleConditionObject],
-// [RuleIntentResponsePolicyRuleConditionObject],
-// [RuleIntentResponsePolicyRuleConditionObject],
-// [RuleIntentResponsePolicyRuleConditionObject],
-// [RuleIntentResponsePolicyRuleConditionObject],
-// [RuleIntentResponsePolicyRuleConditionObject],
-// [RuleIntentResponsePolicyRuleConditionObject].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-type RuleIntentResponsePolicyRuleConditionUnion struct {
-	// This field is from variant [RuleIntentResponsePolicyRuleConditionObject].
-	Field RuleIntentResponsePolicyRuleConditionObjectField `json:"field"`
-	// This field is from variant [RuleIntentResponsePolicyRuleConditionObject].
-	FieldSource string `json:"field_source"`
-	// This field is from variant [RuleIntentResponsePolicyRuleConditionObject].
-	Operator RuleIntentResponsePolicyRuleConditionObjectOperator `json:"operator"`
-	// This field is from variant [RuleIntentResponsePolicyRuleConditionObject].
-	Value RuleIntentResponsePolicyRuleConditionObjectValueUnion `json:"value"`
-	// This field is from variant [RuleIntentResponsePolicyRuleConditionObject].
-	Abi []RuleIntentResponsePolicyRuleConditionObjectAbi `json:"abi"`
-	// This field is from variant [RuleIntentResponsePolicyRuleConditionObject].
-	TypedData RuleIntentResponsePolicyRuleConditionObjectTypedData `json:"typed_data"`
-	JSON      struct {
-		Field       respjson.Field
-		FieldSource respjson.Field
-		Operator    respjson.Field
-		Value       respjson.Field
-		Abi         respjson.Field
-		TypedData   respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-func (u RuleIntentResponsePolicyRuleConditionUnion) AsRuleIntentResponsePolicyRuleConditionObject() (v RuleIntentResponsePolicyRuleConditionObject) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u RuleIntentResponsePolicyRuleConditionUnion) AsVariant2() (v RuleIntentResponsePolicyRuleConditionObject) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u RuleIntentResponsePolicyRuleConditionUnion) AsVariant3() (v RuleIntentResponsePolicyRuleConditionObject) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u RuleIntentResponsePolicyRuleConditionUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *RuleIntentResponsePolicyRuleConditionUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type RuleIntentResponsePolicyRuleConditionObject struct {
-	// Any of "to", "value", "chain_id".
-	Field RuleIntentResponsePolicyRuleConditionObjectField `json:"field" api:"required"`
-	// Any of "ethereum_transaction".
-	FieldSource string `json:"field_source" api:"required"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator RuleIntentResponsePolicyRuleConditionObjectOperator   `json:"operator" api:"required"`
-	Value    RuleIntentResponsePolicyRuleConditionObjectValueUnion `json:"value" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Field       respjson.Field
-		FieldSource respjson.Field
-		Operator    respjson.Field
-		Value       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r RuleIntentResponsePolicyRuleConditionObject) RawJSON() string { return r.JSON.raw }
-func (r *RuleIntentResponsePolicyRuleConditionObject) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type RuleIntentResponsePolicyRuleConditionObjectField string
-
-const (
-	RuleIntentResponsePolicyRuleConditionObjectFieldTo      RuleIntentResponsePolicyRuleConditionObjectField = "to"
-	RuleIntentResponsePolicyRuleConditionObjectFieldValue   RuleIntentResponsePolicyRuleConditionObjectField = "value"
-	RuleIntentResponsePolicyRuleConditionObjectFieldChainID RuleIntentResponsePolicyRuleConditionObjectField = "chain_id"
-)
-
-type RuleIntentResponsePolicyRuleConditionObjectOperator string
-
-const (
-	RuleIntentResponsePolicyRuleConditionObjectOperatorEq             RuleIntentResponsePolicyRuleConditionObjectOperator = "eq"
-	RuleIntentResponsePolicyRuleConditionObjectOperatorGt             RuleIntentResponsePolicyRuleConditionObjectOperator = "gt"
-	RuleIntentResponsePolicyRuleConditionObjectOperatorGte            RuleIntentResponsePolicyRuleConditionObjectOperator = "gte"
-	RuleIntentResponsePolicyRuleConditionObjectOperatorLt             RuleIntentResponsePolicyRuleConditionObjectOperator = "lt"
-	RuleIntentResponsePolicyRuleConditionObjectOperatorLte            RuleIntentResponsePolicyRuleConditionObjectOperator = "lte"
-	RuleIntentResponsePolicyRuleConditionObjectOperatorIn             RuleIntentResponsePolicyRuleConditionObjectOperator = "in"
-	RuleIntentResponsePolicyRuleConditionObjectOperatorInConditionSet RuleIntentResponsePolicyRuleConditionObjectOperator = "in_condition_set"
-)
-
-// RuleIntentResponsePolicyRuleConditionObjectValueUnion contains all possible
-// properties and values from [string], [[]string].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfStringArray]
-type RuleIntentResponsePolicyRuleConditionObjectValueUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [[]string] instead of an object.
-	OfStringArray []string `json:",inline"`
-	JSON          struct {
-		OfString      respjson.Field
-		OfStringArray respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-func (u RuleIntentResponsePolicyRuleConditionObjectValueUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u RuleIntentResponsePolicyRuleConditionObjectValueUnion) AsStringArray() (v []string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u RuleIntentResponsePolicyRuleConditionObjectValueUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *RuleIntentResponsePolicyRuleConditionObjectValueUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type RuleIntentResponsePolicyRuleConditionOperator string
-
-const (
-	RuleIntentResponsePolicyRuleConditionOperatorEq             RuleIntentResponsePolicyRuleConditionOperator = "eq"
-	RuleIntentResponsePolicyRuleConditionOperatorGt             RuleIntentResponsePolicyRuleConditionOperator = "gt"
-	RuleIntentResponsePolicyRuleConditionOperatorGte            RuleIntentResponsePolicyRuleConditionOperator = "gte"
-	RuleIntentResponsePolicyRuleConditionOperatorLt             RuleIntentResponsePolicyRuleConditionOperator = "lt"
-	RuleIntentResponsePolicyRuleConditionOperatorLte            RuleIntentResponsePolicyRuleConditionOperator = "lte"
-	RuleIntentResponsePolicyRuleConditionOperatorIn             RuleIntentResponsePolicyRuleConditionOperator = "in"
-	RuleIntentResponsePolicyRuleConditionOperatorInConditionSet RuleIntentResponsePolicyRuleConditionOperator = "in_condition_set"
-)
 
 // IntentResponseUnion contains all possible properties and values from
 // [RpcIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
@@ -2618,14 +4989,14 @@ type IntentResponseUnion struct {
 	// This field is from variant [RpcIntentResponse].
 	ActionResult BaseActionResult `json:"action_result"`
 	CreatedByID  string           `json:"created_by_id"`
-	// This field is a union of [Wallet], [PolicyIntentResponseCurrentResourceData],
+	// This field is a union of [Wallet], [Policy],
 	// [RuleIntentResponseCurrentResourceData], [KeyQuorum]
 	CurrentResourceData IntentResponseUnionCurrentResourceData `json:"current_resource_data"`
 	DismissalReason     string                                 `json:"dismissal_reason"`
 	DismissedAt         float64                                `json:"dismissed_at"`
 	RejectedAt          float64                                `json:"rejected_at"`
 	// This field is from variant [RuleIntentResponse].
-	Policy RuleIntentResponsePolicy `json:"policy"`
+	Policy Policy `json:"policy"`
 	JSON   struct {
 		AuthorizationDetails respjson.Field
 		CreatedAt            respjson.Field
@@ -2729,7 +5100,7 @@ type IntentResponseUnionRequestDetails struct {
 	// This field is a union of [WalletRpcRequestBodyUnion],
 	// [WalletIntentResponseRequestDetailsBody],
 	// [PolicyIntentResponseRequestDetailsBody], [RuleIntentCreateRequestDetailsBody],
-	// [RuleIntentUpdateRequestDetailsBody], [any], [KeyQuorumUpdateParamsResp]
+	// [RuleIntentUpdateRequestDetailsBody], [any], [KeyQuorumUpdateRequestBody]
 	Body   IntentResponseUnionRequestDetailsBody `json:"body"`
 	Method string                                `json:"method"`
 	URL    string                                `json:"url"`
@@ -2778,35 +5149,36 @@ type IntentResponseUnionRequestDetailsBody struct {
 	Address   string                                      `json:"address"`
 	ChainType string                                      `json:"chain_type"`
 	WalletID  string                                      `json:"wallet_id"`
-	Caip2     string                                      `json:"caip2"`
-	Sponsor   bool                                        `json:"sponsor"`
+	// This field is from variant [WalletRpcRequestBodyUnion].
+	Caip2   Caip2 `json:"caip2"`
+	Sponsor bool  `json:"sponsor"`
 	// This field is from variant [WalletRpcRequestBodyUnion].
 	Network SparkNetwork `json:"network"`
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
-	AdditionalSigners []WalletIntentResponseRequestDetailsBodyAdditionalSigner `json:"additional_signers"`
+	AdditionalSigners AdditionalSignerInput `json:"additional_signers"`
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
 	AuthorizationKeyIDs    []string `json:"authorization_key_ids"`
 	AuthorizationThreshold float64  `json:"authorization_threshold"`
-	// This field is a union of [WalletIntentResponseRequestDetailsBodyOwnerUnion],
+	// This field is a union of [WalletIntentResponseRequestDetailsBodyOwner],
 	// [PolicyIntentResponseRequestDetailsBodyOwnerUnion]
 	Owner   IntentResponseUnionRequestDetailsBodyOwner `json:"owner"`
 	OwnerID string                                     `json:"owner_id"`
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
-	PolicyIDs []string `json:"policy_ids"`
-	Name      string   `json:"name"`
+	PolicyIDs PolicyInput `json:"policy_ids"`
+	Name      string      `json:"name"`
 	// This field is from variant [PolicyIntentResponseRequestDetailsBody].
 	Rules  []PolicyIntentResponseRequestDetailsBodyRule `json:"rules"`
 	Action string                                       `json:"action"`
 	// This field is a union of [[]RuleIntentCreateRequestDetailsBodyConditionUnion],
 	// [[]RuleIntentUpdateRequestDetailsBodyConditionUnion]
 	Conditions IntentResponseUnionRequestDetailsBodyConditions `json:"conditions"`
-	// This field is from variant [KeyQuorumUpdateParamsResp].
+	// This field is from variant [KeyQuorumUpdateRequestBody].
 	DisplayName string `json:"display_name"`
-	// This field is from variant [KeyQuorumUpdateParamsResp].
+	// This field is from variant [KeyQuorumUpdateRequestBody].
 	KeyQuorumIDs []string `json:"key_quorum_ids"`
-	// This field is from variant [KeyQuorumUpdateParamsResp].
+	// This field is from variant [KeyQuorumUpdateRequestBody].
 	PublicKeys []string `json:"public_keys"`
-	// This field is from variant [KeyQuorumUpdateParamsResp].
+	// This field is from variant [KeyQuorumUpdateRequestBody].
 	UserIDs []string `json:"user_ids"`
 	JSON    struct {
 		OfRuleIntentDeleteRequestDetailsBody respjson.Field
@@ -2847,28 +5219,25 @@ func (r *IntentResponseUnionRequestDetailsBody) UnmarshalJSON(data []byte) error
 // For type safety it is recommended to directly use a variant of the
 // [IntentResponseUnion].
 type IntentResponseUnionRequestDetailsBodyParams struct {
-	// This field is a union of [EthereumSignTransactionRpcInputParamsTransactionResp],
-	// [EthereumSendTransactionRpcInputParamsTransactionResp], [string], [string]
+	// This field is a union of [UnsignedEthereumTransaction], [string], [string]
 	Transaction IntentResponseUnionRequestDetailsBodyParamsTransaction `json:"transaction"`
 	Encoding    string                                                 `json:"encoding"`
 	Message     string                                                 `json:"message"`
 	// This field is from variant [EthereumSignTypedDataRpcInputParamsResp].
 	TypedData EthereumTypedDataInput `json:"typed_data"`
 	// This field is from variant [EthereumSecp256k1SignRpcInputParamsResp].
-	Hash string `json:"hash"`
-	// This field is a union of
-	// [EthereumSign7702AuthorizationRpcInputParamsChainIDUnionResp],
-	// [EthereumSignUserOperationRpcInputParamsChainIDUnionResp]
-	ChainID  IntentResponseUnionRequestDetailsBodyParamsChainID `json:"chain_id"`
-	Contract string                                             `json:"contract"`
+	Hash Hex `json:"hash"`
+	// This field is from variant [EthereumSign7702AuthorizationRpcInputParamsResp].
+	ChainID  QuantityUnion `json:"chain_id"`
+	Contract string        `json:"contract"`
 	// This field is from variant [EthereumSign7702AuthorizationRpcInputParamsResp].
 	Executor EthereumSign7702AuthorizationRpcInputParamsExecutor `json:"executor"`
 	// This field is from variant [EthereumSign7702AuthorizationRpcInputParamsResp].
-	Nonce EthereumSign7702AuthorizationRpcInputParamsNonceUnionResp `json:"nonce"`
+	Nonce QuantityUnion `json:"nonce"`
 	// This field is from variant [EthereumSignUserOperationRpcInputParamsResp].
-	UserOperation        EthereumSignUserOperationRpcInputParamsUserOperationResp `json:"user_operation"`
-	AmountSats           float64                                                  `json:"amount_sats"`
-	ReceiverSparkAddress string                                                   `json:"receiver_spark_address"`
+	UserOperation        UserOperationInput `json:"user_operation"`
+	AmountSats           float64            `json:"amount_sats"`
+	ReceiverSparkAddress string             `json:"receiver_spark_address"`
 	// This field is from variant [SparkTransferTokensRpcInputParamsResp].
 	TokenAmount float64 `json:"token_amount"`
 	// This field is from variant [SparkTransferTokensRpcInputParamsResp].
@@ -2963,42 +5332,30 @@ func (r *IntentResponseUnionRequestDetailsBodyParams) UnmarshalJSON(data []byte)
 type IntentResponseUnionRequestDetailsBodyParamsTransaction struct {
 	// This field will be present if the value is a [string] instead of an object.
 	OfString string `json:",inline"`
-	// This field is a union of
-	// [[]EthereumSignTransactionRpcInputParamsTransactionAuthorizationListResp],
-	// [[]EthereumSendTransactionRpcInputParamsTransactionAuthorizationListResp]
-	AuthorizationList IntentResponseUnionRequestDetailsBodyParamsTransactionAuthorizationList `json:"authorization_list"`
-	// This field is a union of
-	// [EthereumSignTransactionRpcInputParamsTransactionChainIDUnionResp],
-	// [EthereumSendTransactionRpcInputParamsTransactionChainIDUnionResp]
-	ChainID IntentResponseUnionRequestDetailsBodyParamsTransactionChainID `json:"chain_id"`
-	Data    string                                                        `json:"data"`
-	From    string                                                        `json:"from"`
-	// This field is a union of
-	// [EthereumSignTransactionRpcInputParamsTransactionGasLimitUnionResp],
-	// [EthereumSendTransactionRpcInputParamsTransactionGasLimitUnionResp]
-	GasLimit IntentResponseUnionRequestDetailsBodyParamsTransactionGasLimit `json:"gas_limit"`
-	// This field is a union of
-	// [EthereumSignTransactionRpcInputParamsTransactionGasPriceUnionResp],
-	// [EthereumSendTransactionRpcInputParamsTransactionGasPriceUnionResp]
-	GasPrice IntentResponseUnionRequestDetailsBodyParamsTransactionGasPrice `json:"gas_price"`
-	// This field is a union of
-	// [EthereumSignTransactionRpcInputParamsTransactionMaxFeePerGasUnionResp],
-	// [EthereumSendTransactionRpcInputParamsTransactionMaxFeePerGasUnionResp]
-	MaxFeePerGas IntentResponseUnionRequestDetailsBodyParamsTransactionMaxFeePerGas `json:"max_fee_per_gas"`
-	// This field is a union of
-	// [EthereumSignTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionResp],
-	// [EthereumSendTransactionRpcInputParamsTransactionMaxPriorityFeePerGasUnionResp]
-	MaxPriorityFeePerGas IntentResponseUnionRequestDetailsBodyParamsTransactionMaxPriorityFeePerGas `json:"max_priority_fee_per_gas"`
-	// This field is a union of
-	// [EthereumSignTransactionRpcInputParamsTransactionNonceUnionResp],
-	// [EthereumSendTransactionRpcInputParamsTransactionNonceUnionResp]
-	Nonce IntentResponseUnionRequestDetailsBodyParamsTransactionNonce `json:"nonce"`
-	To    string                                                      `json:"to"`
-	Type  float64                                                     `json:"type"`
-	// This field is a union of
-	// [EthereumSignTransactionRpcInputParamsTransactionValueUnionResp],
-	// [EthereumSendTransactionRpcInputParamsTransactionValueUnionResp]
-	Value IntentResponseUnionRequestDetailsBodyParamsTransactionValue `json:"value"`
+	// This field is from variant [UnsignedEthereumTransaction].
+	AuthorizationList []EthereumSign7702Authorization `json:"authorization_list"`
+	// This field is from variant [UnsignedEthereumTransaction].
+	ChainID QuantityUnion `json:"chain_id"`
+	// This field is from variant [UnsignedEthereumTransaction].
+	Data Hex `json:"data"`
+	// This field is from variant [UnsignedEthereumTransaction].
+	From string `json:"from"`
+	// This field is from variant [UnsignedEthereumTransaction].
+	GasLimit QuantityUnion `json:"gas_limit"`
+	// This field is from variant [UnsignedEthereumTransaction].
+	GasPrice QuantityUnion `json:"gas_price"`
+	// This field is from variant [UnsignedEthereumTransaction].
+	MaxFeePerGas QuantityUnion `json:"max_fee_per_gas"`
+	// This field is from variant [UnsignedEthereumTransaction].
+	MaxPriorityFeePerGas QuantityUnion `json:"max_priority_fee_per_gas"`
+	// This field is from variant [UnsignedEthereumTransaction].
+	Nonce QuantityUnion `json:"nonce"`
+	// This field is from variant [UnsignedEthereumTransaction].
+	To string `json:"to"`
+	// This field is from variant [UnsignedEthereumTransaction].
+	Type float64 `json:"type"`
+	// This field is from variant [UnsignedEthereumTransaction].
+	Value QuantityUnion `json:"value"`
 	JSON  struct {
 		OfString             respjson.Field
 		AuthorizationList    respjson.Field
@@ -3021,245 +5378,6 @@ func (r *IntentResponseUnionRequestDetailsBodyParamsTransaction) UnmarshalJSON(d
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// IntentResponseUnionRequestDetailsBodyParamsTransactionAuthorizationList is an
-// implicit subunion of [IntentResponseUnion].
-// IntentResponseUnionRequestDetailsBodyParamsTransactionAuthorizationList provides
-// convenient access to the sub-properties of the union.
-//
-// For type safety it is recommended to directly use a variant of the
-// [IntentResponseUnion].
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid:
-// OfEthereumSignTransactionRpcInputsTransactionAuthorizationListArray
-// OfEthereumSendTransactionRpcInputsTransactionAuthorizationListArray]
-type IntentResponseUnionRequestDetailsBodyParamsTransactionAuthorizationList struct {
-	// This field will be present if the value is a
-	// [[]EthereumSignTransactionRpcInputParamsTransactionAuthorizationListResp]
-	// instead of an object.
-	OfEthereumSignTransactionRpcInputsTransactionAuthorizationListArray []EthereumSignTransactionRpcInputParamsTransactionAuthorizationListResp `json:",inline"`
-	// This field will be present if the value is a
-	// [[]EthereumSendTransactionRpcInputParamsTransactionAuthorizationListResp]
-	// instead of an object.
-	OfEthereumSendTransactionRpcInputsTransactionAuthorizationListArray []EthereumSendTransactionRpcInputParamsTransactionAuthorizationListResp `json:",inline"`
-	JSON                                                                struct {
-		OfEthereumSignTransactionRpcInputsTransactionAuthorizationListArray respjson.Field
-		OfEthereumSendTransactionRpcInputsTransactionAuthorizationListArray respjson.Field
-		raw                                                                 string
-	} `json:"-"`
-}
-
-func (r *IntentResponseUnionRequestDetailsBodyParamsTransactionAuthorizationList) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// IntentResponseUnionRequestDetailsBodyParamsTransactionChainID is an implicit
-// subunion of [IntentResponseUnion].
-// IntentResponseUnionRequestDetailsBodyParamsTransactionChainID provides
-// convenient access to the sub-properties of the union.
-//
-// For type safety it is recommended to directly use a variant of the
-// [IntentResponseUnion].
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfInt]
-type IntentResponseUnionRequestDetailsBodyParamsTransactionChainID struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [int64] instead of an object.
-	OfInt int64 `json:",inline"`
-	JSON  struct {
-		OfString respjson.Field
-		OfInt    respjson.Field
-		raw      string
-	} `json:"-"`
-}
-
-func (r *IntentResponseUnionRequestDetailsBodyParamsTransactionChainID) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// IntentResponseUnionRequestDetailsBodyParamsTransactionGasLimit is an implicit
-// subunion of [IntentResponseUnion].
-// IntentResponseUnionRequestDetailsBodyParamsTransactionGasLimit provides
-// convenient access to the sub-properties of the union.
-//
-// For type safety it is recommended to directly use a variant of the
-// [IntentResponseUnion].
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfInt]
-type IntentResponseUnionRequestDetailsBodyParamsTransactionGasLimit struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [int64] instead of an object.
-	OfInt int64 `json:",inline"`
-	JSON  struct {
-		OfString respjson.Field
-		OfInt    respjson.Field
-		raw      string
-	} `json:"-"`
-}
-
-func (r *IntentResponseUnionRequestDetailsBodyParamsTransactionGasLimit) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// IntentResponseUnionRequestDetailsBodyParamsTransactionGasPrice is an implicit
-// subunion of [IntentResponseUnion].
-// IntentResponseUnionRequestDetailsBodyParamsTransactionGasPrice provides
-// convenient access to the sub-properties of the union.
-//
-// For type safety it is recommended to directly use a variant of the
-// [IntentResponseUnion].
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfInt]
-type IntentResponseUnionRequestDetailsBodyParamsTransactionGasPrice struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [int64] instead of an object.
-	OfInt int64 `json:",inline"`
-	JSON  struct {
-		OfString respjson.Field
-		OfInt    respjson.Field
-		raw      string
-	} `json:"-"`
-}
-
-func (r *IntentResponseUnionRequestDetailsBodyParamsTransactionGasPrice) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// IntentResponseUnionRequestDetailsBodyParamsTransactionMaxFeePerGas is an
-// implicit subunion of [IntentResponseUnion].
-// IntentResponseUnionRequestDetailsBodyParamsTransactionMaxFeePerGas provides
-// convenient access to the sub-properties of the union.
-//
-// For type safety it is recommended to directly use a variant of the
-// [IntentResponseUnion].
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfInt]
-type IntentResponseUnionRequestDetailsBodyParamsTransactionMaxFeePerGas struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [int64] instead of an object.
-	OfInt int64 `json:",inline"`
-	JSON  struct {
-		OfString respjson.Field
-		OfInt    respjson.Field
-		raw      string
-	} `json:"-"`
-}
-
-func (r *IntentResponseUnionRequestDetailsBodyParamsTransactionMaxFeePerGas) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// IntentResponseUnionRequestDetailsBodyParamsTransactionMaxPriorityFeePerGas is an
-// implicit subunion of [IntentResponseUnion].
-// IntentResponseUnionRequestDetailsBodyParamsTransactionMaxPriorityFeePerGas
-// provides convenient access to the sub-properties of the union.
-//
-// For type safety it is recommended to directly use a variant of the
-// [IntentResponseUnion].
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfInt]
-type IntentResponseUnionRequestDetailsBodyParamsTransactionMaxPriorityFeePerGas struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [int64] instead of an object.
-	OfInt int64 `json:",inline"`
-	JSON  struct {
-		OfString respjson.Field
-		OfInt    respjson.Field
-		raw      string
-	} `json:"-"`
-}
-
-func (r *IntentResponseUnionRequestDetailsBodyParamsTransactionMaxPriorityFeePerGas) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// IntentResponseUnionRequestDetailsBodyParamsTransactionNonce is an implicit
-// subunion of [IntentResponseUnion].
-// IntentResponseUnionRequestDetailsBodyParamsTransactionNonce provides convenient
-// access to the sub-properties of the union.
-//
-// For type safety it is recommended to directly use a variant of the
-// [IntentResponseUnion].
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfInt]
-type IntentResponseUnionRequestDetailsBodyParamsTransactionNonce struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [int64] instead of an object.
-	OfInt int64 `json:",inline"`
-	JSON  struct {
-		OfString respjson.Field
-		OfInt    respjson.Field
-		raw      string
-	} `json:"-"`
-}
-
-func (r *IntentResponseUnionRequestDetailsBodyParamsTransactionNonce) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// IntentResponseUnionRequestDetailsBodyParamsTransactionValue is an implicit
-// subunion of [IntentResponseUnion].
-// IntentResponseUnionRequestDetailsBodyParamsTransactionValue provides convenient
-// access to the sub-properties of the union.
-//
-// For type safety it is recommended to directly use a variant of the
-// [IntentResponseUnion].
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfInt]
-type IntentResponseUnionRequestDetailsBodyParamsTransactionValue struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [int64] instead of an object.
-	OfInt int64 `json:",inline"`
-	JSON  struct {
-		OfString respjson.Field
-		OfInt    respjson.Field
-		raw      string
-	} `json:"-"`
-}
-
-func (r *IntentResponseUnionRequestDetailsBodyParamsTransactionValue) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// IntentResponseUnionRequestDetailsBodyParamsChainID is an implicit subunion of
-// [IntentResponseUnion]. IntentResponseUnionRequestDetailsBodyParamsChainID
-// provides convenient access to the sub-properties of the union.
-//
-// For type safety it is recommended to directly use a variant of the
-// [IntentResponseUnion].
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfInt]
-type IntentResponseUnionRequestDetailsBodyParamsChainID struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [int64] instead of an object.
-	OfInt int64 `json:",inline"`
-	JSON  struct {
-		OfString respjson.Field
-		OfInt    respjson.Field
-		raw      string
-	} `json:"-"`
-}
-
-func (r *IntentResponseUnionRequestDetailsBodyParamsChainID) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // IntentResponseUnionRequestDetailsBodyOwner is an implicit subunion of
 // [IntentResponseUnion]. IntentResponseUnionRequestDetailsBodyOwner provides
 // convenient access to the sub-properties of the union.
@@ -3267,11 +5385,11 @@ func (r *IntentResponseUnionRequestDetailsBodyParamsChainID) UnmarshalJSON(data 
 // For type safety it is recommended to directly use a variant of the
 // [IntentResponseUnion].
 type IntentResponseUnionRequestDetailsBodyOwner struct {
-	UserID    string `json:"user_id"`
 	PublicKey string `json:"public_key"`
+	UserID    string `json:"user_id"`
 	JSON      struct {
-		UserID    respjson.Field
 		PublicKey respjson.Field
+		UserID    respjson.Field
 		raw       string
 	} `json:"-"`
 }
@@ -3336,10 +5454,10 @@ type IntentResponseUnionCurrentResourceData struct {
 	// This field is from variant [Wallet].
 	PublicKey string `json:"public_key"`
 	Name      string `json:"name"`
-	// This field is from variant [PolicyIntentResponseCurrentResourceData].
-	Rules []PolicyIntentResponseCurrentResourceDataRule `json:"rules"`
-	// This field is from variant [PolicyIntentResponseCurrentResourceData].
-	Version string `json:"version"`
+	// This field is from variant [Policy].
+	Rules []PolicyRule `json:"rules"`
+	// This field is from variant [Policy].
+	Version PolicyVersion `json:"version"`
 	// This field is from variant [RuleIntentResponseCurrentResourceData].
 	Action string `json:"action"`
 	// This field is from variant [RuleIntentResponseCurrentResourceData].
@@ -3478,8 +5596,10 @@ type IntentNewPolicyRuleParamsConditionUnion struct {
 	OfSolanaTokenProgramInstruction  *IntentNewPolicyRuleParamsConditionSolanaTokenProgramInstruction  `json:",omitzero,inline"`
 	OfSystem                         *IntentNewPolicyRuleParamsConditionSystem                         `json:",omitzero,inline"`
 	OfTronTransaction                *TronTransactionConditionParam                                    `json:",omitzero,inline"`
+	OfTronTriggerSmartContractData   *TronCalldataConditionParam                                       `json:",omitzero,inline"`
 	OfSuiTransactionCommand          *SuiTransactionCommandConditionParam                              `json:",omitzero,inline"`
 	OfSuiTransferObjectsCommand      *SuiTransferObjectsCommandConditionParam                          `json:",omitzero,inline"`
+	OfReference                      *AggregationConditionParam                                        `json:",omitzero,inline"`
 	paramUnion
 }
 
@@ -3494,8 +5614,10 @@ func (u IntentNewPolicyRuleParamsConditionUnion) MarshalJSON() ([]byte, error) {
 		u.OfSolanaTokenProgramInstruction,
 		u.OfSystem,
 		u.OfTronTransaction,
+		u.OfTronTriggerSmartContractData,
 		u.OfSuiTransactionCommand,
-		u.OfSuiTransferObjectsCommand)
+		u.OfSuiTransferObjectsCommand,
+		u.OfReference)
 }
 func (u *IntentNewPolicyRuleParamsConditionUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
@@ -3514,8 +5636,10 @@ func init() {
 		apijson.Discriminator[IntentNewPolicyRuleParamsConditionSolanaTokenProgramInstruction]("solana_token_program_instruction"),
 		apijson.Discriminator[IntentNewPolicyRuleParamsConditionSystem]("system"),
 		apijson.Discriminator[TronTransactionConditionParam]("tron_transaction"),
+		apijson.Discriminator[TronCalldataConditionParam]("tron_trigger_smart_contract_data"),
 		apijson.Discriminator[SuiTransactionCommandConditionParam]("sui_transaction_command"),
 		apijson.Discriminator[SuiTransferObjectsCommandConditionParam]("sui_transfer_objects_command"),
+		apijson.Discriminator[AggregationConditionParam]("reference"),
 	)
 }
 
@@ -3619,7 +5743,7 @@ func (u *IntentNewPolicyRuleParamsConditionEthereumCalldataValueUnion) Unmarshal
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type IntentNewPolicyRuleParamsConditionEthereumTypedDataDomain struct {
-	// Any of "chainId", "verifyingContract".
+	// Any of "chainId", "verifyingContract", "chain_id", "verifying_contract".
 	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                              `json:"operator,omitzero" api:"required"`
@@ -3640,7 +5764,7 @@ func (r *IntentNewPolicyRuleParamsConditionEthereumTypedDataDomain) UnmarshalJSO
 
 func init() {
 	apijson.RegisterFieldValidator[IntentNewPolicyRuleParamsConditionEthereumTypedDataDomain](
-		"field", "chainId", "verifyingContract",
+		"field", "chainId", "verifyingContract", "chain_id", "verifying_contract",
 	)
 	apijson.RegisterFieldValidator[IntentNewPolicyRuleParamsConditionEthereumTypedDataDomain](
 		"operator", "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set",
@@ -3695,8 +5819,9 @@ func init() {
 
 // The properties PrimaryType, Types are required.
 type IntentNewPolicyRuleParamsConditionEthereumTypedDataMessageTypedData struct {
-	PrimaryType string                                                                               `json:"primary_type" api:"required"`
-	Types       map[string][]IntentNewPolicyRuleParamsConditionEthereumTypedDataMessageTypedDataType `json:"types,omitzero" api:"required"`
+	PrimaryType string `json:"primary_type" api:"required"`
+	// The type definitions for EIP-712 typed data signing.
+	Types TypedDataTypesInputParams `json:"types,omitzero" api:"required"`
 	paramObj
 }
 
@@ -3705,21 +5830,6 @@ func (r IntentNewPolicyRuleParamsConditionEthereumTypedDataMessageTypedData) Mar
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *IntentNewPolicyRuleParamsConditionEthereumTypedDataMessageTypedData) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The properties Name, Type are required.
-type IntentNewPolicyRuleParamsConditionEthereumTypedDataMessageTypedDataType struct {
-	Name string `json:"name" api:"required"`
-	Type string `json:"type" api:"required"`
-	paramObj
-}
-
-func (r IntentNewPolicyRuleParamsConditionEthereumTypedDataMessageTypedDataType) MarshalJSON() (data []byte, err error) {
-	type shadow IntentNewPolicyRuleParamsConditionEthereumTypedDataMessageTypedDataType
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *IntentNewPolicyRuleParamsConditionEthereumTypedDataMessageTypedDataType) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -3889,9 +5999,15 @@ func (u *IntentNewPolicyRuleParamsConditionSolanaSystemProgramInstructionValueUn
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type IntentNewPolicyRuleParamsConditionSolanaTokenProgramInstruction struct {
-	// Any of "instructionName", "TransferChecked.source",
+	// Any of "instructionName", "Transfer.source", "Transfer.destination",
+	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
 	// "TransferChecked.destination", "TransferChecked.authority",
-	// "TransferChecked.amount", "TransferChecked.mint".
+	// "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint",
+	// "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account",
+	// "MintTo.authority", "MintTo.amount", "CloseAccount.account",
+	// "CloseAccount.destination", "CloseAccount.authority",
+	// "InitializeAccount3.account", "InitializeAccount3.mint",
+	// "InitializeAccount3.owner".
 	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                                    `json:"operator,omitzero" api:"required"`
@@ -3912,7 +6028,7 @@ func (r *IntentNewPolicyRuleParamsConditionSolanaTokenProgramInstruction) Unmars
 
 func init() {
 	apijson.RegisterFieldValidator[IntentNewPolicyRuleParamsConditionSolanaTokenProgramInstruction](
-		"field", "instructionName", "TransferChecked.source", "TransferChecked.destination", "TransferChecked.authority", "TransferChecked.amount", "TransferChecked.mint",
+		"field", "instructionName", "Transfer.source", "Transfer.destination", "Transfer.authority", "Transfer.amount", "TransferChecked.source", "TransferChecked.destination", "TransferChecked.authority", "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint", "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account", "MintTo.authority", "MintTo.amount", "CloseAccount.account", "CloseAccount.destination", "CloseAccount.authority", "InitializeAccount3.account", "InitializeAccount3.mint", "InitializeAccount3.owner",
 	)
 	apijson.RegisterFieldValidator[IntentNewPolicyRuleParamsConditionSolanaTokenProgramInstruction](
 		"operator", "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set",
@@ -4025,7 +6141,7 @@ func (r *IntentRpcParams) UnmarshalJSON(data []byte) error {
 
 type IntentUpdateKeyQuorumParams struct {
 	// Request input for updating an existing key quorum.
-	KeyQuorumUpdateParams KeyQuorumUpdateParams
+	KeyQuorumUpdateRequestBody KeyQuorumUpdateRequestBodyParam
 	// Request expiry. Value is a Unix timestamp in milliseconds representing the
 	// deadline by which the request must be processed.
 	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
@@ -4033,7 +6149,7 @@ type IntentUpdateKeyQuorumParams struct {
 }
 
 func (r IntentUpdateKeyQuorumParams) MarshalJSON() (data []byte, err error) {
-	return shimjson.Marshal(r.KeyQuorumUpdateParams)
+	return shimjson.Marshal(r.KeyQuorumUpdateRequestBody)
 }
 func (r *IntentUpdateKeyQuorumParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
@@ -4164,8 +6280,10 @@ type IntentUpdatePolicyParamsRuleConditionUnion struct {
 	OfSolanaTokenProgramInstruction  *IntentUpdatePolicyParamsRuleConditionSolanaTokenProgramInstruction  `json:",omitzero,inline"`
 	OfSystem                         *IntentUpdatePolicyParamsRuleConditionSystem                         `json:",omitzero,inline"`
 	OfTronTransaction                *TronTransactionConditionParam                                       `json:",omitzero,inline"`
+	OfTronTriggerSmartContractData   *TronCalldataConditionParam                                          `json:",omitzero,inline"`
 	OfSuiTransactionCommand          *SuiTransactionCommandConditionParam                                 `json:",omitzero,inline"`
 	OfSuiTransferObjectsCommand      *SuiTransferObjectsCommandConditionParam                             `json:",omitzero,inline"`
+	OfReference                      *AggregationConditionParam                                           `json:",omitzero,inline"`
 	paramUnion
 }
 
@@ -4180,8 +6298,10 @@ func (u IntentUpdatePolicyParamsRuleConditionUnion) MarshalJSON() ([]byte, error
 		u.OfSolanaTokenProgramInstruction,
 		u.OfSystem,
 		u.OfTronTransaction,
+		u.OfTronTriggerSmartContractData,
 		u.OfSuiTransactionCommand,
-		u.OfSuiTransferObjectsCommand)
+		u.OfSuiTransferObjectsCommand,
+		u.OfReference)
 }
 func (u *IntentUpdatePolicyParamsRuleConditionUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
@@ -4200,8 +6320,10 @@ func init() {
 		apijson.Discriminator[IntentUpdatePolicyParamsRuleConditionSolanaTokenProgramInstruction]("solana_token_program_instruction"),
 		apijson.Discriminator[IntentUpdatePolicyParamsRuleConditionSystem]("system"),
 		apijson.Discriminator[TronTransactionConditionParam]("tron_transaction"),
+		apijson.Discriminator[TronCalldataConditionParam]("tron_trigger_smart_contract_data"),
 		apijson.Discriminator[SuiTransactionCommandConditionParam]("sui_transaction_command"),
 		apijson.Discriminator[SuiTransferObjectsCommandConditionParam]("sui_transfer_objects_command"),
+		apijson.Discriminator[AggregationConditionParam]("reference"),
 	)
 }
 
@@ -4305,7 +6427,7 @@ func (u *IntentUpdatePolicyParamsRuleConditionEthereumCalldataValueUnion) Unmars
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type IntentUpdatePolicyParamsRuleConditionEthereumTypedDataDomain struct {
-	// Any of "chainId", "verifyingContract".
+	// Any of "chainId", "verifyingContract", "chain_id", "verifying_contract".
 	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                                 `json:"operator,omitzero" api:"required"`
@@ -4326,7 +6448,7 @@ func (r *IntentUpdatePolicyParamsRuleConditionEthereumTypedDataDomain) Unmarshal
 
 func init() {
 	apijson.RegisterFieldValidator[IntentUpdatePolicyParamsRuleConditionEthereumTypedDataDomain](
-		"field", "chainId", "verifyingContract",
+		"field", "chainId", "verifyingContract", "chain_id", "verifying_contract",
 	)
 	apijson.RegisterFieldValidator[IntentUpdatePolicyParamsRuleConditionEthereumTypedDataDomain](
 		"operator", "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set",
@@ -4381,8 +6503,9 @@ func init() {
 
 // The properties PrimaryType, Types are required.
 type IntentUpdatePolicyParamsRuleConditionEthereumTypedDataMessageTypedData struct {
-	PrimaryType string                                                                                  `json:"primary_type" api:"required"`
-	Types       map[string][]IntentUpdatePolicyParamsRuleConditionEthereumTypedDataMessageTypedDataType `json:"types,omitzero" api:"required"`
+	PrimaryType string `json:"primary_type" api:"required"`
+	// The type definitions for EIP-712 typed data signing.
+	Types TypedDataTypesInputParams `json:"types,omitzero" api:"required"`
 	paramObj
 }
 
@@ -4391,21 +6514,6 @@ func (r IntentUpdatePolicyParamsRuleConditionEthereumTypedDataMessageTypedData) 
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *IntentUpdatePolicyParamsRuleConditionEthereumTypedDataMessageTypedData) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The properties Name, Type are required.
-type IntentUpdatePolicyParamsRuleConditionEthereumTypedDataMessageTypedDataType struct {
-	Name string `json:"name" api:"required"`
-	Type string `json:"type" api:"required"`
-	paramObj
-}
-
-func (r IntentUpdatePolicyParamsRuleConditionEthereumTypedDataMessageTypedDataType) MarshalJSON() (data []byte, err error) {
-	type shadow IntentUpdatePolicyParamsRuleConditionEthereumTypedDataMessageTypedDataType
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *IntentUpdatePolicyParamsRuleConditionEthereumTypedDataMessageTypedDataType) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -4575,9 +6683,15 @@ func (u *IntentUpdatePolicyParamsRuleConditionSolanaSystemProgramInstructionValu
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type IntentUpdatePolicyParamsRuleConditionSolanaTokenProgramInstruction struct {
-	// Any of "instructionName", "TransferChecked.source",
+	// Any of "instructionName", "Transfer.source", "Transfer.destination",
+	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
 	// "TransferChecked.destination", "TransferChecked.authority",
-	// "TransferChecked.amount", "TransferChecked.mint".
+	// "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint",
+	// "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account",
+	// "MintTo.authority", "MintTo.amount", "CloseAccount.account",
+	// "CloseAccount.destination", "CloseAccount.authority",
+	// "InitializeAccount3.account", "InitializeAccount3.mint",
+	// "InitializeAccount3.owner".
 	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                                       `json:"operator,omitzero" api:"required"`
@@ -4598,7 +6712,7 @@ func (r *IntentUpdatePolicyParamsRuleConditionSolanaTokenProgramInstruction) Unm
 
 func init() {
 	apijson.RegisterFieldValidator[IntentUpdatePolicyParamsRuleConditionSolanaTokenProgramInstruction](
-		"field", "instructionName", "TransferChecked.source", "TransferChecked.destination", "TransferChecked.authority", "TransferChecked.amount", "TransferChecked.mint",
+		"field", "instructionName", "Transfer.source", "Transfer.destination", "Transfer.authority", "Transfer.amount", "TransferChecked.source", "TransferChecked.destination", "TransferChecked.authority", "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint", "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account", "MintTo.authority", "MintTo.amount", "CloseAccount.account", "CloseAccount.destination", "CloseAccount.authority", "InitializeAccount3.account", "InitializeAccount3.mint", "InitializeAccount3.owner",
 	)
 	apijson.RegisterFieldValidator[IntentUpdatePolicyParamsRuleConditionSolanaTokenProgramInstruction](
 		"operator", "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set",
@@ -4719,8 +6833,10 @@ type IntentUpdatePolicyRuleParamsConditionUnion struct {
 	OfSolanaTokenProgramInstruction  *IntentUpdatePolicyRuleParamsConditionSolanaTokenProgramInstruction  `json:",omitzero,inline"`
 	OfSystem                         *IntentUpdatePolicyRuleParamsConditionSystem                         `json:",omitzero,inline"`
 	OfTronTransaction                *TronTransactionConditionParam                                       `json:",omitzero,inline"`
+	OfTronTriggerSmartContractData   *TronCalldataConditionParam                                          `json:",omitzero,inline"`
 	OfSuiTransactionCommand          *SuiTransactionCommandConditionParam                                 `json:",omitzero,inline"`
 	OfSuiTransferObjectsCommand      *SuiTransferObjectsCommandConditionParam                             `json:",omitzero,inline"`
+	OfReference                      *AggregationConditionParam                                           `json:",omitzero,inline"`
 	paramUnion
 }
 
@@ -4735,8 +6851,10 @@ func (u IntentUpdatePolicyRuleParamsConditionUnion) MarshalJSON() ([]byte, error
 		u.OfSolanaTokenProgramInstruction,
 		u.OfSystem,
 		u.OfTronTransaction,
+		u.OfTronTriggerSmartContractData,
 		u.OfSuiTransactionCommand,
-		u.OfSuiTransferObjectsCommand)
+		u.OfSuiTransferObjectsCommand,
+		u.OfReference)
 }
 func (u *IntentUpdatePolicyRuleParamsConditionUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
@@ -4755,8 +6873,10 @@ func init() {
 		apijson.Discriminator[IntentUpdatePolicyRuleParamsConditionSolanaTokenProgramInstruction]("solana_token_program_instruction"),
 		apijson.Discriminator[IntentUpdatePolicyRuleParamsConditionSystem]("system"),
 		apijson.Discriminator[TronTransactionConditionParam]("tron_transaction"),
+		apijson.Discriminator[TronCalldataConditionParam]("tron_trigger_smart_contract_data"),
 		apijson.Discriminator[SuiTransactionCommandConditionParam]("sui_transaction_command"),
 		apijson.Discriminator[SuiTransferObjectsCommandConditionParam]("sui_transfer_objects_command"),
+		apijson.Discriminator[AggregationConditionParam]("reference"),
 	)
 }
 
@@ -4860,7 +6980,7 @@ func (u *IntentUpdatePolicyRuleParamsConditionEthereumCalldataValueUnion) Unmars
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type IntentUpdatePolicyRuleParamsConditionEthereumTypedDataDomain struct {
-	// Any of "chainId", "verifyingContract".
+	// Any of "chainId", "verifyingContract", "chain_id", "verifying_contract".
 	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                                 `json:"operator,omitzero" api:"required"`
@@ -4881,7 +7001,7 @@ func (r *IntentUpdatePolicyRuleParamsConditionEthereumTypedDataDomain) Unmarshal
 
 func init() {
 	apijson.RegisterFieldValidator[IntentUpdatePolicyRuleParamsConditionEthereumTypedDataDomain](
-		"field", "chainId", "verifyingContract",
+		"field", "chainId", "verifyingContract", "chain_id", "verifying_contract",
 	)
 	apijson.RegisterFieldValidator[IntentUpdatePolicyRuleParamsConditionEthereumTypedDataDomain](
 		"operator", "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set",
@@ -4936,8 +7056,9 @@ func init() {
 
 // The properties PrimaryType, Types are required.
 type IntentUpdatePolicyRuleParamsConditionEthereumTypedDataMessageTypedData struct {
-	PrimaryType string                                                                                  `json:"primary_type" api:"required"`
-	Types       map[string][]IntentUpdatePolicyRuleParamsConditionEthereumTypedDataMessageTypedDataType `json:"types,omitzero" api:"required"`
+	PrimaryType string `json:"primary_type" api:"required"`
+	// The type definitions for EIP-712 typed data signing.
+	Types TypedDataTypesInputParams `json:"types,omitzero" api:"required"`
 	paramObj
 }
 
@@ -4946,21 +7067,6 @@ func (r IntentUpdatePolicyRuleParamsConditionEthereumTypedDataMessageTypedData) 
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *IntentUpdatePolicyRuleParamsConditionEthereumTypedDataMessageTypedData) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The properties Name, Type are required.
-type IntentUpdatePolicyRuleParamsConditionEthereumTypedDataMessageTypedDataType struct {
-	Name string `json:"name" api:"required"`
-	Type string `json:"type" api:"required"`
-	paramObj
-}
-
-func (r IntentUpdatePolicyRuleParamsConditionEthereumTypedDataMessageTypedDataType) MarshalJSON() (data []byte, err error) {
-	type shadow IntentUpdatePolicyRuleParamsConditionEthereumTypedDataMessageTypedDataType
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *IntentUpdatePolicyRuleParamsConditionEthereumTypedDataMessageTypedDataType) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -5130,9 +7236,15 @@ func (u *IntentUpdatePolicyRuleParamsConditionSolanaSystemProgramInstructionValu
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type IntentUpdatePolicyRuleParamsConditionSolanaTokenProgramInstruction struct {
-	// Any of "instructionName", "TransferChecked.source",
+	// Any of "instructionName", "Transfer.source", "Transfer.destination",
+	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
 	// "TransferChecked.destination", "TransferChecked.authority",
-	// "TransferChecked.amount", "TransferChecked.mint".
+	// "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint",
+	// "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account",
+	// "MintTo.authority", "MintTo.amount", "CloseAccount.account",
+	// "CloseAccount.destination", "CloseAccount.authority",
+	// "InitializeAccount3.account", "InitializeAccount3.mint",
+	// "InitializeAccount3.owner".
 	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                                       `json:"operator,omitzero" api:"required"`
@@ -5153,7 +7265,7 @@ func (r *IntentUpdatePolicyRuleParamsConditionSolanaTokenProgramInstruction) Unm
 
 func init() {
 	apijson.RegisterFieldValidator[IntentUpdatePolicyRuleParamsConditionSolanaTokenProgramInstruction](
-		"field", "instructionName", "TransferChecked.source", "TransferChecked.destination", "TransferChecked.authority", "TransferChecked.amount", "TransferChecked.mint",
+		"field", "instructionName", "Transfer.source", "Transfer.destination", "Transfer.authority", "Transfer.amount", "TransferChecked.source", "TransferChecked.destination", "TransferChecked.authority", "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint", "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account", "MintTo.authority", "MintTo.amount", "CloseAccount.account", "CloseAccount.destination", "CloseAccount.authority", "InitializeAccount3.account", "InitializeAccount3.mint", "InitializeAccount3.owner",
 	)
 	apijson.RegisterFieldValidator[IntentUpdatePolicyRuleParamsConditionSolanaTokenProgramInstruction](
 		"operator", "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set",
