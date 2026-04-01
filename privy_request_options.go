@@ -21,9 +21,6 @@ type RequestOption interface {
 // RpcOption is a backwards-compatible alias for RequestOption.
 type RpcOption = RequestOption
 
-// RpcRequestOption is a backwards-compatible alias for RequestOption.
-type RpcRequestOption = RequestOption
-
 type requestOptions struct {
 	AuthorizationContext *authorization.AuthorizationContext
 	IdempotencyKey       *string
