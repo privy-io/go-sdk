@@ -6136,7 +6136,7 @@ func (r IntentRpcParams) MarshalJSON() (data []byte, err error) {
 	return shimjson.Marshal(r.WalletRpcRequestBody)
 }
 func (r *IntentRpcParams) UnmarshalJSON(data []byte) error {
-	return json.Unmarshal(data, &r.WalletRpcRequestBody)
+	return apijson.UnmarshalRoot(data, r)
 }
 
 type IntentUpdateKeyQuorumParams struct {
@@ -6152,7 +6152,7 @@ func (r IntentUpdateKeyQuorumParams) MarshalJSON() (data []byte, err error) {
 	return shimjson.Marshal(r.KeyQuorumUpdateRequestBody)
 }
 func (r *IntentUpdateKeyQuorumParams) UnmarshalJSON(data []byte) error {
-	return json.Unmarshal(data, &r.KeyQuorumUpdateRequestBody)
+	return apijson.UnmarshalRoot(data, r)
 }
 
 type IntentUpdatePolicyParams struct {
@@ -7364,5 +7364,5 @@ func (r IntentUpdateWalletParams) MarshalJSON() (data []byte, err error) {
 	return shimjson.Marshal(r.WalletUpdateRequestBody)
 }
 func (r *IntentUpdateWalletParams) UnmarshalJSON(data []byte) error {
-	return json.Unmarshal(data, &r.WalletUpdateRequestBody)
+	return apijson.UnmarshalRoot(data, r)
 }

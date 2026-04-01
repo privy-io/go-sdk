@@ -246,7 +246,7 @@ func (r KeyQuorumNewParams) MarshalJSON() (data []byte, err error) {
 	return shimjson.Marshal(r.KeyQuorumCreateRequestBody)
 }
 func (r *KeyQuorumNewParams) UnmarshalJSON(data []byte) error {
-	return json.Unmarshal(data, &r.KeyQuorumCreateRequestBody)
+	return apijson.UnmarshalRoot(data, r)
 }
 
 type KeyQuorumUpdateParams struct {
@@ -265,7 +265,7 @@ func (r KeyQuorumUpdateParams) MarshalJSON() (data []byte, err error) {
 	return shimjson.Marshal(r.KeyQuorumUpdateRequestBody)
 }
 func (r *KeyQuorumUpdateParams) UnmarshalJSON(data []byte) error {
-	return json.Unmarshal(data, &r.KeyQuorumUpdateRequestBody)
+	return apijson.UnmarshalRoot(data, r)
 }
 
 type KeyQuorumDeleteParams struct {

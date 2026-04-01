@@ -4,13 +4,13 @@ package privyclient
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
 	"slices"
 
+	"github.com/privy-io/go-sdk/internal/apijson"
 	shimjson "github.com/privy-io/go-sdk/internal/encoding/json"
 	"github.com/privy-io/go-sdk/internal/requestconfig"
 	"github.com/privy-io/go-sdk/option"
@@ -84,7 +84,7 @@ func (r AppAllowlistNewParams) MarshalJSON() (data []byte, err error) {
 	return shimjson.Marshal(r.UserInviteInput)
 }
 func (r *AppAllowlistNewParams) UnmarshalJSON(data []byte) error {
-	return json.Unmarshal(data, &r.UserInviteInput)
+	return apijson.UnmarshalRoot(data, r)
 }
 
 type AppAllowlistDeleteParams struct {
@@ -97,5 +97,5 @@ func (r AppAllowlistDeleteParams) MarshalJSON() (data []byte, err error) {
 	return shimjson.Marshal(r.UserInviteInput)
 }
 func (r *AppAllowlistDeleteParams) UnmarshalJSON(data []byte) error {
-	return json.Unmarshal(data, &r.UserInviteInput)
+	return apijson.UnmarshalRoot(data, r)
 }

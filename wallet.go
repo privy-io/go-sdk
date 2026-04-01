@@ -6372,7 +6372,7 @@ func (r WalletUpdateParams) MarshalJSON() (data []byte, err error) {
 	return shimjson.Marshal(r.WalletUpdateRequestBody)
 }
 func (r *WalletUpdateParams) UnmarshalJSON(data []byte) error {
-	return json.Unmarshal(data, &r.WalletUpdateRequestBody)
+	return apijson.UnmarshalRoot(data, r)
 }
 
 type WalletListParams struct {
@@ -6631,7 +6631,7 @@ func (r WalletAuthenticateWithJwtParams) MarshalJSON() (data []byte, err error) 
 	return shimjson.Marshal(r.WalletAuthenticateRequestBody)
 }
 func (r *WalletAuthenticateWithJwtParams) UnmarshalJSON(data []byte) error {
-	return json.Unmarshal(data, &r.WalletAuthenticateRequestBody)
+	return apijson.UnmarshalRoot(data, r)
 }
 
 type WalletExportParams struct {
@@ -6678,7 +6678,7 @@ func (r WalletRawSignParams) MarshalJSON() (data []byte, err error) {
 	return shimjson.Marshal(r.RawSignInput)
 }
 func (r *WalletRawSignParams) UnmarshalJSON(data []byte) error {
-	return json.Unmarshal(data, &r.RawSignInput)
+	return apijson.UnmarshalRoot(data, r)
 }
 
 type WalletRpcParams struct {
@@ -6700,5 +6700,5 @@ func (r WalletRpcParams) MarshalJSON() (data []byte, err error) {
 	return shimjson.Marshal(r.WalletRpcRequestBody)
 }
 func (r *WalletRpcParams) UnmarshalJSON(data []byte) error {
-	return json.Unmarshal(data, &r.WalletRpcRequestBody)
+	return apijson.UnmarshalRoot(data, r)
 }
