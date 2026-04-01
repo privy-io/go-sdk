@@ -1535,9 +1535,10 @@ type EthereumSendTransactionRpcInput struct {
 	Params  EthereumSendTransactionRpcInputParamsResp `json:"params" api:"required"`
 	Address string                                    `json:"address"`
 	// Any of "ethereum".
-	ChainType EthereumSendTransactionRpcInputChainType `json:"chain_type"`
-	Sponsor   bool                                     `json:"sponsor"`
-	WalletID  string                                   `json:"wallet_id"`
+	ChainType   EthereumSendTransactionRpcInputChainType `json:"chain_type"`
+	ReferenceID string                                   `json:"reference_id"`
+	Sponsor     bool                                     `json:"sponsor"`
+	WalletID    string                                   `json:"wallet_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2       respjson.Field
@@ -1545,6 +1546,7 @@ type EthereumSendTransactionRpcInput struct {
 		Params      respjson.Field
 		Address     respjson.Field
 		ChainType   respjson.Field
+		ReferenceID respjson.Field
 		Sponsor     respjson.Field
 		WalletID    respjson.Field
 		ExtraFields map[string]respjson.Field
@@ -1589,10 +1591,11 @@ type EthereumSendTransactionRpcInputParam struct {
 	// Any of "eth_sendTransaction".
 	Method EthereumSendTransactionRpcInputMethod `json:"method,omitzero" api:"required"`
 	// Parameters for the EVM `eth_sendTransaction` RPC.
-	Params   EthereumSendTransactionRpcInputParams `json:"params,omitzero" api:"required"`
-	Address  param.Opt[string]                     `json:"address,omitzero"`
-	Sponsor  param.Opt[bool]                       `json:"sponsor,omitzero"`
-	WalletID param.Opt[string]                     `json:"wallet_id,omitzero"`
+	Params      EthereumSendTransactionRpcInputParams `json:"params,omitzero" api:"required"`
+	Address     param.Opt[string]                     `json:"address,omitzero"`
+	ReferenceID param.Opt[string]                     `json:"reference_id,omitzero"`
+	Sponsor     param.Opt[bool]                       `json:"sponsor,omitzero"`
+	WalletID    param.Opt[string]                     `json:"wallet_id,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumSendTransactionRpcInputChainType `json:"chain_type,omitzero"`
 	paramObj
@@ -2459,6 +2462,7 @@ type EthereumSendTransactionRpcResponseData struct {
 	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
 	Caip2         Caip2  `json:"caip2" api:"required"`
 	Hash          string `json:"hash" api:"required"`
+	ReferenceID   string `json:"reference_id" api:"nullable"`
 	TransactionID string `json:"transaction_id"`
 	// An unsigned Ethereum transaction object.
 	TransactionRequest UnsignedEthereumTransaction `json:"transaction_request"`
@@ -2467,6 +2471,7 @@ type EthereumSendTransactionRpcResponseData struct {
 	JSON struct {
 		Caip2              respjson.Field
 		Hash               respjson.Field
+		ReferenceID        respjson.Field
 		TransactionID      respjson.Field
 		TransactionRequest respjson.Field
 		UserOperationHash  respjson.Field
@@ -2953,9 +2958,10 @@ type SolanaSignAndSendTransactionRpcInput struct {
 	Params  SolanaSignAndSendTransactionRpcInputParamsResp `json:"params" api:"required"`
 	Address string                                         `json:"address"`
 	// Any of "solana".
-	ChainType SolanaSignAndSendTransactionRpcInputChainType `json:"chain_type"`
-	Sponsor   bool                                          `json:"sponsor"`
-	WalletID  string                                        `json:"wallet_id"`
+	ChainType   SolanaSignAndSendTransactionRpcInputChainType `json:"chain_type"`
+	ReferenceID string                                        `json:"reference_id"`
+	Sponsor     bool                                          `json:"sponsor"`
+	WalletID    string                                        `json:"wallet_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2       respjson.Field
@@ -2963,6 +2969,7 @@ type SolanaSignAndSendTransactionRpcInput struct {
 		Params      respjson.Field
 		Address     respjson.Field
 		ChainType   respjson.Field
+		ReferenceID respjson.Field
 		Sponsor     respjson.Field
 		WalletID    respjson.Field
 		ExtraFields map[string]respjson.Field
@@ -3008,10 +3015,11 @@ type SolanaSignAndSendTransactionRpcInputParam struct {
 	// Any of "signAndSendTransaction".
 	Method SolanaSignAndSendTransactionRpcInputMethod `json:"method,omitzero" api:"required"`
 	// Parameters for the SVM `signAndSendTransaction` RPC.
-	Params   SolanaSignAndSendTransactionRpcInputParams `json:"params,omitzero" api:"required"`
-	Address  param.Opt[string]                          `json:"address,omitzero"`
-	Sponsor  param.Opt[bool]                            `json:"sponsor,omitzero"`
-	WalletID param.Opt[string]                          `json:"wallet_id,omitzero"`
+	Params      SolanaSignAndSendTransactionRpcInputParams `json:"params,omitzero" api:"required"`
+	Address     param.Opt[string]                          `json:"address,omitzero"`
+	ReferenceID param.Opt[string]                          `json:"reference_id,omitzero"`
+	Sponsor     param.Opt[bool]                            `json:"sponsor,omitzero"`
+	WalletID    param.Opt[string]                          `json:"wallet_id,omitzero"`
 	// Any of "solana".
 	ChainType SolanaSignAndSendTransactionRpcInputChainType `json:"chain_type,omitzero"`
 	paramObj
@@ -3210,11 +3218,13 @@ type SolanaSignAndSendTransactionRpcResponseData struct {
 	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
 	Caip2         Caip2  `json:"caip2" api:"required"`
 	Hash          string `json:"hash" api:"required"`
+	ReferenceID   string `json:"reference_id" api:"nullable"`
 	TransactionID string `json:"transaction_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2         respjson.Field
 		Hash          respjson.Field
+		ReferenceID   respjson.Field
 		TransactionID respjson.Field
 		ExtraFields   map[string]respjson.Field
 		raw           string
@@ -5295,20 +5305,22 @@ type WalletRpcRequestBodyUnion struct {
 	ChainType string                          `json:"chain_type"`
 	WalletID  string                          `json:"wallet_id"`
 	// This field is from variant [EthereumSendTransactionRpcInput].
-	Caip2   Caip2 `json:"caip2"`
-	Sponsor bool  `json:"sponsor"`
+	Caip2       Caip2  `json:"caip2"`
+	ReferenceID string `json:"reference_id"`
+	Sponsor     bool   `json:"sponsor"`
 	// This field is from variant [SparkTransferRpcInput].
 	Network SparkNetwork `json:"network"`
 	JSON    struct {
-		Method    respjson.Field
-		Params    respjson.Field
-		Address   respjson.Field
-		ChainType respjson.Field
-		WalletID  respjson.Field
-		Caip2     respjson.Field
-		Sponsor   respjson.Field
-		Network   respjson.Field
-		raw       string
+		Method      respjson.Field
+		Params      respjson.Field
+		Address     respjson.Field
+		ChainType   respjson.Field
+		WalletID    respjson.Field
+		Caip2       respjson.Field
+		ReferenceID respjson.Field
+		Sponsor     respjson.Field
+		Network     respjson.Field
+		raw         string
 	} `json:"-"`
 }
 
@@ -6200,6 +6212,7 @@ type WalletRpcResponseUnionData struct {
 	// This field is from variant [EthereumSendTransactionRpcResponseData].
 	Caip2         Caip2  `json:"caip2"`
 	Hash          string `json:"hash"`
+	ReferenceID   string `json:"reference_id"`
 	TransactionID string `json:"transaction_id"`
 	// This field is from variant [EthereumSendTransactionRpcResponseData].
 	TransactionRequest UnsignedEthereumTransaction `json:"transaction_request"`
@@ -6272,6 +6285,7 @@ type WalletRpcResponseUnionData struct {
 		SignedTransaction         respjson.Field
 		Caip2                     respjson.Field
 		Hash                      respjson.Field
+		ReferenceID               respjson.Field
 		TransactionID             respjson.Field
 		TransactionRequest        respjson.Field
 		UserOperationHash         respjson.Field
@@ -6346,6 +6360,74 @@ type WalletAuthenticateRequestBodyEncryptionType string
 const (
 	WalletAuthenticateRequestBodyEncryptionTypeHpke WalletAuthenticateRequestBodyEncryptionType = "HPKE"
 )
+
+// The source asset, amount, and chain for a token transfer.
+type TokenTransferSource struct {
+	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
+	// USDC, "0.01" for 0.01 ETH). Not in the smallest on-chain unit (wei, lamports,
+	// etc.).
+	Amount string `json:"amount" api:"required"`
+	// The asset to transfer. Supported: 'usdc', 'usdb', 'usdt' (stablecoins), 'eth'
+	// (native Ethereum), 'sol' (native Solana).
+	Asset string `json:"asset" api:"required"`
+	// The blockchain network on which to perform the transfer. Supported chains
+	// include: 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and their
+	// respective testnets.
+	Chain string `json:"chain" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Amount      respjson.Field
+		Asset       respjson.Field
+		Chain       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TokenTransferSource) RawJSON() string { return r.JSON.raw }
+func (r *TokenTransferSource) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The destination address for a token transfer.
+type TokenTransferDestination struct {
+	// Recipient address (hex for EVM, base58 for Solana)
+	Address string `json:"address" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Address     respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TokenTransferDestination) RawJSON() string { return r.JSON.raw }
+func (r *TokenTransferDestination) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Request body for initiating a sponsored token transfer from an embedded wallet.
+type CreateTokenTransferRequest struct {
+	// The destination address for a token transfer.
+	Destination TokenTransferDestination `json:"destination" api:"required"`
+	// The source asset, amount, and chain for a token transfer.
+	Source TokenTransferSource `json:"source" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Destination respjson.Field
+		Source      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r CreateTokenTransferRequest) RawJSON() string { return r.JSON.raw }
+func (r *CreateTokenTransferRequest) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 // SUI transaction commands allowlist for raw_sign endpoint policy evaluation
 type SuiCommandName string

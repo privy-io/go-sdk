@@ -207,6 +207,7 @@ const (
 	IntentTypePolicy    IntentType = "POLICY"
 	IntentTypeRule      IntentType = "RULE"
 	IntentTypeRpc       IntentType = "RPC"
+	IntentTypeTransfer  IntentType = "TRANSFER"
 	IntentTypeWallet    IntentType = "WALLET"
 )
 
@@ -2496,6 +2497,62 @@ func (r *IntentAuthorization) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Common fields shared by all intent response types.
+type BaseIntentResponse struct {
+	// Detailed authorization information including key quorum members, thresholds, and
+	// signature status
+	AuthorizationDetails []IntentAuthorization `json:"authorization_details" api:"required"`
+	// Unix timestamp when the intent was created
+	CreatedAt float64 `json:"created_at" api:"required"`
+	// Display name of the user who created the intent
+	CreatedByDisplayName string `json:"created_by_display_name" api:"required"`
+	// Whether this intent has a custom expiry time set by the client. If false, the
+	// intent expires after a default duration.
+	CustomExpiry bool `json:"custom_expiry" api:"required"`
+	// Unix timestamp when the intent expires
+	ExpiresAt float64 `json:"expires_at" api:"required"`
+	// Unique ID for the intent
+	IntentID string `json:"intent_id" api:"required"`
+	// ID of the resource being modified (wallet_id, policy_id, etc)
+	ResourceID string `json:"resource_id" api:"required"`
+	// Current status of an intent.
+	//
+	// Any of "pending", "executed", "failed", "expired", "rejected", "dismissed".
+	Status IntentStatus `json:"status" api:"required"`
+	// ID of the user who created the intent. If undefined, the intent was created
+	// using the app secret
+	CreatedByID string `json:"created_by_id"`
+	// Human-readable reason for dismissal, present when status is 'dismissed'
+	DismissalReason string `json:"dismissal_reason"`
+	// Unix timestamp when the intent was dismissed, present when status is 'dismissed'
+	DismissedAt float64 `json:"dismissed_at"`
+	// Unix timestamp when the intent was rejected, present when status is 'rejected'
+	RejectedAt float64 `json:"rejected_at"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		AuthorizationDetails respjson.Field
+		CreatedAt            respjson.Field
+		CreatedByDisplayName respjson.Field
+		CustomExpiry         respjson.Field
+		ExpiresAt            respjson.Field
+		IntentID             respjson.Field
+		ResourceID           respjson.Field
+		Status               respjson.Field
+		CreatedByID          respjson.Field
+		DismissalReason      respjson.Field
+		DismissedAt          respjson.Field
+		RejectedAt           respjson.Field
+		ExtraFields          map[string]respjson.Field
+		raw                  string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r BaseIntentResponse) RawJSON() string { return r.JSON.raw }
+func (r *BaseIntentResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Common fields for intent action execution results.
 type BaseActionResult struct {
 	// Unix timestamp when the action was executed
@@ -2525,64 +2582,24 @@ func (r *BaseActionResult) UnmarshalJSON(data []byte) error {
 
 // Response for an RPC intent
 type RpcIntentResponse struct {
-	// Detailed authorization information including key quorum members, thresholds, and
-	// signature status
-	AuthorizationDetails []IntentAuthorization `json:"authorization_details" api:"required"`
-	// Unix timestamp when the intent was created
-	CreatedAt float64 `json:"created_at" api:"required"`
-	// Display name of the user who created the intent
-	CreatedByDisplayName string `json:"created_by_display_name" api:"required"`
-	// Whether this intent has a custom expiry time set by the client. If false, the
-	// intent expires after a default duration.
-	CustomExpiry bool `json:"custom_expiry" api:"required"`
-	// Unix timestamp when the intent expires
-	ExpiresAt float64 `json:"expires_at" api:"required"`
-	// Unique ID for the intent
-	IntentID string `json:"intent_id" api:"required"`
 	// Any of "RPC".
-	IntentType RpcIntentResponseIntentType `json:"intent_type" api:"required"`
+	IntentType string `json:"intent_type" api:"required"`
 	// The original RPC request that would be sent to the wallet endpoint
 	RequestDetails RpcIntentResponseRequestDetails `json:"request_details" api:"required"`
-	// ID of the resource being modified (wallet_id, policy_id, etc)
-	ResourceID string `json:"resource_id" api:"required"`
-	// Current status of an intent.
-	//
-	// Any of "pending", "executed", "failed", "expired", "rejected", "dismissed".
-	Status IntentStatus `json:"status" api:"required"`
 	// Result of RPC execution (only present if status is 'executed' or 'failed')
 	ActionResult BaseActionResult `json:"action_result"`
-	// ID of the user who created the intent. If undefined, the intent was created
-	// using the app secret
-	CreatedByID string `json:"created_by_id"`
 	// A wallet managed by Privy's wallet infrastructure.
 	CurrentResourceData Wallet `json:"current_resource_data"`
-	// Human-readable reason for dismissal, present when status is 'dismissed'
-	DismissalReason string `json:"dismissal_reason"`
-	// Unix timestamp when the intent was dismissed, present when status is 'dismissed'
-	DismissedAt float64 `json:"dismissed_at"`
-	// Unix timestamp when the intent was rejected, present when status is 'rejected'
-	RejectedAt float64 `json:"rejected_at"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		AuthorizationDetails respjson.Field
-		CreatedAt            respjson.Field
-		CreatedByDisplayName respjson.Field
-		CustomExpiry         respjson.Field
-		ExpiresAt            respjson.Field
-		IntentID             respjson.Field
-		IntentType           respjson.Field
-		RequestDetails       respjson.Field
-		ResourceID           respjson.Field
-		Status               respjson.Field
-		ActionResult         respjson.Field
-		CreatedByID          respjson.Field
-		CurrentResourceData  respjson.Field
-		DismissalReason      respjson.Field
-		DismissedAt          respjson.Field
-		RejectedAt           respjson.Field
-		ExtraFields          map[string]respjson.Field
-		raw                  string
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		CurrentResourceData respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
 	} `json:"-"`
+	BaseIntentResponse
 }
 
 // Returns the unmodified JSON received from the API
@@ -2590,12 +2607,6 @@ func (r RpcIntentResponse) RawJSON() string { return r.JSON.raw }
 func (r *RpcIntentResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-type RpcIntentResponseIntentType string
-
-const (
-	RpcIntentResponseIntentTypeRpc RpcIntentResponseIntentType = "RPC"
-)
 
 // The original RPC request that would be sent to the wallet endpoint
 type RpcIntentResponseRequestDetails struct {
@@ -2620,67 +2631,79 @@ func (r *RpcIntentResponseRequestDetails) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Response for a transfer intent
+type TransferIntentResponse struct {
+	// Any of "TRANSFER".
+	IntentType string `json:"intent_type" api:"required"`
+	// The original transfer request that would be sent to the wallet transfer endpoint
+	RequestDetails TransferIntentResponseRequestDetails `json:"request_details" api:"required"`
+	// Result of transfer execution (only present if intent status is 'executed' or
+	// 'failed')
+	ActionResult BaseActionResult `json:"action_result"`
+	// A wallet managed by Privy's wallet infrastructure.
+	CurrentResourceData Wallet `json:"current_resource_data"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		CurrentResourceData respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
+	} `json:"-"`
+	BaseIntentResponse
+}
+
+// Returns the unmodified JSON received from the API
+func (r TransferIntentResponse) RawJSON() string { return r.JSON.raw }
+func (r *TransferIntentResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The original transfer request that would be sent to the wallet transfer endpoint
+type TransferIntentResponseRequestDetails struct {
+	// Request body for initiating a sponsored token transfer from an embedded wallet.
+	Body CreateTokenTransferRequest `json:"body" api:"required"`
+	// Any of "POST".
+	Method string `json:"method" api:"required"`
+	URL    string `json:"url" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Body        respjson.Field
+		Method      respjson.Field
+		URL         respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TransferIntentResponseRequestDetails) RawJSON() string { return r.JSON.raw }
+func (r *TransferIntentResponseRequestDetails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Response for a wallet intent
 type WalletIntentResponse struct {
-	// Detailed authorization information including key quorum members, thresholds, and
-	// signature status
-	AuthorizationDetails []IntentAuthorization `json:"authorization_details" api:"required"`
-	// Unix timestamp when the intent was created
-	CreatedAt float64 `json:"created_at" api:"required"`
-	// Display name of the user who created the intent
-	CreatedByDisplayName string `json:"created_by_display_name" api:"required"`
-	// Whether this intent has a custom expiry time set by the client. If false, the
-	// intent expires after a default duration.
-	CustomExpiry bool `json:"custom_expiry" api:"required"`
-	// Unix timestamp when the intent expires
-	ExpiresAt float64 `json:"expires_at" api:"required"`
-	// Unique ID for the intent
-	IntentID string `json:"intent_id" api:"required"`
 	// Any of "WALLET".
-	IntentType WalletIntentResponseIntentType `json:"intent_type" api:"required"`
+	IntentType string `json:"intent_type" api:"required"`
 	// The original wallet update request that would be sent to the wallet endpoint
 	RequestDetails WalletIntentResponseRequestDetails `json:"request_details" api:"required"`
-	// ID of the resource being modified (wallet_id, policy_id, etc)
-	ResourceID string `json:"resource_id" api:"required"`
-	// Current status of an intent.
-	//
-	// Any of "pending", "executed", "failed", "expired", "rejected", "dismissed".
-	Status IntentStatus `json:"status" api:"required"`
 	// Result of wallet update execution (only present if status is 'executed' or
 	// 'failed')
 	ActionResult BaseActionResult `json:"action_result"`
-	// ID of the user who created the intent. If undefined, the intent was created
-	// using the app secret
-	CreatedByID string `json:"created_by_id"`
 	// A wallet managed by Privy's wallet infrastructure.
 	CurrentResourceData Wallet `json:"current_resource_data"`
-	// Human-readable reason for dismissal, present when status is 'dismissed'
-	DismissalReason string `json:"dismissal_reason"`
-	// Unix timestamp when the intent was dismissed, present when status is 'dismissed'
-	DismissedAt float64 `json:"dismissed_at"`
-	// Unix timestamp when the intent was rejected, present when status is 'rejected'
-	RejectedAt float64 `json:"rejected_at"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		AuthorizationDetails respjson.Field
-		CreatedAt            respjson.Field
-		CreatedByDisplayName respjson.Field
-		CustomExpiry         respjson.Field
-		ExpiresAt            respjson.Field
-		IntentID             respjson.Field
-		IntentType           respjson.Field
-		RequestDetails       respjson.Field
-		ResourceID           respjson.Field
-		Status               respjson.Field
-		ActionResult         respjson.Field
-		CreatedByID          respjson.Field
-		CurrentResourceData  respjson.Field
-		DismissalReason      respjson.Field
-		DismissedAt          respjson.Field
-		RejectedAt           respjson.Field
-		ExtraFields          map[string]respjson.Field
-		raw                  string
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		CurrentResourceData respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
 	} `json:"-"`
+	BaseIntentResponse
 }
 
 // Returns the unmodified JSON received from the API
@@ -2688,12 +2711,6 @@ func (r WalletIntentResponse) RawJSON() string { return r.JSON.raw }
 func (r *WalletIntentResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-type WalletIntentResponseIntentType string
-
-const (
-	WalletIntentResponseIntentTypeWallet WalletIntentResponseIntentType = "WALLET"
-)
 
 // The original wallet update request that would be sent to the wallet endpoint
 type WalletIntentResponseRequestDetails struct {
@@ -2768,65 +2785,25 @@ func (r *WalletIntentResponseRequestDetailsBodyOwner) UnmarshalJSON(data []byte)
 
 // Response for a policy intent
 type PolicyIntentResponse struct {
-	// Detailed authorization information including key quorum members, thresholds, and
-	// signature status
-	AuthorizationDetails []IntentAuthorization `json:"authorization_details" api:"required"`
-	// Unix timestamp when the intent was created
-	CreatedAt float64 `json:"created_at" api:"required"`
-	// Display name of the user who created the intent
-	CreatedByDisplayName string `json:"created_by_display_name" api:"required"`
-	// Whether this intent has a custom expiry time set by the client. If false, the
-	// intent expires after a default duration.
-	CustomExpiry bool `json:"custom_expiry" api:"required"`
-	// Unix timestamp when the intent expires
-	ExpiresAt float64 `json:"expires_at" api:"required"`
-	// Unique ID for the intent
-	IntentID string `json:"intent_id" api:"required"`
 	// Any of "POLICY".
-	IntentType PolicyIntentResponseIntentType `json:"intent_type" api:"required"`
+	IntentType string `json:"intent_type" api:"required"`
 	// The original policy update request that would be sent to the policy endpoint
 	RequestDetails PolicyIntentResponseRequestDetails `json:"request_details" api:"required"`
-	// ID of the resource being modified (wallet_id, policy_id, etc)
-	ResourceID string `json:"resource_id" api:"required"`
-	// Current status of an intent.
-	//
-	// Any of "pending", "executed", "failed", "expired", "rejected", "dismissed".
-	Status IntentStatus `json:"status" api:"required"`
 	// Result of policy update execution (only present if status is 'executed' or
 	// 'failed')
 	ActionResult BaseActionResult `json:"action_result"`
-	// ID of the user who created the intent. If undefined, the intent was created
-	// using the app secret
-	CreatedByID string `json:"created_by_id"`
 	// A policy for controlling wallet operations.
 	CurrentResourceData Policy `json:"current_resource_data"`
-	// Human-readable reason for dismissal, present when status is 'dismissed'
-	DismissalReason string `json:"dismissal_reason"`
-	// Unix timestamp when the intent was dismissed, present when status is 'dismissed'
-	DismissedAt float64 `json:"dismissed_at"`
-	// Unix timestamp when the intent was rejected, present when status is 'rejected'
-	RejectedAt float64 `json:"rejected_at"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		AuthorizationDetails respjson.Field
-		CreatedAt            respjson.Field
-		CreatedByDisplayName respjson.Field
-		CustomExpiry         respjson.Field
-		ExpiresAt            respjson.Field
-		IntentID             respjson.Field
-		IntentType           respjson.Field
-		RequestDetails       respjson.Field
-		ResourceID           respjson.Field
-		Status               respjson.Field
-		ActionResult         respjson.Field
-		CreatedByID          respjson.Field
-		CurrentResourceData  respjson.Field
-		DismissalReason      respjson.Field
-		DismissedAt          respjson.Field
-		RejectedAt           respjson.Field
-		ExtraFields          map[string]respjson.Field
-		raw                  string
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		CurrentResourceData respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
 	} `json:"-"`
+	BaseIntentResponse
 }
 
 // Returns the unmodified JSON received from the API
@@ -2834,12 +2811,6 @@ func (r PolicyIntentResponse) RawJSON() string { return r.JSON.raw }
 func (r *PolicyIntentResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-type PolicyIntentResponseIntentType string
-
-const (
-	PolicyIntentResponseIntentTypePolicy PolicyIntentResponseIntentType = "POLICY"
-)
 
 // The original policy update request that would be sent to the policy endpoint
 type PolicyIntentResponseRequestDetails struct {
@@ -3878,66 +3849,26 @@ func (r *PolicyIntentResponseRequestDetailsBodyRuleConditionSystemValueUnion) Un
 
 // Response for a key quorum intent
 type KeyQuorumIntentResponse struct {
-	// Detailed authorization information including key quorum members, thresholds, and
-	// signature status
-	AuthorizationDetails []IntentAuthorization `json:"authorization_details" api:"required"`
-	// Unix timestamp when the intent was created
-	CreatedAt float64 `json:"created_at" api:"required"`
-	// Display name of the user who created the intent
-	CreatedByDisplayName string `json:"created_by_display_name" api:"required"`
-	// Whether this intent has a custom expiry time set by the client. If false, the
-	// intent expires after a default duration.
-	CustomExpiry bool `json:"custom_expiry" api:"required"`
-	// Unix timestamp when the intent expires
-	ExpiresAt float64 `json:"expires_at" api:"required"`
-	// Unique ID for the intent
-	IntentID string `json:"intent_id" api:"required"`
 	// Any of "KEY_QUORUM".
-	IntentType KeyQuorumIntentResponseIntentType `json:"intent_type" api:"required"`
+	IntentType string `json:"intent_type" api:"required"`
 	// The original key quorum update request that would be sent to the key quorum
 	// endpoint
 	RequestDetails KeyQuorumIntentResponseRequestDetails `json:"request_details" api:"required"`
-	// ID of the resource being modified (wallet_id, policy_id, etc)
-	ResourceID string `json:"resource_id" api:"required"`
-	// Current status of an intent.
-	//
-	// Any of "pending", "executed", "failed", "expired", "rejected", "dismissed".
-	Status IntentStatus `json:"status" api:"required"`
 	// Result of key quorum update execution (only present if status is 'executed' or
 	// 'failed')
 	ActionResult BaseActionResult `json:"action_result"`
-	// ID of the user who created the intent. If undefined, the intent was created
-	// using the app secret
-	CreatedByID string `json:"created_by_id"`
 	// A key quorum for authorizing wallet operations.
 	CurrentResourceData KeyQuorum `json:"current_resource_data"`
-	// Human-readable reason for dismissal, present when status is 'dismissed'
-	DismissalReason string `json:"dismissal_reason"`
-	// Unix timestamp when the intent was dismissed, present when status is 'dismissed'
-	DismissedAt float64 `json:"dismissed_at"`
-	// Unix timestamp when the intent was rejected, present when status is 'rejected'
-	RejectedAt float64 `json:"rejected_at"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		AuthorizationDetails respjson.Field
-		CreatedAt            respjson.Field
-		CreatedByDisplayName respjson.Field
-		CustomExpiry         respjson.Field
-		ExpiresAt            respjson.Field
-		IntentID             respjson.Field
-		IntentType           respjson.Field
-		RequestDetails       respjson.Field
-		ResourceID           respjson.Field
-		Status               respjson.Field
-		ActionResult         respjson.Field
-		CreatedByID          respjson.Field
-		CurrentResourceData  respjson.Field
-		DismissalReason      respjson.Field
-		DismissedAt          respjson.Field
-		RejectedAt           respjson.Field
-		ExtraFields          map[string]respjson.Field
-		raw                  string
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		CurrentResourceData respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
 	} `json:"-"`
+	BaseIntentResponse
 }
 
 // Returns the unmodified JSON received from the API
@@ -3945,12 +3876,6 @@ func (r KeyQuorumIntentResponse) RawJSON() string { return r.JSON.raw }
 func (r *KeyQuorumIntentResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-type KeyQuorumIntentResponseIntentType string
-
-const (
-	KeyQuorumIntentResponseIntentTypeKeyQuorum KeyQuorumIntentResponseIntentType = "KEY_QUORUM"
-)
 
 // The original key quorum update request that would be sent to the key quorum
 // endpoint
@@ -3978,69 +3903,29 @@ func (r *KeyQuorumIntentResponseRequestDetails) UnmarshalJSON(data []byte) error
 
 // Response for a rule intent
 type RuleIntentResponse struct {
-	// Detailed authorization information including key quorum members, thresholds, and
-	// signature status
-	AuthorizationDetails []IntentAuthorization `json:"authorization_details" api:"required"`
-	// Unix timestamp when the intent was created
-	CreatedAt float64 `json:"created_at" api:"required"`
-	// Display name of the user who created the intent
-	CreatedByDisplayName string `json:"created_by_display_name" api:"required"`
-	// Whether this intent has a custom expiry time set by the client. If false, the
-	// intent expires after a default duration.
-	CustomExpiry bool `json:"custom_expiry" api:"required"`
-	// Unix timestamp when the intent expires
-	ExpiresAt float64 `json:"expires_at" api:"required"`
-	// Unique ID for the intent
-	IntentID string `json:"intent_id" api:"required"`
 	// Any of "RULE".
-	IntentType RuleIntentResponseIntentType `json:"intent_type" api:"required"`
+	IntentType string `json:"intent_type" api:"required"`
 	// The original rule request. Method is POST (create), PATCH (update), or DELETE
 	// (delete)
 	RequestDetails RuleIntentRequestDetailsUnion `json:"request_details" api:"required"`
-	// ID of the resource being modified (wallet_id, policy_id, etc)
-	ResourceID string `json:"resource_id" api:"required"`
-	// Current status of an intent.
-	//
-	// Any of "pending", "executed", "failed", "expired", "rejected", "dismissed".
-	Status IntentStatus `json:"status" api:"required"`
 	// Result of rule execution (only present if status is 'executed' or 'failed')
 	ActionResult BaseActionResult `json:"action_result"`
-	// ID of the user who created the intent. If undefined, the intent was created
-	// using the app secret
-	CreatedByID string `json:"created_by_id"`
 	// Current state of the rule before any changes. Undefined for create intents or if
 	// the rule was deleted
 	CurrentResourceData RuleIntentResponseCurrentResourceData `json:"current_resource_data"`
-	// Human-readable reason for dismissal, present when status is 'dismissed'
-	DismissalReason string `json:"dismissal_reason"`
-	// Unix timestamp when the intent was dismissed, present when status is 'dismissed'
-	DismissedAt float64 `json:"dismissed_at"`
 	// A policy for controlling wallet operations.
 	Policy Policy `json:"policy"`
-	// Unix timestamp when the intent was rejected, present when status is 'rejected'
-	RejectedAt float64 `json:"rejected_at"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		AuthorizationDetails respjson.Field
-		CreatedAt            respjson.Field
-		CreatedByDisplayName respjson.Field
-		CustomExpiry         respjson.Field
-		ExpiresAt            respjson.Field
-		IntentID             respjson.Field
-		IntentType           respjson.Field
-		RequestDetails       respjson.Field
-		ResourceID           respjson.Field
-		Status               respjson.Field
-		ActionResult         respjson.Field
-		CreatedByID          respjson.Field
-		CurrentResourceData  respjson.Field
-		DismissalReason      respjson.Field
-		DismissedAt          respjson.Field
-		Policy               respjson.Field
-		RejectedAt           respjson.Field
-		ExtraFields          map[string]respjson.Field
-		raw                  string
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		CurrentResourceData respjson.Field
+		Policy              respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
 	} `json:"-"`
+	BaseIntentResponse
 }
 
 // Returns the unmodified JSON received from the API
@@ -4048,12 +3933,6 @@ func (r RuleIntentResponse) RawJSON() string { return r.JSON.raw }
 func (r *RuleIntentResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-type RuleIntentResponseIntentType string
-
-const (
-	RuleIntentResponseIntentTypeRule RuleIntentResponseIntentType = "RULE"
-)
 
 // Current state of the rule before any changes. Undefined for create intents or if
 // the rule was deleted
@@ -4964,37 +4843,73 @@ func (r *RuleIntentResponseCurrentResourceDataConditionSystemValueUnion) Unmarsh
 }
 
 // IntentResponseUnion contains all possible properties and values from
-// [RpcIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
-// [RuleIntentResponse], [KeyQuorumIntentResponse].
+// [RpcIntentResponse], [TransferIntentResponse], [WalletIntentResponse],
+// [PolicyIntentResponse], [RuleIntentResponse], [KeyQuorumIntentResponse].
 //
 // Use the [IntentResponseUnion.AsAny] method to switch on the variant.
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 type IntentResponseUnion struct {
+	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
+	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
+	// [KeyQuorumIntentResponse].
 	AuthorizationDetails []IntentAuthorization `json:"authorization_details"`
-	CreatedAt            float64               `json:"created_at"`
-	CreatedByDisplayName string                `json:"created_by_display_name"`
-	CustomExpiry         bool                  `json:"custom_expiry"`
-	ExpiresAt            float64               `json:"expires_at"`
-	IntentID             string                `json:"intent_id"`
-	// Any of "RPC", "WALLET", "POLICY", "RULE", "KEY_QUORUM".
+	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
+	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
+	// [KeyQuorumIntentResponse].
+	CreatedAt float64 `json:"created_at"`
+	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
+	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
+	// [KeyQuorumIntentResponse].
+	CreatedByDisplayName string `json:"created_by_display_name"`
+	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
+	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
+	// [KeyQuorumIntentResponse].
+	CustomExpiry bool `json:"custom_expiry"`
+	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
+	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
+	// [KeyQuorumIntentResponse].
+	ExpiresAt float64 `json:"expires_at"`
+	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
+	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
+	// [KeyQuorumIntentResponse].
+	IntentID string `json:"intent_id"`
+	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
+	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
+	// [KeyQuorumIntentResponse].
+	ResourceID string `json:"resource_id"`
+	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
+	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
+	// [KeyQuorumIntentResponse].
+	Status IntentStatus `json:"status"`
+	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
+	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
+	// [KeyQuorumIntentResponse].
+	CreatedByID string `json:"created_by_id"`
+	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
+	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
+	// [KeyQuorumIntentResponse].
+	DismissalReason string `json:"dismissal_reason"`
+	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
+	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
+	// [KeyQuorumIntentResponse].
+	DismissedAt float64 `json:"dismissed_at"`
+	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
+	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
+	// [KeyQuorumIntentResponse].
+	RejectedAt float64 `json:"rejected_at"`
+	// Any of "RPC", "TRANSFER", "WALLET", "POLICY", "RULE", "KEY_QUORUM".
 	IntentType string `json:"intent_type"`
 	// This field is a union of [RpcIntentResponseRequestDetails],
-	// [WalletIntentResponseRequestDetails], [PolicyIntentResponseRequestDetails],
-	// [RuleIntentRequestDetailsUnion], [KeyQuorumIntentResponseRequestDetails]
+	// [TransferIntentResponseRequestDetails], [WalletIntentResponseRequestDetails],
+	// [PolicyIntentResponseRequestDetails], [RuleIntentRequestDetailsUnion],
+	// [KeyQuorumIntentResponseRequestDetails]
 	RequestDetails IntentResponseUnionRequestDetails `json:"request_details"`
-	ResourceID     string                            `json:"resource_id"`
-	// This field is from variant [RpcIntentResponse].
-	Status IntentStatus `json:"status"`
 	// This field is from variant [RpcIntentResponse].
 	ActionResult BaseActionResult `json:"action_result"`
-	CreatedByID  string           `json:"created_by_id"`
 	// This field is a union of [Wallet], [Policy],
 	// [RuleIntentResponseCurrentResourceData], [KeyQuorum]
 	CurrentResourceData IntentResponseUnionCurrentResourceData `json:"current_resource_data"`
-	DismissalReason     string                                 `json:"dismissal_reason"`
-	DismissedAt         float64                                `json:"dismissed_at"`
-	RejectedAt          float64                                `json:"rejected_at"`
 	// This field is from variant [RuleIntentResponse].
 	Policy Policy `json:"policy"`
 	JSON   struct {
@@ -5004,16 +4919,16 @@ type IntentResponseUnion struct {
 		CustomExpiry         respjson.Field
 		ExpiresAt            respjson.Field
 		IntentID             respjson.Field
-		IntentType           respjson.Field
-		RequestDetails       respjson.Field
 		ResourceID           respjson.Field
 		Status               respjson.Field
-		ActionResult         respjson.Field
 		CreatedByID          respjson.Field
-		CurrentResourceData  respjson.Field
 		DismissalReason      respjson.Field
 		DismissedAt          respjson.Field
 		RejectedAt           respjson.Field
+		IntentType           respjson.Field
+		RequestDetails       respjson.Field
+		ActionResult         respjson.Field
+		CurrentResourceData  respjson.Field
 		Policy               respjson.Field
 		raw                  string
 	} `json:"-"`
@@ -5026,6 +4941,7 @@ type anyIntentResponse interface {
 }
 
 func (RpcIntentResponse) implIntentResponseUnion()       {}
+func (TransferIntentResponse) implIntentResponseUnion()  {}
 func (WalletIntentResponse) implIntentResponseUnion()    {}
 func (PolicyIntentResponse) implIntentResponseUnion()    {}
 func (RuleIntentResponse) implIntentResponseUnion()      {}
@@ -5035,6 +4951,7 @@ func (KeyQuorumIntentResponse) implIntentResponseUnion() {}
 //
 //	switch variant := IntentResponseUnion.AsAny().(type) {
 //	case privyclient.RpcIntentResponse:
+//	case privyclient.TransferIntentResponse:
 //	case privyclient.WalletIntentResponse:
 //	case privyclient.PolicyIntentResponse:
 //	case privyclient.RuleIntentResponse:
@@ -5046,6 +4963,8 @@ func (u IntentResponseUnion) AsAny() anyIntentResponse {
 	switch u.IntentType {
 	case "RPC":
 		return u.AsRpc()
+	case "TRANSFER":
+		return u.AsTransfer()
 	case "WALLET":
 		return u.AsWallet()
 	case "POLICY":
@@ -5059,6 +4978,11 @@ func (u IntentResponseUnion) AsAny() anyIntentResponse {
 }
 
 func (u IntentResponseUnion) AsRpc() (v RpcIntentResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u IntentResponseUnion) AsTransfer() (v TransferIntentResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -5098,7 +5022,7 @@ func (r *IntentResponseUnion) UnmarshalJSON(data []byte) error {
 // [IntentResponseUnion].
 type IntentResponseUnionRequestDetails struct {
 	// This field is a union of [WalletRpcRequestBodyUnion],
-	// [WalletIntentResponseRequestDetailsBody],
+	// [CreateTokenTransferRequest], [WalletIntentResponseRequestDetailsBody],
 	// [PolicyIntentResponseRequestDetailsBody], [RuleIntentCreateRequestDetailsBody],
 	// [RuleIntentUpdateRequestDetailsBody], [any], [KeyQuorumUpdateRequestBody]
 	Body   IntentResponseUnionRequestDetailsBody `json:"body"`
@@ -5151,10 +5075,15 @@ type IntentResponseUnionRequestDetailsBody struct {
 	ChainType string                                      `json:"chain_type"`
 	WalletID  string                                      `json:"wallet_id"`
 	// This field is from variant [WalletRpcRequestBodyUnion].
-	Caip2   Caip2 `json:"caip2"`
-	Sponsor bool  `json:"sponsor"`
+	Caip2       Caip2  `json:"caip2"`
+	ReferenceID string `json:"reference_id"`
+	Sponsor     bool   `json:"sponsor"`
 	// This field is from variant [WalletRpcRequestBodyUnion].
 	Network SparkNetwork `json:"network"`
+	// This field is from variant [CreateTokenTransferRequest].
+	Destination TokenTransferDestination `json:"destination"`
+	// This field is from variant [CreateTokenTransferRequest].
+	Source TokenTransferSource `json:"source"`
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
 	AdditionalSigners AdditionalSignerInput `json:"additional_signers"`
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
@@ -5189,8 +5118,11 @@ type IntentResponseUnionRequestDetailsBody struct {
 		ChainType                            respjson.Field
 		WalletID                             respjson.Field
 		Caip2                                respjson.Field
+		ReferenceID                          respjson.Field
 		Sponsor                              respjson.Field
 		Network                              respjson.Field
+		Destination                          respjson.Field
+		Source                               respjson.Field
 		AdditionalSigners                    respjson.Field
 		AuthorizationKeyIDs                  respjson.Field
 		AuthorizationThreshold               respjson.Field
@@ -5517,7 +5449,7 @@ type IntentListParams struct {
 	CurrentUserHasSigned IntentListParamsCurrentUserHasSigned `query:"current_user_has_signed,omitzero" json:"-"`
 	// Type of intent.
 	//
-	// Any of "KEY_QUORUM", "POLICY", "RULE", "RPC", "WALLET".
+	// Any of "KEY_QUORUM", "POLICY", "RULE", "RPC", "TRANSFER", "WALLET".
 	IntentType IntentType `query:"intent_type,omitzero" json:"-"`
 	// Any of "created_at_desc", "expires_at_asc", "updated_at_desc".
 	SortBy IntentListParamsSortBy `query:"sort_by,omitzero" json:"-"`
