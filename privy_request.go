@@ -37,10 +37,10 @@ type prepareRequestInput struct {
 }
 
 // preparedRequest contains the headers computed by prepareRequest that should
-// be applied to the underlying API call. Mirrors the Node SDK's PreparedRequest.
+// be applied to the underlying API call.
 type preparedRequest struct {
 	// privyAuthorizationSignature is the computed request signature header.
-	// Nil if no authorization signature should be generated.
+	// Nil if no authorization signature was generated.
 	privyAuthorizationSignature *string
 
 	// privyIdempotencyKey is the idempotency key header, if set.
@@ -51,7 +51,7 @@ type preparedRequest struct {
 }
 
 // prepareRequest computes the authorization signature and assembles all
-// Privy-specific headers for an API request. Mirrors the Node SDK's prepareRequest.
+// Privy-specific headers for an API request.
 //
 // Parameters:
 //   - ctx: Context for cancellation and timeouts
