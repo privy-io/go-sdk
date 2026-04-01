@@ -345,6 +345,134 @@ func (u *TronTransactionConditionValueUnionParam) UnmarshalJSON(data []byte) err
 	return apijson.UnmarshalRoot(data, u)
 }
 
+// Decoded calldata from a TRON TriggerSmartContract interaction.
+type TronCalldataCondition struct {
+	Abi   any    `json:"abi" api:"required"`
+	Field string `json:"field" api:"required"`
+	// Any of "tron_trigger_smart_contract_data".
+	FieldSource TronCalldataConditionFieldSource `json:"field_source" api:"required"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator TronCalldataConditionOperator   `json:"operator" api:"required"`
+	Value    TronCalldataConditionValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Abi         respjson.Field
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronCalldataCondition) RawJSON() string { return r.JSON.raw }
+func (r *TronCalldataCondition) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TronCalldataCondition to a TronCalldataConditionParam.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TronCalldataConditionParam.Overrides()
+func (r TronCalldataCondition) ToParam() TronCalldataConditionParam {
+	return param.Override[TronCalldataConditionParam](json.RawMessage(r.RawJSON()))
+}
+
+type TronCalldataConditionFieldSource string
+
+const (
+	TronCalldataConditionFieldSourceTronTriggerSmartContractData TronCalldataConditionFieldSource = "tron_trigger_smart_contract_data"
+)
+
+type TronCalldataConditionOperator string
+
+const (
+	TronCalldataConditionOperatorEq             TronCalldataConditionOperator = "eq"
+	TronCalldataConditionOperatorGt             TronCalldataConditionOperator = "gt"
+	TronCalldataConditionOperatorGte            TronCalldataConditionOperator = "gte"
+	TronCalldataConditionOperatorLt             TronCalldataConditionOperator = "lt"
+	TronCalldataConditionOperatorLte            TronCalldataConditionOperator = "lte"
+	TronCalldataConditionOperatorIn             TronCalldataConditionOperator = "in"
+	TronCalldataConditionOperatorInConditionSet TronCalldataConditionOperator = "in_condition_set"
+)
+
+// TronCalldataConditionValueUnion contains all possible properties and values from
+// [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type TronCalldataConditionValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u TronCalldataConditionValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u TronCalldataConditionValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u TronCalldataConditionValueUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *TronCalldataConditionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Decoded calldata from a TRON TriggerSmartContract interaction.
+//
+// The properties Abi, Field, FieldSource, Operator, Value are required.
+type TronCalldataConditionParam struct {
+	Abi   any    `json:"abi,omitzero" api:"required"`
+	Field string `json:"field" api:"required"`
+	// Any of "tron_trigger_smart_contract_data".
+	FieldSource TronCalldataConditionFieldSource `json:"field_source,omitzero" api:"required"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator TronCalldataConditionOperator        `json:"operator,omitzero" api:"required"`
+	Value    TronCalldataConditionValueUnionParam `json:"value,omitzero" api:"required"`
+	paramObj
+}
+
+func (r TronCalldataConditionParam) MarshalJSON() (data []byte, err error) {
+	type shadow TronCalldataConditionParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TronCalldataConditionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type TronCalldataConditionValueUnionParam struct {
+	OfString      param.Opt[string] `json:",omitzero,inline"`
+	OfStringArray []string          `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u TronCalldataConditionValueUnionParam) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfStringArray)
+}
+func (u *TronCalldataConditionValueUnionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
 // SUI transaction command attributes, enables allowlisting specific command types.
 // Allowed commands: 'TransferObjects', 'SplitCoins', 'MergeCoins'. Only 'eq' and
 // 'in' operators are supported.
@@ -618,21 +746,149 @@ func (u *SuiTransferObjectsCommandConditionValueUnionParam) UnmarshalJSON(data [
 	return apijson.UnmarshalRoot(data, u)
 }
 
+// Condition referencing an aggregation value. The field must start with
+// "aggregation." followed by the aggregation ID.
+type AggregationCondition struct {
+	Field string `json:"field" api:"required"`
+	// Any of "reference".
+	FieldSource AggregationConditionFieldSource `json:"field_source" api:"required"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator AggregationConditionOperator   `json:"operator" api:"required"`
+	Value    AggregationConditionValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AggregationCondition) RawJSON() string { return r.JSON.raw }
+func (r *AggregationCondition) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this AggregationCondition to a AggregationConditionParam.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// AggregationConditionParam.Overrides()
+func (r AggregationCondition) ToParam() AggregationConditionParam {
+	return param.Override[AggregationConditionParam](json.RawMessage(r.RawJSON()))
+}
+
+type AggregationConditionFieldSource string
+
+const (
+	AggregationConditionFieldSourceReference AggregationConditionFieldSource = "reference"
+)
+
+type AggregationConditionOperator string
+
+const (
+	AggregationConditionOperatorEq             AggregationConditionOperator = "eq"
+	AggregationConditionOperatorGt             AggregationConditionOperator = "gt"
+	AggregationConditionOperatorGte            AggregationConditionOperator = "gte"
+	AggregationConditionOperatorLt             AggregationConditionOperator = "lt"
+	AggregationConditionOperatorLte            AggregationConditionOperator = "lte"
+	AggregationConditionOperatorIn             AggregationConditionOperator = "in"
+	AggregationConditionOperatorInConditionSet AggregationConditionOperator = "in_condition_set"
+)
+
+// AggregationConditionValueUnion contains all possible properties and values from
+// [string], [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type AggregationConditionValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u AggregationConditionValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u AggregationConditionValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u AggregationConditionValueUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *AggregationConditionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Condition referencing an aggregation value. The field must start with
+// "aggregation." followed by the aggregation ID.
+//
+// The properties Field, FieldSource, Operator, Value are required.
+type AggregationConditionParam struct {
+	Field string `json:"field" api:"required"`
+	// Any of "reference".
+	FieldSource AggregationConditionFieldSource `json:"field_source,omitzero" api:"required"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator AggregationConditionOperator        `json:"operator,omitzero" api:"required"`
+	Value    AggregationConditionValueUnionParam `json:"value,omitzero" api:"required"`
+	paramObj
+}
+
+func (r AggregationConditionParam) MarshalJSON() (data []byte, err error) {
+	type shadow AggregationConditionParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *AggregationConditionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type AggregationConditionValueUnionParam struct {
+	OfString      param.Opt[string] `json:",omitzero,inline"`
+	OfStringArray []string          `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u AggregationConditionValueUnionParam) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfStringArray)
+}
+func (u *AggregationConditionValueUnionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
 // A policy for controlling wallet operations.
 type Policy struct {
 	// Unique ID of the created policy. This will be the primary identifier when using
 	// the policy in the future.
 	ID string `json:"id" api:"required"`
-	// The chain type the policy applies to.
+	// The wallet chain types.
 	//
-	// Any of "ethereum", "solana", "tron", "sui".
-	ChainType PolicyChainType `json:"chain_type" api:"required"`
+	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
+	// "tron", "bitcoin-segwit", "near", "ton", "starknet", "spark".
+	ChainType WalletChainType `json:"chain_type" api:"required"`
 	// Unix timestamp of when the policy was created in milliseconds.
 	CreatedAt float64 `json:"created_at" api:"required"`
 	// Name to assign to policy.
 	Name string `json:"name" api:"required"`
 	// The key quorum ID of the owner of the policy.
-	OwnerID string       `json:"owner_id" api:"required" format:"cuid2"`
+	OwnerID string       `json:"owner_id" api:"required"`
 	Rules   []PolicyRule `json:"rules" api:"required"`
 	// Version of the policy. Currently, 1.0 is the only version.
 	//
@@ -657,16 +913,6 @@ func (r Policy) RawJSON() string { return r.JSON.raw }
 func (r *Policy) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-// The chain type the policy applies to.
-type PolicyChainType string
-
-const (
-	PolicyChainTypeEthereum PolicyChainType = "ethereum"
-	PolicyChainTypeSolana   PolicyChainType = "solana"
-	PolicyChainTypeTron     PolicyChainType = "tron"
-	PolicyChainTypeSui      PolicyChainType = "sui"
-)
 
 // A rule that defines the conditions and action to take if the conditions are
 // true.
@@ -710,8 +956,9 @@ func (r *PolicyRule) UnmarshalJSON(data []byte) error {
 // [PolicyRuleConditionSolanaProgramInstruction],
 // [PolicyRuleConditionSolanaSystemProgramInstruction],
 // [PolicyRuleConditionSolanaTokenProgramInstruction], [PolicyRuleConditionSystem],
-// [TronTransactionCondition], [SuiTransactionCommandCondition],
-// [SuiTransferObjectsCommandCondition].
+// [TronTransactionCondition], [TronCalldataCondition],
+// [SuiTransactionCommandCondition], [SuiTransferObjectsCommandCondition],
+// [AggregationCondition].
 //
 // Use the [PolicyRuleConditionUnion.AsAny] method to switch on the variant.
 //
@@ -722,8 +969,8 @@ type PolicyRuleConditionUnion struct {
 	// "ethereum_typed_data_domain", "ethereum_typed_data_message",
 	// "ethereum_7702_authorization", "solana_program_instruction",
 	// "solana_system_program_instruction", "solana_token_program_instruction",
-	// "system", "tron_transaction", "sui_transaction_command",
-	// "sui_transfer_objects_command".
+	// "system", "tron_transaction", "tron_trigger_smart_contract_data",
+	// "sui_transaction_command", "sui_transfer_objects_command", "reference".
 	FieldSource string `json:"field_source"`
 	Operator    string `json:"operator"`
 	// This field is a union of [PolicyRuleConditionEthereumTransactionValueUnion],
@@ -735,11 +982,10 @@ type PolicyRuleConditionUnion struct {
 	// [PolicyRuleConditionSolanaSystemProgramInstructionValueUnion],
 	// [PolicyRuleConditionSolanaTokenProgramInstructionValueUnion],
 	// [PolicyRuleConditionSystemValueUnion], [TronTransactionConditionValueUnion],
-	// [SuiTransactionCommandConditionValueUnion],
-	// [SuiTransferObjectsCommandConditionValueUnion]
+	// [TronCalldataConditionValueUnion], [SuiTransactionCommandConditionValueUnion],
+	// [SuiTransferObjectsCommandConditionValueUnion], [AggregationConditionValueUnion]
 	Value PolicyRuleConditionUnionValue `json:"value"`
-	// This field is from variant [PolicyRuleConditionEthereumCalldata].
-	Abi any `json:"abi"`
+	Abi   any                           `json:"abi"`
 	// This field is from variant [PolicyRuleConditionEthereumTypedDataMessage].
 	TypedData PolicyRuleConditionEthereumTypedDataMessageTypedData `json:"typed_data"`
 	JSON      struct {
@@ -770,8 +1016,10 @@ func (PolicyRuleConditionSolanaSystemProgramInstruction) implPolicyRuleCondition
 func (PolicyRuleConditionSolanaTokenProgramInstruction) implPolicyRuleConditionUnion()  {}
 func (PolicyRuleConditionSystem) implPolicyRuleConditionUnion()                         {}
 func (TronTransactionCondition) implPolicyRuleConditionUnion()                          {}
+func (TronCalldataCondition) implPolicyRuleConditionUnion()                             {}
 func (SuiTransactionCommandCondition) implPolicyRuleConditionUnion()                    {}
 func (SuiTransferObjectsCommandCondition) implPolicyRuleConditionUnion()                {}
+func (AggregationCondition) implPolicyRuleConditionUnion()                              {}
 
 // Use the following switch statement to find the correct variant
 //
@@ -786,8 +1034,10 @@ func (SuiTransferObjectsCommandCondition) implPolicyRuleConditionUnion()        
 //	case privyclient.PolicyRuleConditionSolanaTokenProgramInstruction:
 //	case privyclient.PolicyRuleConditionSystem:
 //	case privyclient.TronTransactionCondition:
+//	case privyclient.TronCalldataCondition:
 //	case privyclient.SuiTransactionCommandCondition:
 //	case privyclient.SuiTransferObjectsCommandCondition:
+//	case privyclient.AggregationCondition:
 //	default:
 //	  fmt.Errorf("no variant present")
 //	}
@@ -813,10 +1063,14 @@ func (u PolicyRuleConditionUnion) AsAny() anyPolicyRuleCondition {
 		return u.AsSystem()
 	case "tron_transaction":
 		return u.AsTronTransaction()
+	case "tron_trigger_smart_contract_data":
+		return u.AsTronTriggerSmartContractData()
 	case "sui_transaction_command":
 		return u.AsSuiTransactionCommand()
 	case "sui_transfer_objects_command":
 		return u.AsSuiTransferObjectsCommand()
+	case "reference":
+		return u.AsReference()
 	}
 	return nil
 }
@@ -871,12 +1125,22 @@ func (u PolicyRuleConditionUnion) AsTronTransaction() (v TronTransactionConditio
 	return
 }
 
+func (u PolicyRuleConditionUnion) AsTronTriggerSmartContractData() (v TronCalldataCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
 func (u PolicyRuleConditionUnion) AsSuiTransactionCommand() (v SuiTransactionCommandCondition) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
 func (u PolicyRuleConditionUnion) AsSuiTransferObjectsCommand() (v SuiTransferObjectsCommandCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyRuleConditionUnion) AsReference() (v AggregationCondition) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -1049,7 +1313,7 @@ func (r *PolicyRuleConditionEthereumCalldataValueUnion) UnmarshalJSON(data []byt
 
 // Attributes from the signing domain that will verify the signature.
 type PolicyRuleConditionEthereumTypedDataDomain struct {
-	// Any of "chainId", "verifyingContract".
+	// Any of "chainId", "verifyingContract", "chain_id", "verifying_contract".
 	Field       string                           `json:"field" api:"required"`
 	FieldSource constant.EthereumTypedDataDomain `json:"field_source" default:"ethereum_typed_data_domain"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
@@ -1136,8 +1400,9 @@ func (r *PolicyRuleConditionEthereumTypedDataMessage) UnmarshalJSON(data []byte)
 }
 
 type PolicyRuleConditionEthereumTypedDataMessageTypedData struct {
-	PrimaryType string                                                                `json:"primary_type" api:"required"`
-	Types       map[string][]PolicyRuleConditionEthereumTypedDataMessageTypedDataType `json:"types" api:"required"`
+	PrimaryType string `json:"primary_type" api:"required"`
+	// The type definitions for EIP-712 typed data signing.
+	Types TypedDataTypesInputParamsResp `json:"types" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		PrimaryType respjson.Field
@@ -1150,24 +1415,6 @@ type PolicyRuleConditionEthereumTypedDataMessageTypedData struct {
 // Returns the unmodified JSON received from the API
 func (r PolicyRuleConditionEthereumTypedDataMessageTypedData) RawJSON() string { return r.JSON.raw }
 func (r *PolicyRuleConditionEthereumTypedDataMessageTypedData) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type PolicyRuleConditionEthereumTypedDataMessageTypedDataType struct {
-	Name string `json:"name" api:"required"`
-	Type string `json:"type" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Name        respjson.Field
-		Type        respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyRuleConditionEthereumTypedDataMessageTypedDataType) RawJSON() string { return r.JSON.raw }
-func (r *PolicyRuleConditionEthereumTypedDataMessageTypedDataType) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -1396,9 +1643,15 @@ func (r *PolicyRuleConditionSolanaSystemProgramInstructionValueUnion) UnmarshalJ
 // Solana Token Program attributes, including more granular TransferChecked
 // instruction fields.
 type PolicyRuleConditionSolanaTokenProgramInstruction struct {
-	// Any of "instructionName", "TransferChecked.source",
+	// Any of "instructionName", "Transfer.source", "Transfer.destination",
+	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
 	// "TransferChecked.destination", "TransferChecked.authority",
-	// "TransferChecked.amount", "TransferChecked.mint".
+	// "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint",
+	// "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account",
+	// "MintTo.authority", "MintTo.amount", "CloseAccount.account",
+	// "CloseAccount.destination", "CloseAccount.authority",
+	// "InitializeAccount3.account", "InitializeAccount3.mint",
+	// "InitializeAccount3.owner".
 	Field       string                                 `json:"field" api:"required"`
 	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" default:"solana_token_program_instruction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
@@ -1579,7 +1832,8 @@ const (
 // [PolicyNewRuleResponseConditionSolanaSystemProgramInstruction],
 // [PolicyNewRuleResponseConditionSolanaTokenProgramInstruction],
 // [PolicyNewRuleResponseConditionSystem], [TronTransactionCondition],
-// [SuiTransactionCommandCondition], [SuiTransferObjectsCommandCondition].
+// [TronCalldataCondition], [SuiTransactionCommandCondition],
+// [SuiTransferObjectsCommandCondition], [AggregationCondition].
 //
 // Use the [PolicyNewRuleResponseConditionUnion.AsAny] method to switch on the
 // variant.
@@ -1591,8 +1845,8 @@ type PolicyNewRuleResponseConditionUnion struct {
 	// "ethereum_typed_data_domain", "ethereum_typed_data_message",
 	// "ethereum_7702_authorization", "solana_program_instruction",
 	// "solana_system_program_instruction", "solana_token_program_instruction",
-	// "system", "tron_transaction", "sui_transaction_command",
-	// "sui_transfer_objects_command".
+	// "system", "tron_transaction", "tron_trigger_smart_contract_data",
+	// "sui_transaction_command", "sui_transfer_objects_command", "reference".
 	FieldSource string `json:"field_source"`
 	Operator    string `json:"operator"`
 	// This field is a union of
@@ -1605,12 +1859,11 @@ type PolicyNewRuleResponseConditionUnion struct {
 	// [PolicyNewRuleResponseConditionSolanaSystemProgramInstructionValueUnion],
 	// [PolicyNewRuleResponseConditionSolanaTokenProgramInstructionValueUnion],
 	// [PolicyNewRuleResponseConditionSystemValueUnion],
-	// [TronTransactionConditionValueUnion],
+	// [TronTransactionConditionValueUnion], [TronCalldataConditionValueUnion],
 	// [SuiTransactionCommandConditionValueUnion],
-	// [SuiTransferObjectsCommandConditionValueUnion]
+	// [SuiTransferObjectsCommandConditionValueUnion], [AggregationConditionValueUnion]
 	Value PolicyNewRuleResponseConditionUnionValue `json:"value"`
-	// This field is from variant [PolicyNewRuleResponseConditionEthereumCalldata].
-	Abi any `json:"abi"`
+	Abi   any                                      `json:"abi"`
 	// This field is from variant
 	// [PolicyNewRuleResponseConditionEthereumTypedDataMessage].
 	TypedData PolicyNewRuleResponseConditionEthereumTypedDataMessageTypedData `json:"typed_data"`
@@ -1648,8 +1901,10 @@ func (PolicyNewRuleResponseConditionSolanaTokenProgramInstruction) implPolicyNew
 }
 func (PolicyNewRuleResponseConditionSystem) implPolicyNewRuleResponseConditionUnion() {}
 func (TronTransactionCondition) implPolicyNewRuleResponseConditionUnion()             {}
+func (TronCalldataCondition) implPolicyNewRuleResponseConditionUnion()                {}
 func (SuiTransactionCommandCondition) implPolicyNewRuleResponseConditionUnion()       {}
 func (SuiTransferObjectsCommandCondition) implPolicyNewRuleResponseConditionUnion()   {}
+func (AggregationCondition) implPolicyNewRuleResponseConditionUnion()                 {}
 
 // Use the following switch statement to find the correct variant
 //
@@ -1664,8 +1919,10 @@ func (SuiTransferObjectsCommandCondition) implPolicyNewRuleResponseConditionUnio
 //	case privyclient.PolicyNewRuleResponseConditionSolanaTokenProgramInstruction:
 //	case privyclient.PolicyNewRuleResponseConditionSystem:
 //	case privyclient.TronTransactionCondition:
+//	case privyclient.TronCalldataCondition:
 //	case privyclient.SuiTransactionCommandCondition:
 //	case privyclient.SuiTransferObjectsCommandCondition:
+//	case privyclient.AggregationCondition:
 //	default:
 //	  fmt.Errorf("no variant present")
 //	}
@@ -1691,10 +1948,14 @@ func (u PolicyNewRuleResponseConditionUnion) AsAny() anyPolicyNewRuleResponseCon
 		return u.AsSystem()
 	case "tron_transaction":
 		return u.AsTronTransaction()
+	case "tron_trigger_smart_contract_data":
+		return u.AsTronTriggerSmartContractData()
 	case "sui_transaction_command":
 		return u.AsSuiTransactionCommand()
 	case "sui_transfer_objects_command":
 		return u.AsSuiTransferObjectsCommand()
+	case "reference":
+		return u.AsReference()
 	}
 	return nil
 }
@@ -1749,12 +2010,22 @@ func (u PolicyNewRuleResponseConditionUnion) AsTronTransaction() (v TronTransact
 	return
 }
 
+func (u PolicyNewRuleResponseConditionUnion) AsTronTriggerSmartContractData() (v TronCalldataCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
 func (u PolicyNewRuleResponseConditionUnion) AsSuiTransactionCommand() (v SuiTransactionCommandCondition) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
 func (u PolicyNewRuleResponseConditionUnion) AsSuiTransferObjectsCommand() (v SuiTransferObjectsCommandCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyNewRuleResponseConditionUnion) AsReference() (v AggregationCondition) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -1929,7 +2200,7 @@ func (r *PolicyNewRuleResponseConditionEthereumCalldataValueUnion) UnmarshalJSON
 
 // Attributes from the signing domain that will verify the signature.
 type PolicyNewRuleResponseConditionEthereumTypedDataDomain struct {
-	// Any of "chainId", "verifyingContract".
+	// Any of "chainId", "verifyingContract", "chain_id", "verifying_contract".
 	Field       string                           `json:"field" api:"required"`
 	FieldSource constant.EthereumTypedDataDomain `json:"field_source" default:"ethereum_typed_data_domain"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
@@ -2018,8 +2289,9 @@ func (r *PolicyNewRuleResponseConditionEthereumTypedDataMessage) UnmarshalJSON(d
 }
 
 type PolicyNewRuleResponseConditionEthereumTypedDataMessageTypedData struct {
-	PrimaryType string                                                                           `json:"primary_type" api:"required"`
-	Types       map[string][]PolicyNewRuleResponseConditionEthereumTypedDataMessageTypedDataType `json:"types" api:"required"`
+	PrimaryType string `json:"primary_type" api:"required"`
+	// The type definitions for EIP-712 typed data signing.
+	Types TypedDataTypesInputParamsResp `json:"types" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		PrimaryType respjson.Field
@@ -2034,26 +2306,6 @@ func (r PolicyNewRuleResponseConditionEthereumTypedDataMessageTypedData) RawJSON
 	return r.JSON.raw
 }
 func (r *PolicyNewRuleResponseConditionEthereumTypedDataMessageTypedData) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type PolicyNewRuleResponseConditionEthereumTypedDataMessageTypedDataType struct {
-	Name string `json:"name" api:"required"`
-	Type string `json:"type" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Name        respjson.Field
-		Type        respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyNewRuleResponseConditionEthereumTypedDataMessageTypedDataType) RawJSON() string {
-	return r.JSON.raw
-}
-func (r *PolicyNewRuleResponseConditionEthereumTypedDataMessageTypedDataType) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2290,9 +2542,15 @@ func (r *PolicyNewRuleResponseConditionSolanaSystemProgramInstructionValueUnion)
 // Solana Token Program attributes, including more granular TransferChecked
 // instruction fields.
 type PolicyNewRuleResponseConditionSolanaTokenProgramInstruction struct {
-	// Any of "instructionName", "TransferChecked.source",
+	// Any of "instructionName", "Transfer.source", "Transfer.destination",
+	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
 	// "TransferChecked.destination", "TransferChecked.authority",
-	// "TransferChecked.amount", "TransferChecked.mint".
+	// "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint",
+	// "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account",
+	// "MintTo.authority", "MintTo.amount", "CloseAccount.account",
+	// "CloseAccount.destination", "CloseAccount.authority",
+	// "InitializeAccount3.account", "InitializeAccount3.mint",
+	// "InitializeAccount3.owner".
 	Field       string                                 `json:"field" api:"required"`
 	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" default:"solana_token_program_instruction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
@@ -2484,7 +2742,8 @@ const (
 // [PolicyGetRuleResponseConditionSolanaSystemProgramInstruction],
 // [PolicyGetRuleResponseConditionSolanaTokenProgramInstruction],
 // [PolicyGetRuleResponseConditionSystem], [TronTransactionCondition],
-// [SuiTransactionCommandCondition], [SuiTransferObjectsCommandCondition].
+// [TronCalldataCondition], [SuiTransactionCommandCondition],
+// [SuiTransferObjectsCommandCondition], [AggregationCondition].
 //
 // Use the [PolicyGetRuleResponseConditionUnion.AsAny] method to switch on the
 // variant.
@@ -2496,8 +2755,8 @@ type PolicyGetRuleResponseConditionUnion struct {
 	// "ethereum_typed_data_domain", "ethereum_typed_data_message",
 	// "ethereum_7702_authorization", "solana_program_instruction",
 	// "solana_system_program_instruction", "solana_token_program_instruction",
-	// "system", "tron_transaction", "sui_transaction_command",
-	// "sui_transfer_objects_command".
+	// "system", "tron_transaction", "tron_trigger_smart_contract_data",
+	// "sui_transaction_command", "sui_transfer_objects_command", "reference".
 	FieldSource string `json:"field_source"`
 	Operator    string `json:"operator"`
 	// This field is a union of
@@ -2510,12 +2769,11 @@ type PolicyGetRuleResponseConditionUnion struct {
 	// [PolicyGetRuleResponseConditionSolanaSystemProgramInstructionValueUnion],
 	// [PolicyGetRuleResponseConditionSolanaTokenProgramInstructionValueUnion],
 	// [PolicyGetRuleResponseConditionSystemValueUnion],
-	// [TronTransactionConditionValueUnion],
+	// [TronTransactionConditionValueUnion], [TronCalldataConditionValueUnion],
 	// [SuiTransactionCommandConditionValueUnion],
-	// [SuiTransferObjectsCommandConditionValueUnion]
+	// [SuiTransferObjectsCommandConditionValueUnion], [AggregationConditionValueUnion]
 	Value PolicyGetRuleResponseConditionUnionValue `json:"value"`
-	// This field is from variant [PolicyGetRuleResponseConditionEthereumCalldata].
-	Abi any `json:"abi"`
+	Abi   any                                      `json:"abi"`
 	// This field is from variant
 	// [PolicyGetRuleResponseConditionEthereumTypedDataMessage].
 	TypedData PolicyGetRuleResponseConditionEthereumTypedDataMessageTypedData `json:"typed_data"`
@@ -2553,8 +2811,10 @@ func (PolicyGetRuleResponseConditionSolanaTokenProgramInstruction) implPolicyGet
 }
 func (PolicyGetRuleResponseConditionSystem) implPolicyGetRuleResponseConditionUnion() {}
 func (TronTransactionCondition) implPolicyGetRuleResponseConditionUnion()             {}
+func (TronCalldataCondition) implPolicyGetRuleResponseConditionUnion()                {}
 func (SuiTransactionCommandCondition) implPolicyGetRuleResponseConditionUnion()       {}
 func (SuiTransferObjectsCommandCondition) implPolicyGetRuleResponseConditionUnion()   {}
+func (AggregationCondition) implPolicyGetRuleResponseConditionUnion()                 {}
 
 // Use the following switch statement to find the correct variant
 //
@@ -2569,8 +2829,10 @@ func (SuiTransferObjectsCommandCondition) implPolicyGetRuleResponseConditionUnio
 //	case privyclient.PolicyGetRuleResponseConditionSolanaTokenProgramInstruction:
 //	case privyclient.PolicyGetRuleResponseConditionSystem:
 //	case privyclient.TronTransactionCondition:
+//	case privyclient.TronCalldataCondition:
 //	case privyclient.SuiTransactionCommandCondition:
 //	case privyclient.SuiTransferObjectsCommandCondition:
+//	case privyclient.AggregationCondition:
 //	default:
 //	  fmt.Errorf("no variant present")
 //	}
@@ -2596,10 +2858,14 @@ func (u PolicyGetRuleResponseConditionUnion) AsAny() anyPolicyGetRuleResponseCon
 		return u.AsSystem()
 	case "tron_transaction":
 		return u.AsTronTransaction()
+	case "tron_trigger_smart_contract_data":
+		return u.AsTronTriggerSmartContractData()
 	case "sui_transaction_command":
 		return u.AsSuiTransactionCommand()
 	case "sui_transfer_objects_command":
 		return u.AsSuiTransferObjectsCommand()
+	case "reference":
+		return u.AsReference()
 	}
 	return nil
 }
@@ -2654,12 +2920,22 @@ func (u PolicyGetRuleResponseConditionUnion) AsTronTransaction() (v TronTransact
 	return
 }
 
+func (u PolicyGetRuleResponseConditionUnion) AsTronTriggerSmartContractData() (v TronCalldataCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
 func (u PolicyGetRuleResponseConditionUnion) AsSuiTransactionCommand() (v SuiTransactionCommandCondition) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
 func (u PolicyGetRuleResponseConditionUnion) AsSuiTransferObjectsCommand() (v SuiTransferObjectsCommandCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyGetRuleResponseConditionUnion) AsReference() (v AggregationCondition) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -2834,7 +3110,7 @@ func (r *PolicyGetRuleResponseConditionEthereumCalldataValueUnion) UnmarshalJSON
 
 // Attributes from the signing domain that will verify the signature.
 type PolicyGetRuleResponseConditionEthereumTypedDataDomain struct {
-	// Any of "chainId", "verifyingContract".
+	// Any of "chainId", "verifyingContract", "chain_id", "verifying_contract".
 	Field       string                           `json:"field" api:"required"`
 	FieldSource constant.EthereumTypedDataDomain `json:"field_source" default:"ethereum_typed_data_domain"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
@@ -2923,8 +3199,9 @@ func (r *PolicyGetRuleResponseConditionEthereumTypedDataMessage) UnmarshalJSON(d
 }
 
 type PolicyGetRuleResponseConditionEthereumTypedDataMessageTypedData struct {
-	PrimaryType string                                                                           `json:"primary_type" api:"required"`
-	Types       map[string][]PolicyGetRuleResponseConditionEthereumTypedDataMessageTypedDataType `json:"types" api:"required"`
+	PrimaryType string `json:"primary_type" api:"required"`
+	// The type definitions for EIP-712 typed data signing.
+	Types TypedDataTypesInputParamsResp `json:"types" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		PrimaryType respjson.Field
@@ -2939,26 +3216,6 @@ func (r PolicyGetRuleResponseConditionEthereumTypedDataMessageTypedData) RawJSON
 	return r.JSON.raw
 }
 func (r *PolicyGetRuleResponseConditionEthereumTypedDataMessageTypedData) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type PolicyGetRuleResponseConditionEthereumTypedDataMessageTypedDataType struct {
-	Name string `json:"name" api:"required"`
-	Type string `json:"type" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Name        respjson.Field
-		Type        respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyGetRuleResponseConditionEthereumTypedDataMessageTypedDataType) RawJSON() string {
-	return r.JSON.raw
-}
-func (r *PolicyGetRuleResponseConditionEthereumTypedDataMessageTypedDataType) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -3195,9 +3452,15 @@ func (r *PolicyGetRuleResponseConditionSolanaSystemProgramInstructionValueUnion)
 // Solana Token Program attributes, including more granular TransferChecked
 // instruction fields.
 type PolicyGetRuleResponseConditionSolanaTokenProgramInstruction struct {
-	// Any of "instructionName", "TransferChecked.source",
+	// Any of "instructionName", "Transfer.source", "Transfer.destination",
+	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
 	// "TransferChecked.destination", "TransferChecked.authority",
-	// "TransferChecked.amount", "TransferChecked.mint".
+	// "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint",
+	// "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account",
+	// "MintTo.authority", "MintTo.amount", "CloseAccount.account",
+	// "CloseAccount.destination", "CloseAccount.authority",
+	// "InitializeAccount3.account", "InitializeAccount3.mint",
+	// "InitializeAccount3.owner".
 	Field       string                                 `json:"field" api:"required"`
 	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" default:"solana_token_program_instruction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
@@ -3389,7 +3652,8 @@ const (
 // [PolicyUpdateRuleResponseConditionSolanaSystemProgramInstruction],
 // [PolicyUpdateRuleResponseConditionSolanaTokenProgramInstruction],
 // [PolicyUpdateRuleResponseConditionSystem], [TronTransactionCondition],
-// [SuiTransactionCommandCondition], [SuiTransferObjectsCommandCondition].
+// [TronCalldataCondition], [SuiTransactionCommandCondition],
+// [SuiTransferObjectsCommandCondition], [AggregationCondition].
 //
 // Use the [PolicyUpdateRuleResponseConditionUnion.AsAny] method to switch on the
 // variant.
@@ -3401,8 +3665,8 @@ type PolicyUpdateRuleResponseConditionUnion struct {
 	// "ethereum_typed_data_domain", "ethereum_typed_data_message",
 	// "ethereum_7702_authorization", "solana_program_instruction",
 	// "solana_system_program_instruction", "solana_token_program_instruction",
-	// "system", "tron_transaction", "sui_transaction_command",
-	// "sui_transfer_objects_command".
+	// "system", "tron_transaction", "tron_trigger_smart_contract_data",
+	// "sui_transaction_command", "sui_transfer_objects_command", "reference".
 	FieldSource string `json:"field_source"`
 	Operator    string `json:"operator"`
 	// This field is a union of
@@ -3415,12 +3679,11 @@ type PolicyUpdateRuleResponseConditionUnion struct {
 	// [PolicyUpdateRuleResponseConditionSolanaSystemProgramInstructionValueUnion],
 	// [PolicyUpdateRuleResponseConditionSolanaTokenProgramInstructionValueUnion],
 	// [PolicyUpdateRuleResponseConditionSystemValueUnion],
-	// [TronTransactionConditionValueUnion],
+	// [TronTransactionConditionValueUnion], [TronCalldataConditionValueUnion],
 	// [SuiTransactionCommandConditionValueUnion],
-	// [SuiTransferObjectsCommandConditionValueUnion]
+	// [SuiTransferObjectsCommandConditionValueUnion], [AggregationConditionValueUnion]
 	Value PolicyUpdateRuleResponseConditionUnionValue `json:"value"`
-	// This field is from variant [PolicyUpdateRuleResponseConditionEthereumCalldata].
-	Abi any `json:"abi"`
+	Abi   any                                         `json:"abi"`
 	// This field is from variant
 	// [PolicyUpdateRuleResponseConditionEthereumTypedDataMessage].
 	TypedData PolicyUpdateRuleResponseConditionEthereumTypedDataMessageTypedData `json:"typed_data"`
@@ -3460,8 +3723,10 @@ func (PolicyUpdateRuleResponseConditionSolanaTokenProgramInstruction) implPolicy
 }
 func (PolicyUpdateRuleResponseConditionSystem) implPolicyUpdateRuleResponseConditionUnion() {}
 func (TronTransactionCondition) implPolicyUpdateRuleResponseConditionUnion()                {}
+func (TronCalldataCondition) implPolicyUpdateRuleResponseConditionUnion()                   {}
 func (SuiTransactionCommandCondition) implPolicyUpdateRuleResponseConditionUnion()          {}
 func (SuiTransferObjectsCommandCondition) implPolicyUpdateRuleResponseConditionUnion()      {}
+func (AggregationCondition) implPolicyUpdateRuleResponseConditionUnion()                    {}
 
 // Use the following switch statement to find the correct variant
 //
@@ -3476,8 +3741,10 @@ func (SuiTransferObjectsCommandCondition) implPolicyUpdateRuleResponseConditionU
 //	case privyclient.PolicyUpdateRuleResponseConditionSolanaTokenProgramInstruction:
 //	case privyclient.PolicyUpdateRuleResponseConditionSystem:
 //	case privyclient.TronTransactionCondition:
+//	case privyclient.TronCalldataCondition:
 //	case privyclient.SuiTransactionCommandCondition:
 //	case privyclient.SuiTransferObjectsCommandCondition:
+//	case privyclient.AggregationCondition:
 //	default:
 //	  fmt.Errorf("no variant present")
 //	}
@@ -3503,10 +3770,14 @@ func (u PolicyUpdateRuleResponseConditionUnion) AsAny() anyPolicyUpdateRuleRespo
 		return u.AsSystem()
 	case "tron_transaction":
 		return u.AsTronTransaction()
+	case "tron_trigger_smart_contract_data":
+		return u.AsTronTriggerSmartContractData()
 	case "sui_transaction_command":
 		return u.AsSuiTransactionCommand()
 	case "sui_transfer_objects_command":
 		return u.AsSuiTransferObjectsCommand()
+	case "reference":
+		return u.AsReference()
 	}
 	return nil
 }
@@ -3561,12 +3832,22 @@ func (u PolicyUpdateRuleResponseConditionUnion) AsTronTransaction() (v TronTrans
 	return
 }
 
+func (u PolicyUpdateRuleResponseConditionUnion) AsTronTriggerSmartContractData() (v TronCalldataCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
 func (u PolicyUpdateRuleResponseConditionUnion) AsSuiTransactionCommand() (v SuiTransactionCommandCondition) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
 func (u PolicyUpdateRuleResponseConditionUnion) AsSuiTransferObjectsCommand() (v SuiTransferObjectsCommandCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyUpdateRuleResponseConditionUnion) AsReference() (v AggregationCondition) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -3744,7 +4025,7 @@ func (r *PolicyUpdateRuleResponseConditionEthereumCalldataValueUnion) UnmarshalJ
 
 // Attributes from the signing domain that will verify the signature.
 type PolicyUpdateRuleResponseConditionEthereumTypedDataDomain struct {
-	// Any of "chainId", "verifyingContract".
+	// Any of "chainId", "verifyingContract", "chain_id", "verifying_contract".
 	Field       string                           `json:"field" api:"required"`
 	FieldSource constant.EthereumTypedDataDomain `json:"field_source" default:"ethereum_typed_data_domain"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
@@ -3835,8 +4116,9 @@ func (r *PolicyUpdateRuleResponseConditionEthereumTypedDataMessage) UnmarshalJSO
 }
 
 type PolicyUpdateRuleResponseConditionEthereumTypedDataMessageTypedData struct {
-	PrimaryType string                                                                              `json:"primary_type" api:"required"`
-	Types       map[string][]PolicyUpdateRuleResponseConditionEthereumTypedDataMessageTypedDataType `json:"types" api:"required"`
+	PrimaryType string `json:"primary_type" api:"required"`
+	// The type definitions for EIP-712 typed data signing.
+	Types TypedDataTypesInputParamsResp `json:"types" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		PrimaryType respjson.Field
@@ -3851,26 +4133,6 @@ func (r PolicyUpdateRuleResponseConditionEthereumTypedDataMessageTypedData) RawJ
 	return r.JSON.raw
 }
 func (r *PolicyUpdateRuleResponseConditionEthereumTypedDataMessageTypedData) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type PolicyUpdateRuleResponseConditionEthereumTypedDataMessageTypedDataType struct {
-	Name string `json:"name" api:"required"`
-	Type string `json:"type" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Name        respjson.Field
-		Type        respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyUpdateRuleResponseConditionEthereumTypedDataMessageTypedDataType) RawJSON() string {
-	return r.JSON.raw
-}
-func (r *PolicyUpdateRuleResponseConditionEthereumTypedDataMessageTypedDataType) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -4111,9 +4373,15 @@ func (r *PolicyUpdateRuleResponseConditionSolanaSystemProgramInstructionValueUni
 // Solana Token Program attributes, including more granular TransferChecked
 // instruction fields.
 type PolicyUpdateRuleResponseConditionSolanaTokenProgramInstruction struct {
-	// Any of "instructionName", "TransferChecked.source",
+	// Any of "instructionName", "Transfer.source", "Transfer.destination",
+	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
 	// "TransferChecked.destination", "TransferChecked.authority",
-	// "TransferChecked.amount", "TransferChecked.mint".
+	// "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint",
+	// "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account",
+	// "MintTo.authority", "MintTo.amount", "CloseAccount.account",
+	// "CloseAccount.destination", "CloseAccount.authority",
+	// "InitializeAccount3.account", "InitializeAccount3.mint",
+	// "InitializeAccount3.owner".
 	Field       string                                 `json:"field" api:"required"`
 	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" default:"solana_token_program_instruction"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
@@ -4254,10 +4522,11 @@ const (
 )
 
 type PolicyNewParams struct {
-	// The chain type the policy applies to.
+	// The wallet chain types.
 	//
-	// Any of "ethereum", "solana", "tron", "sui".
-	ChainType PolicyNewParamsChainType `json:"chain_type,omitzero" api:"required"`
+	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
+	// "tron", "bitcoin-segwit", "near", "ton", "starknet", "spark".
+	ChainType WalletChainType `json:"chain_type,omitzero" api:"required"`
 	// Name to assign to policy.
 	Name  string                `json:"name" api:"required"`
 	Rules []PolicyNewParamsRule `json:"rules,omitzero" api:"required"`
@@ -4283,16 +4552,6 @@ func (r PolicyNewParams) MarshalJSON() (data []byte, err error) {
 func (r *PolicyNewParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-// The chain type the policy applies to.
-type PolicyNewParamsChainType string
-
-const (
-	PolicyNewParamsChainTypeEthereum PolicyNewParamsChainType = "ethereum"
-	PolicyNewParamsChainTypeSolana   PolicyNewParamsChainType = "solana"
-	PolicyNewParamsChainTypeTron     PolicyNewParamsChainType = "tron"
-	PolicyNewParamsChainTypeSui      PolicyNewParamsChainType = "sui"
-)
 
 // The rules that apply to each method the policy covers.
 //
@@ -4344,8 +4603,10 @@ type PolicyNewParamsRuleConditionUnion struct {
 	OfSolanaTokenProgramInstruction  *PolicyNewParamsRuleConditionSolanaTokenProgramInstruction  `json:",omitzero,inline"`
 	OfSystem                         *PolicyNewParamsRuleConditionSystem                         `json:",omitzero,inline"`
 	OfTronTransaction                *TronTransactionConditionParam                              `json:",omitzero,inline"`
+	OfTronTriggerSmartContractData   *TronCalldataConditionParam                                 `json:",omitzero,inline"`
 	OfSuiTransactionCommand          *SuiTransactionCommandConditionParam                        `json:",omitzero,inline"`
 	OfSuiTransferObjectsCommand      *SuiTransferObjectsCommandConditionParam                    `json:",omitzero,inline"`
+	OfReference                      *AggregationConditionParam                                  `json:",omitzero,inline"`
 	paramUnion
 }
 
@@ -4360,8 +4621,10 @@ func (u PolicyNewParamsRuleConditionUnion) MarshalJSON() ([]byte, error) {
 		u.OfSolanaTokenProgramInstruction,
 		u.OfSystem,
 		u.OfTronTransaction,
+		u.OfTronTriggerSmartContractData,
 		u.OfSuiTransactionCommand,
-		u.OfSuiTransferObjectsCommand)
+		u.OfSuiTransferObjectsCommand,
+		u.OfReference)
 }
 func (u *PolicyNewParamsRuleConditionUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
@@ -4380,8 +4643,10 @@ func init() {
 		apijson.Discriminator[PolicyNewParamsRuleConditionSolanaTokenProgramInstruction]("solana_token_program_instruction"),
 		apijson.Discriminator[PolicyNewParamsRuleConditionSystem]("system"),
 		apijson.Discriminator[TronTransactionConditionParam]("tron_transaction"),
+		apijson.Discriminator[TronCalldataConditionParam]("tron_trigger_smart_contract_data"),
 		apijson.Discriminator[SuiTransactionCommandConditionParam]("sui_transaction_command"),
 		apijson.Discriminator[SuiTransferObjectsCommandConditionParam]("sui_transfer_objects_command"),
+		apijson.Discriminator[AggregationConditionParam]("reference"),
 	)
 }
 
@@ -4485,7 +4750,7 @@ func (u *PolicyNewParamsRuleConditionEthereumCalldataValueUnion) UnmarshalJSON(d
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyNewParamsRuleConditionEthereumTypedDataDomain struct {
-	// Any of "chainId", "verifyingContract".
+	// Any of "chainId", "verifyingContract", "chain_id", "verifying_contract".
 	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                        `json:"operator,omitzero" api:"required"`
@@ -4506,7 +4771,7 @@ func (r *PolicyNewParamsRuleConditionEthereumTypedDataDomain) UnmarshalJSON(data
 
 func init() {
 	apijson.RegisterFieldValidator[PolicyNewParamsRuleConditionEthereumTypedDataDomain](
-		"field", "chainId", "verifyingContract",
+		"field", "chainId", "verifyingContract", "chain_id", "verifying_contract",
 	)
 	apijson.RegisterFieldValidator[PolicyNewParamsRuleConditionEthereumTypedDataDomain](
 		"operator", "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set",
@@ -4561,8 +4826,9 @@ func init() {
 
 // The properties PrimaryType, Types are required.
 type PolicyNewParamsRuleConditionEthereumTypedDataMessageTypedData struct {
-	PrimaryType string                                                                         `json:"primary_type" api:"required"`
-	Types       map[string][]PolicyNewParamsRuleConditionEthereumTypedDataMessageTypedDataType `json:"types,omitzero" api:"required"`
+	PrimaryType string `json:"primary_type" api:"required"`
+	// The type definitions for EIP-712 typed data signing.
+	Types TypedDataTypesInputParams `json:"types,omitzero" api:"required"`
 	paramObj
 }
 
@@ -4571,21 +4837,6 @@ func (r PolicyNewParamsRuleConditionEthereumTypedDataMessageTypedData) MarshalJS
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *PolicyNewParamsRuleConditionEthereumTypedDataMessageTypedData) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The properties Name, Type are required.
-type PolicyNewParamsRuleConditionEthereumTypedDataMessageTypedDataType struct {
-	Name string `json:"name" api:"required"`
-	Type string `json:"type" api:"required"`
-	paramObj
-}
-
-func (r PolicyNewParamsRuleConditionEthereumTypedDataMessageTypedDataType) MarshalJSON() (data []byte, err error) {
-	type shadow PolicyNewParamsRuleConditionEthereumTypedDataMessageTypedDataType
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *PolicyNewParamsRuleConditionEthereumTypedDataMessageTypedDataType) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -4755,9 +5006,15 @@ func (u *PolicyNewParamsRuleConditionSolanaSystemProgramInstructionValueUnion) U
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyNewParamsRuleConditionSolanaTokenProgramInstruction struct {
-	// Any of "instructionName", "TransferChecked.source",
+	// Any of "instructionName", "Transfer.source", "Transfer.destination",
+	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
 	// "TransferChecked.destination", "TransferChecked.authority",
-	// "TransferChecked.amount", "TransferChecked.mint".
+	// "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint",
+	// "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account",
+	// "MintTo.authority", "MintTo.amount", "CloseAccount.account",
+	// "CloseAccount.destination", "CloseAccount.authority",
+	// "InitializeAccount3.account", "InitializeAccount3.mint",
+	// "InitializeAccount3.owner".
 	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                              `json:"operator,omitzero" api:"required"`
@@ -4778,7 +5035,7 @@ func (r *PolicyNewParamsRuleConditionSolanaTokenProgramInstruction) UnmarshalJSO
 
 func init() {
 	apijson.RegisterFieldValidator[PolicyNewParamsRuleConditionSolanaTokenProgramInstruction](
-		"field", "instructionName", "TransferChecked.source", "TransferChecked.destination", "TransferChecked.authority", "TransferChecked.amount", "TransferChecked.mint",
+		"field", "instructionName", "Transfer.source", "Transfer.destination", "Transfer.authority", "Transfer.amount", "TransferChecked.source", "TransferChecked.destination", "TransferChecked.authority", "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint", "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account", "MintTo.authority", "MintTo.amount", "CloseAccount.account", "CloseAccount.destination", "CloseAccount.authority", "InitializeAccount3.account", "InitializeAccount3.mint", "InitializeAccount3.owner",
 	)
 	apijson.RegisterFieldValidator[PolicyNewParamsRuleConditionSolanaTokenProgramInstruction](
 		"operator", "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set",
@@ -5035,8 +5292,10 @@ type PolicyUpdateParamsRuleConditionUnion struct {
 	OfSolanaTokenProgramInstruction  *PolicyUpdateParamsRuleConditionSolanaTokenProgramInstruction  `json:",omitzero,inline"`
 	OfSystem                         *PolicyUpdateParamsRuleConditionSystem                         `json:",omitzero,inline"`
 	OfTronTransaction                *TronTransactionConditionParam                                 `json:",omitzero,inline"`
+	OfTronTriggerSmartContractData   *TronCalldataConditionParam                                    `json:",omitzero,inline"`
 	OfSuiTransactionCommand          *SuiTransactionCommandConditionParam                           `json:",omitzero,inline"`
 	OfSuiTransferObjectsCommand      *SuiTransferObjectsCommandConditionParam                       `json:",omitzero,inline"`
+	OfReference                      *AggregationConditionParam                                     `json:",omitzero,inline"`
 	paramUnion
 }
 
@@ -5051,8 +5310,10 @@ func (u PolicyUpdateParamsRuleConditionUnion) MarshalJSON() ([]byte, error) {
 		u.OfSolanaTokenProgramInstruction,
 		u.OfSystem,
 		u.OfTronTransaction,
+		u.OfTronTriggerSmartContractData,
 		u.OfSuiTransactionCommand,
-		u.OfSuiTransferObjectsCommand)
+		u.OfSuiTransferObjectsCommand,
+		u.OfReference)
 }
 func (u *PolicyUpdateParamsRuleConditionUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
@@ -5071,8 +5332,10 @@ func init() {
 		apijson.Discriminator[PolicyUpdateParamsRuleConditionSolanaTokenProgramInstruction]("solana_token_program_instruction"),
 		apijson.Discriminator[PolicyUpdateParamsRuleConditionSystem]("system"),
 		apijson.Discriminator[TronTransactionConditionParam]("tron_transaction"),
+		apijson.Discriminator[TronCalldataConditionParam]("tron_trigger_smart_contract_data"),
 		apijson.Discriminator[SuiTransactionCommandConditionParam]("sui_transaction_command"),
 		apijson.Discriminator[SuiTransferObjectsCommandConditionParam]("sui_transfer_objects_command"),
+		apijson.Discriminator[AggregationConditionParam]("reference"),
 	)
 }
 
@@ -5176,7 +5439,7 @@ func (u *PolicyUpdateParamsRuleConditionEthereumCalldataValueUnion) UnmarshalJSO
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyUpdateParamsRuleConditionEthereumTypedDataDomain struct {
-	// Any of "chainId", "verifyingContract".
+	// Any of "chainId", "verifyingContract", "chain_id", "verifying_contract".
 	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                           `json:"operator,omitzero" api:"required"`
@@ -5197,7 +5460,7 @@ func (r *PolicyUpdateParamsRuleConditionEthereumTypedDataDomain) UnmarshalJSON(d
 
 func init() {
 	apijson.RegisterFieldValidator[PolicyUpdateParamsRuleConditionEthereumTypedDataDomain](
-		"field", "chainId", "verifyingContract",
+		"field", "chainId", "verifyingContract", "chain_id", "verifying_contract",
 	)
 	apijson.RegisterFieldValidator[PolicyUpdateParamsRuleConditionEthereumTypedDataDomain](
 		"operator", "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set",
@@ -5252,8 +5515,9 @@ func init() {
 
 // The properties PrimaryType, Types are required.
 type PolicyUpdateParamsRuleConditionEthereumTypedDataMessageTypedData struct {
-	PrimaryType string                                                                            `json:"primary_type" api:"required"`
-	Types       map[string][]PolicyUpdateParamsRuleConditionEthereumTypedDataMessageTypedDataType `json:"types,omitzero" api:"required"`
+	PrimaryType string `json:"primary_type" api:"required"`
+	// The type definitions for EIP-712 typed data signing.
+	Types TypedDataTypesInputParams `json:"types,omitzero" api:"required"`
 	paramObj
 }
 
@@ -5262,21 +5526,6 @@ func (r PolicyUpdateParamsRuleConditionEthereumTypedDataMessageTypedData) Marsha
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *PolicyUpdateParamsRuleConditionEthereumTypedDataMessageTypedData) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The properties Name, Type are required.
-type PolicyUpdateParamsRuleConditionEthereumTypedDataMessageTypedDataType struct {
-	Name string `json:"name" api:"required"`
-	Type string `json:"type" api:"required"`
-	paramObj
-}
-
-func (r PolicyUpdateParamsRuleConditionEthereumTypedDataMessageTypedDataType) MarshalJSON() (data []byte, err error) {
-	type shadow PolicyUpdateParamsRuleConditionEthereumTypedDataMessageTypedDataType
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *PolicyUpdateParamsRuleConditionEthereumTypedDataMessageTypedDataType) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -5446,9 +5695,15 @@ func (u *PolicyUpdateParamsRuleConditionSolanaSystemProgramInstructionValueUnion
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyUpdateParamsRuleConditionSolanaTokenProgramInstruction struct {
-	// Any of "instructionName", "TransferChecked.source",
+	// Any of "instructionName", "Transfer.source", "Transfer.destination",
+	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
 	// "TransferChecked.destination", "TransferChecked.authority",
-	// "TransferChecked.amount", "TransferChecked.mint".
+	// "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint",
+	// "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account",
+	// "MintTo.authority", "MintTo.amount", "CloseAccount.account",
+	// "CloseAccount.destination", "CloseAccount.authority",
+	// "InitializeAccount3.account", "InitializeAccount3.mint",
+	// "InitializeAccount3.owner".
 	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                                 `json:"operator,omitzero" api:"required"`
@@ -5469,7 +5724,7 @@ func (r *PolicyUpdateParamsRuleConditionSolanaTokenProgramInstruction) Unmarshal
 
 func init() {
 	apijson.RegisterFieldValidator[PolicyUpdateParamsRuleConditionSolanaTokenProgramInstruction](
-		"field", "instructionName", "TransferChecked.source", "TransferChecked.destination", "TransferChecked.authority", "TransferChecked.amount", "TransferChecked.mint",
+		"field", "instructionName", "Transfer.source", "Transfer.destination", "Transfer.authority", "Transfer.amount", "TransferChecked.source", "TransferChecked.destination", "TransferChecked.authority", "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint", "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account", "MintTo.authority", "MintTo.amount", "CloseAccount.account", "CloseAccount.destination", "CloseAccount.authority", "InitializeAccount3.account", "InitializeAccount3.mint", "InitializeAccount3.owner",
 	)
 	apijson.RegisterFieldValidator[PolicyUpdateParamsRuleConditionSolanaTokenProgramInstruction](
 		"operator", "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set",
@@ -5601,8 +5856,10 @@ type PolicyNewRuleParamsConditionUnion struct {
 	OfSolanaTokenProgramInstruction  *PolicyNewRuleParamsConditionSolanaTokenProgramInstruction  `json:",omitzero,inline"`
 	OfSystem                         *PolicyNewRuleParamsConditionSystem                         `json:",omitzero,inline"`
 	OfTronTransaction                *TronTransactionConditionParam                              `json:",omitzero,inline"`
+	OfTronTriggerSmartContractData   *TronCalldataConditionParam                                 `json:",omitzero,inline"`
 	OfSuiTransactionCommand          *SuiTransactionCommandConditionParam                        `json:",omitzero,inline"`
 	OfSuiTransferObjectsCommand      *SuiTransferObjectsCommandConditionParam                    `json:",omitzero,inline"`
+	OfReference                      *AggregationConditionParam                                  `json:",omitzero,inline"`
 	paramUnion
 }
 
@@ -5617,8 +5874,10 @@ func (u PolicyNewRuleParamsConditionUnion) MarshalJSON() ([]byte, error) {
 		u.OfSolanaTokenProgramInstruction,
 		u.OfSystem,
 		u.OfTronTransaction,
+		u.OfTronTriggerSmartContractData,
 		u.OfSuiTransactionCommand,
-		u.OfSuiTransferObjectsCommand)
+		u.OfSuiTransferObjectsCommand,
+		u.OfReference)
 }
 func (u *PolicyNewRuleParamsConditionUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
@@ -5637,8 +5896,10 @@ func init() {
 		apijson.Discriminator[PolicyNewRuleParamsConditionSolanaTokenProgramInstruction]("solana_token_program_instruction"),
 		apijson.Discriminator[PolicyNewRuleParamsConditionSystem]("system"),
 		apijson.Discriminator[TronTransactionConditionParam]("tron_transaction"),
+		apijson.Discriminator[TronCalldataConditionParam]("tron_trigger_smart_contract_data"),
 		apijson.Discriminator[SuiTransactionCommandConditionParam]("sui_transaction_command"),
 		apijson.Discriminator[SuiTransferObjectsCommandConditionParam]("sui_transfer_objects_command"),
+		apijson.Discriminator[AggregationConditionParam]("reference"),
 	)
 }
 
@@ -5742,7 +6003,7 @@ func (u *PolicyNewRuleParamsConditionEthereumCalldataValueUnion) UnmarshalJSON(d
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyNewRuleParamsConditionEthereumTypedDataDomain struct {
-	// Any of "chainId", "verifyingContract".
+	// Any of "chainId", "verifyingContract", "chain_id", "verifying_contract".
 	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                        `json:"operator,omitzero" api:"required"`
@@ -5763,7 +6024,7 @@ func (r *PolicyNewRuleParamsConditionEthereumTypedDataDomain) UnmarshalJSON(data
 
 func init() {
 	apijson.RegisterFieldValidator[PolicyNewRuleParamsConditionEthereumTypedDataDomain](
-		"field", "chainId", "verifyingContract",
+		"field", "chainId", "verifyingContract", "chain_id", "verifying_contract",
 	)
 	apijson.RegisterFieldValidator[PolicyNewRuleParamsConditionEthereumTypedDataDomain](
 		"operator", "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set",
@@ -5818,8 +6079,9 @@ func init() {
 
 // The properties PrimaryType, Types are required.
 type PolicyNewRuleParamsConditionEthereumTypedDataMessageTypedData struct {
-	PrimaryType string                                                                         `json:"primary_type" api:"required"`
-	Types       map[string][]PolicyNewRuleParamsConditionEthereumTypedDataMessageTypedDataType `json:"types,omitzero" api:"required"`
+	PrimaryType string `json:"primary_type" api:"required"`
+	// The type definitions for EIP-712 typed data signing.
+	Types TypedDataTypesInputParams `json:"types,omitzero" api:"required"`
 	paramObj
 }
 
@@ -5828,21 +6090,6 @@ func (r PolicyNewRuleParamsConditionEthereumTypedDataMessageTypedData) MarshalJS
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *PolicyNewRuleParamsConditionEthereumTypedDataMessageTypedData) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The properties Name, Type are required.
-type PolicyNewRuleParamsConditionEthereumTypedDataMessageTypedDataType struct {
-	Name string `json:"name" api:"required"`
-	Type string `json:"type" api:"required"`
-	paramObj
-}
-
-func (r PolicyNewRuleParamsConditionEthereumTypedDataMessageTypedDataType) MarshalJSON() (data []byte, err error) {
-	type shadow PolicyNewRuleParamsConditionEthereumTypedDataMessageTypedDataType
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *PolicyNewRuleParamsConditionEthereumTypedDataMessageTypedDataType) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -6012,9 +6259,15 @@ func (u *PolicyNewRuleParamsConditionSolanaSystemProgramInstructionValueUnion) U
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyNewRuleParamsConditionSolanaTokenProgramInstruction struct {
-	// Any of "instructionName", "TransferChecked.source",
+	// Any of "instructionName", "Transfer.source", "Transfer.destination",
+	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
 	// "TransferChecked.destination", "TransferChecked.authority",
-	// "TransferChecked.amount", "TransferChecked.mint".
+	// "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint",
+	// "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account",
+	// "MintTo.authority", "MintTo.amount", "CloseAccount.account",
+	// "CloseAccount.destination", "CloseAccount.authority",
+	// "InitializeAccount3.account", "InitializeAccount3.mint",
+	// "InitializeAccount3.owner".
 	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                              `json:"operator,omitzero" api:"required"`
@@ -6035,7 +6288,7 @@ func (r *PolicyNewRuleParamsConditionSolanaTokenProgramInstruction) UnmarshalJSO
 
 func init() {
 	apijson.RegisterFieldValidator[PolicyNewRuleParamsConditionSolanaTokenProgramInstruction](
-		"field", "instructionName", "TransferChecked.source", "TransferChecked.destination", "TransferChecked.authority", "TransferChecked.amount", "TransferChecked.mint",
+		"field", "instructionName", "Transfer.source", "Transfer.destination", "Transfer.authority", "Transfer.amount", "TransferChecked.source", "TransferChecked.destination", "TransferChecked.authority", "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint", "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account", "MintTo.authority", "MintTo.amount", "CloseAccount.account", "CloseAccount.destination", "CloseAccount.authority", "InitializeAccount3.account", "InitializeAccount3.mint", "InitializeAccount3.owner",
 	)
 	apijson.RegisterFieldValidator[PolicyNewRuleParamsConditionSolanaTokenProgramInstruction](
 		"operator", "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set",
@@ -6190,8 +6443,10 @@ type PolicyUpdateRuleParamsConditionUnion struct {
 	OfSolanaTokenProgramInstruction  *PolicyUpdateRuleParamsConditionSolanaTokenProgramInstruction  `json:",omitzero,inline"`
 	OfSystem                         *PolicyUpdateRuleParamsConditionSystem                         `json:",omitzero,inline"`
 	OfTronTransaction                *TronTransactionConditionParam                                 `json:",omitzero,inline"`
+	OfTronTriggerSmartContractData   *TronCalldataConditionParam                                    `json:",omitzero,inline"`
 	OfSuiTransactionCommand          *SuiTransactionCommandConditionParam                           `json:",omitzero,inline"`
 	OfSuiTransferObjectsCommand      *SuiTransferObjectsCommandConditionParam                       `json:",omitzero,inline"`
+	OfReference                      *AggregationConditionParam                                     `json:",omitzero,inline"`
 	paramUnion
 }
 
@@ -6206,8 +6461,10 @@ func (u PolicyUpdateRuleParamsConditionUnion) MarshalJSON() ([]byte, error) {
 		u.OfSolanaTokenProgramInstruction,
 		u.OfSystem,
 		u.OfTronTransaction,
+		u.OfTronTriggerSmartContractData,
 		u.OfSuiTransactionCommand,
-		u.OfSuiTransferObjectsCommand)
+		u.OfSuiTransferObjectsCommand,
+		u.OfReference)
 }
 func (u *PolicyUpdateRuleParamsConditionUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
@@ -6226,8 +6483,10 @@ func init() {
 		apijson.Discriminator[PolicyUpdateRuleParamsConditionSolanaTokenProgramInstruction]("solana_token_program_instruction"),
 		apijson.Discriminator[PolicyUpdateRuleParamsConditionSystem]("system"),
 		apijson.Discriminator[TronTransactionConditionParam]("tron_transaction"),
+		apijson.Discriminator[TronCalldataConditionParam]("tron_trigger_smart_contract_data"),
 		apijson.Discriminator[SuiTransactionCommandConditionParam]("sui_transaction_command"),
 		apijson.Discriminator[SuiTransferObjectsCommandConditionParam]("sui_transfer_objects_command"),
+		apijson.Discriminator[AggregationConditionParam]("reference"),
 	)
 }
 
@@ -6331,7 +6590,7 @@ func (u *PolicyUpdateRuleParamsConditionEthereumCalldataValueUnion) UnmarshalJSO
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyUpdateRuleParamsConditionEthereumTypedDataDomain struct {
-	// Any of "chainId", "verifyingContract".
+	// Any of "chainId", "verifyingContract", "chain_id", "verifying_contract".
 	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                           `json:"operator,omitzero" api:"required"`
@@ -6352,7 +6611,7 @@ func (r *PolicyUpdateRuleParamsConditionEthereumTypedDataDomain) UnmarshalJSON(d
 
 func init() {
 	apijson.RegisterFieldValidator[PolicyUpdateRuleParamsConditionEthereumTypedDataDomain](
-		"field", "chainId", "verifyingContract",
+		"field", "chainId", "verifyingContract", "chain_id", "verifying_contract",
 	)
 	apijson.RegisterFieldValidator[PolicyUpdateRuleParamsConditionEthereumTypedDataDomain](
 		"operator", "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set",
@@ -6407,8 +6666,9 @@ func init() {
 
 // The properties PrimaryType, Types are required.
 type PolicyUpdateRuleParamsConditionEthereumTypedDataMessageTypedData struct {
-	PrimaryType string                                                                            `json:"primary_type" api:"required"`
-	Types       map[string][]PolicyUpdateRuleParamsConditionEthereumTypedDataMessageTypedDataType `json:"types,omitzero" api:"required"`
+	PrimaryType string `json:"primary_type" api:"required"`
+	// The type definitions for EIP-712 typed data signing.
+	Types TypedDataTypesInputParams `json:"types,omitzero" api:"required"`
 	paramObj
 }
 
@@ -6417,21 +6677,6 @@ func (r PolicyUpdateRuleParamsConditionEthereumTypedDataMessageTypedData) Marsha
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *PolicyUpdateRuleParamsConditionEthereumTypedDataMessageTypedData) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The properties Name, Type are required.
-type PolicyUpdateRuleParamsConditionEthereumTypedDataMessageTypedDataType struct {
-	Name string `json:"name" api:"required"`
-	Type string `json:"type" api:"required"`
-	paramObj
-}
-
-func (r PolicyUpdateRuleParamsConditionEthereumTypedDataMessageTypedDataType) MarshalJSON() (data []byte, err error) {
-	type shadow PolicyUpdateRuleParamsConditionEthereumTypedDataMessageTypedDataType
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *PolicyUpdateRuleParamsConditionEthereumTypedDataMessageTypedDataType) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -6601,9 +6846,15 @@ func (u *PolicyUpdateRuleParamsConditionSolanaSystemProgramInstructionValueUnion
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type PolicyUpdateRuleParamsConditionSolanaTokenProgramInstruction struct {
-	// Any of "instructionName", "TransferChecked.source",
+	// Any of "instructionName", "Transfer.source", "Transfer.destination",
+	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
 	// "TransferChecked.destination", "TransferChecked.authority",
-	// "TransferChecked.amount", "TransferChecked.mint".
+	// "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint",
+	// "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account",
+	// "MintTo.authority", "MintTo.amount", "CloseAccount.account",
+	// "CloseAccount.destination", "CloseAccount.authority",
+	// "InitializeAccount3.account", "InitializeAccount3.mint",
+	// "InitializeAccount3.owner".
 	Field string `json:"field,omitzero" api:"required"`
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
 	Operator string                                                                 `json:"operator,omitzero" api:"required"`
@@ -6624,7 +6875,7 @@ func (r *PolicyUpdateRuleParamsConditionSolanaTokenProgramInstruction) Unmarshal
 
 func init() {
 	apijson.RegisterFieldValidator[PolicyUpdateRuleParamsConditionSolanaTokenProgramInstruction](
-		"field", "instructionName", "TransferChecked.source", "TransferChecked.destination", "TransferChecked.authority", "TransferChecked.amount", "TransferChecked.mint",
+		"field", "instructionName", "Transfer.source", "Transfer.destination", "Transfer.authority", "Transfer.amount", "TransferChecked.source", "TransferChecked.destination", "TransferChecked.authority", "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint", "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account", "MintTo.authority", "MintTo.amount", "CloseAccount.account", "CloseAccount.destination", "CloseAccount.authority", "InitializeAccount3.account", "InitializeAccount3.mint", "InitializeAccount3.owner",
 	)
 	apijson.RegisterFieldValidator[PolicyUpdateRuleParamsConditionSolanaTokenProgramInstruction](
 		"operator", "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set",
