@@ -13,10 +13,11 @@ type PrivyKeyQuorumService struct {
 	// Directly embed the generated KeyQuorumService to expose all its methods through PrivyKeyQuorumService
 	KeyQuorumService
 
-	jwtExchanger jwtexchange.JwtExchanger
-	baseURL      string
-	appID        string
-	logger       logger
+	jwtExchanger          jwtexchange.JwtExchanger
+	baseURL               string
+	appID                 string
+	defaultRequestExpiryMs int64
+	logger                logger
 }
 
 // newPrivyKeyQuorumService creates a new wrapped key quorum service.
@@ -26,14 +27,16 @@ func newPrivyKeyQuorumService(
 	jwtExchanger jwtexchange.JwtExchanger,
 	baseURL string,
 	appID string,
+	defaultRequestExpiryMs int64,
 	logger logger,
 ) *PrivyKeyQuorumService {
 	return &PrivyKeyQuorumService{
-		KeyQuorumService: service,
-		jwtExchanger:     jwtExchanger,
-		baseURL:          baseURL,
-		appID:            appID,
-		logger:           logger,
+		KeyQuorumService:       service,
+		jwtExchanger:           jwtExchanger,
+		baseURL:                baseURL,
+		appID:                  appID,
+		defaultRequestExpiryMs: defaultRequestExpiryMs,
+		logger:                 logger,
 	}
 }
 
