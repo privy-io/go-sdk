@@ -5136,6 +5136,7 @@ type IntentResponseUnionRequestDetailsBody struct {
 	// [EthereumSecp256k1SignRpcInputParamsResp],
 	// [EthereumSign7702AuthorizationRpcInputParamsResp],
 	// [EthereumSignUserOperationRpcInputParamsResp],
+	// [EthereumSendCallsRpcInputParamsResp],
 	// [SolanaSignTransactionRpcInputParamsResp],
 	// [SolanaSignAndSendTransactionRpcInputParamsResp],
 	// [SolanaSignMessageRpcInputParamsResp], [SparkTransferRpcInputParamsResp],
@@ -5235,9 +5236,11 @@ type IntentResponseUnionRequestDetailsBodyParams struct {
 	// This field is from variant [EthereumSign7702AuthorizationRpcInputParamsResp].
 	Nonce QuantityUnion `json:"nonce"`
 	// This field is from variant [EthereumSignUserOperationRpcInputParamsResp].
-	UserOperation        UserOperationInput `json:"user_operation"`
-	AmountSats           float64            `json:"amount_sats"`
-	ReceiverSparkAddress string             `json:"receiver_spark_address"`
+	UserOperation UserOperationInput `json:"user_operation"`
+	// This field is from variant [EthereumSendCallsRpcInputParamsResp].
+	Calls                []EthereumSendCallsCall `json:"calls"`
+	AmountSats           float64                 `json:"amount_sats"`
+	ReceiverSparkAddress string                  `json:"receiver_spark_address"`
 	// This field is from variant [SparkTransferTokensRpcInputParamsResp].
 	TokenAmount float64 `json:"token_amount"`
 	// This field is from variant [SparkTransferTokensRpcInputParamsResp].
@@ -5289,6 +5292,7 @@ type IntentResponseUnionRequestDetailsBodyParams struct {
 		Executor                respjson.Field
 		Nonce                   respjson.Field
 		UserOperation           respjson.Field
+		Calls                   respjson.Field
 		AmountSats              respjson.Field
 		ReceiverSparkAddress    respjson.Field
 		TokenAmount             respjson.Field
