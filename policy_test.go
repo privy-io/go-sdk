@@ -28,7 +28,7 @@ func TestPolicyNewWithOptionalParams(t *testing.T) {
 		option.WithAppSecret("My App Secret"),
 	)
 	_, err := client.Policies.New(context.TODO(), privyclient.PolicyNewParams{
-		ChainType: privyclient.PolicyNewParamsChainTypeEthereum,
+		ChainType: privyclient.WalletChainTypeEthereum,
 		Name:      "x",
 		Rules: []privyclient.PolicyNewParamsRule{{
 			Action: "ALLOW",
@@ -102,6 +102,7 @@ func TestPolicyUpdateWithOptionalParams(t *testing.T) {
 				Name:   "x",
 			}},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
+			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {
@@ -132,6 +133,7 @@ func TestPolicyDeleteWithOptionalParams(t *testing.T) {
 		"xxxxxxxxxxxxxxxxxxxxxxxx",
 		privyclient.PolicyDeleteParams{
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
+			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {
@@ -174,6 +176,7 @@ func TestPolicyNewRuleWithOptionalParams(t *testing.T) {
 			Method:                      privyclient.PolicyNewRuleParamsMethodEthSendTransaction,
 			Name:                        "x",
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
+			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {
@@ -205,6 +208,7 @@ func TestPolicyDeleteRuleWithOptionalParams(t *testing.T) {
 		privyclient.PolicyDeleteRuleParams{
 			PolicyID:                    "xxxxxxxxxxxxxxxxxxxxxxxx",
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
+			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {
@@ -302,6 +306,7 @@ func TestPolicyUpdateRuleWithOptionalParams(t *testing.T) {
 			Method:                      privyclient.PolicyUpdateRuleParamsMethodEthSendTransaction,
 			Name:                        "x",
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
+			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {

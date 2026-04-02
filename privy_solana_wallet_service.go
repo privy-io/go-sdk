@@ -23,9 +23,9 @@ func (s *PrivySolanaWalletService) SignMessage(
 	ctx context.Context,
 	walletID string,
 	message string,
-	opts ...RpcOption,
+	opts ...RequestOption,
 ) (*SolanaSignMessageRpcResponseData, error) {
-	input := SolanaSignMessageRpcInput{
+	input := SolanaSignMessageRpcInputParam{
 		Method: SolanaSignMessageRpcInputMethodSignMessage,
 		Params: SolanaSignMessageRpcInputParams{
 			Message:  message,
@@ -34,7 +34,9 @@ func (s *PrivySolanaWalletService) SignMessage(
 	}
 
 	params := WalletRpcParams{
-		OfSignMessage: &input,
+		WalletRpcRequestBody: WalletRpcRequestBodyUnionParam{
+			OfSignMessage: &input,
+		},
 	}
 
 	response, err := s.walletService.Rpc(ctx, walletID, params, opts...)
@@ -56,7 +58,7 @@ func (s *PrivySolanaWalletService) SignMessageBytes(
 	ctx context.Context,
 	walletID string,
 	message []byte,
-	opts ...RpcOption,
+	opts ...RequestOption,
 ) (*SolanaSignMessageRpcResponseData, error) {
 	return s.SignMessage(ctx, walletID, base64.StdEncoding.EncodeToString(message), opts...)
 }
@@ -66,15 +68,17 @@ func (s *PrivySolanaWalletService) SignTransaction(
 	ctx context.Context,
 	walletID string,
 	params SolanaSignTransactionRpcInputParams,
-	opts ...RpcOption,
+	opts ...RequestOption,
 ) (*SolanaSignTransactionRpcResponseData, error) {
-	input := SolanaSignTransactionRpcInput{
+	input := SolanaSignTransactionRpcInputParam{
 		Method: SolanaSignTransactionRpcInputMethodSignTransaction,
 		Params: params,
 	}
 
 	rpcParams := WalletRpcParams{
-		OfSignTransaction: &input,
+		WalletRpcRequestBody: WalletRpcRequestBodyUnionParam{
+			OfSignTransaction: &input,
+		},
 	}
 
 	response, err := s.walletService.Rpc(ctx, walletID, rpcParams, opts...)
@@ -96,7 +100,7 @@ func (s *PrivySolanaWalletService) SignTransactionBytes(
 	ctx context.Context,
 	walletID string,
 	transaction []byte,
-	opts ...RpcOption,
+	opts ...RequestOption,
 ) (*SolanaSignTransactionRpcResponseData, error) {
 	params := SolanaSignTransactionRpcInputParams{
 		Transaction: base64.StdEncoding.EncodeToString(transaction),
@@ -112,16 +116,18 @@ func (s *PrivySolanaWalletService) SignAndSendTransaction(
 	walletID string,
 	caip2 string,
 	params SolanaSignAndSendTransactionRpcInputParams,
-	opts ...RpcOption,
+	opts ...RequestOption,
 ) (*SolanaSignAndSendTransactionRpcResponseData, error) {
-	input := SolanaSignAndSendTransactionRpcInput{
+	input := SolanaSignAndSendTransactionRpcInputParam{
 		Caip2:  caip2,
 		Method: SolanaSignAndSendTransactionRpcInputMethodSignAndSendTransaction,
 		Params: params,
 	}
 
 	rpcParams := WalletRpcParams{
-		OfSignAndSendTransaction: &input,
+		WalletRpcRequestBody: WalletRpcRequestBodyUnionParam{
+			OfSignAndSendTransaction: &input,
+		},
 	}
 
 	response, err := s.walletService.Rpc(ctx, walletID, rpcParams, opts...)
@@ -144,7 +150,7 @@ func (s *PrivySolanaWalletService) SignAndSendTransactionBytes(
 	walletID string,
 	caip2 string,
 	transaction []byte,
-	opts ...RpcOption,
+	opts ...RequestOption,
 ) (*SolanaSignAndSendTransactionRpcResponseData, error) {
 	params := SolanaSignAndSendTransactionRpcInputParams{
 		Transaction: base64.StdEncoding.EncodeToString(transaction),

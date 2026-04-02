@@ -51,7 +51,7 @@ type WalletApiRequestSignatureInput struct {
 	// Body is the request body (JSON-serializable). Omitted when nil.
 	Body any `json:"body,omitempty"`
 	// Headers contains Privy-specific headers to include in signature.
-	// Required: "privy-app-id". Optional: "privy-idempotency-key".
+	// Required: "privy-app-id". Optional: "privy-idempotency-key", "privy-request-expiry".
 	Headers map[string]string `json:"headers"`
 }
 

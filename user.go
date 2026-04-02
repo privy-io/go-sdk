@@ -21,6 +21,8 @@ import (
 	"github.com/privy-io/go-sdk/shared/constant"
 )
 
+// Operations related to users
+//
 // UserService contains methods and other services that help with interacting with
 // the Privy API API.
 //
@@ -46,7 +48,7 @@ func (r *UserService) New(ctx context.Context, body UserNewParams, opts ...optio
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Get all users in your app.
@@ -78,11 +80,11 @@ func (r *UserService) Delete(ctx context.Context, userID string, opts ...option.
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if userID == "" {
 		err = errors.New("missing required user_id parameter")
-		return
+		return err
 	}
 	path := fmt.Sprintf("v1/users/%s", url.PathEscape(userID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
-	return
+	return err
 }
 
 // Get a user by user ID.
@@ -90,11 +92,11 @@ func (r *UserService) Get(ctx context.Context, userID string, opts ...option.Req
 	opts = slices.Concat(r.Options, opts)
 	if userID == "" {
 		err = errors.New("missing required user_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/users/%s", url.PathEscape(userID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their custom auth ID.
@@ -102,7 +104,7 @@ func (r *UserService) GetByCustomAuthID(ctx context.Context, body UserGetByCusto
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/custom_auth/id"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their Discord username.
@@ -110,7 +112,7 @@ func (r *UserService) GetByDiscordUsername(ctx context.Context, body UserGetByDi
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/discord/username"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their email address.
@@ -118,7 +120,7 @@ func (r *UserService) GetByEmailAddress(ctx context.Context, body UserGetByEmail
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/email/address"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their Farcaster ID.
@@ -126,7 +128,7 @@ func (r *UserService) GetByFarcasterID(ctx context.Context, body UserGetByFarcas
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/farcaster/fid"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their Github username.
@@ -134,7 +136,7 @@ func (r *UserService) GetByGitHubUsername(ctx context.Context, body UserGetByGit
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/github/username"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their phone number.
@@ -142,7 +144,7 @@ func (r *UserService) GetByPhoneNumber(ctx context.Context, body UserGetByPhoneN
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/phone/number"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their smart wallet address.
@@ -150,7 +152,7 @@ func (r *UserService) GetBySmartWalletAddress(ctx context.Context, body UserGetB
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/smart_wallet/address"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their Telegram user ID.
@@ -158,7 +160,7 @@ func (r *UserService) GetByTelegramUserID(ctx context.Context, body UserGetByTel
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/telegram/telegram_user_id"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their Telegram username.
@@ -166,7 +168,7 @@ func (r *UserService) GetByTelegramUsername(ctx context.Context, body UserGetByT
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/telegram/username"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their Twitter subject.
@@ -174,7 +176,7 @@ func (r *UserService) GetByTwitterSubject(ctx context.Context, body UserGetByTwi
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/twitter/subject"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their Twitter username.
@@ -182,7 +184,7 @@ func (r *UserService) GetByTwitterUsername(ctx context.Context, body UserGetByTw
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/twitter/username"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Looks up a user by their wallet address.
@@ -190,7 +192,7 @@ func (r *UserService) GetByWalletAddress(ctx context.Context, body UserGetByWall
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/wallet/address"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Creates an embedded wallet for an existing user.
@@ -198,11 +200,11 @@ func (r *UserService) PregenerateWallets(ctx context.Context, userID string, bod
 	opts = slices.Concat(r.Options, opts)
 	if userID == "" {
 		err = errors.New("missing required user_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/users/%s/wallets", url.PathEscape(userID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Search users by search term, emails, phone numbers, or wallet addresses.
@@ -210,7 +212,7 @@ func (r *UserService) Search(ctx context.Context, body UserSearchParams, opts ..
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/users/search"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Adds custom metadata to a user by user ID.
@@ -218,11 +220,11 @@ func (r *UserService) SetCustomMetadata(ctx context.Context, userID string, body
 	opts = slices.Concat(r.Options, opts)
 	if userID == "" {
 		err = errors.New("missing required user_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/users/%s/custom_metadata", url.PathEscape(userID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Unlinks a user linked account.
@@ -230,44 +232,11 @@ func (r *UserService) UnlinkLinkedAccount(ctx context.Context, userID string, bo
 	opts = slices.Concat(r.Options, opts)
 	if userID == "" {
 		err = errors.New("missing required user_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("v1/users/%s/accounts/unlink", url.PathEscape(userID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
-}
-
-// A Privy user object.
-type User struct {
-	ID string `json:"id" api:"required"`
-	// Unix timestamp of when the user was created in milliseconds.
-	CreatedAt float64 `json:"created_at" api:"required"`
-	// Indicates if the user has accepted the terms of service.
-	HasAcceptedTerms bool `json:"has_accepted_terms" api:"required"`
-	// Indicates if the user is a guest account user.
-	IsGuest        bool                   `json:"is_guest" api:"required"`
-	LinkedAccounts []LinkedAccountUnion   `json:"linked_accounts" api:"required"`
-	MfaMethods     []LinkedMfaMethodUnion `json:"mfa_methods" api:"required"`
-	// Custom metadata associated with the user.
-	CustomMetadata CustomMetadata `json:"custom_metadata"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID               respjson.Field
-		CreatedAt        respjson.Field
-		HasAcceptedTerms respjson.Field
-		IsGuest          respjson.Field
-		LinkedAccounts   respjson.Field
-		MfaMethods       respjson.Field
-		CustomMetadata   respjson.Field
-		ExtraFields      map[string]respjson.Field
-		raw              string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r User) RawJSON() string { return r.JSON.raw }
-func (r *User) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return res, err
 }
 
 // An email account linked to the user.
@@ -392,24 +361,12 @@ const (
 	LinkedAccountEthereumWalletClientUnknown LinkedAccountEthereumWalletClient = "unknown"
 )
 
-// The provider for a smart wallet.
-type SmartWalletType string
-
-const (
-	SmartWalletTypeSafe                SmartWalletType = "safe"
-	SmartWalletTypeKernel              SmartWalletType = "kernel"
-	SmartWalletTypeLightAccount        SmartWalletType = "light_account"
-	SmartWalletTypeBiconomy            SmartWalletType = "biconomy"
-	SmartWalletTypeCoinbaseSmartWallet SmartWalletType = "coinbase_smart_wallet"
-	SmartWalletTypeThirdweb            SmartWalletType = "thirdweb"
-)
-
 // A smart wallet account linked to the user.
 type LinkedAccountSmartWallet struct {
 	Address          string  `json:"address" api:"required"`
 	FirstVerifiedAt  float64 `json:"first_verified_at" api:"required"`
 	LatestVerifiedAt float64 `json:"latest_verified_at" api:"required"`
-	// The provider for a smart wallet.
+	// The supported smart wallet providers.
 	//
 	// Any of "safe", "kernel", "light_account", "biconomy", "coinbase_smart_wallet",
 	// "thirdweb".
@@ -637,7 +594,7 @@ const (
 	EmbeddedWalletRecoveryMethodPrivy                 EmbeddedWalletRecoveryMethod = "privy"
 	EmbeddedWalletRecoveryMethodUserPasscode          EmbeddedWalletRecoveryMethod = "user-passcode"
 	EmbeddedWalletRecoveryMethodGoogleDrive           EmbeddedWalletRecoveryMethod = "google-drive"
-	EmbeddedWalletRecoveryMethodIcloud                EmbeddedWalletRecoveryMethod = "icloud"
+	EmbeddedWalletRecoveryMethodICloud                EmbeddedWalletRecoveryMethod = "icloud"
 	EmbeddedWalletRecoveryMethodRecoveryEncryptionKey EmbeddedWalletRecoveryMethod = "recovery-encryption-key"
 	EmbeddedWalletRecoveryMethodPrivyV2               EmbeddedWalletRecoveryMethod = "privy-v2"
 )
@@ -1954,522 +1911,6 @@ const (
 	LinkedAccountTypeAuthorizationKey LinkedAccountType = "authorization_key"
 )
 
-type CustomMetadata map[string]CustomMetadataItemUnion
-
-// CustomMetadataItemUnion contains all possible properties and values from
-// [string], [float64], [bool].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfFloat OfBool]
-type CustomMetadataItemUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [float64] instead of an object.
-	OfFloat float64 `json:",inline"`
-	// This field will be present if the value is a [bool] instead of an object.
-	OfBool bool `json:",inline"`
-	JSON   struct {
-		OfString respjson.Field
-		OfFloat  respjson.Field
-		OfBool   respjson.Field
-		raw      string
-	} `json:"-"`
-}
-
-func (u CustomMetadataItemUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u CustomMetadataItemUnion) AsFloat() (v float64) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u CustomMetadataItemUnion) AsBool() (v bool) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u CustomMetadataItemUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *CustomMetadataItemUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type CustomMetadataParam map[string]CustomMetadataItemUnionParam
-
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type CustomMetadataItemUnionParam struct {
-	OfString param.Opt[string]  `json:",omitzero,inline"`
-	OfFloat  param.Opt[float64] `json:",omitzero,inline"`
-	OfBool   param.Opt[bool]    `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u CustomMetadataItemUnionParam) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfString, u.OfFloat, u.OfBool)
-}
-func (u *CustomMetadataItemUnionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
-// The payload for importing a wallet account.
-//
-// The properties Address, ChainType, Type are required.
-type LinkedAccountWalletInput struct {
-	Address string `json:"address" api:"required"`
-	// Any of "ethereum", "solana".
-	ChainType LinkedAccountWalletInputChainType `json:"chain_type,omitzero" api:"required"`
-	// This field can be elided, and will marshal its zero value as "wallet".
-	Type constant.Wallet `json:"type" api:"required"`
-	paramObj
-}
-
-func (r LinkedAccountWalletInput) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountWalletInput
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *LinkedAccountWalletInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type LinkedAccountWalletInputChainType string
-
-const (
-	LinkedAccountWalletInputChainTypeEthereum LinkedAccountWalletInputChainType = "ethereum"
-	LinkedAccountWalletInputChainTypeSolana   LinkedAccountWalletInputChainType = "solana"
-)
-
-// The payload for importing an email account.
-//
-// The properties Address, Type are required.
-type LinkedAccountEmailInput struct {
-	Address string `json:"address" api:"required" format:"email"`
-	// This field can be elided, and will marshal its zero value as "email".
-	Type constant.Email `json:"type" api:"required"`
-	paramObj
-}
-
-func (r LinkedAccountEmailInput) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountEmailInput
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *LinkedAccountEmailInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The payload for importing a phone account.
-//
-// The properties Number, Type are required.
-type LinkedAccountPhoneInput struct {
-	Number string `json:"number" api:"required"`
-	// This field can be elided, and will marshal its zero value as "phone".
-	Type constant.Phone `json:"type" api:"required"`
-	paramObj
-}
-
-func (r LinkedAccountPhoneInput) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountPhoneInput
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *LinkedAccountPhoneInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The payload for importing a Google account.
-//
-// The properties Email, Name, Subject, Type are required.
-type LinkedAccountGoogleInput struct {
-	Email   string `json:"email" api:"required" format:"email"`
-	Name    string `json:"name" api:"required"`
-	Subject string `json:"subject" api:"required"`
-	// This field can be elided, and will marshal its zero value as "google_oauth".
-	Type constant.GoogleOAuth `json:"type" api:"required"`
-	paramObj
-}
-
-func (r LinkedAccountGoogleInput) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountGoogleInput
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *LinkedAccountGoogleInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The payload for importing a Twitter account.
-//
-// The properties Name, Subject, Type, Username are required.
-type LinkedAccountTwitterInput struct {
-	Name              string            `json:"name" api:"required"`
-	Subject           string            `json:"subject" api:"required"`
-	Username          string            `json:"username" api:"required"`
-	ProfilePictureURL param.Opt[string] `json:"profile_picture_url,omitzero" format:"uri"`
-	// This field can be elided, and will marshal its zero value as "twitter_oauth".
-	Type constant.TwitterOAuth `json:"type" api:"required"`
-	paramObj
-}
-
-func (r LinkedAccountTwitterInput) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountTwitterInput
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *LinkedAccountTwitterInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The payload for importing a Discord account.
-//
-// The properties Subject, Type, Username are required.
-type LinkedAccountDiscordInput struct {
-	Subject  string            `json:"subject" api:"required"`
-	Username string            `json:"username" api:"required"`
-	Email    param.Opt[string] `json:"email,omitzero" format:"email"`
-	// This field can be elided, and will marshal its zero value as "discord_oauth".
-	Type constant.DiscordOAuth `json:"type" api:"required"`
-	paramObj
-}
-
-func (r LinkedAccountDiscordInput) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountDiscordInput
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *LinkedAccountDiscordInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The payload for importing a Github account.
-//
-// The properties Subject, Type, Username are required.
-type LinkedAccountGitHubInput struct {
-	Subject  string            `json:"subject" api:"required"`
-	Username string            `json:"username" api:"required"`
-	Email    param.Opt[string] `json:"email,omitzero" format:"email"`
-	Name     param.Opt[string] `json:"name,omitzero"`
-	// This field can be elided, and will marshal its zero value as "github_oauth".
-	Type constant.GitHubOAuth `json:"type" api:"required"`
-	paramObj
-}
-
-func (r LinkedAccountGitHubInput) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountGitHubInput
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *LinkedAccountGitHubInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The payload for importing a Spotify account.
-//
-// The properties Subject, Type are required.
-type LinkedAccountSpotifyInput struct {
-	Subject string            `json:"subject" api:"required"`
-	Email   param.Opt[string] `json:"email,omitzero" format:"email"`
-	Name    param.Opt[string] `json:"name,omitzero"`
-	// This field can be elided, and will marshal its zero value as "spotify_oauth".
-	Type constant.SpotifyOAuth `json:"type" api:"required"`
-	paramObj
-}
-
-func (r LinkedAccountSpotifyInput) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountSpotifyInput
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *LinkedAccountSpotifyInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The payload for importing an Instagram account.
-//
-// The properties Subject, Type, Username are required.
-type LinkedAccountInstagramInput struct {
-	Subject  string `json:"subject" api:"required"`
-	Username string `json:"username" api:"required"`
-	// This field can be elided, and will marshal its zero value as "instagram_oauth".
-	Type constant.InstagramOAuth `json:"type" api:"required"`
-	paramObj
-}
-
-func (r LinkedAccountInstagramInput) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountInstagramInput
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *LinkedAccountInstagramInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The payload for importing a Tiktok account.
-//
-// The properties Name, Subject, Type, Username are required.
-type LinkedAccountTiktokInput struct {
-	Name     param.Opt[string] `json:"name,omitzero" api:"required"`
-	Subject  string            `json:"subject" api:"required"`
-	Username string            `json:"username" api:"required"`
-	// This field can be elided, and will marshal its zero value as "tiktok_oauth".
-	Type constant.TiktokOAuth `json:"type" api:"required"`
-	paramObj
-}
-
-func (r LinkedAccountTiktokInput) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountTiktokInput
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *LinkedAccountTiktokInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The payload for importing a LINE account.
-//
-// The properties Subject, Type are required.
-type LinkedAccountLineInput struct {
-	Subject           string            `json:"subject" api:"required"`
-	Email             param.Opt[string] `json:"email,omitzero" format:"email"`
-	Name              param.Opt[string] `json:"name,omitzero"`
-	ProfilePictureURL param.Opt[string] `json:"profile_picture_url,omitzero" format:"uri"`
-	// This field can be elided, and will marshal its zero value as "line_oauth".
-	Type constant.LineOAuth `json:"type" api:"required"`
-	paramObj
-}
-
-func (r LinkedAccountLineInput) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountLineInput
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *LinkedAccountLineInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The payload for importing a Twitch account.
-//
-// The properties Subject, Type are required.
-type LinkedAccountTwitchInput struct {
-	Subject  string            `json:"subject" api:"required"`
-	Username param.Opt[string] `json:"username,omitzero"`
-	// This field can be elided, and will marshal its zero value as "twitch_oauth".
-	Type constant.TwitchOAuth `json:"type" api:"required"`
-	paramObj
-}
-
-func (r LinkedAccountTwitchInput) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountTwitchInput
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *LinkedAccountTwitchInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The payload for importing an Apple account.
-//
-// The properties Subject, Type are required.
-type LinkedAccountAppleInput struct {
-	Subject string            `json:"subject" api:"required"`
-	Email   param.Opt[string] `json:"email,omitzero" format:"email"`
-	// This field can be elided, and will marshal its zero value as "apple_oauth".
-	Type constant.AppleOAuth `json:"type" api:"required"`
-	paramObj
-}
-
-func (r LinkedAccountAppleInput) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountAppleInput
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *LinkedAccountAppleInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The payload for importing a LinkedIn account.
-//
-// The properties Subject, Type are required.
-type LinkedAccountLinkedInInput struct {
-	Subject    string            `json:"subject" api:"required"`
-	Email      param.Opt[string] `json:"email,omitzero" format:"email"`
-	Name       param.Opt[string] `json:"name,omitzero"`
-	VanityName param.Opt[string] `json:"vanityName,omitzero"`
-	// This field can be elided, and will marshal its zero value as "linkedin_oauth".
-	Type constant.LinkedinOAuth `json:"type" api:"required"`
-	paramObj
-}
-
-func (r LinkedAccountLinkedInInput) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountLinkedInInput
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *LinkedAccountLinkedInInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The payload for importing a Farcaster account.
-//
-// The properties Fid, OwnerAddress, Type are required.
-type LinkedAccountFarcasterInput struct {
-	Fid               int64             `json:"fid" api:"required"`
-	OwnerAddress      string            `json:"owner_address" api:"required"`
-	Bio               param.Opt[string] `json:"bio,omitzero"`
-	DisplayName       param.Opt[string] `json:"display_name,omitzero"`
-	HomepageURL       param.Opt[string] `json:"homepage_url,omitzero"`
-	ProfilePictureURL param.Opt[string] `json:"profile_picture_url,omitzero"`
-	Username          param.Opt[string] `json:"username,omitzero"`
-	// This field can be elided, and will marshal its zero value as "farcaster".
-	Type constant.Farcaster `json:"type" api:"required"`
-	paramObj
-}
-
-func (r LinkedAccountFarcasterInput) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountFarcasterInput
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *LinkedAccountFarcasterInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The payload for importing a Telegram account.
-//
-// The properties TelegramUserID, Type are required.
-type LinkedAccountTelegramInput struct {
-	TelegramUserID string            `json:"telegram_user_id" api:"required"`
-	FirstName      param.Opt[string] `json:"first_name,omitzero"`
-	LastName       param.Opt[string] `json:"last_name,omitzero"`
-	PhotoURL       param.Opt[string] `json:"photo_url,omitzero"`
-	Username       param.Opt[string] `json:"username,omitzero"`
-	// This field can be elided, and will marshal its zero value as "telegram".
-	Type constant.Telegram `json:"type" api:"required"`
-	paramObj
-}
-
-func (r LinkedAccountTelegramInput) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountTelegramInput
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *LinkedAccountTelegramInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The payload for importing a Custom JWT account.
-//
-// The properties CustomUserID, Type are required.
-type LinkedAccountCustomJwtInput struct {
-	CustomUserID string `json:"custom_user_id" api:"required"`
-	// This field can be elided, and will marshal its zero value as "custom_auth".
-	Type constant.CustomAuth `json:"type" api:"required"`
-	paramObj
-}
-
-func (r LinkedAccountCustomJwtInput) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountCustomJwtInput
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *LinkedAccountCustomJwtInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The payload for importing a passkey account.
-//
-// The properties CredentialDeviceType, CredentialID, CredentialPublicKey,
-// CredentialUsername, Type are required.
-type LinkedAccountPasskeyInput struct {
-	// Any of "singleDevice", "multiDevice".
-	CredentialDeviceType LinkedAccountPasskeyInputCredentialDeviceType `json:"credential_device_type,omitzero" api:"required"`
-	CredentialID         string                                        `json:"credential_id" api:"required"`
-	CredentialPublicKey  string                                        `json:"credential_public_key" api:"required"`
-	CredentialUsername   string                                        `json:"credential_username" api:"required"`
-	// This field can be elided, and will marshal its zero value as "passkey".
-	Type constant.Passkey `json:"type" api:"required"`
-	paramObj
-}
-
-func (r LinkedAccountPasskeyInput) MarshalJSON() (data []byte, err error) {
-	type shadow LinkedAccountPasskeyInput
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *LinkedAccountPasskeyInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type LinkedAccountPasskeyInputCredentialDeviceType string
-
-const (
-	LinkedAccountPasskeyInputCredentialDeviceTypeSingleDevice LinkedAccountPasskeyInputCredentialDeviceType = "singleDevice"
-	LinkedAccountPasskeyInputCredentialDeviceTypeMultiDevice  LinkedAccountPasskeyInputCredentialDeviceType = "multiDevice"
-)
-
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type LinkedAccountInputUnion struct {
-	OfWallet         *LinkedAccountWalletInput    `json:",omitzero,inline"`
-	OfEmail          *LinkedAccountEmailInput     `json:",omitzero,inline"`
-	OfPhone          *LinkedAccountPhoneInput     `json:",omitzero,inline"`
-	OfGoogleOAuth    *LinkedAccountGoogleInput    `json:",omitzero,inline"`
-	OfTwitterOAuth   *LinkedAccountTwitterInput   `json:",omitzero,inline"`
-	OfDiscordOAuth   *LinkedAccountDiscordInput   `json:",omitzero,inline"`
-	OfGitHubOAuth    *LinkedAccountGitHubInput    `json:",omitzero,inline"`
-	OfSpotifyOAuth   *LinkedAccountSpotifyInput   `json:",omitzero,inline"`
-	OfInstagramOAuth *LinkedAccountInstagramInput `json:",omitzero,inline"`
-	OfTiktokOAuth    *LinkedAccountTiktokInput    `json:",omitzero,inline"`
-	OfLineOAuth      *LinkedAccountLineInput      `json:",omitzero,inline"`
-	OfTwitchOAuth    *LinkedAccountTwitchInput    `json:",omitzero,inline"`
-	OfAppleOAuth     *LinkedAccountAppleInput     `json:",omitzero,inline"`
-	OfLinkedinOAuth  *LinkedAccountLinkedInInput  `json:",omitzero,inline"`
-	OfFarcaster      *LinkedAccountFarcasterInput `json:",omitzero,inline"`
-	OfTelegram       *LinkedAccountTelegramInput  `json:",omitzero,inline"`
-	OfCustomAuth     *LinkedAccountCustomJwtInput `json:",omitzero,inline"`
-	OfPasskey        *LinkedAccountPasskeyInput   `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u LinkedAccountInputUnion) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfWallet,
-		u.OfEmail,
-		u.OfPhone,
-		u.OfGoogleOAuth,
-		u.OfTwitterOAuth,
-		u.OfDiscordOAuth,
-		u.OfGitHubOAuth,
-		u.OfSpotifyOAuth,
-		u.OfInstagramOAuth,
-		u.OfTiktokOAuth,
-		u.OfLineOAuth,
-		u.OfTwitchOAuth,
-		u.OfAppleOAuth,
-		u.OfLinkedinOAuth,
-		u.OfFarcaster,
-		u.OfTelegram,
-		u.OfCustomAuth,
-		u.OfPasskey)
-}
-func (u *LinkedAccountInputUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
-func init() {
-	apijson.RegisterUnion[LinkedAccountInputUnion](
-		"type",
-		apijson.Discriminator[LinkedAccountWalletInput]("wallet"),
-		apijson.Discriminator[LinkedAccountEmailInput]("email"),
-		apijson.Discriminator[LinkedAccountPhoneInput]("phone"),
-		apijson.Discriminator[LinkedAccountGoogleInput]("google_oauth"),
-		apijson.Discriminator[LinkedAccountTwitterInput]("twitter_oauth"),
-		apijson.Discriminator[LinkedAccountDiscordInput]("discord_oauth"),
-		apijson.Discriminator[LinkedAccountGitHubInput]("github_oauth"),
-		apijson.Discriminator[LinkedAccountSpotifyInput]("spotify_oauth"),
-		apijson.Discriminator[LinkedAccountInstagramInput]("instagram_oauth"),
-		apijson.Discriminator[LinkedAccountTiktokInput]("tiktok_oauth"),
-		apijson.Discriminator[LinkedAccountLineInput]("line_oauth"),
-		apijson.Discriminator[LinkedAccountTwitchInput]("twitch_oauth"),
-		apijson.Discriminator[LinkedAccountAppleInput]("apple_oauth"),
-		apijson.Discriminator[LinkedAccountLinkedInInput]("linkedin_oauth"),
-		apijson.Discriminator[LinkedAccountFarcasterInput]("farcaster"),
-		apijson.Discriminator[LinkedAccountTelegramInput]("telegram"),
-		apijson.Discriminator[LinkedAccountCustomJwtInput]("custom_auth"),
-		apijson.Discriminator[LinkedAccountPasskeyInput]("passkey"),
-	)
-}
-
 // A SMS MFA method.
 type SMSMfaMethod struct {
 	// Any of "sms".
@@ -2616,6 +2057,555 @@ func (u LinkedMfaMethodUnion) RawJSON() string { return u.JSON.raw }
 
 func (r *LinkedMfaMethodUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+type CustomMetadata map[string]CustomMetadataItemUnion
+
+// CustomMetadataItemUnion contains all possible properties and values from
+// [string], [float64], [bool].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfFloat OfBool]
+type CustomMetadataItemUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [float64] instead of an object.
+	OfFloat float64 `json:",inline"`
+	// This field will be present if the value is a [bool] instead of an object.
+	OfBool bool `json:",inline"`
+	JSON   struct {
+		OfString respjson.Field
+		OfFloat  respjson.Field
+		OfBool   respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (u CustomMetadataItemUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u CustomMetadataItemUnion) AsFloat() (v float64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u CustomMetadataItemUnion) AsBool() (v bool) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u CustomMetadataItemUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *CustomMetadataItemUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type CustomMetadataParam map[string]CustomMetadataItemUnionParam
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type CustomMetadataItemUnionParam struct {
+	OfString param.Opt[string]  `json:",omitzero,inline"`
+	OfFloat  param.Opt[float64] `json:",omitzero,inline"`
+	OfBool   param.Opt[bool]    `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u CustomMetadataItemUnionParam) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfFloat, u.OfBool)
+}
+func (u *CustomMetadataItemUnionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+// A Privy user object.
+type User struct {
+	ID string `json:"id" api:"required"`
+	// Unix timestamp of when the user was created in seconds.
+	CreatedAt float64 `json:"created_at" api:"required"`
+	// Indicates if the user has accepted the terms of service.
+	HasAcceptedTerms bool `json:"has_accepted_terms" api:"required"`
+	// Indicates if the user is a guest account user.
+	IsGuest        bool                   `json:"is_guest" api:"required"`
+	LinkedAccounts []LinkedAccountUnion   `json:"linked_accounts" api:"required"`
+	MfaMethods     []LinkedMfaMethodUnion `json:"mfa_methods" api:"required"`
+	// Custom metadata associated with the user.
+	CustomMetadata CustomMetadata `json:"custom_metadata"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID               respjson.Field
+		CreatedAt        respjson.Field
+		HasAcceptedTerms respjson.Field
+		IsGuest          respjson.Field
+		LinkedAccounts   respjson.Field
+		MfaMethods       respjson.Field
+		CustomMetadata   respjson.Field
+		ExtraFields      map[string]respjson.Field
+		raw              string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r User) RawJSON() string { return r.JSON.raw }
+func (r *User) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The payload for importing a wallet account.
+//
+// The properties Address, ChainType, Type are required.
+type LinkedAccountWalletInput struct {
+	Address string `json:"address" api:"required"`
+	// Any of "ethereum", "solana".
+	ChainType LinkedAccountWalletInputChainType `json:"chain_type,omitzero" api:"required"`
+	// This field can be elided, and will marshal its zero value as "wallet".
+	Type constant.Wallet `json:"type" default:"wallet"`
+	paramObj
+}
+
+func (r LinkedAccountWalletInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountWalletInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *LinkedAccountWalletInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type LinkedAccountWalletInputChainType string
+
+const (
+	LinkedAccountWalletInputChainTypeEthereum LinkedAccountWalletInputChainType = "ethereum"
+	LinkedAccountWalletInputChainTypeSolana   LinkedAccountWalletInputChainType = "solana"
+)
+
+// The payload for importing an email account.
+//
+// The properties Address, Type are required.
+type LinkedAccountEmailInput struct {
+	Address string `json:"address" api:"required" format:"email"`
+	// This field can be elided, and will marshal its zero value as "email".
+	Type constant.Email `json:"type" default:"email"`
+	paramObj
+}
+
+func (r LinkedAccountEmailInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountEmailInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *LinkedAccountEmailInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The payload for importing a phone account.
+//
+// The properties Number, Type are required.
+type LinkedAccountPhoneInput struct {
+	Number string `json:"number" api:"required"`
+	// This field can be elided, and will marshal its zero value as "phone".
+	Type constant.Phone `json:"type" default:"phone"`
+	paramObj
+}
+
+func (r LinkedAccountPhoneInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountPhoneInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *LinkedAccountPhoneInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The payload for importing a Google account.
+//
+// The properties Email, Name, Subject, Type are required.
+type LinkedAccountGoogleInput struct {
+	Email   string `json:"email" api:"required" format:"email"`
+	Name    string `json:"name" api:"required"`
+	Subject string `json:"subject" api:"required"`
+	// This field can be elided, and will marshal its zero value as "google_oauth".
+	Type constant.GoogleOAuth `json:"type" default:"google_oauth"`
+	paramObj
+}
+
+func (r LinkedAccountGoogleInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountGoogleInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *LinkedAccountGoogleInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The payload for importing a Twitter account.
+//
+// The properties Name, Subject, Type, Username are required.
+type LinkedAccountTwitterInput struct {
+	Name              string            `json:"name" api:"required"`
+	Subject           string            `json:"subject" api:"required"`
+	Username          string            `json:"username" api:"required"`
+	ProfilePictureURL param.Opt[string] `json:"profile_picture_url,omitzero" format:"uri"`
+	// This field can be elided, and will marshal its zero value as "twitter_oauth".
+	Type constant.TwitterOAuth `json:"type" default:"twitter_oauth"`
+	paramObj
+}
+
+func (r LinkedAccountTwitterInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountTwitterInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *LinkedAccountTwitterInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The payload for importing a Discord account.
+//
+// The properties Subject, Type, Username are required.
+type LinkedAccountDiscordInput struct {
+	Subject  string            `json:"subject" api:"required"`
+	Username string            `json:"username" api:"required"`
+	Email    param.Opt[string] `json:"email,omitzero" format:"email"`
+	// This field can be elided, and will marshal its zero value as "discord_oauth".
+	Type constant.DiscordOAuth `json:"type" default:"discord_oauth"`
+	paramObj
+}
+
+func (r LinkedAccountDiscordInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountDiscordInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *LinkedAccountDiscordInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The payload for importing a Github account.
+//
+// The properties Subject, Type, Username are required.
+type LinkedAccountGitHubInput struct {
+	Subject  string            `json:"subject" api:"required"`
+	Username string            `json:"username" api:"required"`
+	Email    param.Opt[string] `json:"email,omitzero" format:"email"`
+	Name     param.Opt[string] `json:"name,omitzero"`
+	// This field can be elided, and will marshal its zero value as "github_oauth".
+	Type constant.GitHubOAuth `json:"type" default:"github_oauth"`
+	paramObj
+}
+
+func (r LinkedAccountGitHubInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountGitHubInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *LinkedAccountGitHubInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The payload for importing a Spotify account.
+//
+// The properties Subject, Type are required.
+type LinkedAccountSpotifyInput struct {
+	Subject string            `json:"subject" api:"required"`
+	Email   param.Opt[string] `json:"email,omitzero" format:"email"`
+	Name    param.Opt[string] `json:"name,omitzero"`
+	// This field can be elided, and will marshal its zero value as "spotify_oauth".
+	Type constant.SpotifyOAuth `json:"type" default:"spotify_oauth"`
+	paramObj
+}
+
+func (r LinkedAccountSpotifyInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountSpotifyInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *LinkedAccountSpotifyInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The payload for importing an Instagram account.
+//
+// The properties Subject, Type, Username are required.
+type LinkedAccountInstagramInput struct {
+	Subject  string `json:"subject" api:"required"`
+	Username string `json:"username" api:"required"`
+	// This field can be elided, and will marshal its zero value as "instagram_oauth".
+	Type constant.InstagramOAuth `json:"type" default:"instagram_oauth"`
+	paramObj
+}
+
+func (r LinkedAccountInstagramInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountInstagramInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *LinkedAccountInstagramInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The payload for importing a Tiktok account.
+//
+// The properties Name, Subject, Type, Username are required.
+type LinkedAccountTiktokInput struct {
+	Name     param.Opt[string] `json:"name,omitzero" api:"required"`
+	Subject  string            `json:"subject" api:"required"`
+	Username string            `json:"username" api:"required"`
+	// This field can be elided, and will marshal its zero value as "tiktok_oauth".
+	Type constant.TiktokOAuth `json:"type" default:"tiktok_oauth"`
+	paramObj
+}
+
+func (r LinkedAccountTiktokInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountTiktokInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *LinkedAccountTiktokInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The payload for importing a LINE account.
+//
+// The properties Subject, Type are required.
+type LinkedAccountLineInput struct {
+	Subject           string            `json:"subject" api:"required"`
+	Email             param.Opt[string] `json:"email,omitzero" format:"email"`
+	Name              param.Opt[string] `json:"name,omitzero"`
+	ProfilePictureURL param.Opt[string] `json:"profile_picture_url,omitzero" format:"uri"`
+	// This field can be elided, and will marshal its zero value as "line_oauth".
+	Type constant.LineOAuth `json:"type" default:"line_oauth"`
+	paramObj
+}
+
+func (r LinkedAccountLineInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountLineInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *LinkedAccountLineInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The payload for importing a Twitch account.
+//
+// The properties Subject, Type are required.
+type LinkedAccountTwitchInput struct {
+	Subject  string            `json:"subject" api:"required"`
+	Username param.Opt[string] `json:"username,omitzero"`
+	// This field can be elided, and will marshal its zero value as "twitch_oauth".
+	Type constant.TwitchOAuth `json:"type" default:"twitch_oauth"`
+	paramObj
+}
+
+func (r LinkedAccountTwitchInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountTwitchInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *LinkedAccountTwitchInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The payload for importing an Apple account.
+//
+// The properties Subject, Type are required.
+type LinkedAccountAppleInput struct {
+	Subject string            `json:"subject" api:"required"`
+	Email   param.Opt[string] `json:"email,omitzero" format:"email"`
+	// This field can be elided, and will marshal its zero value as "apple_oauth".
+	Type constant.AppleOAuth `json:"type" default:"apple_oauth"`
+	paramObj
+}
+
+func (r LinkedAccountAppleInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountAppleInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *LinkedAccountAppleInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The payload for importing a LinkedIn account.
+//
+// The properties Subject, Type are required.
+type LinkedAccountLinkedInInput struct {
+	Subject    string            `json:"subject" api:"required"`
+	Email      param.Opt[string] `json:"email,omitzero" format:"email"`
+	Name       param.Opt[string] `json:"name,omitzero"`
+	VanityName param.Opt[string] `json:"vanityName,omitzero"`
+	// This field can be elided, and will marshal its zero value as "linkedin_oauth".
+	Type constant.LinkedinOAuth `json:"type" default:"linkedin_oauth"`
+	paramObj
+}
+
+func (r LinkedAccountLinkedInInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountLinkedInInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *LinkedAccountLinkedInInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The payload for importing a Farcaster account.
+//
+// The properties Fid, OwnerAddress, Type are required.
+type LinkedAccountFarcasterInput struct {
+	Fid               int64             `json:"fid" api:"required"`
+	OwnerAddress      string            `json:"owner_address" api:"required"`
+	Bio               param.Opt[string] `json:"bio,omitzero"`
+	DisplayName       param.Opt[string] `json:"display_name,omitzero"`
+	HomepageURL       param.Opt[string] `json:"homepage_url,omitzero"`
+	ProfilePictureURL param.Opt[string] `json:"profile_picture_url,omitzero"`
+	Username          param.Opt[string] `json:"username,omitzero"`
+	// This field can be elided, and will marshal its zero value as "farcaster".
+	Type constant.Farcaster `json:"type" default:"farcaster"`
+	paramObj
+}
+
+func (r LinkedAccountFarcasterInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountFarcasterInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *LinkedAccountFarcasterInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The payload for importing a Telegram account.
+//
+// The properties TelegramUserID, Type are required.
+type LinkedAccountTelegramInput struct {
+	TelegramUserID string            `json:"telegram_user_id" api:"required"`
+	FirstName      param.Opt[string] `json:"first_name,omitzero"`
+	LastName       param.Opt[string] `json:"last_name,omitzero"`
+	PhotoURL       param.Opt[string] `json:"photo_url,omitzero"`
+	Username       param.Opt[string] `json:"username,omitzero"`
+	// This field can be elided, and will marshal its zero value as "telegram".
+	Type constant.Telegram `json:"type" default:"telegram"`
+	paramObj
+}
+
+func (r LinkedAccountTelegramInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountTelegramInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *LinkedAccountTelegramInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The payload for importing a Custom JWT account.
+//
+// The properties CustomUserID, Type are required.
+type LinkedAccountCustomJwtInput struct {
+	CustomUserID string `json:"custom_user_id" api:"required"`
+	// This field can be elided, and will marshal its zero value as "custom_auth".
+	Type constant.CustomAuth `json:"type" default:"custom_auth"`
+	paramObj
+}
+
+func (r LinkedAccountCustomJwtInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountCustomJwtInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *LinkedAccountCustomJwtInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The payload for importing a passkey account.
+//
+// The properties CredentialDeviceType, CredentialID, CredentialPublicKey,
+// CredentialUsername, Type are required.
+type LinkedAccountPasskeyInput struct {
+	// Any of "singleDevice", "multiDevice".
+	CredentialDeviceType LinkedAccountPasskeyInputCredentialDeviceType `json:"credential_device_type,omitzero" api:"required"`
+	CredentialID         string                                        `json:"credential_id" api:"required"`
+	CredentialPublicKey  string                                        `json:"credential_public_key" api:"required"`
+	CredentialUsername   string                                        `json:"credential_username" api:"required"`
+	// This field can be elided, and will marshal its zero value as "passkey".
+	Type constant.Passkey `json:"type" default:"passkey"`
+	paramObj
+}
+
+func (r LinkedAccountPasskeyInput) MarshalJSON() (data []byte, err error) {
+	type shadow LinkedAccountPasskeyInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *LinkedAccountPasskeyInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type LinkedAccountPasskeyInputCredentialDeviceType string
+
+const (
+	LinkedAccountPasskeyInputCredentialDeviceTypeSingleDevice LinkedAccountPasskeyInputCredentialDeviceType = "singleDevice"
+	LinkedAccountPasskeyInputCredentialDeviceTypeMultiDevice  LinkedAccountPasskeyInputCredentialDeviceType = "multiDevice"
+)
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type LinkedAccountInputUnion struct {
+	OfWallet         *LinkedAccountWalletInput    `json:",omitzero,inline"`
+	OfEmail          *LinkedAccountEmailInput     `json:",omitzero,inline"`
+	OfPhone          *LinkedAccountPhoneInput     `json:",omitzero,inline"`
+	OfGoogleOAuth    *LinkedAccountGoogleInput    `json:",omitzero,inline"`
+	OfTwitterOAuth   *LinkedAccountTwitterInput   `json:",omitzero,inline"`
+	OfDiscordOAuth   *LinkedAccountDiscordInput   `json:",omitzero,inline"`
+	OfGitHubOAuth    *LinkedAccountGitHubInput    `json:",omitzero,inline"`
+	OfSpotifyOAuth   *LinkedAccountSpotifyInput   `json:",omitzero,inline"`
+	OfInstagramOAuth *LinkedAccountInstagramInput `json:",omitzero,inline"`
+	OfTiktokOAuth    *LinkedAccountTiktokInput    `json:",omitzero,inline"`
+	OfLineOAuth      *LinkedAccountLineInput      `json:",omitzero,inline"`
+	OfTwitchOAuth    *LinkedAccountTwitchInput    `json:",omitzero,inline"`
+	OfAppleOAuth     *LinkedAccountAppleInput     `json:",omitzero,inline"`
+	OfLinkedinOAuth  *LinkedAccountLinkedInInput  `json:",omitzero,inline"`
+	OfFarcaster      *LinkedAccountFarcasterInput `json:",omitzero,inline"`
+	OfTelegram       *LinkedAccountTelegramInput  `json:",omitzero,inline"`
+	OfCustomAuth     *LinkedAccountCustomJwtInput `json:",omitzero,inline"`
+	OfPasskey        *LinkedAccountPasskeyInput   `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u LinkedAccountInputUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfWallet,
+		u.OfEmail,
+		u.OfPhone,
+		u.OfGoogleOAuth,
+		u.OfTwitterOAuth,
+		u.OfDiscordOAuth,
+		u.OfGitHubOAuth,
+		u.OfSpotifyOAuth,
+		u.OfInstagramOAuth,
+		u.OfTiktokOAuth,
+		u.OfLineOAuth,
+		u.OfTwitchOAuth,
+		u.OfAppleOAuth,
+		u.OfLinkedinOAuth,
+		u.OfFarcaster,
+		u.OfTelegram,
+		u.OfCustomAuth,
+		u.OfPasskey)
+}
+func (u *LinkedAccountInputUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+func init() {
+	apijson.RegisterUnion[LinkedAccountInputUnion](
+		"type",
+		apijson.Discriminator[LinkedAccountWalletInput]("wallet"),
+		apijson.Discriminator[LinkedAccountEmailInput]("email"),
+		apijson.Discriminator[LinkedAccountPhoneInput]("phone"),
+		apijson.Discriminator[LinkedAccountGoogleInput]("google_oauth"),
+		apijson.Discriminator[LinkedAccountTwitterInput]("twitter_oauth"),
+		apijson.Discriminator[LinkedAccountDiscordInput]("discord_oauth"),
+		apijson.Discriminator[LinkedAccountGitHubInput]("github_oauth"),
+		apijson.Discriminator[LinkedAccountSpotifyInput]("spotify_oauth"),
+		apijson.Discriminator[LinkedAccountInstagramInput]("instagram_oauth"),
+		apijson.Discriminator[LinkedAccountTiktokInput]("tiktok_oauth"),
+		apijson.Discriminator[LinkedAccountLineInput]("line_oauth"),
+		apijson.Discriminator[LinkedAccountTwitchInput]("twitch_oauth"),
+		apijson.Discriminator[LinkedAccountAppleInput]("apple_oauth"),
+		apijson.Discriminator[LinkedAccountLinkedInInput]("linkedin_oauth"),
+		apijson.Discriminator[LinkedAccountFarcasterInput]("farcaster"),
+		apijson.Discriminator[LinkedAccountTelegramInput]("telegram"),
+		apijson.Discriminator[LinkedAccountCustomJwtInput]("custom_auth"),
+		apijson.Discriminator[LinkedAccountPasskeyInput]("passkey"),
+	)
 }
 
 type UserNewParams struct {
@@ -2851,7 +2841,7 @@ func (r *UserGetByWalletAddressParams) UnmarshalJSON(data []byte) error {
 }
 
 type UserPregenerateWalletsParams struct {
-	Wallets []UserPregenerateWalletsParamsWallet `json:"wallets,omitzero" api:"required"`
+	Wallets []WalletCreationInput `json:"wallets,omitzero" api:"required"`
 	paramObj
 }
 
@@ -2860,42 +2850,6 @@ func (r UserPregenerateWalletsParams) MarshalJSON() (data []byte, err error) {
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *UserPregenerateWalletsParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The property ChainType is required.
-type UserPregenerateWalletsParamsWallet struct {
-	// The wallet chain types.
-	//
-	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
-	// "tron", "bitcoin-segwit", "near", "ton", "starknet", "spark".
-	ChainType         WalletChainType                                      `json:"chain_type,omitzero" api:"required"`
-	CreateSmartWallet param.Opt[bool]                                      `json:"create_smart_wallet,omitzero"`
-	AdditionalSigners []UserPregenerateWalletsParamsWalletAdditionalSigner `json:"additional_signers,omitzero"`
-	PolicyIDs         []string                                             `json:"policy_ids,omitzero" format:"cuid2"`
-	paramObj
-}
-
-func (r UserPregenerateWalletsParamsWallet) MarshalJSON() (data []byte, err error) {
-	type shadow UserPregenerateWalletsParamsWallet
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *UserPregenerateWalletsParamsWallet) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The property SignerID is required.
-type UserPregenerateWalletsParamsWalletAdditionalSigner struct {
-	SignerID          string   `json:"signer_id" api:"required" format:"cuid2"`
-	OverridePolicyIDs []string `json:"override_policy_ids,omitzero" format:"cuid2"`
-	paramObj
-}
-
-func (r UserPregenerateWalletsParamsWalletAdditionalSigner) MarshalJSON() (data []byte, err error) {
-	type shadow UserPregenerateWalletsParamsWalletAdditionalSigner
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *UserPregenerateWalletsParamsWalletAdditionalSigner) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

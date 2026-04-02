@@ -28,11 +28,13 @@ func TestKeyQuorumNewWithOptionalParams(t *testing.T) {
 		option.WithAppSecret("My App Secret"),
 	)
 	_, err := client.KeyQuorums.New(context.TODO(), privyclient.KeyQuorumNewParams{
-		AuthorizationThreshold: privyclient.Float(1),
-		DisplayName:            privyclient.String("Prod key quorum"),
-		KeyQuorumIDs:           []string{"string"},
-		PublicKeys:             []string{"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEx4aoeD72yykviK+f/ckqE2CItVIG\n1rCnvC3/XZ1HgpOcMEMialRmTrqIK4oZlYd1RfxU3za/C9yjhboIuoPD3g==", "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAErzZtQr/bMIh3Y8f9ZqseB9i/AfjQ\nhu+agbNqXcJy/TfoNqvc/Y3Mh7gIZ8ZLXQEykycx4mYSpqrxp1lBKqsZDQ=="},
-		UserIDs:                []string{"string"},
+		KeyQuorumCreateRequestBody: privyclient.KeyQuorumCreateRequestBody{
+			AuthorizationThreshold: privyclient.Float(1),
+			DisplayName:            privyclient.String("Prod key quorum"),
+			KeyQuorumIDs:           []string{"string"},
+			PublicKeys:             []string{"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEx4aoeD72yykviK+f/ckqE2CItVIG\n1rCnvC3/XZ1HgpOcMEMialRmTrqIK4oZlYd1RfxU3za/C9yjhboIuoPD3g==", "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAErzZtQr/bMIh3Y8f9ZqseB9i/AfjQ\nhu+agbNqXcJy/TfoNqvc/Y3Mh7gIZ8ZLXQEykycx4mYSpqrxp1lBKqsZDQ=="},
+			UserIDs:                []string{"string"},
+		},
 	})
 	if err != nil {
 		var apierr *privyclient.Error
@@ -61,12 +63,15 @@ func TestKeyQuorumUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"key_quorum_id",
 		privyclient.KeyQuorumUpdateParams{
-			AuthorizationThreshold:      privyclient.Float(1),
-			DisplayName:                 privyclient.String("Prod key quorum"),
-			KeyQuorumIDs:                []string{"string"},
-			PublicKeys:                  []string{"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEx4aoeD72yykviK+f/ckqE2CItVIG\n1rCnvC3/XZ1HgpOcMEMialRmTrqIK4oZlYd1RfxU3za/C9yjhboIuoPD3g=="},
-			UserIDs:                     []string{"string"},
+			KeyQuorumUpdateRequestBody: privyclient.KeyQuorumUpdateRequestBodyParam{
+				AuthorizationThreshold: privyclient.Float(1),
+				DisplayName:            privyclient.String("Prod key quorum"),
+				KeyQuorumIDs:           []string{"string"},
+				PublicKeys:             []string{"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEx4aoeD72yykviK+f/ckqE2CItVIG\n1rCnvC3/XZ1HgpOcMEMialRmTrqIK4oZlYd1RfxU3za/C9yjhboIuoPD3g=="},
+				UserIDs:                []string{"string"},
+			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
+			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {
@@ -97,6 +102,7 @@ func TestKeyQuorumDeleteWithOptionalParams(t *testing.T) {
 		"key_quorum_id",
 		privyclient.KeyQuorumDeleteParams{
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
+			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {

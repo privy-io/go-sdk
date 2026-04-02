@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/privy-io/go-sdk/internal/hpke"
-	"github.com/privy-io/go-sdk/packages/param"
 )
 
 // PrivyJwtExchangeService provides JWT-to-authorization-key exchange functionality.
@@ -37,9 +36,11 @@ func (s *PrivyJwtExchangeService) ExchangeJwtForAuthorizationKey(ctx context.Con
 	recipientPubKey := base64.StdEncoding.EncodeToString(recipient.PublicKeySpki)
 
 	resp, err := s.wallet.AuthenticateWithJwt(ctx, WalletAuthenticateWithJwtParams{
-		UserJwt:            jwt,
-		RecipientPublicKey: param.NewOpt(recipientPubKey),
-		EncryptionType:     WalletAuthenticateWithJwtParamsEncryptionTypeHpke,
+		WalletAuthenticateRequestBody: WalletAuthenticateRequestBody{
+			UserJwt:            jwt,
+			RecipientPublicKey: recipientPubKey,
+			EncryptionType:     WalletAuthenticateRequestBodyEncryptionTypeHpke,
+		},
 	})
 	if err != nil {
 		return "", fmt.Errorf("failed to authenticate with JWT: %w", err)
