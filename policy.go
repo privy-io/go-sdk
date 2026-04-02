@@ -2451,6 +2451,7 @@ const (
 	PolicyMethodSignTransaction          PolicyMethod = "signTransaction"
 	PolicyMethodSignAndSendTransaction   PolicyMethod = "signAndSendTransaction"
 	PolicyMethodExportPrivateKey         PolicyMethod = "exportPrivateKey"
+	PolicyMethodExportSeedPhrase         PolicyMethod = "exportSeedPhrase"
 	PolicyMethodSignTransactionBytes     PolicyMethod = "signTransactionBytes"
 	PolicyMethodStar                     PolicyMethod = "*"
 )
@@ -2466,7 +2467,8 @@ type PolicyRuleRequestBody struct {
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "eth_sign7702Authorization", "signTransaction",
-	// "signAndSendTransaction", "exportPrivateKey", "signTransactionBytes", "\*".
+	// "signAndSendTransaction", "exportPrivateKey", "exportSeedPhrase",
+	// "signTransactionBytes", "\*".
 	Method PolicyMethod `json:"method" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -2508,7 +2510,8 @@ type PolicyRuleRequestBodyParam struct {
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "eth_sign7702Authorization", "signTransaction",
-	// "signAndSendTransaction", "exportPrivateKey", "signTransactionBytes", "\*".
+	// "signAndSendTransaction", "exportPrivateKey", "exportSeedPhrase",
+	// "signTransactionBytes", "\*".
 	Method PolicyMethod `json:"method,omitzero" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	paramObj

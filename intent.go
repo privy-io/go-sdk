@@ -903,6 +903,7 @@ type WalletIntentResponseRequestDetailsBody struct {
 	AdditionalSigners      AdditionalSignerInput `json:"additional_signers"`
 	AuthorizationKeyIDs    []string              `json:"authorization_key_ids"`
 	AuthorizationThreshold float64               `json:"authorization_threshold"`
+	DisplayName            string                `json:"display_name" api:"nullable"`
 	// The owner of the resource. If you provide this, do not specify an owner_id as it
 	// will be generated automatically. When updating a wallet, you can set the owner
 	// to null to remove the owner.
@@ -915,6 +916,7 @@ type WalletIntentResponseRequestDetailsBody struct {
 		AdditionalSigners      respjson.Field
 		AuthorizationKeyIDs    respjson.Field
 		AuthorizationThreshold respjson.Field
+		DisplayName            respjson.Field
 		Owner                  respjson.Field
 		OwnerID                respjson.Field
 		PolicyIDs              respjson.Field
@@ -1415,7 +1417,8 @@ type IntentResponseUnionRequestDetailsBody struct {
 	// [SparkClaimStaticDepositRpcInputParamsResp],
 	// [SparkCreateLightningInvoiceRpcInputParamsResp],
 	// [SparkPayLightningInvoiceRpcInputParamsResp],
-	// [SparkSignMessageWithIdentityKeyRpcInputParamsResp], [PrivateKeyExportInput]
+	// [SparkSignMessageWithIdentityKeyRpcInputParamsResp], [PrivateKeyExportInput],
+	// [SeedPhraseExportInput]
 	Params    IntentResponseUnionRequestDetailsBodyParams `json:"params"`
 	Address   string                                      `json:"address"`
 	ChainType string                                      `json:"chain_type"`
@@ -1435,6 +1438,7 @@ type IntentResponseUnionRequestDetailsBody struct {
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
 	AuthorizationKeyIDs    []string `json:"authorization_key_ids"`
 	AuthorizationThreshold float64  `json:"authorization_threshold"`
+	DisplayName            string   `json:"display_name"`
 	// This field is a union of [WalletIntentResponseRequestDetailsBodyOwner],
 	// [PolicyIntentResponseRequestDetailsBodyOwnerUnion]
 	Owner   IntentResponseUnionRequestDetailsBodyOwner `json:"owner"`
@@ -1448,8 +1452,6 @@ type IntentResponseUnionRequestDetailsBody struct {
 	Action PolicyAction `json:"action"`
 	// This field is from variant [PolicyRuleRequestBody].
 	Conditions []PolicyConditionUnion `json:"conditions"`
-	// This field is from variant [KeyQuorumUpdateRequestBody].
-	DisplayName string `json:"display_name"`
 	// This field is from variant [KeyQuorumUpdateRequestBody].
 	KeyQuorumIDs []string `json:"key_quorum_ids"`
 	// This field is from variant [KeyQuorumUpdateRequestBody].
@@ -1472,6 +1474,7 @@ type IntentResponseUnionRequestDetailsBody struct {
 		AdditionalSigners                    respjson.Field
 		AuthorizationKeyIDs                  respjson.Field
 		AuthorizationThreshold               respjson.Field
+		DisplayName                          respjson.Field
 		Owner                                respjson.Field
 		OwnerID                              respjson.Field
 		PolicyIDs                            respjson.Field
@@ -1479,7 +1482,6 @@ type IntentResponseUnionRequestDetailsBody struct {
 		Rules                                respjson.Field
 		Action                               respjson.Field
 		Conditions                           respjson.Field
-		DisplayName                          respjson.Field
 		KeyQuorumIDs                         respjson.Field
 		PublicKeys                           respjson.Field
 		UserIDs                              respjson.Field
@@ -1557,6 +1559,7 @@ type IntentResponseUnionRequestDetailsBodyParams struct {
 	EncryptionType HpkeEncryption `json:"encryption_type"`
 	// This field is from variant [PrivateKeyExportInput].
 	RecipientPublicKey RecipientPublicKey `json:"recipient_public_key"`
+	ExportSeedPhrase   bool               `json:"export_seed_phrase"`
 	// This field is from variant [PrivateKeyExportInput].
 	ExportType ExportType `json:"export_type"`
 	JSON       struct {
@@ -1593,6 +1596,7 @@ type IntentResponseUnionRequestDetailsBodyParams struct {
 		Compact                 respjson.Field
 		EncryptionType          respjson.Field
 		RecipientPublicKey      respjson.Field
+		ExportSeedPhrase        respjson.Field
 		ExportType              respjson.Field
 		raw                     string
 	} `json:"-"`
@@ -1704,7 +1708,10 @@ type IntentResponseUnionCurrentResourceData struct {
 	PolicyIDs              []string `json:"policy_ids"`
 	AuthorizationThreshold float64  `json:"authorization_threshold"`
 	// This field is from variant [Wallet].
-	Custody WalletCustodian `json:"custody"`
+	Custody     WalletCustodian `json:"custody"`
+	DisplayName string          `json:"display_name"`
+	// This field is from variant [Wallet].
+	ExternalID string `json:"external_id"`
 	// This field is from variant [Wallet].
 	PublicKey string `json:"public_key"`
 	Name      string `json:"name"`
@@ -1721,8 +1728,6 @@ type IntentResponseUnionCurrentResourceData struct {
 	// This field is from variant [KeyQuorum].
 	AuthorizationKeys []KeyQuorumAuthorizationKey `json:"authorization_keys"`
 	// This field is from variant [KeyQuorum].
-	DisplayName string `json:"display_name"`
-	// This field is from variant [KeyQuorum].
 	UserIDs []string `json:"user_ids"`
 	// This field is from variant [KeyQuorum].
 	KeyQuorumIDs []string `json:"key_quorum_ids"`
@@ -1738,6 +1743,8 @@ type IntentResponseUnionCurrentResourceData struct {
 		PolicyIDs              respjson.Field
 		AuthorizationThreshold respjson.Field
 		Custody                respjson.Field
+		DisplayName            respjson.Field
+		ExternalID             respjson.Field
 		PublicKey              respjson.Field
 		Name                   respjson.Field
 		Rules                  respjson.Field
@@ -1746,7 +1753,6 @@ type IntentResponseUnionCurrentResourceData struct {
 		Conditions             respjson.Field
 		Method                 respjson.Field
 		AuthorizationKeys      respjson.Field
-		DisplayName            respjson.Field
 		UserIDs                respjson.Field
 		KeyQuorumIDs           respjson.Field
 		raw                    string

@@ -485,7 +485,7 @@ const (
 	ExportTypeClient  ExportType = "client"
 )
 
-// Input for exporting a wallet private key with HPKE encryption.
+// Input for exporting a wallet (private key or seed phrase) with HPKE encryption.
 type PrivateKeyExportInput struct {
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
 	//
@@ -494,6 +494,7 @@ type PrivateKeyExportInput struct {
 	// The recipient public key for HPKE encryption, in PEM or DER (base64-encoded)
 	// format.
 	RecipientPublicKey RecipientPublicKey `json:"recipient_public_key" api:"required"`
+	ExportSeedPhrase   bool               `json:"export_seed_phrase"`
 	// The export type. 'display' is for showing the key to the user in the UI,
 	// 'client' is for exporting to the client application.
 	//
@@ -503,6 +504,7 @@ type PrivateKeyExportInput struct {
 	JSON struct {
 		EncryptionType     respjson.Field
 		RecipientPublicKey respjson.Field
+		ExportSeedPhrase   respjson.Field
 		ExportType         respjson.Field
 		ExtraFields        map[string]respjson.Field
 		raw                string
@@ -524,7 +526,7 @@ func (r PrivateKeyExportInput) ToParam() PrivateKeyExportInputParam {
 	return param.Override[PrivateKeyExportInputParam](json.RawMessage(r.RawJSON()))
 }
 
-// Input for exporting a wallet private key with HPKE encryption.
+// Input for exporting a wallet (private key or seed phrase) with HPKE encryption.
 //
 // The properties EncryptionType, RecipientPublicKey are required.
 type PrivateKeyExportInputParam struct {
@@ -535,6 +537,7 @@ type PrivateKeyExportInputParam struct {
 	// The recipient public key for HPKE encryption, in PEM or DER (base64-encoded)
 	// format.
 	RecipientPublicKey RecipientPublicKey `json:"recipient_public_key" api:"required"`
+	ExportSeedPhrase   param.Opt[bool]    `json:"export_seed_phrase,omitzero"`
 	// The export type. 'display' is for showing the key to the user in the UI,
 	// 'client' is for exporting to the client application.
 	//
@@ -548,6 +551,99 @@ func (r PrivateKeyExportInputParam) MarshalJSON() (data []byte, err error) {
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *PrivateKeyExportInputParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Input for exporting a wallet (private key or seed phrase) with HPKE encryption.
+type SeedPhraseExportInput struct {
+	// The encryption type of the wallet to import. Currently only supports `HPKE`.
+	//
+	// Any of "HPKE".
+	EncryptionType HpkeEncryption `json:"encryption_type" api:"required"`
+	// The recipient public key for HPKE encryption, in PEM or DER (base64-encoded)
+	// format.
+	RecipientPublicKey RecipientPublicKey `json:"recipient_public_key" api:"required"`
+	ExportSeedPhrase   bool               `json:"export_seed_phrase"`
+	// The export type. 'display' is for showing the key to the user in the UI,
+	// 'client' is for exporting to the client application.
+	//
+	// Any of "display", "client".
+	ExportType ExportType `json:"export_type"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		EncryptionType     respjson.Field
+		RecipientPublicKey respjson.Field
+		ExportSeedPhrase   respjson.Field
+		ExportType         respjson.Field
+		ExtraFields        map[string]respjson.Field
+		raw                string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SeedPhraseExportInput) RawJSON() string { return r.JSON.raw }
+func (r *SeedPhraseExportInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this SeedPhraseExportInput to a SeedPhraseExportInputParam.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// SeedPhraseExportInputParam.Overrides()
+func (r SeedPhraseExportInput) ToParam() SeedPhraseExportInputParam {
+	return param.Override[SeedPhraseExportInputParam](json.RawMessage(r.RawJSON()))
+}
+
+// Input for exporting a wallet (private key or seed phrase) with HPKE encryption.
+//
+// The properties EncryptionType, RecipientPublicKey are required.
+type SeedPhraseExportInputParam struct {
+	// The encryption type of the wallet to import. Currently only supports `HPKE`.
+	//
+	// Any of "HPKE".
+	EncryptionType HpkeEncryption `json:"encryption_type,omitzero" api:"required"`
+	// The recipient public key for HPKE encryption, in PEM or DER (base64-encoded)
+	// format.
+	RecipientPublicKey RecipientPublicKey `json:"recipient_public_key" api:"required"`
+	ExportSeedPhrase   param.Opt[bool]    `json:"export_seed_phrase,omitzero"`
+	// The export type. 'display' is for showing the key to the user in the UI,
+	// 'client' is for exporting to the client application.
+	//
+	// Any of "display", "client".
+	ExportType ExportType `json:"export_type,omitzero"`
+	paramObj
+}
+
+func (r SeedPhraseExportInputParam) MarshalJSON() (data []byte, err error) {
+	type shadow SeedPhraseExportInputParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *SeedPhraseExportInputParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response containing HPKE-encrypted wallet data (private key or seed phrase).
+type SeedPhraseExportResponse struct {
+	Ciphertext      string `json:"ciphertext" api:"required"`
+	EncapsulatedKey string `json:"encapsulated_key" api:"required"`
+	// The encryption type of the wallet to import. Currently only supports `HPKE`.
+	//
+	// Any of "HPKE".
+	EncryptionType HpkeEncryption `json:"encryption_type" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Ciphertext      respjson.Field
+		EncapsulatedKey respjson.Field
+		EncryptionType  respjson.Field
+		ExtraFields     map[string]respjson.Field
+		raw             string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SeedPhraseExportResponse) RawJSON() string { return r.JSON.raw }
+func (r *SeedPhraseExportResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -660,7 +756,7 @@ type ExportPrivateKeyRpcInput struct {
 	Address string `json:"address" api:"required"`
 	// Any of "exportPrivateKey".
 	Method ExportPrivateKeyRpcInputMethod `json:"method" api:"required"`
-	// Input for exporting a wallet private key with HPKE encryption.
+	// Input for exporting a wallet (private key or seed phrase) with HPKE encryption.
 	Params PrivateKeyExportInput `json:"params" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -701,7 +797,7 @@ type ExportPrivateKeyRpcInputParam struct {
 	Address string `json:"address" api:"required"`
 	// Any of "exportPrivateKey".
 	Method ExportPrivateKeyRpcInputMethod `json:"method,omitzero" api:"required"`
-	// Input for exporting a wallet private key with HPKE encryption.
+	// Input for exporting a wallet (private key or seed phrase) with HPKE encryption.
 	Params PrivateKeyExportInputParam `json:"params,omitzero" api:"required"`
 	paramObj
 }
@@ -716,7 +812,7 @@ func (r *ExportPrivateKeyRpcInputParam) UnmarshalJSON(data []byte) error {
 
 // Response to the `exportPrivateKey` RPC.
 type ExportPrivateKeyRpcResponse struct {
-	// Input for exporting a wallet private key with HPKE encryption.
+	// Input for exporting a wallet (private key or seed phrase) with HPKE encryption.
 	Data PrivateKeyExportInput `json:"data" api:"required"`
 	// Any of "exportPrivateKey".
 	Method ExportPrivateKeyRpcResponseMethod `json:"method" api:"required"`
@@ -739,6 +835,92 @@ type ExportPrivateKeyRpcResponseMethod string
 
 const (
 	ExportPrivateKeyRpcResponseMethodExportPrivateKey ExportPrivateKeyRpcResponseMethod = "exportPrivateKey"
+)
+
+// Exports the seed phrase of the wallet.
+type ExportSeedPhraseRpcInput struct {
+	Address string `json:"address" api:"required"`
+	// Any of "exportSeedPhrase".
+	Method ExportSeedPhraseRpcInputMethod `json:"method" api:"required"`
+	// Input for exporting a wallet (private key or seed phrase) with HPKE encryption.
+	Params SeedPhraseExportInput `json:"params" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Address     respjson.Field
+		Method      respjson.Field
+		Params      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ExportSeedPhraseRpcInput) RawJSON() string { return r.JSON.raw }
+func (r *ExportSeedPhraseRpcInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this ExportSeedPhraseRpcInput to a
+// ExportSeedPhraseRpcInputParam.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// ExportSeedPhraseRpcInputParam.Overrides()
+func (r ExportSeedPhraseRpcInput) ToParam() ExportSeedPhraseRpcInputParam {
+	return param.Override[ExportSeedPhraseRpcInputParam](json.RawMessage(r.RawJSON()))
+}
+
+type ExportSeedPhraseRpcInputMethod string
+
+const (
+	ExportSeedPhraseRpcInputMethodExportSeedPhrase ExportSeedPhraseRpcInputMethod = "exportSeedPhrase"
+)
+
+// Exports the seed phrase of the wallet.
+//
+// The properties Address, Method, Params are required.
+type ExportSeedPhraseRpcInputParam struct {
+	Address string `json:"address" api:"required"`
+	// Any of "exportSeedPhrase".
+	Method ExportSeedPhraseRpcInputMethod `json:"method,omitzero" api:"required"`
+	// Input for exporting a wallet (private key or seed phrase) with HPKE encryption.
+	Params SeedPhraseExportInputParam `json:"params,omitzero" api:"required"`
+	paramObj
+}
+
+func (r ExportSeedPhraseRpcInputParam) MarshalJSON() (data []byte, err error) {
+	type shadow ExportSeedPhraseRpcInputParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *ExportSeedPhraseRpcInputParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response to the `exportSeedPhrase` RPC.
+type ExportSeedPhraseRpcResponse struct {
+	// Response containing HPKE-encrypted wallet data (private key or seed phrase).
+	Data SeedPhraseExportResponse `json:"data" api:"required"`
+	// Any of "exportSeedPhrase".
+	Method ExportSeedPhraseRpcResponseMethod `json:"method" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		Method      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ExportSeedPhraseRpcResponse) RawJSON() string { return r.JSON.raw }
+func (r *ExportSeedPhraseRpcResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type ExportSeedPhraseRpcResponseMethod string
+
+const (
+	ExportSeedPhraseRpcResponseMethodExportSeedPhrase ExportSeedPhraseRpcResponseMethod = "exportSeedPhrase"
 )
 
 // Parameters for signing a pre-computed hash with the `raw_sign` RPC.
@@ -5119,6 +5301,11 @@ type Wallet struct {
 	AuthorizationThreshold float64 `json:"authorization_threshold"`
 	// Information about the custodian managing this wallet.
 	Custody WalletCustodian `json:"custody"`
+	// A human-readable label for the wallet.
+	DisplayName string `json:"display_name"`
+	// A customer-provided identifier for mapping to external systems. Write-once, set
+	// only at creation.
+	ExternalID string `json:"external_id"`
 	// The compressed, raw public key for the wallet along the chain cryptographic
 	// curve.
 	PublicKey string `json:"public_key"`
@@ -5135,6 +5322,8 @@ type Wallet struct {
 		PolicyIDs              respjson.Field
 		AuthorizationThreshold respjson.Field
 		Custody                respjson.Field
+		DisplayName            respjson.Field
+		ExternalID             respjson.Field
 		PublicKey              respjson.Field
 		ExtraFields            map[string]respjson.Field
 		raw                    string
@@ -5169,7 +5358,9 @@ func (r *WalletAdditionalSigner) UnmarshalJSON(data []byte) error {
 
 // Request body for updating a wallet.
 type WalletUpdateRequestBody struct {
-	OwnerID param.Opt[string] `json:"owner_id,omitzero"`
+	// A human-readable label for the wallet. Set to null to clear.
+	DisplayName param.Opt[string] `json:"display_name,omitzero"`
+	OwnerID     param.Opt[string] `json:"owner_id,omitzero"`
 	// The owner of the resource. If you provide this, do not specify an owner_id as it
 	// will be generated automatically. When updating a wallet, you can set the owner
 	// to null to remove the owner.
@@ -5269,7 +5460,8 @@ func (r *WalletUpdateRequestBodyOwnerUserOwner) UnmarshalJSON(data []byte) error
 // [SparkTransferTokensRpcInput], [SparkGetStaticDepositAddressRpcInput],
 // [SparkGetClaimStaticDepositQuoteRpcInput], [SparkClaimStaticDepositRpcInput],
 // [SparkCreateLightningInvoiceRpcInput], [SparkPayLightningInvoiceRpcInput],
-// [SparkSignMessageWithIdentityKeyRpcInput], [ExportPrivateKeyRpcInput].
+// [SparkSignMessageWithIdentityKeyRpcInput], [ExportPrivateKeyRpcInput],
+// [ExportSeedPhraseRpcInput].
 //
 // Use the [WalletRpcRequestBodyUnion.AsAny] method to switch on the variant.
 //
@@ -5281,7 +5473,7 @@ type WalletRpcRequestBodyUnion struct {
 	// "signAndSendTransaction", "signMessage", "transfer", "getBalance",
 	// "transferTokens", "getStaticDepositAddress", "getClaimStaticDepositQuote",
 	// "claimStaticDeposit", "createLightningInvoice", "payLightningInvoice",
-	// "signMessageWithIdentityKey", "exportPrivateKey".
+	// "signMessageWithIdentityKey", "exportPrivateKey", "exportSeedPhrase".
 	Method string `json:"method"`
 	// This field is a union of [EthereumSignTransactionRpcInputParamsResp],
 	// [EthereumSendTransactionRpcInputParamsResp],
@@ -5299,7 +5491,8 @@ type WalletRpcRequestBodyUnion struct {
 	// [SparkClaimStaticDepositRpcInputParamsResp],
 	// [SparkCreateLightningInvoiceRpcInputParamsResp],
 	// [SparkPayLightningInvoiceRpcInputParamsResp],
-	// [SparkSignMessageWithIdentityKeyRpcInputParamsResp], [PrivateKeyExportInput]
+	// [SparkSignMessageWithIdentityKeyRpcInputParamsResp], [PrivateKeyExportInput],
+	// [SeedPhraseExportInput]
 	Params    WalletRpcRequestBodyUnionParams `json:"params"`
 	Address   string                          `json:"address"`
 	ChainType string                          `json:"chain_type"`
@@ -5352,6 +5545,7 @@ func (SparkCreateLightningInvoiceRpcInput) implWalletRpcRequestBodyUnion()     {
 func (SparkPayLightningInvoiceRpcInput) implWalletRpcRequestBodyUnion()        {}
 func (SparkSignMessageWithIdentityKeyRpcInput) implWalletRpcRequestBodyUnion() {}
 func (ExportPrivateKeyRpcInput) implWalletRpcRequestBodyUnion()                {}
+func (ExportSeedPhraseRpcInput) implWalletRpcRequestBodyUnion()                {}
 
 // Use the following switch statement to find the correct variant
 //
@@ -5377,6 +5571,7 @@ func (ExportPrivateKeyRpcInput) implWalletRpcRequestBodyUnion()                {
 //	case privyclient.SparkPayLightningInvoiceRpcInput:
 //	case privyclient.SparkSignMessageWithIdentityKeyRpcInput:
 //	case privyclient.ExportPrivateKeyRpcInput:
+//	case privyclient.ExportSeedPhraseRpcInput:
 //	default:
 //	  fmt.Errorf("no variant present")
 //	}
@@ -5424,6 +5619,8 @@ func (u WalletRpcRequestBodyUnion) AsAny() anyWalletRpcRequestBody {
 		return u.AsSignMessageWithIdentityKey()
 	case "exportPrivateKey":
 		return u.AsExportPrivateKey()
+	case "exportSeedPhrase":
+		return u.AsExportSeedPhrase()
 	}
 	return nil
 }
@@ -5533,6 +5730,11 @@ func (u WalletRpcRequestBodyUnion) AsExportPrivateKey() (v ExportPrivateKeyRpcIn
 	return
 }
 
+func (u WalletRpcRequestBodyUnion) AsExportSeedPhrase() (v ExportSeedPhraseRpcInput) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
 // Returns the unmodified JSON received from the API
 func (u WalletRpcRequestBodyUnion) RawJSON() string { return u.JSON.raw }
 
@@ -5606,6 +5808,7 @@ type WalletRpcRequestBodyUnionParams struct {
 	EncryptionType HpkeEncryption `json:"encryption_type"`
 	// This field is from variant [PrivateKeyExportInput].
 	RecipientPublicKey RecipientPublicKey `json:"recipient_public_key"`
+	ExportSeedPhrase   bool               `json:"export_seed_phrase"`
 	// This field is from variant [PrivateKeyExportInput].
 	ExportType ExportType `json:"export_type"`
 	JSON       struct {
@@ -5642,6 +5845,7 @@ type WalletRpcRequestBodyUnionParams struct {
 		Compact                 respjson.Field
 		EncryptionType          respjson.Field
 		RecipientPublicKey      respjson.Field
+		ExportSeedPhrase        respjson.Field
 		ExportType              respjson.Field
 		raw                     string
 	} `json:"-"`
@@ -5853,6 +6057,14 @@ func WalletRpcRequestBodyParamOfExportPrivateKey(address string, method ExportPr
 	return WalletRpcRequestBodyUnionParam{OfExportPrivateKey: &exportPrivateKey}
 }
 
+func WalletRpcRequestBodyParamOfExportSeedPhrase(address string, method ExportSeedPhraseRpcInputMethod, params SeedPhraseExportInputParam) WalletRpcRequestBodyUnionParam {
+	var exportSeedPhrase ExportSeedPhraseRpcInputParam
+	exportSeedPhrase.Address = address
+	exportSeedPhrase.Method = method
+	exportSeedPhrase.Params = params
+	return WalletRpcRequestBodyUnionParam{OfExportSeedPhrase: &exportSeedPhrase}
+}
+
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
@@ -5878,6 +6090,7 @@ type WalletRpcRequestBodyUnionParam struct {
 	OfPayLightningInvoice        *SparkPayLightningInvoiceRpcInputParam        `json:",omitzero,inline"`
 	OfSignMessageWithIdentityKey *SparkSignMessageWithIdentityKeyRpcInputParam `json:",omitzero,inline"`
 	OfExportPrivateKey           *ExportPrivateKeyRpcInputParam                `json:",omitzero,inline"`
+	OfExportSeedPhrase           *ExportSeedPhraseRpcInputParam                `json:",omitzero,inline"`
 	paramUnion
 }
 
@@ -5902,7 +6115,8 @@ func (u WalletRpcRequestBodyUnionParam) MarshalJSON() ([]byte, error) {
 		u.OfCreateLightningInvoice,
 		u.OfPayLightningInvoice,
 		u.OfSignMessageWithIdentityKey,
-		u.OfExportPrivateKey)
+		u.OfExportPrivateKey,
+		u.OfExportSeedPhrase)
 }
 func (u *WalletRpcRequestBodyUnionParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
@@ -5932,6 +6146,7 @@ func init() {
 		apijson.Discriminator[SparkPayLightningInvoiceRpcInputParam]("payLightningInvoice"),
 		apijson.Discriminator[SparkSignMessageWithIdentityKeyRpcInputParam]("signMessageWithIdentityKey"),
 		apijson.Discriminator[ExportPrivateKeyRpcInputParam]("exportPrivateKey"),
+		apijson.Discriminator[ExportSeedPhraseRpcInputParam]("exportSeedPhrase"),
 	)
 }
 
@@ -5947,7 +6162,8 @@ func init() {
 // [SparkGetClaimStaticDepositQuoteRpcResponse],
 // [SparkClaimStaticDepositRpcResponse], [SparkCreateLightningInvoiceRpcResponse],
 // [SparkPayLightningInvoiceRpcResponse],
-// [SparkSignMessageWithIdentityKeyRpcResponse], [ExportPrivateKeyRpcResponse].
+// [SparkSignMessageWithIdentityKeyRpcResponse], [ExportPrivateKeyRpcResponse],
+// [ExportSeedPhraseRpcResponse].
 //
 // Use the [WalletRpcResponseUnion.AsAny] method to switch on the variant.
 //
@@ -5967,7 +6183,8 @@ type WalletRpcResponseUnion struct {
 	// [SparkGetClaimStaticDepositQuoteRpcResponseData],
 	// [SparkClaimStaticDepositRpcResponseData], [SparkLightningReceiveRequest],
 	// [SparkPayLightningInvoiceRpcResponseDataUnion],
-	// [SparkSignMessageWithIdentityKeyRpcResponseData], [PrivateKeyExportInput]
+	// [SparkSignMessageWithIdentityKeyRpcResponseData], [PrivateKeyExportInput],
+	// [SeedPhraseExportResponse]
 	Data WalletRpcResponseUnionData `json:"data"`
 	// Any of "personal_sign", "eth_signTypedData_v4", "eth_signTransaction",
 	// "eth_sendTransaction", "eth_signUserOperation", "eth_sign7702Authorization",
@@ -5975,7 +6192,7 @@ type WalletRpcResponseUnion struct {
 	// "signAndSendTransaction", "transfer", "getBalance", "transferTokens",
 	// "getStaticDepositAddress", "getClaimStaticDepositQuote", "claimStaticDeposit",
 	// "createLightningInvoice", "payLightningInvoice", "signMessageWithIdentityKey",
-	// "exportPrivateKey".
+	// "exportPrivateKey", "exportSeedPhrase".
 	Method string `json:"method"`
 	JSON   struct {
 		Data   respjson.Field
@@ -6011,6 +6228,7 @@ func (SparkCreateLightningInvoiceRpcResponse) implWalletRpcResponseUnion()     {
 func (SparkPayLightningInvoiceRpcResponse) implWalletRpcResponseUnion()        {}
 func (SparkSignMessageWithIdentityKeyRpcResponse) implWalletRpcResponseUnion() {}
 func (ExportPrivateKeyRpcResponse) implWalletRpcResponseUnion()                {}
+func (ExportSeedPhraseRpcResponse) implWalletRpcResponseUnion()                {}
 
 // Use the following switch statement to find the correct variant
 //
@@ -6036,6 +6254,7 @@ func (ExportPrivateKeyRpcResponse) implWalletRpcResponseUnion()                {
 //	case privyclient.SparkPayLightningInvoiceRpcResponse:
 //	case privyclient.SparkSignMessageWithIdentityKeyRpcResponse:
 //	case privyclient.ExportPrivateKeyRpcResponse:
+//	case privyclient.ExportSeedPhraseRpcResponse:
 //	default:
 //	  fmt.Errorf("no variant present")
 //	}
@@ -6083,6 +6302,8 @@ func (u WalletRpcResponseUnion) AsAny() anyWalletRpcResponse {
 		return u.AsSignMessageWithIdentityKey()
 	case "exportPrivateKey":
 		return u.AsExportPrivateKey()
+	case "exportSeedPhrase":
+		return u.AsExportSeedPhrase()
 	}
 	return nil
 }
@@ -6192,6 +6413,11 @@ func (u WalletRpcResponseUnion) AsExportPrivateKey() (v ExportPrivateKeyRpcRespo
 	return
 }
 
+func (u WalletRpcResponseUnion) AsExportSeedPhrase() (v ExportSeedPhraseRpcResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
 // Returns the unmodified JSON received from the API
 func (u WalletRpcResponseUnion) RawJSON() string { return u.JSON.raw }
 
@@ -6278,8 +6504,14 @@ type WalletRpcResponseUnionData struct {
 	// This field is from variant [PrivateKeyExportInput].
 	RecipientPublicKey RecipientPublicKey `json:"recipient_public_key"`
 	// This field is from variant [PrivateKeyExportInput].
+	ExportSeedPhrase bool `json:"export_seed_phrase"`
+	// This field is from variant [PrivateKeyExportInput].
 	ExportType ExportType `json:"export_type"`
-	JSON       struct {
+	// This field is from variant [SeedPhraseExportResponse].
+	Ciphertext string `json:"ciphertext"`
+	// This field is from variant [SeedPhraseExportResponse].
+	EncapsulatedKey string `json:"encapsulated_key"`
+	JSON            struct {
 		Encoding                  respjson.Field
 		Signature                 respjson.Field
 		SignedTransaction         respjson.Field
@@ -6319,7 +6551,10 @@ type WalletRpcResponseUnionData struct {
 		IdempotencyKey            respjson.Field
 		EncryptionType            respjson.Field
 		RecipientPublicKey        respjson.Field
+		ExportSeedPhrase          respjson.Field
 		ExportType                respjson.Field
+		Ciphertext                respjson.Field
+		EncapsulatedKey           respjson.Field
 		raw                       string
 	} `json:"-"`
 }
@@ -6604,6 +6839,12 @@ type WalletNewParams struct {
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
 	// "tron", "bitcoin-segwit", "near", "ton", "starknet", "spark".
 	ChainType WalletChainType `json:"chain_type,omitzero" api:"required"`
+	// A human-readable label for the wallet.
+	DisplayName param.Opt[string] `json:"display_name,omitzero"`
+	// A customer-provided identifier for mapping to external systems. URL-safe
+	// characters only ([a-zA-Z0-9_-]), max 64 chars. Write-once: cannot be changed
+	// after creation.
+	ExternalID param.Opt[string] `json:"external_id,omitzero"`
 	// The key quorum ID to set as the owner of the resource. If you provide this, do
 	// not specify an owner.
 	OwnerID param.Opt[string] `json:"owner_id,omitzero"`
@@ -6725,6 +6966,8 @@ type WalletListParams struct {
 	// be used together with user_id.
 	AuthorizationKey param.Opt[string] `query:"authorization_key,omitzero" json:"-"`
 	Cursor           param.Opt[string] `query:"cursor,omitzero" json:"-"`
+	// Filter wallets by external ID.
+	ExternalID param.Opt[string] `query:"external_id,omitzero" json:"-"`
 	// Filter wallets by user ID. Cannot be used together with authorization_key.
 	UserID param.Opt[string] `query:"user_id,omitzero" json:"-"`
 	// The wallet chain types.
@@ -6828,8 +7071,10 @@ func (r *WalletInitImportParamsBodyPrivateKey) UnmarshalJSON(data []byte) error 
 }
 
 type WalletSubmitImportParams struct {
-	Wallet  WalletSubmitImportParamsWalletUnion `json:"wallet,omitzero" api:"required"`
-	OwnerID param.Opt[string]                   `json:"owner_id,omitzero"`
+	Wallet      WalletSubmitImportParamsWalletUnion `json:"wallet,omitzero" api:"required"`
+	OwnerID     param.Opt[string]                   `json:"owner_id,omitzero"`
+	DisplayName param.Opt[string]                   `json:"display_name,omitzero"`
+	ExternalID  param.Opt[string]                   `json:"external_id,omitzero"`
 	// Additional signers for the wallet.
 	AdditionalSigners AdditionalSignerInputParam `json:"additional_signers,omitzero"`
 	// The owner of the resource. If you provide this, do not specify an owner_id as it
@@ -6983,7 +7228,8 @@ type WalletExportParams struct {
 	// Any of "HPKE".
 	EncryptionType HpkeEncryption `json:"encryption_type,omitzero" api:"required"`
 	// The base64-encoded encryption public key to encrypt the wallet private key with.
-	RecipientPublicKey string `json:"recipient_public_key" api:"required"`
+	RecipientPublicKey string          `json:"recipient_public_key" api:"required"`
+	ExportSeedPhrase   param.Opt[bool] `json:"export_seed_phrase,omitzero"`
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.
 	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`

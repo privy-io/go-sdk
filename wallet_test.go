@@ -33,6 +33,8 @@ func TestWalletNewWithOptionalParams(t *testing.T) {
 			SignerID:          "signer_id",
 			OverridePolicyIDs: []string{"string"},
 		}},
+		DisplayName: privyclient.String("display_name"),
+		ExternalID:  privyclient.String("my-order-123"),
 		Owner: privyclient.WalletNewParamsOwnerUnion{
 			OfPublicKeyOwner: &privyclient.WalletNewParamsOwnerPublicKeyOwner{
 				PublicKey: "public_key",
@@ -74,6 +76,7 @@ func TestWalletUpdateWithOptionalParams(t *testing.T) {
 					SignerID:          "signer_id",
 					OverridePolicyIDs: []string{"string"},
 				}},
+				DisplayName: privyclient.String("display_name"),
 				Owner: privyclient.WalletUpdateRequestBodyOwnerUnion{
 					OfPublicKeyOwner: &privyclient.WalletUpdateRequestBodyOwnerPublicKeyOwner{
 						PublicKey: "public_key",
@@ -113,6 +116,7 @@ func TestWalletListWithOptionalParams(t *testing.T) {
 		AuthorizationKey: privyclient.String("s=-/fw-L-+N\n"),
 		ChainType:        privyclient.WalletChainTypeEthereum,
 		Cursor:           privyclient.String("x"),
+		ExternalID:       privyclient.String("external_id"),
 		Limit:            privyclient.Float(100),
 		UserID:           privyclient.String("user_id"),
 	})
@@ -188,6 +192,8 @@ func TestWalletSubmitImportWithOptionalParams(t *testing.T) {
 			SignerID:          "string",
 			OverridePolicyIDs: privyclient.PolicyInput{"string"},
 		}},
+		DisplayName: privyclient.String("display_name"),
+		ExternalID:  privyclient.String("external_id"),
 		Owner: privyclient.WalletSubmitImportParamsOwner{
 			OwnerInputUnionParam: privyclient.OwnerInputUnionParam{},
 		},
@@ -253,6 +259,7 @@ func TestWalletExportWithOptionalParams(t *testing.T) {
 		privyclient.WalletExportParams{
 			EncryptionType:              privyclient.HpkeEncryptionHpke,
 			RecipientPublicKey:          "BDAZLOIdTaPycEYkgG0MvCzbIKJLli/yWkAV5yCa9yOsZ4JsrLweA5MnP8YIiY4k/RRzC+APhhO+P+Hoz/rt7Go=",
+			ExportSeedPhrase:            privyclient.Bool(true),
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
 			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},
