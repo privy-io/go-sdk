@@ -381,6 +381,7 @@ func TestIntentUpdateWalletWithOptionalParams(t *testing.T) {
 					SignerID:          "signer_id",
 					OverridePolicyIDs: []string{"string"},
 				}},
+				DisplayName: privyclient.String("display_name"),
 				Owner: privyclient.WalletUpdateRequestBodyOwnerUnion{
 					OfPublicKeyOwner: &privyclient.WalletUpdateRequestBodyOwnerPublicKeyOwner{
 						PublicKey: "public_key",
