@@ -2580,20 +2580,21 @@ type PolicyNewParams struct {
 	// "tron", "bitcoin-segwit", "near", "ton", "starknet", "spark".
 	ChainType WalletChainType `json:"chain_type,omitzero" api:"required"`
 	// Name to assign to policy.
-	Name  string                       `json:"name" api:"required"`
-	Rules []PolicyRuleRequestBodyParam `json:"rules,omitzero" api:"required"`
+	Name  string                `json:"name" api:"required"`
+	Rules []PolicyNewParamsRule `json:"rules,omitzero" api:"required"`
 	// Version of the policy. Currently, 1.0 is the only version.
 	//
 	// Any of "1.0".
 	Version PolicyNewParamsVersion `json:"version,omitzero" api:"required"`
-	OwnerID param.Opt[string]      `json:"owner_id,omitzero"`
+	// The key quorum ID to set as the owner of the resource. If you provide this, do
+	// not specify an owner.
+	OwnerID param.Opt[OwnerIDInput] `json:"owner_id,omitzero" format:"cuid2"`
 	// Idempotency keys ensure API requests are executed only once within a 24-hour
 	// window.
 	PrivyIdempotencyKey param.Opt[string] `header:"privy-idempotency-key,omitzero" json:"-"`
-	// The owner of the resource. If you provide this, do not specify an owner_id as it
-	// will be generated automatically. When updating a wallet, you can set the owner
-	// to null to remove the owner.
-	Owner PolicyNewParamsOwnerUnion `json:"owner,omitzero"`
+	// The owner of the resource, specified as a Privy user ID, a P-256 public key, or
+	// null to remove the current owner.
+	Owner OwnerInputUnionParam `json:"owner,omitzero"`
 	paramObj
 }
 
@@ -2605,6 +2606,33 @@ func (r *PolicyNewParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// The properties Action, Conditions, Method, Name are required.
+type PolicyNewParamsRule struct {
+	// The action to take when a policy rule matches.
+	//
+	// Any of "ALLOW", "DENY".
+	Action     PolicyAction                `json:"action,omitzero" api:"required"`
+	Conditions []PolicyConditionUnionParam `json:"conditions,omitzero" api:"required"`
+	// Method the rule applies to.
+	//
+	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
+	// "eth_signTypedData_v4", "eth_sign7702Authorization", "signTransaction",
+	// "signAndSendTransaction", "exportPrivateKey", "exportSeedPhrase",
+	// "signTransactionBytes", "\*".
+	Method PolicyMethod      `json:"method,omitzero" api:"required"`
+	Name   string            `json:"name" api:"required"`
+	ID     param.Opt[string] `json:"id,omitzero"`
+	paramObj
+}
+
+func (r PolicyNewParamsRule) MarshalJSON() (data []byte, err error) {
+	type shadow PolicyNewParamsRule
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *PolicyNewParamsRule) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Version of the policy. Currently, 1.0 is the only version.
 type PolicyNewParamsVersion string
 
@@ -2612,60 +2640,10 @@ const (
 	PolicyNewParamsVersion1_0 PolicyNewParamsVersion = "1.0"
 )
 
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type PolicyNewParamsOwnerUnion struct {
-	OfPublicKeyOwner *PolicyNewParamsOwnerPublicKeyOwner `json:",omitzero,inline"`
-	OfUserOwner      *PolicyNewParamsOwnerUserOwner      `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u PolicyNewParamsOwnerUnion) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfPublicKeyOwner, u.OfUserOwner)
-}
-func (u *PolicyNewParamsOwnerUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
-// The P-256 public key of the owner of the resource, in base64-encoded DER format.
-// If you provide this, do not specify an owner_id as it will be generated
-// automatically.
-//
-// The property PublicKey is required.
-type PolicyNewParamsOwnerPublicKeyOwner struct {
-	PublicKey string `json:"public_key" api:"required"`
-	paramObj
-}
-
-func (r PolicyNewParamsOwnerPublicKeyOwner) MarshalJSON() (data []byte, err error) {
-	type shadow PolicyNewParamsOwnerPublicKeyOwner
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *PolicyNewParamsOwnerPublicKeyOwner) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The user ID of the owner of the resource. The user must already exist, and this
-// value must start with "did:privy:". If you provide this, do not specify an
-// owner_id as it will be generated automatically.
-//
-// The property UserID is required.
-type PolicyNewParamsOwnerUserOwner struct {
-	UserID string `json:"user_id" api:"required"`
-	paramObj
-}
-
-func (r PolicyNewParamsOwnerUserOwner) MarshalJSON() (data []byte, err error) {
-	type shadow PolicyNewParamsOwnerUserOwner
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *PolicyNewParamsOwnerUserOwner) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 type PolicyUpdateParams struct {
-	OwnerID param.Opt[string] `json:"owner_id,omitzero"`
+	// The key quorum ID to set as the owner of the resource. If you provide this, do
+	// not specify an owner.
+	OwnerID param.Opt[OwnerIDInput] `json:"owner_id,omitzero" format:"cuid2"`
 	// Name to assign to policy.
 	Name param.Opt[string] `json:"name,omitzero"`
 	// Request authorization signature. If multiple signatures are required, they
@@ -2674,10 +2652,9 @@ type PolicyUpdateParams struct {
 	// Request expiry. Value is a Unix timestamp in milliseconds representing the
 	// deadline by which the request must be processed.
 	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
-	// The owner of the resource. If you provide this, do not specify an owner_id as it
-	// will be generated automatically. When updating a wallet, you can set the owner
-	// to null to remove the owner.
-	Owner PolicyUpdateParamsOwnerUnion `json:"owner,omitzero"`
+	// The owner of the resource, specified as a Privy user ID, a P-256 public key, or
+	// null to remove the current owner.
+	Owner OwnerInputUnionParam         `json:"owner,omitzero"`
 	Rules []PolicyRuleRequestBodyParam `json:"rules,omitzero"`
 	paramObj
 }
@@ -2687,58 +2664,6 @@ func (r PolicyUpdateParams) MarshalJSON() (data []byte, err error) {
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *PolicyUpdateParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type PolicyUpdateParamsOwnerUnion struct {
-	OfPublicKeyOwner *PolicyUpdateParamsOwnerPublicKeyOwner `json:",omitzero,inline"`
-	OfUserOwner      *PolicyUpdateParamsOwnerUserOwner      `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u PolicyUpdateParamsOwnerUnion) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfPublicKeyOwner, u.OfUserOwner)
-}
-func (u *PolicyUpdateParamsOwnerUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
-// The P-256 public key of the owner of the resource, in base64-encoded DER format.
-// If you provide this, do not specify an owner_id as it will be generated
-// automatically.
-//
-// The property PublicKey is required.
-type PolicyUpdateParamsOwnerPublicKeyOwner struct {
-	PublicKey string `json:"public_key" api:"required"`
-	paramObj
-}
-
-func (r PolicyUpdateParamsOwnerPublicKeyOwner) MarshalJSON() (data []byte, err error) {
-	type shadow PolicyUpdateParamsOwnerPublicKeyOwner
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *PolicyUpdateParamsOwnerPublicKeyOwner) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The user ID of the owner of the resource. The user must already exist, and this
-// value must start with "did:privy:". If you provide this, do not specify an
-// owner_id as it will be generated automatically.
-//
-// The property UserID is required.
-type PolicyUpdateParamsOwnerUserOwner struct {
-	UserID string `json:"user_id" api:"required"`
-	paramObj
-}
-
-func (r PolicyUpdateParamsOwnerUserOwner) MarshalJSON() (data []byte, err error) {
-	type shadow PolicyUpdateParamsOwnerUserOwner
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *PolicyUpdateParamsOwnerUserOwner) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

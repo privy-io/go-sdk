@@ -281,12 +281,12 @@ func TestIntentUpdatePolicyWithOptionalParams(t *testing.T) {
 		"policy_id",
 		privyclient.IntentUpdatePolicyParams{
 			Name: privyclient.String("x"),
-			Owner: privyclient.IntentUpdatePolicyParamsOwnerUnion{
-				OfPublicKeyOwner: &privyclient.IntentUpdatePolicyParamsOwnerPublicKeyOwner{
-					PublicKey: "public_key",
+			Owner: privyclient.OwnerInputUnionParam{
+				OfOwnerInputUser: &privyclient.OwnerInputUserParam{
+					UserID: "user_id",
 				},
 			},
-			OwnerID: privyclient.String("owner_id"),
+			OwnerID: privyclient.String("string"),
 			Rules: []privyclient.PolicyRuleRequestBodyParam{{
 				Action: privyclient.PolicyActionAllow,
 				Conditions: []privyclient.PolicyConditionUnionParam{{
@@ -382,12 +382,12 @@ func TestIntentUpdateWalletWithOptionalParams(t *testing.T) {
 					OverridePolicyIDs: []string{"string"},
 				}},
 				DisplayName: privyclient.String("display_name"),
-				Owner: privyclient.WalletUpdateRequestBodyOwnerUnion{
-					OfPublicKeyOwner: &privyclient.WalletUpdateRequestBodyOwnerPublicKeyOwner{
-						PublicKey: "public_key",
+				Owner: privyclient.OwnerInputUnionParam{
+					OfOwnerInputUser: &privyclient.OwnerInputUserParam{
+						UserID: "user_id",
 					},
 				},
-				OwnerID:   privyclient.String("owner_id"),
+				OwnerID:   privyclient.String("string"),
 				PolicyIDs: []string{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 			},
 			PrivyRequestExpiry: privyclient.String("privy-request-expiry"),

@@ -30,7 +30,7 @@ func TestPolicyNewWithOptionalParams(t *testing.T) {
 	_, err := client.Policies.New(context.TODO(), privyclient.PolicyNewParams{
 		ChainType: privyclient.WalletChainTypeEthereum,
 		Name:      "x",
-		Rules: []privyclient.PolicyRuleRequestBodyParam{{
+		Rules: []privyclient.PolicyNewParamsRule{{
 			Action: privyclient.PolicyActionAllow,
 			Conditions: []privyclient.PolicyConditionUnionParam{{
 				OfEthereumTransaction: &privyclient.PolicyConditionEthereumTransactionParam{
@@ -43,14 +43,15 @@ func TestPolicyNewWithOptionalParams(t *testing.T) {
 			}},
 			Method: privyclient.PolicyMethodEthSendTransaction,
 			Name:   "x",
+			ID:     privyclient.String("id"),
 		}},
 		Version: privyclient.PolicyNewParamsVersion1_0,
-		Owner: privyclient.PolicyNewParamsOwnerUnion{
-			OfPublicKeyOwner: &privyclient.PolicyNewParamsOwnerPublicKeyOwner{
-				PublicKey: "public_key",
+		Owner: privyclient.OwnerInputUnionParam{
+			OfOwnerInputUser: &privyclient.OwnerInputUserParam{
+				UserID: "user_id",
 			},
 		},
-		OwnerID:             privyclient.String("owner_id"),
+		OwnerID:             privyclient.String("string"),
 		PrivyIdempotencyKey: privyclient.String("privy-idempotency-key"),
 	})
 	if err != nil {
@@ -81,12 +82,12 @@ func TestPolicyUpdateWithOptionalParams(t *testing.T) {
 		"xxxxxxxxxxxxxxxxxxxxxxxx",
 		privyclient.PolicyUpdateParams{
 			Name: privyclient.String("x"),
-			Owner: privyclient.PolicyUpdateParamsOwnerUnion{
-				OfPublicKeyOwner: &privyclient.PolicyUpdateParamsOwnerPublicKeyOwner{
-					PublicKey: "public_key",
+			Owner: privyclient.OwnerInputUnionParam{
+				OfOwnerInputUser: &privyclient.OwnerInputUserParam{
+					UserID: "user_id",
 				},
 			},
-			OwnerID: privyclient.String("owner_id"),
+			OwnerID: privyclient.String("string"),
 			Rules: []privyclient.PolicyRuleRequestBodyParam{{
 				Action: privyclient.PolicyActionAllow,
 				Conditions: []privyclient.PolicyConditionUnionParam{{
