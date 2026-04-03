@@ -41,7 +41,7 @@ func TestUserNewWithOptionalParams(t *testing.T) {
 		Wallets: []privyclient.UserNewParamsWallet{{
 			ChainType: privyclient.WalletChainTypeEthereum,
 			AdditionalSigners: []privyclient.UserNewParamsWalletAdditionalSigner{{
-				SignerID:          "signer_id",
+				SignerID:          "string",
 				OverridePolicyIDs: []string{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 			}},
 			CreateSmartWallet: privyclient.Bool(true),
@@ -465,7 +465,7 @@ func TestUserPregenerateWallets(t *testing.T) {
 			Wallets: []privyclient.WalletCreationInput{{
 				ChainType: privyclient.WalletChainTypeEthereum,
 				AdditionalSigners: []privyclient.WalletCreationAdditionalSignerItem{{
-					SignerID:          "signer_id",
+					SignerID:          "string",
 					OverridePolicyIDs: []string{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 				}},
 				CreateSmartWallet: privyclient.Bool(true),

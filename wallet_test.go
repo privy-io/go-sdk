@@ -35,12 +35,12 @@ func TestWalletNewWithOptionalParams(t *testing.T) {
 		}},
 		DisplayName: privyclient.String("display_name"),
 		ExternalID:  privyclient.String("my-order-123"),
-		Owner: privyclient.WalletNewParamsOwnerUnion{
-			OfPublicKeyOwner: &privyclient.WalletNewParamsOwnerPublicKeyOwner{
-				PublicKey: "public_key",
+		Owner: privyclient.OwnerInputUnionParam{
+			OfOwnerInputUser: &privyclient.OwnerInputUserParam{
+				UserID: "user_id",
 			},
 		},
-		OwnerID:             privyclient.String("owner_id"),
+		OwnerID:             privyclient.String("string"),
 		PolicyIDs:           []string{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 		PrivyIdempotencyKey: privyclient.String("privy-idempotency-key"),
 	})
@@ -77,12 +77,12 @@ func TestWalletUpdateWithOptionalParams(t *testing.T) {
 					OverridePolicyIDs: []string{"string"},
 				}},
 				DisplayName: privyclient.String("display_name"),
-				Owner: privyclient.WalletUpdateRequestBodyOwnerUnion{
-					OfPublicKeyOwner: &privyclient.WalletUpdateRequestBodyOwnerPublicKeyOwner{
-						PublicKey: "public_key",
+				Owner: privyclient.OwnerInputUnionParam{
+					OfOwnerInputUser: &privyclient.OwnerInputUserParam{
+						UserID: "user_id",
 					},
 				},
-				OwnerID:   privyclient.String("owner_id"),
+				OwnerID:   privyclient.String("string"),
 				PolicyIDs: []string{"tb54eps4z44ed0jepousxi4n"},
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
@@ -194,8 +194,10 @@ func TestWalletSubmitImportWithOptionalParams(t *testing.T) {
 		}},
 		DisplayName: privyclient.String("display_name"),
 		ExternalID:  privyclient.String("external_id"),
-		Owner: privyclient.WalletSubmitImportParamsOwner{
-			OwnerInputUnionParam: privyclient.OwnerInputUnionParam{},
+		Owner: privyclient.OwnerInputUnionParam{
+			OfOwnerInputUser: &privyclient.OwnerInputUserParam{
+				UserID: "user_id",
+			},
 		},
 		OwnerID:   privyclient.String("rkiz0ivz254drv1xw982v3jq"),
 		PolicyIDs: privyclient.PolicyInput{"string"},

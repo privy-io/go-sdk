@@ -904,11 +904,12 @@ type WalletIntentResponseRequestDetailsBody struct {
 	AuthorizationKeyIDs    []string              `json:"authorization_key_ids"`
 	AuthorizationThreshold float64               `json:"authorization_threshold"`
 	DisplayName            string                `json:"display_name" api:"nullable"`
-	// The owner of the resource. If you provide this, do not specify an owner_id as it
-	// will be generated automatically. When updating a wallet, you can set the owner
-	// to null to remove the owner.
-	Owner   WalletIntentResponseRequestDetailsBodyOwner `json:"owner"`
-	OwnerID string                                      `json:"owner_id" api:"nullable"`
+	// The owner of the resource, specified as a Privy user ID, a P-256 public key, or
+	// null to remove the current owner.
+	Owner OwnerInputUnion `json:"owner" api:"nullable"`
+	// The key quorum ID to set as the owner of the resource. If you provide this, do
+	// not specify an owner.
+	OwnerID OwnerIDInput `json:"owner_id" api:"nullable" format:"cuid2"`
 	// An optional list of up to one policy ID to enforce on the wallet.
 	PolicyIDs PolicyInput `json:"policy_ids" format:"cuid2"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -928,24 +929,6 @@ type WalletIntentResponseRequestDetailsBody struct {
 // Returns the unmodified JSON received from the API
 func (r WalletIntentResponseRequestDetailsBody) RawJSON() string { return r.JSON.raw }
 func (r *WalletIntentResponseRequestDetailsBody) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The owner of the resource. If you provide this, do not specify an owner_id as it
-// will be generated automatically. When updating a wallet, you can set the owner
-// to null to remove the owner.
-type WalletIntentResponseRequestDetailsBodyOwner struct {
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-	OwnerInputUnion
-}
-
-// Returns the unmodified JSON received from the API
-func (r WalletIntentResponseRequestDetailsBodyOwner) RawJSON() string { return r.JSON.raw }
-func (r *WalletIntentResponseRequestDetailsBodyOwner) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -1003,12 +986,13 @@ func (r *PolicyIntentResponseRequestDetails) UnmarshalJSON(data []byte) error {
 type PolicyIntentResponseRequestDetailsBody struct {
 	// Name to assign to policy.
 	Name string `json:"name"`
-	// The owner of the resource. If you provide this, do not specify an owner_id as it
-	// will be generated automatically. When updating a wallet, you can set the owner
-	// to null to remove the owner.
-	Owner   PolicyIntentResponseRequestDetailsBodyOwnerUnion `json:"owner" api:"nullable"`
-	OwnerID string                                           `json:"owner_id" api:"nullable"`
-	Rules   []PolicyRuleRequestBody                          `json:"rules"`
+	// The owner of the resource, specified as a Privy user ID, a P-256 public key, or
+	// null to remove the current owner.
+	Owner OwnerInputUnion `json:"owner" api:"nullable"`
+	// The key quorum ID to set as the owner of the resource. If you provide this, do
+	// not specify an owner.
+	OwnerID OwnerIDInput            `json:"owner_id" api:"nullable" format:"cuid2"`
+	Rules   []PolicyRuleRequestBody `json:"rules"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Name        respjson.Field
@@ -1023,83 +1007,6 @@ type PolicyIntentResponseRequestDetailsBody struct {
 // Returns the unmodified JSON received from the API
 func (r PolicyIntentResponseRequestDetailsBody) RawJSON() string { return r.JSON.raw }
 func (r *PolicyIntentResponseRequestDetailsBody) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// PolicyIntentResponseRequestDetailsBodyOwnerUnion contains all possible
-// properties and values from
-// [PolicyIntentResponseRequestDetailsBodyOwnerPublicKeyOwner],
-// [PolicyIntentResponseRequestDetailsBodyOwnerUserOwner].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-type PolicyIntentResponseRequestDetailsBodyOwnerUnion struct {
-	// This field is from variant
-	// [PolicyIntentResponseRequestDetailsBodyOwnerPublicKeyOwner].
-	PublicKey string `json:"public_key"`
-	// This field is from variant
-	// [PolicyIntentResponseRequestDetailsBodyOwnerUserOwner].
-	UserID string `json:"user_id"`
-	JSON   struct {
-		PublicKey respjson.Field
-		UserID    respjson.Field
-		raw       string
-	} `json:"-"`
-}
-
-func (u PolicyIntentResponseRequestDetailsBodyOwnerUnion) AsPublicKeyOwner() (v PolicyIntentResponseRequestDetailsBodyOwnerPublicKeyOwner) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u PolicyIntentResponseRequestDetailsBodyOwnerUnion) AsUserOwner() (v PolicyIntentResponseRequestDetailsBodyOwnerUserOwner) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u PolicyIntentResponseRequestDetailsBodyOwnerUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *PolicyIntentResponseRequestDetailsBodyOwnerUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The P-256 public key of the owner of the resource, in base64-encoded DER format.
-// If you provide this, do not specify an owner_id as it will be generated
-// automatically.
-type PolicyIntentResponseRequestDetailsBodyOwnerPublicKeyOwner struct {
-	PublicKey string `json:"public_key" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		PublicKey   respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyIntentResponseRequestDetailsBodyOwnerPublicKeyOwner) RawJSON() string {
-	return r.JSON.raw
-}
-func (r *PolicyIntentResponseRequestDetailsBodyOwnerPublicKeyOwner) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The user ID of the owner of the resource. The user must already exist, and this
-// value must start with "did:privy:". If you provide this, do not specify an
-// owner_id as it will be generated automatically.
-type PolicyIntentResponseRequestDetailsBodyOwnerUserOwner struct {
-	UserID string `json:"user_id" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		UserID      respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyIntentResponseRequestDetailsBodyOwnerUserOwner) RawJSON() string { return r.JSON.raw }
-func (r *PolicyIntentResponseRequestDetailsBodyOwnerUserOwner) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -1439,10 +1346,10 @@ type IntentResponseUnionRequestDetailsBody struct {
 	AuthorizationKeyIDs    []string `json:"authorization_key_ids"`
 	AuthorizationThreshold float64  `json:"authorization_threshold"`
 	DisplayName            string   `json:"display_name"`
-	// This field is a union of [WalletIntentResponseRequestDetailsBodyOwner],
-	// [PolicyIntentResponseRequestDetailsBodyOwnerUnion]
-	Owner   IntentResponseUnionRequestDetailsBodyOwner `json:"owner"`
-	OwnerID string                                     `json:"owner_id"`
+	// This field is from variant [WalletIntentResponseRequestDetailsBody].
+	Owner OwnerInputUnion `json:"owner"`
+	// This field is from variant [WalletIntentResponseRequestDetailsBody].
+	OwnerID OwnerIDInput `json:"owner_id"`
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
 	PolicyIDs PolicyInput `json:"policy_ids"`
 	Name      string      `json:"name"`
@@ -1664,26 +1571,6 @@ func (r *IntentResponseUnionRequestDetailsBodyParamsTransaction) UnmarshalJSON(d
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// IntentResponseUnionRequestDetailsBodyOwner is an implicit subunion of
-// [IntentResponseUnion]. IntentResponseUnionRequestDetailsBodyOwner provides
-// convenient access to the sub-properties of the union.
-//
-// For type safety it is recommended to directly use a variant of the
-// [IntentResponseUnion].
-type IntentResponseUnionRequestDetailsBodyOwner struct {
-	PublicKey string `json:"public_key"`
-	UserID    string `json:"user_id"`
-	JSON      struct {
-		PublicKey respjson.Field
-		UserID    respjson.Field
-		raw       string
-	} `json:"-"`
-}
-
-func (r *IntentResponseUnionRequestDetailsBodyOwner) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // IntentResponseUnionCurrentResourceData is an implicit subunion of
 // [IntentResponseUnion]. IntentResponseUnionCurrentResourceData provides
 // convenient access to the sub-properties of the union.
@@ -1865,17 +1752,18 @@ func (r *IntentUpdateKeyQuorumParams) UnmarshalJSON(data []byte) error {
 }
 
 type IntentUpdatePolicyParams struct {
-	OwnerID param.Opt[string] `json:"owner_id,omitzero"`
+	// The key quorum ID to set as the owner of the resource. If you provide this, do
+	// not specify an owner.
+	OwnerID param.Opt[OwnerIDInput] `json:"owner_id,omitzero" format:"cuid2"`
 	// Name to assign to policy.
 	Name param.Opt[string] `json:"name,omitzero"`
 	// Request expiry. Value is a Unix timestamp in milliseconds representing the
 	// deadline by which the request must be processed.
 	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
-	// The owner of the resource. If you provide this, do not specify an owner_id as it
-	// will be generated automatically. When updating a wallet, you can set the owner
-	// to null to remove the owner.
-	Owner IntentUpdatePolicyParamsOwnerUnion `json:"owner,omitzero"`
-	Rules []PolicyRuleRequestBodyParam       `json:"rules,omitzero"`
+	// The owner of the resource, specified as a Privy user ID, a P-256 public key, or
+	// null to remove the current owner.
+	Owner OwnerInputUnionParam         `json:"owner,omitzero"`
+	Rules []PolicyRuleRequestBodyParam `json:"rules,omitzero"`
 	paramObj
 }
 
@@ -1884,58 +1772,6 @@ func (r IntentUpdatePolicyParams) MarshalJSON() (data []byte, err error) {
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *IntentUpdatePolicyParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type IntentUpdatePolicyParamsOwnerUnion struct {
-	OfPublicKeyOwner *IntentUpdatePolicyParamsOwnerPublicKeyOwner `json:",omitzero,inline"`
-	OfUserOwner      *IntentUpdatePolicyParamsOwnerUserOwner      `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u IntentUpdatePolicyParamsOwnerUnion) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfPublicKeyOwner, u.OfUserOwner)
-}
-func (u *IntentUpdatePolicyParamsOwnerUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
-// The P-256 public key of the owner of the resource, in base64-encoded DER format.
-// If you provide this, do not specify an owner_id as it will be generated
-// automatically.
-//
-// The property PublicKey is required.
-type IntentUpdatePolicyParamsOwnerPublicKeyOwner struct {
-	PublicKey string `json:"public_key" api:"required"`
-	paramObj
-}
-
-func (r IntentUpdatePolicyParamsOwnerPublicKeyOwner) MarshalJSON() (data []byte, err error) {
-	type shadow IntentUpdatePolicyParamsOwnerPublicKeyOwner
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *IntentUpdatePolicyParamsOwnerPublicKeyOwner) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The user ID of the owner of the resource. The user must already exist, and this
-// value must start with "did:privy:". If you provide this, do not specify an
-// owner_id as it will be generated automatically.
-//
-// The property UserID is required.
-type IntentUpdatePolicyParamsOwnerUserOwner struct {
-	UserID string `json:"user_id" api:"required"`
-	paramObj
-}
-
-func (r IntentUpdatePolicyParamsOwnerUserOwner) MarshalJSON() (data []byte, err error) {
-	type shadow IntentUpdatePolicyParamsOwnerUserOwner
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *IntentUpdatePolicyParamsOwnerUserOwner) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

@@ -195,76 +195,6 @@ func (r *WalletService) Rpc(ctx context.Context, walletID string, params WalletR
 	return res, err
 }
 
-// OwnerInputUnion contains all possible properties and values from
-// [OwnerUserIDInput], [OwnerPublicKeyInput].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-type OwnerInputUnion struct {
-	// This field is from variant [OwnerUserIDInput].
-	UserID string `json:"user_id"`
-	// This field is from variant [OwnerPublicKeyInput].
-	PublicKey P256PublicKey `json:"public_key"`
-	JSON      struct {
-		UserID    respjson.Field
-		PublicKey respjson.Field
-		raw       string
-	} `json:"-"`
-}
-
-func (u OwnerInputUnion) AsOwnerUserIDInput() (v OwnerUserIDInput) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u OwnerInputUnion) AsOwnerPublicKeyInput() (v OwnerPublicKeyInput) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u OwnerInputUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *OwnerInputUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// ToParam converts this OwnerInputUnion to a OwnerInputUnionParam.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// OwnerInputUnionParam.Overrides()
-func (r OwnerInputUnion) ToParam() OwnerInputUnionParam {
-	return param.Override[OwnerInputUnionParam](json.RawMessage(r.RawJSON()))
-}
-
-func OwnerInputParamOfOwnerUserIDInput(userID string) OwnerInputUnionParam {
-	var variant OwnerUserIDInputParam
-	variant.UserID = userID
-	return OwnerInputUnionParam{OfOwnerUserIDInput: &variant}
-}
-
-func OwnerInputParamOfOwnerPublicKeyInput(publicKey P256PublicKey) OwnerInputUnionParam {
-	var variant OwnerPublicKeyInputParam
-	variant.PublicKey = publicKey
-	return OwnerInputUnionParam{OfOwnerPublicKeyInput: &variant}
-}
-
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type OwnerInputUnionParam struct {
-	OfOwnerUserIDInput    *OwnerUserIDInputParam    `json:",omitzero,inline"`
-	OfOwnerPublicKeyInput *OwnerPublicKeyInputParam `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u OwnerInputUnionParam) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfOwnerUserIDInput, u.OfOwnerPublicKeyInput)
-}
-func (u *OwnerInputUnionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
 // The wallet chain types that support curve-based signing.
 type CurveSigningChainType string
 
@@ -299,96 +229,6 @@ const (
 	WalletChainTypeStarknet      WalletChainType = "starknet"
 	WalletChainTypeSpark         WalletChainType = "spark"
 )
-
-type KeyQuorumID = string
-
-type P256PublicKey = string
-
-// Owner input specifying a Privy user ID.
-type OwnerUserIDInput struct {
-	UserID string `json:"user_id" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		UserID      respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r OwnerUserIDInput) RawJSON() string { return r.JSON.raw }
-func (r *OwnerUserIDInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// ToParam converts this OwnerUserIDInput to a OwnerUserIDInputParam.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// OwnerUserIDInputParam.Overrides()
-func (r OwnerUserIDInput) ToParam() OwnerUserIDInputParam {
-	return param.Override[OwnerUserIDInputParam](json.RawMessage(r.RawJSON()))
-}
-
-// Owner input specifying a Privy user ID.
-//
-// The property UserID is required.
-type OwnerUserIDInputParam struct {
-	UserID string `json:"user_id" api:"required"`
-	paramObj
-}
-
-func (r OwnerUserIDInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow OwnerUserIDInputParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *OwnerUserIDInputParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Owner input specifying a P-256 public key.
-type OwnerPublicKeyInput struct {
-	// A P-256 (secp256r1) public key.
-	PublicKey P256PublicKey `json:"public_key" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		PublicKey   respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r OwnerPublicKeyInput) RawJSON() string { return r.JSON.raw }
-func (r *OwnerPublicKeyInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// ToParam converts this OwnerPublicKeyInput to a OwnerPublicKeyInputParam.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// OwnerPublicKeyInputParam.Overrides()
-func (r OwnerPublicKeyInput) ToParam() OwnerPublicKeyInputParam {
-	return param.Override[OwnerPublicKeyInputParam](json.RawMessage(r.RawJSON()))
-}
-
-// Owner input specifying a P-256 public key.
-//
-// The property PublicKey is required.
-type OwnerPublicKeyInputParam struct {
-	// A P-256 (secp256r1) public key.
-	PublicKey P256PublicKey `json:"public_key" api:"required"`
-	paramObj
-}
-
-func (r OwnerPublicKeyInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow OwnerPublicKeyInputParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *OwnerPublicKeyInputParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
 
 type PolicyInput []string
 
@@ -5360,11 +5200,12 @@ func (r *WalletAdditionalSigner) UnmarshalJSON(data []byte) error {
 type WalletUpdateRequestBody struct {
 	// A human-readable label for the wallet. Set to null to clear.
 	DisplayName param.Opt[string] `json:"display_name,omitzero"`
-	OwnerID     param.Opt[string] `json:"owner_id,omitzero"`
-	// The owner of the resource. If you provide this, do not specify an owner_id as it
-	// will be generated automatically. When updating a wallet, you can set the owner
-	// to null to remove the owner.
-	Owner WalletUpdateRequestBodyOwnerUnion `json:"owner,omitzero"`
+	// The key quorum ID to set as the owner of the resource. If you provide this, do
+	// not specify an owner.
+	OwnerID param.Opt[OwnerIDInput] `json:"owner_id,omitzero" format:"cuid2"`
+	// The owner of the resource, specified as a Privy user ID, a P-256 public key, or
+	// null to remove the current owner.
+	Owner OwnerInputUnionParam `json:"owner,omitzero"`
 	// Additional signers for the wallet.
 	AdditionalSigners []WalletUpdateRequestBodyAdditionalSigner `json:"additional_signers,omitzero"`
 	// New policy IDs to enforce on the wallet. Currently, only one policy is supported
@@ -5395,58 +5236,6 @@ func (r WalletUpdateRequestBodyAdditionalSigner) MarshalJSON() (data []byte, err
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *WalletUpdateRequestBodyAdditionalSigner) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type WalletUpdateRequestBodyOwnerUnion struct {
-	OfPublicKeyOwner *WalletUpdateRequestBodyOwnerPublicKeyOwner `json:",omitzero,inline"`
-	OfUserOwner      *WalletUpdateRequestBodyOwnerUserOwner      `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u WalletUpdateRequestBodyOwnerUnion) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfPublicKeyOwner, u.OfUserOwner)
-}
-func (u *WalletUpdateRequestBodyOwnerUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
-// The P-256 public key of the owner of the resource, in base64-encoded DER format.
-// If you provide this, do not specify an owner_id as it will be generated
-// automatically.
-//
-// The property PublicKey is required.
-type WalletUpdateRequestBodyOwnerPublicKeyOwner struct {
-	PublicKey string `json:"public_key" api:"required"`
-	paramObj
-}
-
-func (r WalletUpdateRequestBodyOwnerPublicKeyOwner) MarshalJSON() (data []byte, err error) {
-	type shadow WalletUpdateRequestBodyOwnerPublicKeyOwner
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *WalletUpdateRequestBodyOwnerPublicKeyOwner) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The user ID of the owner of the resource. The user must already exist, and this
-// value must start with "did:privy:". If you provide this, do not specify an
-// owner_id as it will be generated automatically.
-//
-// The property UserID is required.
-type WalletUpdateRequestBodyOwnerUserOwner struct {
-	UserID string `json:"user_id" api:"required"`
-	paramObj
-}
-
-func (r WalletUpdateRequestBodyOwnerUserOwner) MarshalJSON() (data []byte, err error) {
-	type shadow WalletUpdateRequestBodyOwnerUserOwner
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *WalletUpdateRequestBodyOwnerUserOwner) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -6839,22 +6628,21 @@ type WalletNewParams struct {
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
 	// "tron", "bitcoin-segwit", "near", "ton", "starknet", "spark".
 	ChainType WalletChainType `json:"chain_type,omitzero" api:"required"`
+	// The key quorum ID to set as the owner of the resource. If you provide this, do
+	// not specify an owner.
+	OwnerID param.Opt[OwnerIDInput] `json:"owner_id,omitzero" format:"cuid2"`
 	// A human-readable label for the wallet.
 	DisplayName param.Opt[string] `json:"display_name,omitzero"`
 	// A customer-provided identifier for mapping to external systems. URL-safe
 	// characters only ([a-zA-Z0-9_-]), max 64 chars. Write-once: cannot be changed
 	// after creation.
 	ExternalID param.Opt[string] `json:"external_id,omitzero"`
-	// The key quorum ID to set as the owner of the resource. If you provide this, do
-	// not specify an owner.
-	OwnerID param.Opt[string] `json:"owner_id,omitzero"`
 	// Idempotency keys ensure API requests are executed only once within a 24-hour
 	// window.
 	PrivyIdempotencyKey param.Opt[string] `header:"privy-idempotency-key,omitzero" json:"-"`
-	// The owner of the resource. If you provide this, do not specify an owner_id as it
-	// will be generated automatically. When updating a wallet, you can set the owner
-	// to null to remove the owner.
-	Owner WalletNewParamsOwnerUnion `json:"owner,omitzero"`
+	// The owner of the resource, specified as a Privy user ID, a P-256 public key, or
+	// null to remove the current owner.
+	Owner OwnerInputUnionParam `json:"owner,omitzero"`
 	// Additional signers for the wallet.
 	AdditionalSigners []WalletNewParamsAdditionalSigner `json:"additional_signers,omitzero"`
 	// List of policy IDs for policies that should be enforced on the wallet.
@@ -6885,58 +6673,6 @@ func (r WalletNewParamsAdditionalSigner) MarshalJSON() (data []byte, err error) 
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *WalletNewParamsAdditionalSigner) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type WalletNewParamsOwnerUnion struct {
-	OfPublicKeyOwner *WalletNewParamsOwnerPublicKeyOwner `json:",omitzero,inline"`
-	OfUserOwner      *WalletNewParamsOwnerUserOwner      `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u WalletNewParamsOwnerUnion) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfPublicKeyOwner, u.OfUserOwner)
-}
-func (u *WalletNewParamsOwnerUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
-// The P-256 public key of the owner of the resource, in base64-encoded DER format.
-// If you provide this, do not specify an owner_id as it will be generated
-// automatically.
-//
-// The property PublicKey is required.
-type WalletNewParamsOwnerPublicKeyOwner struct {
-	PublicKey string `json:"public_key" api:"required"`
-	paramObj
-}
-
-func (r WalletNewParamsOwnerPublicKeyOwner) MarshalJSON() (data []byte, err error) {
-	type shadow WalletNewParamsOwnerPublicKeyOwner
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *WalletNewParamsOwnerPublicKeyOwner) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The user ID of the owner of the resource. The user must already exist, and this
-// value must start with "did:privy:". If you provide this, do not specify an
-// owner_id as it will be generated automatically.
-//
-// The property UserID is required.
-type WalletNewParamsOwnerUserOwner struct {
-	UserID string `json:"user_id" api:"required"`
-	paramObj
-}
-
-func (r WalletNewParamsOwnerUserOwner) MarshalJSON() (data []byte, err error) {
-	type shadow WalletNewParamsOwnerUserOwner
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *WalletNewParamsOwnerUserOwner) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -7071,16 +6807,17 @@ func (r *WalletInitImportParamsBodyPrivateKey) UnmarshalJSON(data []byte) error 
 }
 
 type WalletSubmitImportParams struct {
-	Wallet      WalletSubmitImportParamsWalletUnion `json:"wallet,omitzero" api:"required"`
-	OwnerID     param.Opt[string]                   `json:"owner_id,omitzero"`
-	DisplayName param.Opt[string]                   `json:"display_name,omitzero"`
-	ExternalID  param.Opt[string]                   `json:"external_id,omitzero"`
+	Wallet WalletSubmitImportParamsWalletUnion `json:"wallet,omitzero" api:"required"`
+	// The key quorum ID to set as the owner of the resource. If you provide this, do
+	// not specify an owner.
+	OwnerID     param.Opt[OwnerIDInput] `json:"owner_id,omitzero" format:"cuid2"`
+	DisplayName param.Opt[string]       `json:"display_name,omitzero"`
+	ExternalID  param.Opt[string]       `json:"external_id,omitzero"`
+	// The owner of the resource, specified as a Privy user ID, a P-256 public key, or
+	// null to remove the current owner.
+	Owner OwnerInputUnionParam `json:"owner,omitzero"`
 	// Additional signers for the wallet.
 	AdditionalSigners AdditionalSignerInputParam `json:"additional_signers,omitzero"`
-	// The owner of the resource. If you provide this, do not specify an owner_id as it
-	// will be generated automatically. When updating a wallet, you can set the owner
-	// to null to remove the owner.
-	Owner WalletSubmitImportParamsOwner `json:"owner,omitzero"`
 	// An optional list of up to one policy ID to enforce on the wallet.
 	PolicyIDs PolicyInput `json:"policy_ids,omitzero" format:"cuid2"`
 	paramObj
@@ -7192,21 +6929,6 @@ func (r WalletSubmitImportParamsWalletPrivateKey) MarshalJSON() (data []byte, er
 }
 func (r *WalletSubmitImportParamsWalletPrivateKey) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
-}
-
-// The owner of the resource. If you provide this, do not specify an owner_id as it
-// will be generated automatically. When updating a wallet, you can set the owner
-// to null to remove the owner.
-type WalletSubmitImportParamsOwner struct {
-	OwnerInputUnionParam
-}
-
-func (r WalletSubmitImportParamsOwner) MarshalJSON() (data []byte, err error) {
-	type shadow struct {
-		*WalletSubmitImportParamsOwner
-		MarshalJSON bool `json:"-"` // Prevent inheriting [json.Marshaler] from the embedded field
-	}
-	return param.MarshalObject(r, shadow{&r, false})
 }
 
 type WalletAuthenticateWithJwtParams struct {
