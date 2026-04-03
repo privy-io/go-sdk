@@ -84,3 +84,25 @@ jobs:
 
       - name: Run tests
         run: go test ./e2e/... -v
+
+  notify-failure:
+    name: Notify Slack on failure
+    runs-on: ubuntu-latest
+    needs: [build, lint, test]
+    if: ${{ failure() && (github.ref_name == 'next' || github.ref_name == 'main') && github.event_name == 'push' }}
+    steps:
+      - name: Notify server-sdk-errors on Slack
+        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_SERVER_SDK_ERRORS }}
+          webhook-type: incoming-webhook
+          payload: |
+            blocks:
+              - type: "header"
+                text:
+                  type: "plain_text"
+                  text: "Go SDK CI failure"
+              - type: "section"
+                text:
+                  type: "mrkdwn"
+                  text: "Workflow failed on `${{ github.ref_name }}`.\n- `build` job ${{ needs.build.result == 'success' && 'passed' || 'failed' }}\n- `lint` job ${{ needs.lint.result == 'success' && 'passed' || 'failed' }}\n- `test` job ${{ needs.test.result == 'success' && 'passed' || 'failed' }}\n\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View workflow run>"
