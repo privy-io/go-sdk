@@ -119,7 +119,7 @@ func (r *CursorAutoPager[T]) Index() int {
 	return r.run
 }
 
-func (r *PageNumberAutoPager[T]) All() iter.Seq[T] {
+func (r *CursorAutoPager[T]) All() iter.Seq[T] {
 	return func(yield func(T) bool) {
 		for r.Next() {
 			if !yield(r.Current()) {
