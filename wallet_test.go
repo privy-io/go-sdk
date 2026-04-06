@@ -29,9 +29,9 @@ func TestWalletNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Wallets.New(context.TODO(), privyclient.WalletNewParams{
 		ChainType: privyclient.WalletChainTypeEthereum,
-		AdditionalSigners: []privyclient.WalletNewParamsAdditionalSigner{{
-			SignerID:          "signer_id",
-			OverridePolicyIDs: []string{"string"},
+		AdditionalSigners: privyclient.AdditionalSignerInputParam{privyclient.AdditionalSignerItemInputParam{
+			SignerID:          "string",
+			OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 		}},
 		DisplayName: privyclient.String("display_name"),
 		ExternalID:  privyclient.String("my-order-123"),
@@ -41,7 +41,7 @@ func TestWalletNewWithOptionalParams(t *testing.T) {
 			},
 		},
 		OwnerID:             privyclient.String("string"),
-		PolicyIDs:           []string{"xxxxxxxxxxxxxxxxxxxxxxxx"},
+		PolicyIDs:           privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 		PrivyIdempotencyKey: privyclient.String("privy-idempotency-key"),
 	})
 	if err != nil {
@@ -72,9 +72,9 @@ func TestWalletUpdateWithOptionalParams(t *testing.T) {
 		"wallet_id",
 		privyclient.WalletUpdateParams{
 			WalletUpdateRequestBody: privyclient.WalletUpdateRequestBody{
-				AdditionalSigners: []privyclient.WalletUpdateRequestBodyAdditionalSigner{{
-					SignerID:          "signer_id",
-					OverridePolicyIDs: []string{"string"},
+				AdditionalSigners: privyclient.AdditionalSignerInputParam{privyclient.AdditionalSignerItemInputParam{
+					SignerID:          "string",
+					OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 				}},
 				DisplayName: privyclient.String("display_name"),
 				Owner: privyclient.OwnerInputUnionParam{
@@ -190,7 +190,7 @@ func TestWalletSubmitImportWithOptionalParams(t *testing.T) {
 		},
 		AdditionalSigners: privyclient.AdditionalSignerInputParam{privyclient.AdditionalSignerItemInputParam{
 			SignerID:          "string",
-			OverridePolicyIDs: privyclient.PolicyInput{"string"},
+			OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 		}},
 		DisplayName: privyclient.String("display_name"),
 		ExternalID:  privyclient.String("external_id"),
@@ -200,7 +200,7 @@ func TestWalletSubmitImportWithOptionalParams(t *testing.T) {
 			},
 		},
 		OwnerID:   privyclient.String("rkiz0ivz254drv1xw982v3jq"),
-		PolicyIDs: privyclient.PolicyInput{"string"},
+		PolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 	})
 	if err != nil {
 		var apierr *privyclient.Error
