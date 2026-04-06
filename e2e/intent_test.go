@@ -23,8 +23,8 @@ func TestIntents_UpdateWallet(t *testing.T) {
 
 	intent, err := client.Intents.UpdateWallet(ctx, keyOwnedWallet.id, IntentUpdateWalletParams{
 		WalletUpdateRequestBody: WalletUpdateRequestBody{
-			Owner: WalletUpdateRequestBodyOwnerUnion{
-				OfPublicKeyOwner: &WalletUpdateRequestBodyOwnerPublicKeyOwner{
+			Owner: OwnerInputUnionParam{
+				OfOwnerInputPublicKey: &OwnerInputPublicKeyParam{
 					PublicKey: newPair.PublicKey,
 				},
 			},
@@ -101,8 +101,8 @@ func TestIntents_UpdatePolicy(t *testing.T) {
 		ChainType: WalletChainTypeEthereum,
 		Version:   PolicyNewParamsVersion1_0,
 		Rules:     []PolicyNewParamsRule{},
-		Owner: PolicyNewParamsOwnerUnion{
-			OfPublicKeyOwner: &PolicyNewParamsOwnerPublicKeyOwner{
+		Owner: OwnerInputUnionParam{
+			OfOwnerInputPublicKey: &OwnerInputPublicKeyParam{
 				PublicKey: pair.PublicKey,
 			},
 		},
@@ -156,8 +156,8 @@ func TestIntents_PolicyRules(t *testing.T) {
 		ChainType: WalletChainTypeEthereum,
 		Version:   PolicyNewParamsVersion1_0,
 		Rules:     []PolicyNewParamsRule{},
-		Owner: PolicyNewParamsOwnerUnion{
-			OfPublicKeyOwner: &PolicyNewParamsOwnerPublicKeyOwner{
+		Owner: OwnerInputUnionParam{
+			OfOwnerInputPublicKey: &OwnerInputPublicKeyParam{
 				PublicKey: pair.PublicKey,
 			},
 		},
