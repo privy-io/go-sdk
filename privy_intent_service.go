@@ -1,7 +1,7 @@
 package privyclient
 
 // PrivyIntentService wraps the generated IntentService.
-// Intents represent pending operations that require multi-party authorization
+// Intents represent pending operations that require dashboard signing
 // before they can be executed.
 type PrivyIntentService struct {
 	IntentService
