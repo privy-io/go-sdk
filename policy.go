@@ -89,7 +89,7 @@ func (r *PolicyService) Delete(ctx context.Context, policyID string, body Policy
 }
 
 // Create a new rule for a policy.
-func (r *PolicyService) NewRule(ctx context.Context, policyID string, params PolicyNewRuleParams, opts ...option.RequestOption) (res *PolicyRuleRequestBody, err error) {
+func (r *PolicyService) NewRule(ctx context.Context, policyID string, params PolicyNewRuleParams, opts ...option.RequestOption) (res *PolicyRuleResponse, err error) {
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
 		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
 	}
@@ -141,7 +141,7 @@ func (r *PolicyService) Get(ctx context.Context, policyID string, opts ...option
 }
 
 // Get a rule by policy ID and rule ID.
-func (r *PolicyService) GetRule(ctx context.Context, ruleID string, query PolicyGetRuleParams, opts ...option.RequestOption) (res *PolicyRuleRequestBody, err error) {
+func (r *PolicyService) GetRule(ctx context.Context, ruleID string, query PolicyGetRuleParams, opts ...option.RequestOption) (res *PolicyRuleResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if query.PolicyID == "" {
 		err = errors.New("missing required policy_id parameter")
@@ -157,7 +157,7 @@ func (r *PolicyService) GetRule(ctx context.Context, ruleID string, query Policy
 }
 
 // Update a rule by policy ID and rule ID.
-func (r *PolicyService) UpdateRule(ctx context.Context, ruleID string, params PolicyUpdateRuleParams, opts ...option.RequestOption) (res *PolicyRuleRequestBody, err error) {
+func (r *PolicyService) UpdateRule(ctx context.Context, ruleID string, params PolicyUpdateRuleParams, opts ...option.RequestOption) (res *PolicyRuleResponse, err error) {
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
 		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
 	}
@@ -2448,6 +2448,7 @@ const (
 	PolicyMethodEthSignUserOperation     PolicyMethod = "eth_signUserOperation"
 	PolicyMethodEthSignTypedDataV4       PolicyMethod = "eth_signTypedData_v4"
 	PolicyMethodEthSign7702Authorization PolicyMethod = "eth_sign7702Authorization"
+	PolicyMethodWalletSendCalls          PolicyMethod = "wallet_sendCalls"
 	PolicyMethodSignTransaction          PolicyMethod = "signTransaction"
 	PolicyMethodSignAndSendTransaction   PolicyMethod = "signAndSendTransaction"
 	PolicyMethodExportPrivateKey         PolicyMethod = "exportPrivateKey"
@@ -2466,9 +2467,9 @@ type PolicyRuleRequestBody struct {
 	// Method the rule applies to.
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
-	// "eth_signTypedData_v4", "eth_sign7702Authorization", "signTransaction",
-	// "signAndSendTransaction", "exportPrivateKey", "exportSeedPhrase",
-	// "signTransactionBytes", "\*".
+	// "eth_signTypedData_v4", "eth_sign7702Authorization", "wallet_sendCalls",
+	// "signTransaction", "signAndSendTransaction", "exportPrivateKey",
+	// "exportSeedPhrase", "signTransactionBytes", "\*".
 	Method PolicyMethod `json:"method" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -2509,9 +2510,9 @@ type PolicyRuleRequestBodyParam struct {
 	// Method the rule applies to.
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
-	// "eth_signTypedData_v4", "eth_sign7702Authorization", "signTransaction",
-	// "signAndSendTransaction", "exportPrivateKey", "exportSeedPhrase",
-	// "signTransactionBytes", "\*".
+	// "eth_signTypedData_v4", "eth_sign7702Authorization", "wallet_sendCalls",
+	// "signTransaction", "signAndSendTransaction", "exportPrivateKey",
+	// "exportSeedPhrase", "signTransactionBytes", "\*".
 	Method PolicyMethod `json:"method,omitzero" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	paramObj
@@ -2522,6 +2523,41 @@ func (r PolicyRuleRequestBodyParam) MarshalJSON() (data []byte, err error) {
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *PolicyRuleRequestBodyParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A rule that defines the conditions and action to take if the conditions are
+// true.
+type PolicyRuleResponse struct {
+	ID string `json:"id" api:"required"`
+	// The action to take when a policy rule matches.
+	//
+	// Any of "ALLOW", "DENY".
+	Action     PolicyAction           `json:"action" api:"required"`
+	Conditions []PolicyConditionUnion `json:"conditions" api:"required"`
+	// Method the rule applies to.
+	//
+	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
+	// "eth_signTypedData_v4", "eth_sign7702Authorization", "wallet_sendCalls",
+	// "signTransaction", "signAndSendTransaction", "exportPrivateKey",
+	// "exportSeedPhrase", "signTransactionBytes", "\*".
+	Method PolicyMethod `json:"method" api:"required"`
+	Name   string       `json:"name" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID          respjson.Field
+		Action      respjson.Field
+		Conditions  respjson.Field
+		Method      respjson.Field
+		Name        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PolicyRuleResponse) RawJSON() string { return r.JSON.raw }
+func (r *PolicyRuleResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2540,8 +2576,8 @@ type Policy struct {
 	// Name to assign to policy.
 	Name string `json:"name" api:"required"`
 	// The key quorum ID of the owner of the policy.
-	OwnerID string                  `json:"owner_id" api:"required"`
-	Rules   []PolicyRuleRequestBody `json:"rules" api:"required"`
+	OwnerID string               `json:"owner_id" api:"required"`
+	Rules   []PolicyRuleResponse `json:"rules" api:"required"`
 	// Version of the policy. Currently, 1.0 is the only version.
 	//
 	// Any of "1.0".
@@ -2616,9 +2652,9 @@ type PolicyNewParamsRule struct {
 	// Method the rule applies to.
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
-	// "eth_signTypedData_v4", "eth_sign7702Authorization", "signTransaction",
-	// "signAndSendTransaction", "exportPrivateKey", "exportSeedPhrase",
-	// "signTransactionBytes", "\*".
+	// "eth_signTypedData_v4", "eth_sign7702Authorization", "wallet_sendCalls",
+	// "signTransaction", "signAndSendTransaction", "exportPrivateKey",
+	// "exportSeedPhrase", "signTransactionBytes", "\*".
 	Method PolicyMethod      `json:"method,omitzero" api:"required"`
 	Name   string            `json:"name" api:"required"`
 	ID     param.Opt[string] `json:"id,omitzero"`
