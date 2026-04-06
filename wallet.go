@@ -286,6 +286,29 @@ type AdditionalSignerInput []AdditionalSignerItemInput
 
 type AdditionalSignerInputParam []AdditionalSignerItemInputParam
 
+// A single additional signer on a wallet, with an optional policy override.
+type WalletAdditionalSignerItem struct {
+	// A unique identifier for a key quorum.
+	SignerID KeyQuorumID `json:"signer_id" api:"required" format:"cuid2"`
+	// An optional list of up to one policy ID to enforce on the wallet.
+	OverridePolicyIDs PolicyInput `json:"override_policy_ids" format:"cuid2"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		SignerID          respjson.Field
+		OverridePolicyIDs respjson.Field
+		ExtraFields       map[string]respjson.Field
+		raw               string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletAdditionalSignerItem) RawJSON() string { return r.JSON.raw }
+func (r *WalletAdditionalSignerItem) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type WalletAdditionalSigner []WalletAdditionalSignerItem
+
 // Information about the custodian managing this wallet.
 type WalletCustodian struct {
 	// The custodian responsible for the wallet.
@@ -5117,7 +5140,7 @@ type Wallet struct {
 	// wallet in the future.
 	ID string `json:"id" api:"required"`
 	// Additional signers for the wallet.
-	AdditionalSigners []WalletAdditionalSigner `json:"additional_signers" api:"required"`
+	AdditionalSigners WalletAdditionalSigner `json:"additional_signers" api:"required"`
 	// Address of the wallet.
 	Address string `json:"address" api:"required"`
 	// The wallet chain types.
@@ -5176,26 +5199,6 @@ func (r *Wallet) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type WalletAdditionalSigner struct {
-	SignerID string `json:"signer_id" api:"required" format:"cuid2"`
-	// The array of policy IDs that will be applied to wallet requests. If specified,
-	// this will override the base policy IDs set on the wallet.
-	OverridePolicyIDs []string `json:"override_policy_ids" format:"cuid2"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		SignerID          respjson.Field
-		OverridePolicyIDs respjson.Field
-		ExtraFields       map[string]respjson.Field
-		raw               string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r WalletAdditionalSigner) RawJSON() string { return r.JSON.raw }
-func (r *WalletAdditionalSigner) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // Request body for updating a wallet.
 type WalletUpdateRequestBody struct {
 	// A human-readable label for the wallet. Set to null to clear.
@@ -5207,7 +5210,7 @@ type WalletUpdateRequestBody struct {
 	// null to remove the current owner.
 	Owner OwnerInputUnionParam `json:"owner,omitzero"`
 	// Additional signers for the wallet.
-	AdditionalSigners []WalletUpdateRequestBodyAdditionalSigner `json:"additional_signers,omitzero"`
+	AdditionalSigners AdditionalSignerInputParam `json:"additional_signers,omitzero"`
 	// New policy IDs to enforce on the wallet. Currently, only one policy is supported
 	// per wallet.
 	PolicyIDs []string `json:"policy_ids,omitzero"`
@@ -5219,23 +5222,6 @@ func (r WalletUpdateRequestBody) MarshalJSON() (data []byte, err error) {
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *WalletUpdateRequestBody) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The property SignerID is required.
-type WalletUpdateRequestBodyAdditionalSigner struct {
-	SignerID string `json:"signer_id" api:"required" format:"cuid2"`
-	// The array of policy IDs that will be applied to wallet requests. If specified,
-	// this will override the base policy IDs set on the wallet.
-	OverridePolicyIDs []string `json:"override_policy_ids,omitzero" format:"cuid2"`
-	paramObj
-}
-
-func (r WalletUpdateRequestBodyAdditionalSigner) MarshalJSON() (data []byte, err error) {
-	type shadow WalletUpdateRequestBodyAdditionalSigner
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *WalletUpdateRequestBodyAdditionalSigner) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -6644,10 +6630,9 @@ type WalletNewParams struct {
 	// null to remove the current owner.
 	Owner OwnerInputUnionParam `json:"owner,omitzero"`
 	// Additional signers for the wallet.
-	AdditionalSigners []WalletNewParamsAdditionalSigner `json:"additional_signers,omitzero"`
-	// List of policy IDs for policies that should be enforced on the wallet.
-	// Currently, only one policy is supported per wallet.
-	PolicyIDs []string `json:"policy_ids,omitzero"`
+	AdditionalSigners AdditionalSignerInputParam `json:"additional_signers,omitzero"`
+	// An optional list of up to one policy ID to enforce on the wallet.
+	PolicyIDs PolicyInput `json:"policy_ids,omitzero" format:"cuid2"`
 	paramObj
 }
 
@@ -6656,23 +6641,6 @@ func (r WalletNewParams) MarshalJSON() (data []byte, err error) {
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *WalletNewParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The property SignerID is required.
-type WalletNewParamsAdditionalSigner struct {
-	SignerID string `json:"signer_id" api:"required" format:"cuid2"`
-	// The array of policy IDs that will be applied to wallet requests. If specified,
-	// this will override the base policy IDs set on the wallet.
-	OverridePolicyIDs []string `json:"override_policy_ids,omitzero" format:"cuid2"`
-	paramObj
-}
-
-func (r WalletNewParamsAdditionalSigner) MarshalJSON() (data []byte, err error) {
-	type shadow WalletNewParamsAdditionalSigner
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *WalletNewParamsAdditionalSigner) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -6810,9 +6778,13 @@ type WalletSubmitImportParams struct {
 	Wallet WalletSubmitImportParamsWalletUnion `json:"wallet,omitzero" api:"required"`
 	// The key quorum ID to set as the owner of the resource. If you provide this, do
 	// not specify an owner.
-	OwnerID     param.Opt[OwnerIDInput] `json:"owner_id,omitzero" format:"cuid2"`
-	DisplayName param.Opt[string]       `json:"display_name,omitzero"`
-	ExternalID  param.Opt[string]       `json:"external_id,omitzero"`
+	OwnerID param.Opt[OwnerIDInput] `json:"owner_id,omitzero" format:"cuid2"`
+	// A human-readable label for the wallet.
+	DisplayName param.Opt[string] `json:"display_name,omitzero"`
+	// A customer-provided identifier for mapping to external systems. URL-safe
+	// characters only ([a-zA-Z0-9_-]), max 64 chars. Write-once: cannot be changed
+	// after creation.
+	ExternalID param.Opt[string] `json:"external_id,omitzero"`
 	// The owner of the resource, specified as a Privy user ID, a P-256 public key, or
 	// null to remove the current owner.
 	Owner OwnerInputUnionParam `json:"owner,omitzero"`

@@ -1579,7 +1579,7 @@ func (r *IntentResponseUnionRequestDetailsBodyParamsTransaction) UnmarshalJSON(d
 type IntentResponseUnionCurrentResourceData struct {
 	ID string `json:"id"`
 	// This field is from variant [Wallet].
-	AdditionalSigners []WalletAdditionalSigner `json:"additional_signers"`
+	AdditionalSigners WalletAdditionalSigner `json:"additional_signers"`
 	// This field is from variant [Wallet].
 	Address string `json:"address"`
 	// This field is from variant [Wallet].

@@ -377,9 +377,9 @@ func TestIntentUpdateWalletWithOptionalParams(t *testing.T) {
 		"wallet_id",
 		privyclient.IntentUpdateWalletParams{
 			WalletUpdateRequestBody: privyclient.WalletUpdateRequestBody{
-				AdditionalSigners: []privyclient.WalletUpdateRequestBodyAdditionalSigner{{
-					SignerID:          "signer_id",
-					OverridePolicyIDs: []string{"string"},
+				AdditionalSigners: privyclient.AdditionalSignerInputParam{privyclient.AdditionalSignerItemInputParam{
+					SignerID:          "string",
+					OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 				}},
 				DisplayName: privyclient.String("display_name"),
 				Owner: privyclient.OwnerInputUnionParam{
