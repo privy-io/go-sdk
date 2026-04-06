@@ -1075,7 +1075,7 @@ type RuleIntentResponse struct {
 	ActionResult BaseActionResult `json:"action_result"`
 	// A rule that defines the conditions and action to take if the conditions are
 	// true.
-	CurrentResourceData PolicyRuleRequestBody `json:"current_resource_data"`
+	CurrentResourceData PolicyRuleResponse `json:"current_resource_data"`
 	// A policy for controlling wallet operations.
 	Policy Policy `json:"policy"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -1162,8 +1162,7 @@ type IntentResponseUnion struct {
 	RequestDetails IntentResponseUnionRequestDetails `json:"request_details"`
 	// This field is from variant [RpcIntentResponse].
 	ActionResult BaseActionResult `json:"action_result"`
-	// This field is a union of [Wallet], [Policy], [PolicyRuleRequestBody],
-	// [KeyQuorum]
+	// This field is a union of [Wallet], [Policy], [PolicyRuleResponse], [KeyQuorum]
 	CurrentResourceData IntentResponseUnionCurrentResourceData `json:"current_resource_data"`
 	// This field is from variant [RuleIntentResponse].
 	Policy Policy `json:"policy"`
@@ -1603,14 +1602,14 @@ type IntentResponseUnionCurrentResourceData struct {
 	PublicKey string `json:"public_key"`
 	Name      string `json:"name"`
 	// This field is from variant [Policy].
-	Rules []PolicyRuleRequestBody `json:"rules"`
+	Rules []PolicyRuleResponse `json:"rules"`
 	// This field is from variant [Policy].
 	Version PolicyVersion `json:"version"`
-	// This field is from variant [PolicyRuleRequestBody].
+	// This field is from variant [PolicyRuleResponse].
 	Action PolicyAction `json:"action"`
-	// This field is from variant [PolicyRuleRequestBody].
+	// This field is from variant [PolicyRuleResponse].
 	Conditions []PolicyConditionUnion `json:"conditions"`
-	// This field is from variant [PolicyRuleRequestBody].
+	// This field is from variant [PolicyRuleResponse].
 	Method PolicyMethod `json:"method"`
 	// This field is from variant [KeyQuorum].
 	AuthorizationKeys []KeyQuorumAuthorizationKey `json:"authorization_keys"`
