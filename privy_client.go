@@ -54,6 +54,7 @@ type PrivyClient struct {
 	Policies     *PrivyPolicyService
 	Transactions *PrivyTransactionService
 	KeyQuorums   *PrivyKeyQuorumService
+	Intents      *PrivyIntentService
 	Analytics    *PrivyAnalyticsService
 	Apps         *PrivyAppService
 	Aggregations *PrivyAggregationService
@@ -139,6 +140,7 @@ func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
 		Policies:     newPrivyPolicyService(client.Policies, jwtExchange, baseURL, opts.AppID, defaultRequestExpiryMs, logger),
 		Transactions: newPrivyTransactionService(client.Transactions, logger),
 		KeyQuorums:   newPrivyKeyQuorumService(client.KeyQuorums, jwtExchange, baseURL, opts.AppID, defaultRequestExpiryMs, logger),
+		Intents:      newPrivyIntentService(client.Intents, logger),
 		Analytics:    newPrivyAnalyticsService(client.Analytics, logger),
 		Apps:         newPrivyAppService(client.Apps, logger),
 		Aggregations: newPrivyAggregationService(client.Aggregations, logger),
