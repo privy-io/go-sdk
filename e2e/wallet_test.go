@@ -34,17 +34,17 @@ func TestWallets(t *testing.T) {
 
 		owners := []struct {
 			name  string
-			value WalletNewParamsOwnerUnion
+			value OwnerInputUnionParam
 			ID    param.Opt[string]
 		}{
-			{name: "Ownerless", value: param.NullStruct[WalletNewParamsOwnerUnion]()},
-			{name: "P256Owned", value: WalletNewParamsOwnerUnion{
-				OfPublicKeyOwner: &WalletNewParamsOwnerPublicKeyOwner{PublicKey: res.p256KeyPair.PublicKey},
+			{name: "Ownerless", value: param.NullStruct[OwnerInputUnionParam]()},
+			{name: "P256Owned", value: OwnerInputUnionParam{
+				OfOwnerInputPublicKey: &OwnerInputPublicKeyParam{PublicKey: res.p256KeyPair.PublicKey},
 			}},
-			{name: "UserOwned", value: WalletNewParamsOwnerUnion{
-				OfUserOwner: &WalletNewParamsOwnerUserOwner{UserID: res.userID},
+			{name: "UserOwned", value: OwnerInputUnionParam{
+				OfOwnerInputUser: &OwnerInputUserParam{UserID: res.userID},
 			}},
-			{name: "KeyAndUserQuorumOwned", value: param.NullStruct[WalletNewParamsOwnerUnion](), ID: String(res.quorumID)},
+			{name: "KeyAndUserQuorumOwned", value: param.NullStruct[OwnerInputUnionParam](), ID: String(res.quorumID)},
 		}
 		for _, chainType := range chainTypes {
 			t.Run(chainType.name, func(t *testing.T) {
@@ -99,8 +99,8 @@ func TestWallets(t *testing.T) {
 		// Create a P256-owned wallet on demand
 		wallet, err := client.Wallets.New(ctx, WalletNewParams{
 			ChainType: WalletChainTypeEthereum,
-			Owner: WalletNewParamsOwnerUnion{
-				OfPublicKeyOwner: &WalletNewParamsOwnerPublicKeyOwner{PublicKey: res.p256KeyPair.PublicKey},
+			Owner: OwnerInputUnionParam{
+				OfOwnerInputPublicKey: &OwnerInputPublicKeyParam{PublicKey: res.p256KeyPair.PublicKey},
 			},
 		})
 		if err != nil {
@@ -117,7 +117,7 @@ func TestWallets(t *testing.T) {
 			walletID,
 			WalletUpdateParams{
 				WalletUpdateRequestBody: WalletUpdateRequestBody{
-					Owner: param.NullStruct[WalletUpdateRequestBodyOwnerUnion](),
+					Owner: param.NullStruct[OwnerInputUnionParam](),
 				},
 			},
 			WithAuthorizationContext(authCtx),
@@ -141,8 +141,8 @@ func TestWallets(t *testing.T) {
 			walletID,
 			WalletUpdateParams{
 				WalletUpdateRequestBody: WalletUpdateRequestBody{
-					Owner: WalletUpdateRequestBodyOwnerUnion{
-						OfPublicKeyOwner: &WalletUpdateRequestBodyOwnerPublicKeyOwner{PublicKey: res.p256KeyPair.PublicKey},
+					Owner: OwnerInputUnionParam{
+						OfOwnerInputPublicKey: &OwnerInputPublicKeyParam{PublicKey: res.p256KeyPair.PublicKey},
 					},
 				},
 			},

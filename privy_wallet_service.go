@@ -204,7 +204,7 @@ type WalletImportParams struct {
 	// Wallet contains the wallet details and private key to import.
 	Wallet WalletImportParamsWalletUnion
 	// Owner optionally sets the owner of the imported wallet.
-	Owner WalletSubmitImportParamsOwner
+	Owner OwnerInputUnionParam
 	// OwnerID optionally sets the owner ID (key quorum) of the imported wallet.
 	OwnerID param.Opt[string]
 	// AdditionalSigners optionally sets additional signers for the imported wallet.
