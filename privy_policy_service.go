@@ -146,7 +146,7 @@ func (s *PrivyPolicyService) NewRule(
 	policyID string,
 	params PolicyNewRuleParams,
 	opts ...RequestOption,
-) (*PolicyNewRuleResponse, error) {
+) (*PolicyRuleResponse, error) {
 	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
@@ -236,7 +236,7 @@ func (s *PrivyPolicyService) UpdateRule(
 	ruleID string,
 	params PolicyUpdateRuleParams,
 	opts ...RequestOption,
-) (*PolicyUpdateRuleResponse, error) {
+) (*PolicyRuleResponse, error) {
 	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry

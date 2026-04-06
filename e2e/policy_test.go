@@ -45,7 +45,7 @@ func createPolicy(t *testing.T, ctx context.Context, client *PrivyClient, params
 	return policy
 }
 
-func createRule(t *testing.T, ctx context.Context, client *PrivyClient, policyID string, params PolicyNewRuleParams, auth authorization.AuthorizationContext) *PolicyNewRuleResponse {
+func createRule(t *testing.T, ctx context.Context, client *PrivyClient, policyID string, params PolicyNewRuleParams, auth authorization.AuthorizationContext) *PolicyRuleResponse {
 	t.Helper()
 	rule, err := client.Policies.NewRule(ctx, policyID, params, WithAuthorizationContext(&auth))
 	if err != nil {
@@ -58,8 +58,8 @@ func createRule(t *testing.T, ctx context.Context, client *PrivyClient, policyID
 		t.Error("expected rule ID to be defined")
 	}
 
-	if rule.Name != params.Name {
-		t.Errorf("expected name to be %s, got %s", params.Name, rule.Name)
+	if rule.Name != params.PolicyRuleRequestBody.Name {
+		t.Errorf("expected name to be %s, got %s", params.PolicyRuleRequestBody.Name, rule.Name)
 	}
 
 	t.Cleanup(func() {
@@ -98,8 +98,8 @@ func TestPolicies(t *testing.T) {
 		ChainType: WalletChainTypeEthereum,
 		Version:   PolicyNewParamsVersion1_0,
 		Rules:     []PolicyNewParamsRule{},
-		Owner: PolicyNewParamsOwnerUnion{
-			OfPublicKeyOwner: &PolicyNewParamsOwnerPublicKeyOwner{
+		Owner: OwnerInputUnionParam{
+			OfOwnerInputPublicKey: &OwnerInputPublicKeyParam{
 				PublicKey: pair.PublicKey,
 			},
 		},
@@ -165,18 +165,20 @@ func TestPolicyRules(t *testing.T) {
 		ChainType: WalletChainTypeEthereum,
 		Version:   PolicyNewParamsVersion1_0,
 		Rules:     []PolicyNewParamsRule{},
-		Owner: PolicyNewParamsOwnerUnion{
-			OfPublicKeyOwner: &PolicyNewParamsOwnerPublicKeyOwner{
+		Owner: OwnerInputUnionParam{
+			OfOwnerInputPublicKey: &OwnerInputPublicKeyParam{
 				PublicKey: pair.PublicKey,
 			},
 		},
 	}, authCtx)
 
 	rule := createRule(t, ctx, client, policy.ID, PolicyNewRuleParams{
-		Name:       "go-sdk-test-rule",
-		Action:     PolicyNewRuleParamsActionAllow,
-		Method:     PolicyNewRuleParamsMethodStar,
-		Conditions: []PolicyNewRuleParamsConditionUnion{},
+		PolicyRuleRequestBody: PolicyRuleRequestBodyParam{
+			Name:       "go-sdk-test-rule",
+			Action:     PolicyActionAllow,
+			Method:     PolicyMethodStar,
+			Conditions: []PolicyConditionUnionParam{},
+		},
 	}, authCtx)
 
 	t.Run("UpdateRule", func(t *testing.T) {
@@ -184,11 +186,13 @@ func TestPolicyRules(t *testing.T) {
 			ctx,
 			rule.ID,
 			PolicyUpdateRuleParams{
-				PolicyID:   policy.ID,
-				Name:       "go-sdk-test-rule-updated",
-				Action:     PolicyUpdateRuleParamsActionDeny,
-				Method:     PolicyUpdateRuleParamsMethodStar,
-				Conditions: []PolicyUpdateRuleParamsConditionUnion{},
+				PolicyID: policy.ID,
+				PolicyRuleRequestBody: PolicyRuleRequestBodyParam{
+					Name:       "go-sdk-test-rule-updated",
+					Action:     PolicyActionDeny,
+					Method:     PolicyMethodStar,
+					Conditions: []PolicyConditionUnionParam{},
+				},
 			},
 			WithAuthorizationContext(&authCtx),
 		)
