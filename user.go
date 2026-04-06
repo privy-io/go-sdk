@@ -2653,8 +2653,8 @@ func (r *UserNewParamsWallet) UnmarshalJSON(data []byte) error {
 
 // The property SignerID is required.
 type UserNewParamsWalletAdditionalSigner struct {
-	// The key quorum ID for the signer.
-	SignerID string `json:"signer_id" api:"required" format:"cuid2"`
+	// A unique identifier for a key quorum.
+	SignerID KeyQuorumID `json:"signer_id" api:"required" format:"cuid2"`
 	// The array of policy IDs that will be applied to wallet requests. If specified,
 	// this will override the base policy IDs set on the wallet. Currently, only one
 	// policy is supported per signer.

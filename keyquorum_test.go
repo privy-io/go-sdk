@@ -61,7 +61,7 @@ func TestKeyQuorumUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.KeyQuorums.Update(
 		context.TODO(),
-		"key_quorum_id",
+		"string",
 		privyclient.KeyQuorumUpdateParams{
 			KeyQuorumUpdateRequestBody: privyclient.KeyQuorumUpdateRequestBodyParam{
 				AuthorizationThreshold: privyclient.Float(1),
@@ -99,7 +99,7 @@ func TestKeyQuorumDeleteWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.KeyQuorums.Delete(
 		context.TODO(),
-		"key_quorum_id",
+		"string",
 		privyclient.KeyQuorumDeleteParams{
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
 			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
@@ -128,7 +128,7 @@ func TestKeyQuorumGet(t *testing.T) {
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.KeyQuorums.Get(context.TODO(), "key_quorum_id")
+	_, err := client.KeyQuorums.Get(context.TODO(), "string")
 	if err != nil {
 		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {

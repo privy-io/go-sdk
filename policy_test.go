@@ -31,26 +31,27 @@ func TestPolicyNewWithOptionalParams(t *testing.T) {
 		ChainType: privyclient.WalletChainTypeEthereum,
 		Name:      "x",
 		Rules: []privyclient.PolicyNewParamsRule{{
-			Action: "ALLOW",
-			Conditions: []privyclient.PolicyNewParamsRuleConditionUnion{{
-				OfEthereumTransaction: &privyclient.PolicyNewParamsRuleConditionEthereumTransaction{
+			Action: privyclient.PolicyActionAllow,
+			Conditions: []privyclient.PolicyConditionUnionParam{{
+				OfEthereumTransaction: &privyclient.PolicyConditionEthereumTransactionParam{
 					Field:    "to",
 					Operator: "eq",
-					Value: privyclient.PolicyNewParamsRuleConditionEthereumTransactionValueUnion{
+					Value: privyclient.PolicyConditionEthereumTransactionValueUnionParam{
 						OfString: privyclient.String("string"),
 					},
 				},
 			}},
-			Method: "eth_sendTransaction",
+			Method: privyclient.PolicyMethodEthSendTransaction,
 			Name:   "x",
+			ID:     privyclient.String("id"),
 		}},
 		Version: privyclient.PolicyNewParamsVersion1_0,
-		Owner: privyclient.PolicyNewParamsOwnerUnion{
-			OfPublicKeyOwner: &privyclient.PolicyNewParamsOwnerPublicKeyOwner{
-				PublicKey: "public_key",
+		Owner: privyclient.OwnerInputUnionParam{
+			OfOwnerInputUser: &privyclient.OwnerInputUserParam{
+				UserID: "user_id",
 			},
 		},
-		OwnerID:             privyclient.String("owner_id"),
+		OwnerID:             privyclient.String("string"),
 		PrivyIdempotencyKey: privyclient.String("privy-idempotency-key"),
 	})
 	if err != nil {
@@ -81,24 +82,24 @@ func TestPolicyUpdateWithOptionalParams(t *testing.T) {
 		"xxxxxxxxxxxxxxxxxxxxxxxx",
 		privyclient.PolicyUpdateParams{
 			Name: privyclient.String("x"),
-			Owner: privyclient.PolicyUpdateParamsOwnerUnion{
-				OfPublicKeyOwner: &privyclient.PolicyUpdateParamsOwnerPublicKeyOwner{
-					PublicKey: "public_key",
+			Owner: privyclient.OwnerInputUnionParam{
+				OfOwnerInputUser: &privyclient.OwnerInputUserParam{
+					UserID: "user_id",
 				},
 			},
-			OwnerID: privyclient.String("owner_id"),
-			Rules: []privyclient.PolicyUpdateParamsRule{{
-				Action: "ALLOW",
-				Conditions: []privyclient.PolicyUpdateParamsRuleConditionUnion{{
-					OfEthereumTransaction: &privyclient.PolicyUpdateParamsRuleConditionEthereumTransaction{
+			OwnerID: privyclient.String("string"),
+			Rules: []privyclient.PolicyRuleRequestBodyParam{{
+				Action: privyclient.PolicyActionAllow,
+				Conditions: []privyclient.PolicyConditionUnionParam{{
+					OfEthereumTransaction: &privyclient.PolicyConditionEthereumTransactionParam{
 						Field:    "to",
 						Operator: "eq",
-						Value: privyclient.PolicyUpdateParamsRuleConditionEthereumTransactionValueUnion{
+						Value: privyclient.PolicyConditionEthereumTransactionValueUnionParam{
 							OfString: privyclient.String("string"),
 						},
 					},
 				}},
-				Method: "eth_sendTransaction",
+				Method: privyclient.PolicyMethodEthSendTransaction,
 				Name:   "x",
 			}},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
@@ -163,18 +164,20 @@ func TestPolicyNewRuleWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"xxxxxxxxxxxxxxxxxxxxxxxx",
 		privyclient.PolicyNewRuleParams{
-			Action: privyclient.PolicyNewRuleParamsActionAllow,
-			Conditions: []privyclient.PolicyNewRuleParamsConditionUnion{{
-				OfEthereumTransaction: &privyclient.PolicyNewRuleParamsConditionEthereumTransaction{
-					Field:    "to",
-					Operator: "eq",
-					Value: privyclient.PolicyNewRuleParamsConditionEthereumTransactionValueUnion{
-						OfString: privyclient.String("string"),
+			PolicyRuleRequestBody: privyclient.PolicyRuleRequestBodyParam{
+				Action: privyclient.PolicyActionAllow,
+				Conditions: []privyclient.PolicyConditionUnionParam{{
+					OfEthereumTransaction: &privyclient.PolicyConditionEthereumTransactionParam{
+						Field:    "to",
+						Operator: "eq",
+						Value: privyclient.PolicyConditionEthereumTransactionValueUnionParam{
+							OfString: privyclient.String("string"),
+						},
 					},
-				},
-			}},
-			Method:                      privyclient.PolicyNewRuleParamsMethodEthSendTransaction,
-			Name:                        "x",
+				}},
+				Method: privyclient.PolicyMethodEthSendTransaction,
+				Name:   "x",
+			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
 			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},
@@ -293,18 +296,20 @@ func TestPolicyUpdateRuleWithOptionalParams(t *testing.T) {
 		"xxxxxxxxxxxxxxxxxxxxxxxx",
 		privyclient.PolicyUpdateRuleParams{
 			PolicyID: "xxxxxxxxxxxxxxxxxxxxxxxx",
-			Action:   privyclient.PolicyUpdateRuleParamsActionAllow,
-			Conditions: []privyclient.PolicyUpdateRuleParamsConditionUnion{{
-				OfEthereumTransaction: &privyclient.PolicyUpdateRuleParamsConditionEthereumTransaction{
-					Field:    "to",
-					Operator: "eq",
-					Value: privyclient.PolicyUpdateRuleParamsConditionEthereumTransactionValueUnion{
-						OfString: privyclient.String("string"),
+			PolicyRuleRequestBody: privyclient.PolicyRuleRequestBodyParam{
+				Action: privyclient.PolicyActionAllow,
+				Conditions: []privyclient.PolicyConditionUnionParam{{
+					OfEthereumTransaction: &privyclient.PolicyConditionEthereumTransactionParam{
+						Field:    "to",
+						Operator: "eq",
+						Value: privyclient.PolicyConditionEthereumTransactionValueUnionParam{
+							OfString: privyclient.String("string"),
+						},
 					},
-				},
-			}},
-			Method:                      privyclient.PolicyUpdateRuleParamsMethodEthSendTransaction,
-			Name:                        "x",
+				}},
+				Method: privyclient.PolicyMethodEthSendTransaction,
+				Name:   "x",
+			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
 			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},

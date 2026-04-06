@@ -48,7 +48,7 @@ func (r *KeyQuorumService) New(ctx context.Context, body KeyQuorumNewParams, opt
 }
 
 // Update a key quorum by key quorum ID.
-func (r *KeyQuorumService) Update(ctx context.Context, keyQuorumID string, params KeyQuorumUpdateParams, opts ...option.RequestOption) (res *KeyQuorum, err error) {
+func (r *KeyQuorumService) Update(ctx context.Context, keyQuorumID KeyQuorumID, params KeyQuorumUpdateParams, opts ...option.RequestOption) (res *KeyQuorum, err error) {
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
 		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
 	}
@@ -66,7 +66,7 @@ func (r *KeyQuorumService) Update(ctx context.Context, keyQuorumID string, param
 }
 
 // Delete a key quorum by key quorum ID.
-func (r *KeyQuorumService) Delete(ctx context.Context, keyQuorumID string, body KeyQuorumDeleteParams, opts ...option.RequestOption) (res *SuccessResponse, err error) {
+func (r *KeyQuorumService) Delete(ctx context.Context, keyQuorumID KeyQuorumID, body KeyQuorumDeleteParams, opts ...option.RequestOption) (res *SuccessResponse, err error) {
 	if !param.IsOmitted(body.PrivyAuthorizationSignature) {
 		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", body.PrivyAuthorizationSignature.Value)))
 	}
@@ -84,7 +84,7 @@ func (r *KeyQuorumService) Delete(ctx context.Context, keyQuorumID string, body 
 }
 
 // Get a key quorum by ID.
-func (r *KeyQuorumService) Get(ctx context.Context, keyQuorumID string, opts ...option.RequestOption) (res *KeyQuorum, err error) {
+func (r *KeyQuorumService) Get(ctx context.Context, keyQuorumID KeyQuorumID, opts ...option.RequestOption) (res *KeyQuorum, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if keyQuorumID == "" {
 		err = errors.New("missing required key_quorum_id parameter")
