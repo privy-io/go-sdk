@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.5.0 (2026-04-06)
+
+Full Changelog: [v0.4.0...v0.5.0](https://github.com/privy-io/go-sdk/compare/v0.4.0...v0.5.0)
+
+### Features
+
+* add IntentService + tests ([#74](https://github.com/privy-io/go-sdk/issues/74)) ([6c7f63d](https://github.com/privy-io/go-sdk/commit/6c7f63dd5b3a14e4a105082199a906456dfeb5b2))
+* **api:** api update ([27b9283](https://github.com/privy-io/go-sdk/commit/27b92834ad1918afbd3405a8c086299466d8b9f5))
+* **api:** api update ([cd8a8ca](https://github.com/privy-io/go-sdk/commit/cd8a8cad12c0c0ef085990f1327f8c04659fc207))
+* **api:** api update ([c35e934](https://github.com/privy-io/go-sdk/commit/c35e934959b7243867e986e4050a80848ae74fde))
+* **api:** api update ([2e2f5af](https://github.com/privy-io/go-sdk/commit/2e2f5af4ca5998cceade4ab65910251d71b4126a))
+* **api:** staging oad pull ([7fd8f82](https://github.com/privy-io/go-sdk/commit/7fd8f829cce80fc2046e60deb380060cd2361f36))
+
+
+### Bug Fixes
+
+* api breaking changes ([#75](https://github.com/privy-io/go-sdk/issues/75)) ([0456624](https://github.com/privy-io/go-sdk/commit/0456624aa05248ddbd4daa3c33d7afda7227d100))
+* fix for All() method for iteration ([3fc827e](https://github.com/privy-io/go-sdk/commit/3fc827ebf882860179947c6d71e62b37d5de6e73))
+* fixes for pagination and iteration, plus iter.Seq support ([cf980e8](https://github.com/privy-io/go-sdk/commit/cf980e8a19f5fcde1728e73cacae695ebe9997dc))
+
 ## 0.4.0 (2026-04-01)
 
 Full Changelog: [v0.3.0...v0.4.0](https://github.com/privy-io/go-sdk/compare/v0.3.0...v0.4.0)
