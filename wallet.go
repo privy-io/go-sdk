@@ -19,7 +19,6 @@ import (
 	"github.com/privy-io/go-sdk/packages/pagination"
 	"github.com/privy-io/go-sdk/packages/param"
 	"github.com/privy-io/go-sdk/packages/respjson"
-	"github.com/privy-io/go-sdk/shared/constant"
 )
 
 // WalletService contains methods and other services that help with interacting
@@ -124,7 +123,7 @@ func (r *WalletService) AuthenticateWithJwt(ctx context.Context, body WalletAuth
 }
 
 // Export a wallet's private key
-func (r *WalletService) Export(ctx context.Context, walletID string, params WalletExportParams, opts ...option.RequestOption) (res *WalletExportResponse, err error) {
+func (r *WalletService) Export(ctx context.Context, walletID string, params WalletExportParams, opts ...option.RequestOption) (res *WalletExportResponseBody, err error) {
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
 		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
 	}
@@ -6371,6 +6370,222 @@ const (
 	WalletAuthenticateRequestBodyEncryptionTypeHpke WalletAuthenticateRequestBodyEncryptionType = "HPKE"
 )
 
+// The input for private key wallets.
+//
+// The properties Address, ChainType, EncryptionType, EntropyType are required.
+type PrivateKeyInitInput struct {
+	// The address of the wallet to import.
+	Address string `json:"address" api:"required"`
+	// The chain type of the wallet to import. Currently supports `ethereum` and
+	// `solana`.
+	//
+	// Any of "ethereum", "solana".
+	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
+	// The encryption type of the wallet to import. Currently only supports `HPKE`.
+	//
+	// Any of "HPKE".
+	EncryptionType HpkeEncryption `json:"encryption_type,omitzero" api:"required"`
+	// Any of "private-key".
+	EntropyType PrivateKeyInitInputEntropyType `json:"entropy_type,omitzero" api:"required"`
+	paramObj
+}
+
+func (r PrivateKeyInitInput) MarshalJSON() (data []byte, err error) {
+	type shadow PrivateKeyInitInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *PrivateKeyInitInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type PrivateKeyInitInputEntropyType string
+
+const (
+	PrivateKeyInitInputEntropyTypePrivateKey PrivateKeyInitInputEntropyType = "private-key"
+)
+
+// The input for HD wallets.
+//
+// The properties Address, ChainType, EncryptionType, EntropyType, Index are
+// required.
+type HDInitInput struct {
+	// The address of the wallet to import.
+	Address string `json:"address" api:"required"`
+	// The chain type of the wallet to import. Currently supports `ethereum` and
+	// `solana`.
+	//
+	// Any of "ethereum", "solana".
+	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
+	// The encryption type of the wallet to import. Currently only supports `HPKE`.
+	//
+	// Any of "HPKE".
+	EncryptionType HpkeEncryption `json:"encryption_type,omitzero" api:"required"`
+	// The entropy type of the wallet to import.
+	//
+	// Any of "hd".
+	EntropyType HDInitInputEntropyType `json:"entropy_type,omitzero" api:"required"`
+	// The index of the wallet to import.
+	Index int64 `json:"index" api:"required"`
+	paramObj
+}
+
+func (r HDInitInput) MarshalJSON() (data []byte, err error) {
+	type shadow HDInitInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *HDInitInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The entropy type of the wallet to import.
+type HDInitInputEntropyType string
+
+const (
+	HDInitInputEntropyTypeHD HDInitInputEntropyType = "hd"
+)
+
+// The submission input for importing a private key wallet.
+//
+// The properties Address, ChainType, Ciphertext, EncapsulatedKey, EncryptionType,
+// EntropyType are required.
+type PrivateKeySubmitInput struct {
+	// The address of the wallet to import.
+	Address string `json:"address" api:"required"`
+	// The chain type of the wallet to import. Currently supports `ethereum` and
+	// `solana`.
+	//
+	// Any of "ethereum", "solana".
+	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
+	// The encrypted entropy of the wallet to import.
+	Ciphertext string `json:"ciphertext" api:"required"`
+	// The base64-encoded encapsulated key that was generated during encryption, for
+	// use during decryption inside the TEE.
+	EncapsulatedKey string `json:"encapsulated_key" api:"required"`
+	// The encryption type of the wallet to import. Currently only supports `HPKE`.
+	//
+	// Any of "HPKE".
+	EncryptionType HpkeEncryption `json:"encryption_type,omitzero" api:"required"`
+	// Any of "private-key".
+	EntropyType PrivateKeySubmitInputEntropyType `json:"entropy_type,omitzero" api:"required"`
+	// Optional HPKE configuration for wallet import decryption. These parameters allow
+	// importing wallets encrypted by external providers that use different HPKE
+	// configurations.
+	HpkeConfig HpkeImportConfig `json:"hpke_config,omitzero"`
+	paramObj
+}
+
+func (r PrivateKeySubmitInput) MarshalJSON() (data []byte, err error) {
+	type shadow PrivateKeySubmitInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *PrivateKeySubmitInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type PrivateKeySubmitInputEntropyType string
+
+const (
+	PrivateKeySubmitInputEntropyTypePrivateKey PrivateKeySubmitInputEntropyType = "private-key"
+)
+
+// The submission input for importing an HD wallet.
+//
+// The properties Address, ChainType, Ciphertext, EncapsulatedKey, EncryptionType,
+// EntropyType, Index are required.
+type HDSubmitInput struct {
+	// The address of the wallet to import.
+	Address string `json:"address" api:"required"`
+	// The chain type of the wallet to import. Currently supports `ethereum` and
+	// `solana`.
+	//
+	// Any of "ethereum", "solana".
+	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
+	// The encrypted entropy of the wallet to import.
+	Ciphertext string `json:"ciphertext" api:"required"`
+	// The base64-encoded encapsulated key that was generated during encryption, for
+	// use during decryption inside the TEE.
+	EncapsulatedKey string `json:"encapsulated_key" api:"required"`
+	// The encryption type of the wallet to import. Currently only supports `HPKE`.
+	//
+	// Any of "HPKE".
+	EncryptionType HpkeEncryption `json:"encryption_type,omitzero" api:"required"`
+	// The entropy type of the wallet to import.
+	//
+	// Any of "hd".
+	EntropyType HDSubmitInputEntropyType `json:"entropy_type,omitzero" api:"required"`
+	// The index of the wallet to import.
+	Index int64 `json:"index" api:"required"`
+	// Optional HPKE configuration for wallet import decryption. These parameters allow
+	// importing wallets encrypted by external providers that use different HPKE
+	// configurations.
+	HpkeConfig HpkeImportConfig `json:"hpke_config,omitzero"`
+	paramObj
+}
+
+func (r HDSubmitInput) MarshalJSON() (data []byte, err error) {
+	type shadow HDSubmitInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *HDSubmitInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The entropy type of the wallet to import.
+type HDSubmitInputEntropyType string
+
+const (
+	HDSubmitInputEntropyTypeHD HDSubmitInputEntropyType = "hd"
+)
+
+// Request body for exporting a wallet private key.
+//
+// The properties EncryptionType, RecipientPublicKey are required.
+type WalletExportRequestBody struct {
+	// The encryption type of the wallet to import. Currently only supports `HPKE`.
+	//
+	// Any of "HPKE".
+	EncryptionType HpkeEncryption `json:"encryption_type,omitzero" api:"required"`
+	// The base64-encoded encryption public key to encrypt the wallet private key with.
+	RecipientPublicKey string          `json:"recipient_public_key" api:"required"`
+	ExportSeedPhrase   param.Opt[bool] `json:"export_seed_phrase,omitzero"`
+	paramObj
+}
+
+func (r WalletExportRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow WalletExportRequestBody
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *WalletExportRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response body containing the encrypted wallet private key.
+type WalletExportResponseBody struct {
+	// The encrypted private key.
+	Ciphertext string `json:"ciphertext" api:"required"`
+	// The base64-encoded encapsulated key that was generated during encryption, for
+	// use during decryption.
+	EncapsulatedKey string `json:"encapsulated_key" api:"required"`
+	// The encryption type of the wallet to import. Currently only supports `HPKE`.
+	//
+	// Any of "HPKE".
+	EncryptionType HpkeEncryption `json:"encryption_type" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Ciphertext      respjson.Field
+		EncapsulatedKey respjson.Field
+		EncryptionType  respjson.Field
+		ExtraFields     map[string]respjson.Field
+		raw             string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletExportResponseBody) RawJSON() string { return r.JSON.raw }
+func (r *WalletExportResponseBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // The source asset, amount, and chain for a token transfer.
 type TokenTransferSource struct {
 	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
@@ -6419,7 +6634,7 @@ func (r *TokenTransferDestination) UnmarshalJSON(data []byte) error {
 }
 
 // Request body for initiating a sponsored token transfer from an embedded wallet.
-type CreateTokenTransferRequest struct {
+type TransferRequestBody struct {
 	// The destination address for a token transfer.
 	Destination TokenTransferDestination `json:"destination" api:"required"`
 	// The source asset, amount, and chain for a token transfer.
@@ -6434,8 +6649,8 @@ type CreateTokenTransferRequest struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r CreateTokenTransferRequest) RawJSON() string { return r.JSON.raw }
-func (r *CreateTokenTransferRequest) UnmarshalJSON(data []byte) error {
+func (r TransferRequestBody) RawJSON() string { return r.JSON.raw }
+func (r *TransferRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -6582,32 +6797,6 @@ func (r *WalletAuthenticateWithJwtResponseWithoutEncryption) UnmarshalJSON(data 
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type WalletExportResponse struct {
-	// The encrypted private key.
-	Ciphertext string `json:"ciphertext" api:"required"`
-	// The base64-encoded encapsulated key that was generated during encryption, for
-	// use during decryption.
-	EncapsulatedKey string `json:"encapsulated_key" api:"required"`
-	// The encryption type of the wallet to import. Currently only supports `HPKE`.
-	//
-	// Any of "HPKE".
-	EncryptionType HpkeEncryption `json:"encryption_type" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Ciphertext      respjson.Field
-		EncapsulatedKey respjson.Field
-		EncryptionType  respjson.Field
-		ExtraFields     map[string]respjson.Field
-		raw             string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r WalletExportResponse) RawJSON() string { return r.JSON.raw }
-func (r *WalletExportResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 type WalletNewParams struct {
 	// The wallet chain types.
 	//
@@ -6698,10 +6887,10 @@ type WalletInitImportParams struct {
 
 	// This field is a request body variant, only one variant field can be set. The
 	// input for HD wallets.
-	OfHD *WalletInitImportParamsBodyHD `json:",inline"`
+	OfHD *HDInitInput `json:",inline"`
 	// This field is a request body variant, only one variant field can be set. The
 	// input for private key wallets.
-	OfPrivateKey *WalletInitImportParamsBodyPrivateKey `json:",inline"`
+	OfPrivateKey *PrivateKeyInitInput `json:",inline"`
 
 	paramObj
 }
@@ -6713,68 +6902,8 @@ func (r *WalletInitImportParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// The input for HD wallets.
-//
-// The properties Address, ChainType, EncryptionType, EntropyType, Index are
-// required.
-type WalletInitImportParamsBodyHD struct {
-	// The address of the wallet to import.
-	Address string `json:"address" api:"required"`
-	// The chain type of the wallet to import. Currently supports `ethereum` and
-	// `solana`.
-	//
-	// Any of "ethereum", "solana".
-	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
-	// The encryption type of the wallet to import. Currently only supports `HPKE`.
-	//
-	// Any of "HPKE".
-	EncryptionType HpkeEncryption `json:"encryption_type,omitzero" api:"required"`
-	// The index of the wallet to import.
-	Index int64 `json:"index" api:"required"`
-	// The entropy type of the wallet to import.
-	//
-	// This field can be elided, and will marshal its zero value as "hd".
-	EntropyType constant.HD `json:"entropy_type" default:"hd"`
-	paramObj
-}
-
-func (r WalletInitImportParamsBodyHD) MarshalJSON() (data []byte, err error) {
-	type shadow WalletInitImportParamsBodyHD
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *WalletInitImportParamsBodyHD) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The input for private key wallets.
-//
-// The properties Address, ChainType, EncryptionType, EntropyType are required.
-type WalletInitImportParamsBodyPrivateKey struct {
-	// The address of the wallet to import.
-	Address string `json:"address" api:"required"`
-	// The chain type of the wallet to import. Currently supports `ethereum` and
-	// `solana`.
-	//
-	// Any of "ethereum", "solana".
-	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
-	// The encryption type of the wallet to import. Currently only supports `HPKE`.
-	//
-	// Any of "HPKE".
-	EncryptionType HpkeEncryption `json:"encryption_type,omitzero" api:"required"`
-	// This field can be elided, and will marshal its zero value as "private-key".
-	EntropyType constant.PrivateKey `json:"entropy_type" default:"private-key"`
-	paramObj
-}
-
-func (r WalletInitImportParamsBodyPrivateKey) MarshalJSON() (data []byte, err error) {
-	type shadow WalletInitImportParamsBodyPrivateKey
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *WalletInitImportParamsBodyPrivateKey) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 type WalletSubmitImportParams struct {
+	// The submission input for importing an HD wallet.
 	Wallet WalletSubmitImportParamsWalletUnion `json:"wallet,omitzero" api:"required"`
 	// The key quorum ID to set as the owner of the resource. If you provide this, do
 	// not specify an owner.
@@ -6807,8 +6936,8 @@ func (r *WalletSubmitImportParams) UnmarshalJSON(data []byte) error {
 //
 // Use [param.IsOmitted] to confirm if a field is set.
 type WalletSubmitImportParamsWalletUnion struct {
-	OfHD         *WalletSubmitImportParamsWalletHD         `json:",omitzero,inline"`
-	OfPrivateKey *WalletSubmitImportParamsWalletPrivateKey `json:",omitzero,inline"`
+	OfHD         *HDSubmitInput         `json:",omitzero,inline"`
+	OfPrivateKey *PrivateKeySubmitInput `json:",omitzero,inline"`
 	paramUnion
 }
 
@@ -6822,85 +6951,9 @@ func (u *WalletSubmitImportParamsWalletUnion) UnmarshalJSON(data []byte) error {
 func init() {
 	apijson.RegisterUnion[WalletSubmitImportParamsWalletUnion](
 		"entropy_type",
-		apijson.Discriminator[WalletSubmitImportParamsWalletHD]("hd"),
-		apijson.Discriminator[WalletSubmitImportParamsWalletPrivateKey]("private-key"),
+		apijson.Discriminator[HDSubmitInput]("hd"),
+		apijson.Discriminator[PrivateKeySubmitInput]("private-key"),
 	)
-}
-
-// The properties Address, ChainType, Ciphertext, EncapsulatedKey, EncryptionType,
-// EntropyType, Index are required.
-type WalletSubmitImportParamsWalletHD struct {
-	// The address of the wallet to import.
-	Address string `json:"address" api:"required"`
-	// The chain type of the wallet to import. Currently supports `ethereum` and
-	// `solana`.
-	//
-	// Any of "ethereum", "solana".
-	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
-	// The encrypted entropy of the wallet to import.
-	Ciphertext string `json:"ciphertext" api:"required"`
-	// The base64-encoded encapsulated key that was generated during encryption, for
-	// use during decryption inside the TEE.
-	EncapsulatedKey string `json:"encapsulated_key" api:"required"`
-	// The encryption type of the wallet to import. Currently only supports `HPKE`.
-	//
-	// Any of "HPKE".
-	EncryptionType HpkeEncryption `json:"encryption_type,omitzero" api:"required"`
-	// The index of the wallet to import.
-	Index int64 `json:"index" api:"required"`
-	// Optional HPKE configuration for wallet import decryption. These parameters allow
-	// importing wallets encrypted by external providers that use different HPKE
-	// configurations.
-	HpkeConfig HpkeImportConfig `json:"hpke_config,omitzero"`
-	// The entropy type of the wallet to import.
-	//
-	// This field can be elided, and will marshal its zero value as "hd".
-	EntropyType constant.HD `json:"entropy_type" default:"hd"`
-	paramObj
-}
-
-func (r WalletSubmitImportParamsWalletHD) MarshalJSON() (data []byte, err error) {
-	type shadow WalletSubmitImportParamsWalletHD
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *WalletSubmitImportParamsWalletHD) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The properties Address, ChainType, Ciphertext, EncapsulatedKey, EncryptionType,
-// EntropyType are required.
-type WalletSubmitImportParamsWalletPrivateKey struct {
-	// The address of the wallet to import.
-	Address string `json:"address" api:"required"`
-	// The chain type of the wallet to import. Currently supports `ethereum` and
-	// `solana`.
-	//
-	// Any of "ethereum", "solana".
-	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
-	// The encrypted entropy of the wallet to import.
-	Ciphertext string `json:"ciphertext" api:"required"`
-	// The base64-encoded encapsulated key that was generated during encryption, for
-	// use during decryption inside the TEE.
-	EncapsulatedKey string `json:"encapsulated_key" api:"required"`
-	// The encryption type of the wallet to import. Currently only supports `HPKE`.
-	//
-	// Any of "HPKE".
-	EncryptionType HpkeEncryption `json:"encryption_type,omitzero" api:"required"`
-	// Optional HPKE configuration for wallet import decryption. These parameters allow
-	// importing wallets encrypted by external providers that use different HPKE
-	// configurations.
-	HpkeConfig HpkeImportConfig `json:"hpke_config,omitzero"`
-	// This field can be elided, and will marshal its zero value as "private-key".
-	EntropyType constant.PrivateKey `json:"entropy_type" default:"private-key"`
-	paramObj
-}
-
-func (r WalletSubmitImportParamsWalletPrivateKey) MarshalJSON() (data []byte, err error) {
-	type shadow WalletSubmitImportParamsWalletPrivateKey
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *WalletSubmitImportParamsWalletPrivateKey) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
 }
 
 type WalletAuthenticateWithJwtParams struct {
@@ -6917,13 +6970,8 @@ func (r *WalletAuthenticateWithJwtParams) UnmarshalJSON(data []byte) error {
 }
 
 type WalletExportParams struct {
-	// The encryption type of the wallet to import. Currently only supports `HPKE`.
-	//
-	// Any of "HPKE".
-	EncryptionType HpkeEncryption `json:"encryption_type,omitzero" api:"required"`
-	// The base64-encoded encryption public key to encrypt the wallet private key with.
-	RecipientPublicKey string          `json:"recipient_public_key" api:"required"`
-	ExportSeedPhrase   param.Opt[bool] `json:"export_seed_phrase,omitzero"`
+	// Request body for exporting a wallet private key.
+	WalletExportRequestBody WalletExportRequestBody
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.
 	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
@@ -6934,8 +6982,7 @@ type WalletExportParams struct {
 }
 
 func (r WalletExportParams) MarshalJSON() (data []byte, err error) {
-	type shadow WalletExportParams
-	return param.MarshalObject(r, (*shadow)(&r))
+	return shimjson.Marshal(r.WalletExportRequestBody)
 }
 func (r *WalletExportParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
