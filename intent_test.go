@@ -68,10 +68,11 @@ func TestIntentNewPolicyRuleWithOptionalParams(t *testing.T) {
 			PolicyRuleRequestBody: privyclient.PolicyRuleRequestBodyParam{
 				Action: privyclient.PolicyActionAllow,
 				Conditions: []privyclient.PolicyConditionUnionParam{{
-					OfEthereumTransaction: &privyclient.PolicyConditionEthereumTransactionParam{
-						Field:    "to",
-						Operator: "eq",
-						Value: privyclient.PolicyConditionEthereumTransactionValueUnionParam{
+					OfEthereumTransaction: &privyclient.EthereumTransactionConditionParam{
+						Field:       privyclient.EthereumTransactionConditionFieldTo,
+						FieldSource: privyclient.EthereumTransactionConditionFieldSourceEthereumTransaction,
+						Operator:    privyclient.ConditionOperatorEq,
+						Value: privyclient.ConditionValueUnionParam{
 							OfString: privyclient.String("string"),
 						},
 					},
@@ -290,10 +291,11 @@ func TestIntentUpdatePolicyWithOptionalParams(t *testing.T) {
 			Rules: []privyclient.PolicyRuleRequestBodyParam{{
 				Action: privyclient.PolicyActionAllow,
 				Conditions: []privyclient.PolicyConditionUnionParam{{
-					OfEthereumTransaction: &privyclient.PolicyConditionEthereumTransactionParam{
-						Field:    "to",
-						Operator: "eq",
-						Value: privyclient.PolicyConditionEthereumTransactionValueUnionParam{
+					OfEthereumTransaction: &privyclient.EthereumTransactionConditionParam{
+						Field:       privyclient.EthereumTransactionConditionFieldTo,
+						FieldSource: privyclient.EthereumTransactionConditionFieldSourceEthereumTransaction,
+						Operator:    privyclient.ConditionOperatorEq,
+						Value: privyclient.ConditionValueUnionParam{
 							OfString: privyclient.String("string"),
 						},
 					},
@@ -335,10 +337,11 @@ func TestIntentUpdatePolicyRuleWithOptionalParams(t *testing.T) {
 			PolicyRuleRequestBody: privyclient.PolicyRuleRequestBodyParam{
 				Action: privyclient.PolicyActionAllow,
 				Conditions: []privyclient.PolicyConditionUnionParam{{
-					OfEthereumTransaction: &privyclient.PolicyConditionEthereumTransactionParam{
-						Field:    "to",
-						Operator: "eq",
-						Value: privyclient.PolicyConditionEthereumTransactionValueUnionParam{
+					OfEthereumTransaction: &privyclient.EthereumTransactionConditionParam{
+						Field:       privyclient.EthereumTransactionConditionFieldTo,
+						FieldSource: privyclient.EthereumTransactionConditionFieldSourceEthereumTransaction,
+						Operator:    privyclient.ConditionOperatorEq,
+						Value: privyclient.ConditionValueUnionParam{
 							OfString: privyclient.String("string"),
 						},
 					},
