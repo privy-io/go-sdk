@@ -827,7 +827,7 @@ func (r *TransferIntentResponse) UnmarshalJSON(data []byte) error {
 // The original transfer request that would be sent to the wallet transfer endpoint
 type TransferIntentResponseRequestDetails struct {
 	// Request body for initiating a sponsored token transfer from an embedded wallet.
-	Body CreateTokenTransferRequest `json:"body" api:"required"`
+	Body TransferRequestBody `json:"body" api:"required"`
 	// Any of "POST".
 	Method string `json:"method" api:"required"`
 	URL    string `json:"url" api:"required"`
@@ -1275,8 +1275,8 @@ func (r *IntentResponseUnion) UnmarshalJSON(data []byte) error {
 // For type safety it is recommended to directly use a variant of the
 // [IntentResponseUnion].
 type IntentResponseUnionRequestDetails struct {
-	// This field is a union of [WalletRpcRequestBodyUnion],
-	// [CreateTokenTransferRequest], [WalletIntentResponseRequestDetailsBody],
+	// This field is a union of [WalletRpcRequestBodyUnion], [TransferRequestBody],
+	// [WalletIntentResponseRequestDetailsBody],
 	// [PolicyIntentResponseRequestDetailsBody], [PolicyRuleRequestBody], [any],
 	// [KeyQuorumUpdateRequestBody]
 	Body   IntentResponseUnionRequestDetailsBody `json:"body"`
@@ -1335,9 +1335,9 @@ type IntentResponseUnionRequestDetailsBody struct {
 	Sponsor     bool   `json:"sponsor"`
 	// This field is from variant [WalletRpcRequestBodyUnion].
 	Network SparkNetwork `json:"network"`
-	// This field is from variant [CreateTokenTransferRequest].
+	// This field is from variant [TransferRequestBody].
 	Destination TokenTransferDestination `json:"destination"`
-	// This field is from variant [CreateTokenTransferRequest].
+	// This field is from variant [TransferRequestBody].
 	Source TokenTransferSource `json:"source"`
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
 	AdditionalSigners AdditionalSignerInput `json:"additional_signers"`

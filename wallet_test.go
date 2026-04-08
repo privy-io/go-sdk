@@ -144,10 +144,11 @@ func TestWalletInitImport(t *testing.T) {
 		option.WithAppSecret("My App Secret"),
 	)
 	_, err := client.Wallets.InitImport(context.TODO(), privyclient.WalletInitImportParams{
-		OfPrivateKey: &privyclient.WalletInitImportParamsBodyPrivateKey{
+		OfPrivateKey: &privyclient.PrivateKeyInitInput{
 			Address:        "0xF1DBff66C993EE895C8cb176c30b07A559d76496",
 			ChainType:      privyclient.WalletImportSupportedChainsEthereum,
 			EncryptionType: privyclient.HpkeEncryptionHpke,
+			EntropyType:    privyclient.PrivateKeyInitInputEntropyTypePrivateKey,
 		},
 	})
 	if err != nil {
@@ -175,12 +176,13 @@ func TestWalletSubmitImportWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Wallets.SubmitImport(context.TODO(), privyclient.WalletSubmitImportParams{
 		Wallet: privyclient.WalletSubmitImportParamsWalletUnion{
-			OfPrivateKey: &privyclient.WalletSubmitImportParamsWalletPrivateKey{
+			OfPrivateKey: &privyclient.PrivateKeySubmitInput{
 				Address:         "0xF1DBff66C993EE895C8cb176c30b07A559d76496",
 				ChainType:       privyclient.WalletImportSupportedChainsEthereum,
 				Ciphertext:      "PRoRXygG+YYSDBXjCopNYZmx8Z6nvdl1D0lpePTYZdZI2VGfK+LkFt+GlEJqdoi9",
 				EncapsulatedKey: "BOhR6xITDt5THJawHHJKrKdI9CBr2M/SDWzZZAaOW4gCMsSpC65U007WyKiwuuOVAo1BNm4YgcBBROuMmyIZXZk=",
 				EncryptionType:  privyclient.HpkeEncryptionHpke,
+				EntropyType:     privyclient.PrivateKeySubmitInputEntropyTypePrivateKey,
 				HpkeConfig: privyclient.HpkeImportConfig{
 					Aad:           privyclient.String("aad"),
 					AeadAlgorithm: privyclient.HpkeAeadAlgorithmChacha20Poly1305,
@@ -259,9 +261,11 @@ func TestWalletExportWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"wallet_id",
 		privyclient.WalletExportParams{
-			EncryptionType:              privyclient.HpkeEncryptionHpke,
-			RecipientPublicKey:          "BDAZLOIdTaPycEYkgG0MvCzbIKJLli/yWkAV5yCa9yOsZ4JsrLweA5MnP8YIiY4k/RRzC+APhhO+P+Hoz/rt7Go=",
-			ExportSeedPhrase:            privyclient.Bool(true),
+			WalletExportRequestBody: privyclient.WalletExportRequestBody{
+				EncryptionType:     privyclient.HpkeEncryptionHpke,
+				RecipientPublicKey: "BDAZLOIdTaPycEYkgG0MvCzbIKJLli/yWkAV5yCa9yOsZ4JsrLweA5MnP8YIiY4k/RRzC+APhhO+P+Hoz/rt7Go=",
+				ExportSeedPhrase:   privyclient.Bool(true),
+			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
 			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},

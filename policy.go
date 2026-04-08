@@ -17,7 +17,6 @@ import (
 	"github.com/privy-io/go-sdk/option"
 	"github.com/privy-io/go-sdk/packages/param"
 	"github.com/privy-io/go-sdk/packages/respjson"
-	"github.com/privy-io/go-sdk/shared/constant"
 )
 
 // Operations related to policies
@@ -302,6 +301,80 @@ func init() {
 	)
 }
 
+// Operator to use for policy conditions.
+type ConditionOperator string
+
+const (
+	ConditionOperatorEq             ConditionOperator = "eq"
+	ConditionOperatorGt             ConditionOperator = "gt"
+	ConditionOperatorGte            ConditionOperator = "gte"
+	ConditionOperatorLt             ConditionOperator = "lt"
+	ConditionOperatorLte            ConditionOperator = "lte"
+	ConditionOperatorIn             ConditionOperator = "in"
+	ConditionOperatorInConditionSet ConditionOperator = "in_condition_set"
+)
+
+// ConditionValueUnion contains all possible properties and values from [string],
+// [[]string].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfStringArray]
+type ConditionValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [[]string] instead of an object.
+	OfStringArray []string `json:",inline"`
+	JSON          struct {
+		OfString      respjson.Field
+		OfStringArray respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u ConditionValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u ConditionValueUnion) AsStringArray() (v []string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u ConditionValueUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *ConditionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this ConditionValueUnion to a ConditionValueUnionParam.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// ConditionValueUnionParam.Overrides()
+func (r ConditionValueUnion) ToParam() ConditionValueUnionParam {
+	return param.Override[ConditionValueUnionParam](json.RawMessage(r.RawJSON()))
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type ConditionValueUnionParam struct {
+	OfString      param.Opt[string] `json:",omitzero,inline"`
+	OfStringArray []string          `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u ConditionValueUnionParam) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfStringArray)
+}
+func (u *ConditionValueUnionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
 // Operator to use for SUI transaction command conditions. Only 'eq' and 'in' are
 // supported for command names.
 type SuiTransactionCommandOperator string
@@ -320,6 +393,793 @@ const (
 	SuiTransferObjectsCommandFieldAmount    SuiTransferObjectsCommandField = "amount"
 )
 
+// The verbatim Ethereum transaction object in an eth_signTransaction or
+// eth_sendTransaction request.
+type EthereumTransactionCondition struct {
+	// Any of "to", "value", "chain_id".
+	Field EthereumTransactionConditionField `json:"field" api:"required"`
+	// Any of "ethereum_transaction".
+	FieldSource EthereumTransactionConditionFieldSource `json:"field_source" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator ConditionOperator `json:"operator" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EthereumTransactionCondition) RawJSON() string { return r.JSON.raw }
+func (r *EthereumTransactionCondition) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this EthereumTransactionCondition to a
+// EthereumTransactionConditionParam.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// EthereumTransactionConditionParam.Overrides()
+func (r EthereumTransactionCondition) ToParam() EthereumTransactionConditionParam {
+	return param.Override[EthereumTransactionConditionParam](json.RawMessage(r.RawJSON()))
+}
+
+type EthereumTransactionConditionField string
+
+const (
+	EthereumTransactionConditionFieldTo      EthereumTransactionConditionField = "to"
+	EthereumTransactionConditionFieldValue   EthereumTransactionConditionField = "value"
+	EthereumTransactionConditionFieldChainID EthereumTransactionConditionField = "chain_id"
+)
+
+type EthereumTransactionConditionFieldSource string
+
+const (
+	EthereumTransactionConditionFieldSourceEthereumTransaction EthereumTransactionConditionFieldSource = "ethereum_transaction"
+)
+
+// The verbatim Ethereum transaction object in an eth_signTransaction or
+// eth_sendTransaction request.
+//
+// The properties Field, FieldSource, Operator, Value are required.
+type EthereumTransactionConditionParam struct {
+	// Any of "to", "value", "chain_id".
+	Field EthereumTransactionConditionField `json:"field,omitzero" api:"required"`
+	// Any of "ethereum_transaction".
+	FieldSource EthereumTransactionConditionFieldSource `json:"field_source,omitzero" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnionParam `json:"value,omitzero" api:"required"`
+	paramObj
+}
+
+func (r EthereumTransactionConditionParam) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumTransactionConditionParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *EthereumTransactionConditionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The decoded calldata in a smart contract interaction as the smart contract
+// method's parameters. Note that that 'ethereum_calldata' conditions must contain
+// an abi parameter with the JSON ABI of the smart contract.
+type EthereumCalldataCondition struct {
+	// A Solidity ABI definition for decoding smart contract calldata.
+	Abi   AbiSchema `json:"abi" api:"required"`
+	Field string    `json:"field" api:"required"`
+	// Any of "ethereum_calldata".
+	FieldSource EthereumCalldataConditionFieldSource `json:"field_source" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator ConditionOperator `json:"operator" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Abi         respjson.Field
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EthereumCalldataCondition) RawJSON() string { return r.JSON.raw }
+func (r *EthereumCalldataCondition) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this EthereumCalldataCondition to a
+// EthereumCalldataConditionParam.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// EthereumCalldataConditionParam.Overrides()
+func (r EthereumCalldataCondition) ToParam() EthereumCalldataConditionParam {
+	return param.Override[EthereumCalldataConditionParam](json.RawMessage(r.RawJSON()))
+}
+
+type EthereumCalldataConditionFieldSource string
+
+const (
+	EthereumCalldataConditionFieldSourceEthereumCalldata EthereumCalldataConditionFieldSource = "ethereum_calldata"
+)
+
+// The decoded calldata in a smart contract interaction as the smart contract
+// method's parameters. Note that that 'ethereum_calldata' conditions must contain
+// an abi parameter with the JSON ABI of the smart contract.
+//
+// The properties Abi, Field, FieldSource, Operator, Value are required.
+type EthereumCalldataConditionParam struct {
+	// A Solidity ABI definition for decoding smart contract calldata.
+	Abi   AbiSchemaParam `json:"abi,omitzero" api:"required"`
+	Field string         `json:"field" api:"required"`
+	// Any of "ethereum_calldata".
+	FieldSource EthereumCalldataConditionFieldSource `json:"field_source,omitzero" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnionParam `json:"value,omitzero" api:"required"`
+	paramObj
+}
+
+func (r EthereumCalldataConditionParam) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumCalldataConditionParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *EthereumCalldataConditionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Attributes from the signing domain that will verify the signature.
+type EthereumTypedDataDomainCondition struct {
+	// Any of "chainId", "verifyingContract", "chain_id", "verifying_contract".
+	Field EthereumTypedDataDomainConditionField `json:"field" api:"required"`
+	// Any of "ethereum_typed_data_domain".
+	FieldSource EthereumTypedDataDomainConditionFieldSource `json:"field_source" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator ConditionOperator `json:"operator" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EthereumTypedDataDomainCondition) RawJSON() string { return r.JSON.raw }
+func (r *EthereumTypedDataDomainCondition) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this EthereumTypedDataDomainCondition to a
+// EthereumTypedDataDomainConditionParam.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// EthereumTypedDataDomainConditionParam.Overrides()
+func (r EthereumTypedDataDomainCondition) ToParam() EthereumTypedDataDomainConditionParam {
+	return param.Override[EthereumTypedDataDomainConditionParam](json.RawMessage(r.RawJSON()))
+}
+
+type EthereumTypedDataDomainConditionField string
+
+const (
+	EthereumTypedDataDomainConditionFieldChainIDMixedCase           EthereumTypedDataDomainConditionField = "chainId"
+	EthereumTypedDataDomainConditionFieldVerifyingContractCamelCase EthereumTypedDataDomainConditionField = "verifyingContract"
+	EthereumTypedDataDomainConditionFieldChainID                    EthereumTypedDataDomainConditionField = "chain_id"
+	EthereumTypedDataDomainConditionFieldVerifyingContract          EthereumTypedDataDomainConditionField = "verifying_contract"
+)
+
+type EthereumTypedDataDomainConditionFieldSource string
+
+const (
+	EthereumTypedDataDomainConditionFieldSourceEthereumTypedDataDomain EthereumTypedDataDomainConditionFieldSource = "ethereum_typed_data_domain"
+)
+
+// Attributes from the signing domain that will verify the signature.
+//
+// The properties Field, FieldSource, Operator, Value are required.
+type EthereumTypedDataDomainConditionParam struct {
+	// Any of "chainId", "verifyingContract", "chain_id", "verifying_contract".
+	Field EthereumTypedDataDomainConditionField `json:"field,omitzero" api:"required"`
+	// Any of "ethereum_typed_data_domain".
+	FieldSource EthereumTypedDataDomainConditionFieldSource `json:"field_source,omitzero" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnionParam `json:"value,omitzero" api:"required"`
+	paramObj
+}
+
+func (r EthereumTypedDataDomainConditionParam) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumTypedDataDomainConditionParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *EthereumTypedDataDomainConditionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// 'types' and 'primary_type' attributes of the TypedData JSON object defined in
+// EIP-712.
+type EthereumTypedDataMessageCondition struct {
+	Field string `json:"field" api:"required"`
+	// Any of "ethereum_typed_data_message".
+	FieldSource EthereumTypedDataMessageConditionFieldSource `json:"field_source" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator  ConditionOperator                          `json:"operator" api:"required"`
+	TypedData EthereumTypedDataMessageConditionTypedData `json:"typed_data" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		TypedData   respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EthereumTypedDataMessageCondition) RawJSON() string { return r.JSON.raw }
+func (r *EthereumTypedDataMessageCondition) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this EthereumTypedDataMessageCondition to a
+// EthereumTypedDataMessageConditionParam.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// EthereumTypedDataMessageConditionParam.Overrides()
+func (r EthereumTypedDataMessageCondition) ToParam() EthereumTypedDataMessageConditionParam {
+	return param.Override[EthereumTypedDataMessageConditionParam](json.RawMessage(r.RawJSON()))
+}
+
+type EthereumTypedDataMessageConditionFieldSource string
+
+const (
+	EthereumTypedDataMessageConditionFieldSourceEthereumTypedDataMessage EthereumTypedDataMessageConditionFieldSource = "ethereum_typed_data_message"
+)
+
+type EthereumTypedDataMessageConditionTypedData struct {
+	PrimaryType string `json:"primary_type" api:"required"`
+	// The type definitions for EIP-712 typed data signing.
+	Types TypedDataTypesInputParamsResp `json:"types" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		PrimaryType respjson.Field
+		Types       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EthereumTypedDataMessageConditionTypedData) RawJSON() string { return r.JSON.raw }
+func (r *EthereumTypedDataMessageConditionTypedData) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// 'types' and 'primary_type' attributes of the TypedData JSON object defined in
+// EIP-712.
+//
+// The properties Field, FieldSource, Operator, TypedData, Value are required.
+type EthereumTypedDataMessageConditionParam struct {
+	Field string `json:"field" api:"required"`
+	// Any of "ethereum_typed_data_message".
+	FieldSource EthereumTypedDataMessageConditionFieldSource `json:"field_source,omitzero" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator  ConditionOperator                               `json:"operator,omitzero" api:"required"`
+	TypedData EthereumTypedDataMessageConditionTypedDataParam `json:"typed_data,omitzero" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnionParam `json:"value,omitzero" api:"required"`
+	paramObj
+}
+
+func (r EthereumTypedDataMessageConditionParam) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumTypedDataMessageConditionParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *EthereumTypedDataMessageConditionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The properties PrimaryType, Types are required.
+type EthereumTypedDataMessageConditionTypedDataParam struct {
+	PrimaryType string `json:"primary_type" api:"required"`
+	// The type definitions for EIP-712 typed data signing.
+	Types TypedDataTypesInputParams `json:"types,omitzero" api:"required"`
+	paramObj
+}
+
+func (r EthereumTypedDataMessageConditionTypedDataParam) MarshalJSON() (data []byte, err error) {
+	type shadow EthereumTypedDataMessageConditionTypedDataParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *EthereumTypedDataMessageConditionTypedDataParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Allowed contract addresses for eth_sign7702Authorization requests.
+type Ethereum7702AuthorizationCondition struct {
+	// Any of "contract".
+	Field Ethereum7702AuthorizationConditionField `json:"field" api:"required"`
+	// Any of "ethereum_7702_authorization".
+	FieldSource Ethereum7702AuthorizationConditionFieldSource `json:"field_source" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator ConditionOperator `json:"operator" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r Ethereum7702AuthorizationCondition) RawJSON() string { return r.JSON.raw }
+func (r *Ethereum7702AuthorizationCondition) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this Ethereum7702AuthorizationCondition to a
+// Ethereum7702AuthorizationConditionParam.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// Ethereum7702AuthorizationConditionParam.Overrides()
+func (r Ethereum7702AuthorizationCondition) ToParam() Ethereum7702AuthorizationConditionParam {
+	return param.Override[Ethereum7702AuthorizationConditionParam](json.RawMessage(r.RawJSON()))
+}
+
+type Ethereum7702AuthorizationConditionField string
+
+const (
+	Ethereum7702AuthorizationConditionFieldContract Ethereum7702AuthorizationConditionField = "contract"
+)
+
+type Ethereum7702AuthorizationConditionFieldSource string
+
+const (
+	Ethereum7702AuthorizationConditionFieldSourceEthereum7702Authorization Ethereum7702AuthorizationConditionFieldSource = "ethereum_7702_authorization"
+)
+
+// Allowed contract addresses for eth_sign7702Authorization requests.
+//
+// The properties Field, FieldSource, Operator, Value are required.
+type Ethereum7702AuthorizationConditionParam struct {
+	// Any of "contract".
+	Field Ethereum7702AuthorizationConditionField `json:"field,omitzero" api:"required"`
+	// Any of "ethereum_7702_authorization".
+	FieldSource Ethereum7702AuthorizationConditionFieldSource `json:"field_source,omitzero" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnionParam `json:"value,omitzero" api:"required"`
+	paramObj
+}
+
+func (r Ethereum7702AuthorizationConditionParam) MarshalJSON() (data []byte, err error) {
+	type shadow Ethereum7702AuthorizationConditionParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *Ethereum7702AuthorizationConditionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Solana Program attributes, enables allowlisting Solana Programs.
+type SolanaProgramInstructionCondition struct {
+	// Any of "programId".
+	Field SolanaProgramInstructionConditionField `json:"field" api:"required"`
+	// Any of "solana_program_instruction".
+	FieldSource SolanaProgramInstructionConditionFieldSource `json:"field_source" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator ConditionOperator `json:"operator" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SolanaProgramInstructionCondition) RawJSON() string { return r.JSON.raw }
+func (r *SolanaProgramInstructionCondition) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this SolanaProgramInstructionCondition to a
+// SolanaProgramInstructionConditionParam.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// SolanaProgramInstructionConditionParam.Overrides()
+func (r SolanaProgramInstructionCondition) ToParam() SolanaProgramInstructionConditionParam {
+	return param.Override[SolanaProgramInstructionConditionParam](json.RawMessage(r.RawJSON()))
+}
+
+type SolanaProgramInstructionConditionField string
+
+const (
+	SolanaProgramInstructionConditionFieldProgramID SolanaProgramInstructionConditionField = "programId"
+)
+
+type SolanaProgramInstructionConditionFieldSource string
+
+const (
+	SolanaProgramInstructionConditionFieldSourceSolanaProgramInstruction SolanaProgramInstructionConditionFieldSource = "solana_program_instruction"
+)
+
+// Solana Program attributes, enables allowlisting Solana Programs.
+//
+// The properties Field, FieldSource, Operator, Value are required.
+type SolanaProgramInstructionConditionParam struct {
+	// Any of "programId".
+	Field SolanaProgramInstructionConditionField `json:"field,omitzero" api:"required"`
+	// Any of "solana_program_instruction".
+	FieldSource SolanaProgramInstructionConditionFieldSource `json:"field_source,omitzero" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnionParam `json:"value,omitzero" api:"required"`
+	paramObj
+}
+
+func (r SolanaProgramInstructionConditionParam) MarshalJSON() (data []byte, err error) {
+	type shadow SolanaProgramInstructionConditionParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *SolanaProgramInstructionConditionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Solana System Program attributes, including more granular Transfer instruction
+// fields.
+type SolanaSystemProgramInstructionCondition struct {
+	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
+	Field SolanaSystemProgramInstructionConditionField `json:"field" api:"required"`
+	// Any of "solana_system_program_instruction".
+	FieldSource SolanaSystemProgramInstructionConditionFieldSource `json:"field_source" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator ConditionOperator `json:"operator" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SolanaSystemProgramInstructionCondition) RawJSON() string { return r.JSON.raw }
+func (r *SolanaSystemProgramInstructionCondition) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this SolanaSystemProgramInstructionCondition to a
+// SolanaSystemProgramInstructionConditionParam.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// SolanaSystemProgramInstructionConditionParam.Overrides()
+func (r SolanaSystemProgramInstructionCondition) ToParam() SolanaSystemProgramInstructionConditionParam {
+	return param.Override[SolanaSystemProgramInstructionConditionParam](json.RawMessage(r.RawJSON()))
+}
+
+type SolanaSystemProgramInstructionConditionField string
+
+const (
+	SolanaSystemProgramInstructionConditionFieldInstructionName  SolanaSystemProgramInstructionConditionField = "instructionName"
+	SolanaSystemProgramInstructionConditionFieldTransferFrom     SolanaSystemProgramInstructionConditionField = "Transfer.from"
+	SolanaSystemProgramInstructionConditionFieldTransferTo       SolanaSystemProgramInstructionConditionField = "Transfer.to"
+	SolanaSystemProgramInstructionConditionFieldTransferLamports SolanaSystemProgramInstructionConditionField = "Transfer.lamports"
+)
+
+type SolanaSystemProgramInstructionConditionFieldSource string
+
+const (
+	SolanaSystemProgramInstructionConditionFieldSourceSolanaSystemProgramInstruction SolanaSystemProgramInstructionConditionFieldSource = "solana_system_program_instruction"
+)
+
+// Solana System Program attributes, including more granular Transfer instruction
+// fields.
+//
+// The properties Field, FieldSource, Operator, Value are required.
+type SolanaSystemProgramInstructionConditionParam struct {
+	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
+	Field SolanaSystemProgramInstructionConditionField `json:"field,omitzero" api:"required"`
+	// Any of "solana_system_program_instruction".
+	FieldSource SolanaSystemProgramInstructionConditionFieldSource `json:"field_source,omitzero" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnionParam `json:"value,omitzero" api:"required"`
+	paramObj
+}
+
+func (r SolanaSystemProgramInstructionConditionParam) MarshalJSON() (data []byte, err error) {
+	type shadow SolanaSystemProgramInstructionConditionParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *SolanaSystemProgramInstructionConditionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Solana Token Program attributes, including more granular TransferChecked
+// instruction fields.
+type SolanaTokenProgramInstructionCondition struct {
+	// Any of "instructionName", "Transfer.source", "Transfer.destination",
+	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
+	// "TransferChecked.destination", "TransferChecked.authority",
+	// "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint",
+	// "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account",
+	// "MintTo.authority", "MintTo.amount", "CloseAccount.account",
+	// "CloseAccount.destination", "CloseAccount.authority",
+	// "InitializeAccount3.account", "InitializeAccount3.mint",
+	// "InitializeAccount3.owner".
+	Field SolanaTokenProgramInstructionConditionField `json:"field" api:"required"`
+	// Any of "solana_token_program_instruction".
+	FieldSource SolanaTokenProgramInstructionConditionFieldSource `json:"field_source" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator ConditionOperator `json:"operator" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SolanaTokenProgramInstructionCondition) RawJSON() string { return r.JSON.raw }
+func (r *SolanaTokenProgramInstructionCondition) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this SolanaTokenProgramInstructionCondition to a
+// SolanaTokenProgramInstructionConditionParam.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// SolanaTokenProgramInstructionConditionParam.Overrides()
+func (r SolanaTokenProgramInstructionCondition) ToParam() SolanaTokenProgramInstructionConditionParam {
+	return param.Override[SolanaTokenProgramInstructionConditionParam](json.RawMessage(r.RawJSON()))
+}
+
+type SolanaTokenProgramInstructionConditionField string
+
+const (
+	SolanaTokenProgramInstructionConditionFieldInstructionName            SolanaTokenProgramInstructionConditionField = "instructionName"
+	SolanaTokenProgramInstructionConditionFieldTransferSource             SolanaTokenProgramInstructionConditionField = "Transfer.source"
+	SolanaTokenProgramInstructionConditionFieldTransferDestination        SolanaTokenProgramInstructionConditionField = "Transfer.destination"
+	SolanaTokenProgramInstructionConditionFieldTransferAuthority          SolanaTokenProgramInstructionConditionField = "Transfer.authority"
+	SolanaTokenProgramInstructionConditionFieldTransferAmount             SolanaTokenProgramInstructionConditionField = "Transfer.amount"
+	SolanaTokenProgramInstructionConditionFieldTransferCheckedSource      SolanaTokenProgramInstructionConditionField = "TransferChecked.source"
+	SolanaTokenProgramInstructionConditionFieldTransferCheckedDestination SolanaTokenProgramInstructionConditionField = "TransferChecked.destination"
+	SolanaTokenProgramInstructionConditionFieldTransferCheckedAuthority   SolanaTokenProgramInstructionConditionField = "TransferChecked.authority"
+	SolanaTokenProgramInstructionConditionFieldTransferCheckedAmount      SolanaTokenProgramInstructionConditionField = "TransferChecked.amount"
+	SolanaTokenProgramInstructionConditionFieldTransferCheckedMint        SolanaTokenProgramInstructionConditionField = "TransferChecked.mint"
+	SolanaTokenProgramInstructionConditionFieldBurnAccount                SolanaTokenProgramInstructionConditionField = "Burn.account"
+	SolanaTokenProgramInstructionConditionFieldBurnMint                   SolanaTokenProgramInstructionConditionField = "Burn.mint"
+	SolanaTokenProgramInstructionConditionFieldBurnAuthority              SolanaTokenProgramInstructionConditionField = "Burn.authority"
+	SolanaTokenProgramInstructionConditionFieldBurnAmount                 SolanaTokenProgramInstructionConditionField = "Burn.amount"
+	SolanaTokenProgramInstructionConditionFieldMintToMint                 SolanaTokenProgramInstructionConditionField = "MintTo.mint"
+	SolanaTokenProgramInstructionConditionFieldMintToAccount              SolanaTokenProgramInstructionConditionField = "MintTo.account"
+	SolanaTokenProgramInstructionConditionFieldMintToAuthority            SolanaTokenProgramInstructionConditionField = "MintTo.authority"
+	SolanaTokenProgramInstructionConditionFieldMintToAmount               SolanaTokenProgramInstructionConditionField = "MintTo.amount"
+	SolanaTokenProgramInstructionConditionFieldCloseAccountAccount        SolanaTokenProgramInstructionConditionField = "CloseAccount.account"
+	SolanaTokenProgramInstructionConditionFieldCloseAccountDestination    SolanaTokenProgramInstructionConditionField = "CloseAccount.destination"
+	SolanaTokenProgramInstructionConditionFieldCloseAccountAuthority      SolanaTokenProgramInstructionConditionField = "CloseAccount.authority"
+	SolanaTokenProgramInstructionConditionFieldInitializeAccount3Account  SolanaTokenProgramInstructionConditionField = "InitializeAccount3.account"
+	SolanaTokenProgramInstructionConditionFieldInitializeAccount3Mint     SolanaTokenProgramInstructionConditionField = "InitializeAccount3.mint"
+	SolanaTokenProgramInstructionConditionFieldInitializeAccount3Owner    SolanaTokenProgramInstructionConditionField = "InitializeAccount3.owner"
+)
+
+type SolanaTokenProgramInstructionConditionFieldSource string
+
+const (
+	SolanaTokenProgramInstructionConditionFieldSourceSolanaTokenProgramInstruction SolanaTokenProgramInstructionConditionFieldSource = "solana_token_program_instruction"
+)
+
+// Solana Token Program attributes, including more granular TransferChecked
+// instruction fields.
+//
+// The properties Field, FieldSource, Operator, Value are required.
+type SolanaTokenProgramInstructionConditionParam struct {
+	// Any of "instructionName", "Transfer.source", "Transfer.destination",
+	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
+	// "TransferChecked.destination", "TransferChecked.authority",
+	// "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint",
+	// "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account",
+	// "MintTo.authority", "MintTo.amount", "CloseAccount.account",
+	// "CloseAccount.destination", "CloseAccount.authority",
+	// "InitializeAccount3.account", "InitializeAccount3.mint",
+	// "InitializeAccount3.owner".
+	Field SolanaTokenProgramInstructionConditionField `json:"field,omitzero" api:"required"`
+	// Any of "solana_token_program_instruction".
+	FieldSource SolanaTokenProgramInstructionConditionFieldSource `json:"field_source,omitzero" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnionParam `json:"value,omitzero" api:"required"`
+	paramObj
+}
+
+func (r SolanaTokenProgramInstructionConditionParam) MarshalJSON() (data []byte, err error) {
+	type shadow SolanaTokenProgramInstructionConditionParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *SolanaTokenProgramInstructionConditionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// System attributes, including current unix timestamp (in seconds).
+type SystemCondition struct {
+	// Any of "current_unix_timestamp".
+	Field SystemConditionField `json:"field" api:"required"`
+	// Any of "system".
+	FieldSource SystemConditionFieldSource `json:"field_source" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator ConditionOperator `json:"operator" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnion `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SystemCondition) RawJSON() string { return r.JSON.raw }
+func (r *SystemCondition) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this SystemCondition to a SystemConditionParam.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// SystemConditionParam.Overrides()
+func (r SystemCondition) ToParam() SystemConditionParam {
+	return param.Override[SystemConditionParam](json.RawMessage(r.RawJSON()))
+}
+
+type SystemConditionField string
+
+const (
+	SystemConditionFieldCurrentUnixTimestamp SystemConditionField = "current_unix_timestamp"
+)
+
+type SystemConditionFieldSource string
+
+const (
+	SystemConditionFieldSourceSystem SystemConditionFieldSource = "system"
+)
+
+// System attributes, including current unix timestamp (in seconds).
+//
+// The properties Field, FieldSource, Operator, Value are required.
+type SystemConditionParam struct {
+	// Any of "current_unix_timestamp".
+	Field SystemConditionField `json:"field,omitzero" api:"required"`
+	// Any of "system".
+	FieldSource SystemConditionFieldSource `json:"field_source,omitzero" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnionParam `json:"value,omitzero" api:"required"`
+	paramObj
+}
+
+func (r SystemConditionParam) MarshalJSON() (data []byte, err error) {
+	type shadow SystemConditionParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *SystemConditionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // TRON transaction fields for TransferContract and TriggerSmartContract
 // transaction types.
 type TronTransactionCondition struct {
@@ -331,9 +1191,13 @@ type TronTransactionCondition struct {
 	Field TronTransactionConditionField `json:"field" api:"required"`
 	// Any of "tron_transaction".
 	FieldSource TronTransactionConditionFieldSource `json:"field_source" api:"required"`
+	// Operator to use for policy conditions.
+	//
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator TronTransactionConditionOperator   `json:"operator" api:"required"`
-	Value    TronTransactionConditionValueUnion `json:"value" api:"required"`
+	Operator ConditionOperator `json:"operator" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -379,54 +1243,6 @@ const (
 	TronTransactionConditionFieldSourceTronTransaction TronTransactionConditionFieldSource = "tron_transaction"
 )
 
-type TronTransactionConditionOperator string
-
-const (
-	TronTransactionConditionOperatorEq             TronTransactionConditionOperator = "eq"
-	TronTransactionConditionOperatorGt             TronTransactionConditionOperator = "gt"
-	TronTransactionConditionOperatorGte            TronTransactionConditionOperator = "gte"
-	TronTransactionConditionOperatorLt             TronTransactionConditionOperator = "lt"
-	TronTransactionConditionOperatorLte            TronTransactionConditionOperator = "lte"
-	TronTransactionConditionOperatorIn             TronTransactionConditionOperator = "in"
-	TronTransactionConditionOperatorInConditionSet TronTransactionConditionOperator = "in_condition_set"
-)
-
-// TronTransactionConditionValueUnion contains all possible properties and values
-// from [string], [[]string].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfStringArray]
-type TronTransactionConditionValueUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [[]string] instead of an object.
-	OfStringArray []string `json:",inline"`
-	JSON          struct {
-		OfString      respjson.Field
-		OfStringArray respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-func (u TronTransactionConditionValueUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u TronTransactionConditionValueUnion) AsStringArray() (v []string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u TronTransactionConditionValueUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *TronTransactionConditionValueUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // TRON transaction fields for TransferContract and TriggerSmartContract
 // transaction types.
 //
@@ -440,9 +1256,13 @@ type TronTransactionConditionParam struct {
 	Field TronTransactionConditionField `json:"field,omitzero" api:"required"`
 	// Any of "tron_transaction".
 	FieldSource TronTransactionConditionFieldSource `json:"field_source,omitzero" api:"required"`
+	// Operator to use for policy conditions.
+	//
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator TronTransactionConditionOperator        `json:"operator,omitzero" api:"required"`
-	Value    TronTransactionConditionValueUnionParam `json:"value,omitzero" api:"required"`
+	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnionParam `json:"value,omitzero" api:"required"`
 	paramObj
 }
 
@@ -454,22 +1274,6 @@ func (r *TronTransactionConditionParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type TronTransactionConditionValueUnionParam struct {
-	OfString      param.Opt[string] `json:",omitzero,inline"`
-	OfStringArray []string          `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u TronTransactionConditionValueUnionParam) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfString, u.OfStringArray)
-}
-func (u *TronTransactionConditionValueUnionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
 // Decoded calldata from a TRON TriggerSmartContract interaction.
 type TronCalldataCondition struct {
 	// A Solidity ABI definition for decoding smart contract calldata.
@@ -477,9 +1281,13 @@ type TronCalldataCondition struct {
 	Field string    `json:"field" api:"required"`
 	// Any of "tron_trigger_smart_contract_data".
 	FieldSource TronCalldataConditionFieldSource `json:"field_source" api:"required"`
+	// Operator to use for policy conditions.
+	//
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator TronCalldataConditionOperator   `json:"operator" api:"required"`
-	Value    TronCalldataConditionValueUnion `json:"value" api:"required"`
+	Operator ConditionOperator `json:"operator" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Abi         respjson.Field
@@ -513,54 +1321,6 @@ const (
 	TronCalldataConditionFieldSourceTronTriggerSmartContractData TronCalldataConditionFieldSource = "tron_trigger_smart_contract_data"
 )
 
-type TronCalldataConditionOperator string
-
-const (
-	TronCalldataConditionOperatorEq             TronCalldataConditionOperator = "eq"
-	TronCalldataConditionOperatorGt             TronCalldataConditionOperator = "gt"
-	TronCalldataConditionOperatorGte            TronCalldataConditionOperator = "gte"
-	TronCalldataConditionOperatorLt             TronCalldataConditionOperator = "lt"
-	TronCalldataConditionOperatorLte            TronCalldataConditionOperator = "lte"
-	TronCalldataConditionOperatorIn             TronCalldataConditionOperator = "in"
-	TronCalldataConditionOperatorInConditionSet TronCalldataConditionOperator = "in_condition_set"
-)
-
-// TronCalldataConditionValueUnion contains all possible properties and values from
-// [string], [[]string].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfStringArray]
-type TronCalldataConditionValueUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [[]string] instead of an object.
-	OfStringArray []string `json:",inline"`
-	JSON          struct {
-		OfString      respjson.Field
-		OfStringArray respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-func (u TronCalldataConditionValueUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u TronCalldataConditionValueUnion) AsStringArray() (v []string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u TronCalldataConditionValueUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *TronCalldataConditionValueUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // Decoded calldata from a TRON TriggerSmartContract interaction.
 //
 // The properties Abi, Field, FieldSource, Operator, Value are required.
@@ -570,9 +1330,13 @@ type TronCalldataConditionParam struct {
 	Field string         `json:"field" api:"required"`
 	// Any of "tron_trigger_smart_contract_data".
 	FieldSource TronCalldataConditionFieldSource `json:"field_source,omitzero" api:"required"`
+	// Operator to use for policy conditions.
+	//
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator TronCalldataConditionOperator        `json:"operator,omitzero" api:"required"`
-	Value    TronCalldataConditionValueUnionParam `json:"value,omitzero" api:"required"`
+	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnionParam `json:"value,omitzero" api:"required"`
 	paramObj
 }
 
@@ -582,22 +1346,6 @@ func (r TronCalldataConditionParam) MarshalJSON() (data []byte, err error) {
 }
 func (r *TronCalldataConditionParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
-}
-
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type TronCalldataConditionValueUnionParam struct {
-	OfString      param.Opt[string] `json:",omitzero,inline"`
-	OfStringArray []string          `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u TronCalldataConditionValueUnionParam) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfString, u.OfStringArray)
-}
-func (u *TronCalldataConditionValueUnionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
 }
 
 // SUI transaction command attributes, enables allowlisting specific command types.
@@ -748,9 +1496,13 @@ type SuiTransferObjectsCommandCondition struct {
 	Field SuiTransferObjectsCommandField `json:"field" api:"required"`
 	// Any of "sui_transfer_objects_command".
 	FieldSource SuiTransferObjectsCommandConditionFieldSource `json:"field_source" api:"required"`
+	// Operator to use for policy conditions.
+	//
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator SuiTransferObjectsCommandConditionOperator   `json:"operator" api:"required"`
-	Value    SuiTransferObjectsCommandConditionValueUnion `json:"value" api:"required"`
+	Operator ConditionOperator `json:"operator" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -784,54 +1536,6 @@ const (
 	SuiTransferObjectsCommandConditionFieldSourceSuiTransferObjectsCommand SuiTransferObjectsCommandConditionFieldSource = "sui_transfer_objects_command"
 )
 
-type SuiTransferObjectsCommandConditionOperator string
-
-const (
-	SuiTransferObjectsCommandConditionOperatorEq             SuiTransferObjectsCommandConditionOperator = "eq"
-	SuiTransferObjectsCommandConditionOperatorGt             SuiTransferObjectsCommandConditionOperator = "gt"
-	SuiTransferObjectsCommandConditionOperatorGte            SuiTransferObjectsCommandConditionOperator = "gte"
-	SuiTransferObjectsCommandConditionOperatorLt             SuiTransferObjectsCommandConditionOperator = "lt"
-	SuiTransferObjectsCommandConditionOperatorLte            SuiTransferObjectsCommandConditionOperator = "lte"
-	SuiTransferObjectsCommandConditionOperatorIn             SuiTransferObjectsCommandConditionOperator = "in"
-	SuiTransferObjectsCommandConditionOperatorInConditionSet SuiTransferObjectsCommandConditionOperator = "in_condition_set"
-)
-
-// SuiTransferObjectsCommandConditionValueUnion contains all possible properties
-// and values from [string], [[]string].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfStringArray]
-type SuiTransferObjectsCommandConditionValueUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [[]string] instead of an object.
-	OfStringArray []string `json:",inline"`
-	JSON          struct {
-		OfString      respjson.Field
-		OfStringArray respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-func (u SuiTransferObjectsCommandConditionValueUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u SuiTransferObjectsCommandConditionValueUnion) AsStringArray() (v []string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u SuiTransferObjectsCommandConditionValueUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *SuiTransferObjectsCommandConditionValueUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // SUI TransferObjects command attributes, including recipient and amount fields.
 //
 // The properties Field, FieldSource, Operator, Value are required.
@@ -843,9 +1547,13 @@ type SuiTransferObjectsCommandConditionParam struct {
 	Field SuiTransferObjectsCommandField `json:"field,omitzero" api:"required"`
 	// Any of "sui_transfer_objects_command".
 	FieldSource SuiTransferObjectsCommandConditionFieldSource `json:"field_source,omitzero" api:"required"`
+	// Operator to use for policy conditions.
+	//
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator SuiTransferObjectsCommandConditionOperator        `json:"operator,omitzero" api:"required"`
-	Value    SuiTransferObjectsCommandConditionValueUnionParam `json:"value,omitzero" api:"required"`
+	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnionParam `json:"value,omitzero" api:"required"`
 	paramObj
 }
 
@@ -857,31 +1565,19 @@ func (r *SuiTransferObjectsCommandConditionParam) UnmarshalJSON(data []byte) err
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type SuiTransferObjectsCommandConditionValueUnionParam struct {
-	OfString      param.Opt[string] `json:",omitzero,inline"`
-	OfStringArray []string          `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u SuiTransferObjectsCommandConditionValueUnionParam) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfString, u.OfStringArray)
-}
-func (u *SuiTransferObjectsCommandConditionValueUnionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
 // Condition referencing an aggregation value. The field must start with
 // "aggregation." followed by the aggregation ID.
 type AggregationCondition struct {
 	Field string `json:"field" api:"required"`
 	// Any of "reference".
 	FieldSource AggregationConditionFieldSource `json:"field_source" api:"required"`
+	// Operator to use for policy conditions.
+	//
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator AggregationConditionOperator   `json:"operator" api:"required"`
-	Value    AggregationConditionValueUnion `json:"value" api:"required"`
+	Operator ConditionOperator `json:"operator" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnion `json:"value" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Field       respjson.Field
@@ -914,54 +1610,6 @@ const (
 	AggregationConditionFieldSourceReference AggregationConditionFieldSource = "reference"
 )
 
-type AggregationConditionOperator string
-
-const (
-	AggregationConditionOperatorEq             AggregationConditionOperator = "eq"
-	AggregationConditionOperatorGt             AggregationConditionOperator = "gt"
-	AggregationConditionOperatorGte            AggregationConditionOperator = "gte"
-	AggregationConditionOperatorLt             AggregationConditionOperator = "lt"
-	AggregationConditionOperatorLte            AggregationConditionOperator = "lte"
-	AggregationConditionOperatorIn             AggregationConditionOperator = "in"
-	AggregationConditionOperatorInConditionSet AggregationConditionOperator = "in_condition_set"
-)
-
-// AggregationConditionValueUnion contains all possible properties and values from
-// [string], [[]string].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfStringArray]
-type AggregationConditionValueUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [[]string] instead of an object.
-	OfStringArray []string `json:",inline"`
-	JSON          struct {
-		OfString      respjson.Field
-		OfStringArray respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-func (u AggregationConditionValueUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u AggregationConditionValueUnion) AsStringArray() (v []string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u AggregationConditionValueUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *AggregationConditionValueUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // Condition referencing an aggregation value. The field must start with
 // "aggregation." followed by the aggregation ID.
 //
@@ -970,9 +1618,13 @@ type AggregationConditionParam struct {
 	Field string `json:"field" api:"required"`
 	// Any of "reference".
 	FieldSource AggregationConditionFieldSource `json:"field_source,omitzero" api:"required"`
+	// Operator to use for policy conditions.
+	//
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator AggregationConditionOperator        `json:"operator,omitzero" api:"required"`
-	Value    AggregationConditionValueUnionParam `json:"value,omitzero" api:"required"`
+	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnionParam `json:"value,omitzero" api:"required"`
 	paramObj
 }
 
@@ -984,30 +1636,12 @@ func (r *AggregationConditionParam) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type AggregationConditionValueUnionParam struct {
-	OfString      param.Opt[string] `json:",omitzero,inline"`
-	OfStringArray []string          `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u AggregationConditionValueUnionParam) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfString, u.OfStringArray)
-}
-func (u *AggregationConditionValueUnionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
 // PolicyConditionUnion contains all possible properties and values from
-// [PolicyConditionEthereumTransaction], [PolicyConditionEthereumCalldata],
-// [PolicyConditionEthereumTypedDataDomain],
-// [PolicyConditionEthereumTypedDataMessage],
-// [PolicyConditionEthereum7702Authorization],
-// [PolicyConditionSolanaProgramInstruction],
-// [PolicyConditionSolanaSystemProgramInstruction],
-// [PolicyConditionSolanaTokenProgramInstruction], [PolicyConditionSystem],
+// [EthereumTransactionCondition], [EthereumCalldataCondition],
+// [EthereumTypedDataDomainCondition], [EthereumTypedDataMessageCondition],
+// [Ethereum7702AuthorizationCondition], [SolanaProgramInstructionCondition],
+// [SolanaSystemProgramInstructionCondition],
+// [SolanaTokenProgramInstructionCondition], [SystemCondition],
 // [TronTransactionCondition], [TronCalldataCondition],
 // [SuiTransactionCommandCondition], [SuiTransferObjectsCommandCondition],
 // [AggregationCondition].
@@ -1025,22 +1659,13 @@ type PolicyConditionUnion struct {
 	// "sui_transaction_command", "sui_transfer_objects_command", "reference".
 	FieldSource string `json:"field_source"`
 	Operator    string `json:"operator"`
-	// This field is a union of [PolicyConditionEthereumTransactionValueUnion],
-	// [PolicyConditionEthereumCalldataValueUnion],
-	// [PolicyConditionEthereumTypedDataDomainValueUnion],
-	// [PolicyConditionEthereumTypedDataMessageValueUnion],
-	// [PolicyConditionEthereum7702AuthorizationValueUnion],
-	// [PolicyConditionSolanaProgramInstructionValueUnion],
-	// [PolicyConditionSolanaSystemProgramInstructionValueUnion],
-	// [PolicyConditionSolanaTokenProgramInstructionValueUnion],
-	// [PolicyConditionSystemValueUnion], [TronTransactionConditionValueUnion],
-	// [TronCalldataConditionValueUnion], [SuiTransactionCommandConditionValueUnion],
-	// [SuiTransferObjectsCommandConditionValueUnion], [AggregationConditionValueUnion]
+	// This field is a union of [ConditionValueUnion],
+	// [SuiTransactionCommandConditionValueUnion]
 	Value PolicyConditionUnionValue `json:"value"`
-	// This field is from variant [PolicyConditionEthereumCalldata].
+	// This field is from variant [EthereumCalldataCondition].
 	Abi AbiSchema `json:"abi"`
-	// This field is from variant [PolicyConditionEthereumTypedDataMessage].
-	TypedData PolicyConditionEthereumTypedDataMessageTypedData `json:"typed_data"`
+	// This field is from variant [EthereumTypedDataMessageCondition].
+	TypedData EthereumTypedDataMessageConditionTypedData `json:"typed_data"`
 	JSON      struct {
 		Field       respjson.Field
 		FieldSource respjson.Field
@@ -1058,33 +1683,33 @@ type anyPolicyCondition interface {
 	implPolicyConditionUnion()
 }
 
-func (PolicyConditionEthereumTransaction) implPolicyConditionUnion()            {}
-func (PolicyConditionEthereumCalldata) implPolicyConditionUnion()               {}
-func (PolicyConditionEthereumTypedDataDomain) implPolicyConditionUnion()        {}
-func (PolicyConditionEthereumTypedDataMessage) implPolicyConditionUnion()       {}
-func (PolicyConditionEthereum7702Authorization) implPolicyConditionUnion()      {}
-func (PolicyConditionSolanaProgramInstruction) implPolicyConditionUnion()       {}
-func (PolicyConditionSolanaSystemProgramInstruction) implPolicyConditionUnion() {}
-func (PolicyConditionSolanaTokenProgramInstruction) implPolicyConditionUnion()  {}
-func (PolicyConditionSystem) implPolicyConditionUnion()                         {}
-func (TronTransactionCondition) implPolicyConditionUnion()                      {}
-func (TronCalldataCondition) implPolicyConditionUnion()                         {}
-func (SuiTransactionCommandCondition) implPolicyConditionUnion()                {}
-func (SuiTransferObjectsCommandCondition) implPolicyConditionUnion()            {}
-func (AggregationCondition) implPolicyConditionUnion()                          {}
+func (EthereumTransactionCondition) implPolicyConditionUnion()            {}
+func (EthereumCalldataCondition) implPolicyConditionUnion()               {}
+func (EthereumTypedDataDomainCondition) implPolicyConditionUnion()        {}
+func (EthereumTypedDataMessageCondition) implPolicyConditionUnion()       {}
+func (Ethereum7702AuthorizationCondition) implPolicyConditionUnion()      {}
+func (SolanaProgramInstructionCondition) implPolicyConditionUnion()       {}
+func (SolanaSystemProgramInstructionCondition) implPolicyConditionUnion() {}
+func (SolanaTokenProgramInstructionCondition) implPolicyConditionUnion()  {}
+func (SystemCondition) implPolicyConditionUnion()                         {}
+func (TronTransactionCondition) implPolicyConditionUnion()                {}
+func (TronCalldataCondition) implPolicyConditionUnion()                   {}
+func (SuiTransactionCommandCondition) implPolicyConditionUnion()          {}
+func (SuiTransferObjectsCommandCondition) implPolicyConditionUnion()      {}
+func (AggregationCondition) implPolicyConditionUnion()                    {}
 
 // Use the following switch statement to find the correct variant
 //
 //	switch variant := PolicyConditionUnion.AsAny().(type) {
-//	case privyclient.PolicyConditionEthereumTransaction:
-//	case privyclient.PolicyConditionEthereumCalldata:
-//	case privyclient.PolicyConditionEthereumTypedDataDomain:
-//	case privyclient.PolicyConditionEthereumTypedDataMessage:
-//	case privyclient.PolicyConditionEthereum7702Authorization:
-//	case privyclient.PolicyConditionSolanaProgramInstruction:
-//	case privyclient.PolicyConditionSolanaSystemProgramInstruction:
-//	case privyclient.PolicyConditionSolanaTokenProgramInstruction:
-//	case privyclient.PolicyConditionSystem:
+//	case privyclient.EthereumTransactionCondition:
+//	case privyclient.EthereumCalldataCondition:
+//	case privyclient.EthereumTypedDataDomainCondition:
+//	case privyclient.EthereumTypedDataMessageCondition:
+//	case privyclient.Ethereum7702AuthorizationCondition:
+//	case privyclient.SolanaProgramInstructionCondition:
+//	case privyclient.SolanaSystemProgramInstructionCondition:
+//	case privyclient.SolanaTokenProgramInstructionCondition:
+//	case privyclient.SystemCondition:
 //	case privyclient.TronTransactionCondition:
 //	case privyclient.TronCalldataCondition:
 //	case privyclient.SuiTransactionCommandCondition:
@@ -1127,47 +1752,47 @@ func (u PolicyConditionUnion) AsAny() anyPolicyCondition {
 	return nil
 }
 
-func (u PolicyConditionUnion) AsEthereumTransaction() (v PolicyConditionEthereumTransaction) {
+func (u PolicyConditionUnion) AsEthereumTransaction() (v EthereumTransactionCondition) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u PolicyConditionUnion) AsEthereumCalldata() (v PolicyConditionEthereumCalldata) {
+func (u PolicyConditionUnion) AsEthereumCalldata() (v EthereumCalldataCondition) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u PolicyConditionUnion) AsEthereumTypedDataDomain() (v PolicyConditionEthereumTypedDataDomain) {
+func (u PolicyConditionUnion) AsEthereumTypedDataDomain() (v EthereumTypedDataDomainCondition) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u PolicyConditionUnion) AsEthereumTypedDataMessage() (v PolicyConditionEthereumTypedDataMessage) {
+func (u PolicyConditionUnion) AsEthereumTypedDataMessage() (v EthereumTypedDataMessageCondition) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u PolicyConditionUnion) AsEthereum7702Authorization() (v PolicyConditionEthereum7702Authorization) {
+func (u PolicyConditionUnion) AsEthereum7702Authorization() (v Ethereum7702AuthorizationCondition) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u PolicyConditionUnion) AsSolanaProgramInstruction() (v PolicyConditionSolanaProgramInstruction) {
+func (u PolicyConditionUnion) AsSolanaProgramInstruction() (v SolanaProgramInstructionCondition) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u PolicyConditionUnion) AsSolanaSystemProgramInstruction() (v PolicyConditionSolanaSystemProgramInstruction) {
+func (u PolicyConditionUnion) AsSolanaSystemProgramInstruction() (v SolanaSystemProgramInstructionCondition) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u PolicyConditionUnion) AsSolanaTokenProgramInstruction() (v PolicyConditionSolanaTokenProgramInstruction) {
+func (u PolicyConditionUnion) AsSolanaTokenProgramInstruction() (v SolanaTokenProgramInstructionCondition) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u PolicyConditionUnion) AsSystem() (v PolicyConditionSystem) {
+func (u PolicyConditionUnion) AsSystem() (v SystemCondition) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -1246,700 +1871,24 @@ func (r PolicyConditionUnion) ToParam() PolicyConditionUnionParam {
 	return param.Override[PolicyConditionUnionParam](json.RawMessage(r.RawJSON()))
 }
 
-// The verbatim Ethereum transaction object in an eth_signTransaction or
-// eth_sendTransaction request.
-type PolicyConditionEthereumTransaction struct {
-	// Any of "to", "value", "chain_id".
-	Field       string                       `json:"field" api:"required"`
-	FieldSource constant.EthereumTransaction `json:"field_source" default:"ethereum_transaction"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                       `json:"operator" api:"required"`
-	Value    PolicyConditionEthereumTransactionValueUnion `json:"value" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Field       respjson.Field
-		FieldSource respjson.Field
-		Operator    respjson.Field
-		Value       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyConditionEthereumTransaction) RawJSON() string { return r.JSON.raw }
-func (r *PolicyConditionEthereumTransaction) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// PolicyConditionEthereumTransactionValueUnion contains all possible properties
-// and values from [string], [[]string].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfStringArray]
-type PolicyConditionEthereumTransactionValueUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [[]string] instead of an object.
-	OfStringArray []string `json:",inline"`
-	JSON          struct {
-		OfString      respjson.Field
-		OfStringArray respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-func (u PolicyConditionEthereumTransactionValueUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u PolicyConditionEthereumTransactionValueUnion) AsStringArray() (v []string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u PolicyConditionEthereumTransactionValueUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *PolicyConditionEthereumTransactionValueUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The decoded calldata in a smart contract interaction as the smart contract
-// method's parameters. Note that that 'ethereum_calldata' conditions must contain
-// an abi parameter with the JSON ABI of the smart contract.
-type PolicyConditionEthereumCalldata struct {
-	// A Solidity ABI definition for decoding smart contract calldata.
-	Abi         AbiSchema                 `json:"abi" api:"required"`
-	Field       string                    `json:"field" api:"required"`
-	FieldSource constant.EthereumCalldata `json:"field_source" default:"ethereum_calldata"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                    `json:"operator" api:"required"`
-	Value    PolicyConditionEthereumCalldataValueUnion `json:"value" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Abi         respjson.Field
-		Field       respjson.Field
-		FieldSource respjson.Field
-		Operator    respjson.Field
-		Value       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyConditionEthereumCalldata) RawJSON() string { return r.JSON.raw }
-func (r *PolicyConditionEthereumCalldata) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// PolicyConditionEthereumCalldataValueUnion contains all possible properties and
-// values from [string], [[]string].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfStringArray]
-type PolicyConditionEthereumCalldataValueUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [[]string] instead of an object.
-	OfStringArray []string `json:",inline"`
-	JSON          struct {
-		OfString      respjson.Field
-		OfStringArray respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-func (u PolicyConditionEthereumCalldataValueUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u PolicyConditionEthereumCalldataValueUnion) AsStringArray() (v []string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u PolicyConditionEthereumCalldataValueUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *PolicyConditionEthereumCalldataValueUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Attributes from the signing domain that will verify the signature.
-type PolicyConditionEthereumTypedDataDomain struct {
-	// Any of "chainId", "verifyingContract", "chain_id", "verifying_contract".
-	Field       string                           `json:"field" api:"required"`
-	FieldSource constant.EthereumTypedDataDomain `json:"field_source" default:"ethereum_typed_data_domain"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                           `json:"operator" api:"required"`
-	Value    PolicyConditionEthereumTypedDataDomainValueUnion `json:"value" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Field       respjson.Field
-		FieldSource respjson.Field
-		Operator    respjson.Field
-		Value       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyConditionEthereumTypedDataDomain) RawJSON() string { return r.JSON.raw }
-func (r *PolicyConditionEthereumTypedDataDomain) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// PolicyConditionEthereumTypedDataDomainValueUnion contains all possible
-// properties and values from [string], [[]string].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfStringArray]
-type PolicyConditionEthereumTypedDataDomainValueUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [[]string] instead of an object.
-	OfStringArray []string `json:",inline"`
-	JSON          struct {
-		OfString      respjson.Field
-		OfStringArray respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-func (u PolicyConditionEthereumTypedDataDomainValueUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u PolicyConditionEthereumTypedDataDomainValueUnion) AsStringArray() (v []string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u PolicyConditionEthereumTypedDataDomainValueUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *PolicyConditionEthereumTypedDataDomainValueUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// 'types' and 'primary_type' attributes of the TypedData JSON object defined in
-// EIP-712.
-type PolicyConditionEthereumTypedDataMessage struct {
-	Field       string                            `json:"field" api:"required"`
-	FieldSource constant.EthereumTypedDataMessage `json:"field_source" default:"ethereum_typed_data_message"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator  string                                            `json:"operator" api:"required"`
-	TypedData PolicyConditionEthereumTypedDataMessageTypedData  `json:"typed_data" api:"required"`
-	Value     PolicyConditionEthereumTypedDataMessageValueUnion `json:"value" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Field       respjson.Field
-		FieldSource respjson.Field
-		Operator    respjson.Field
-		TypedData   respjson.Field
-		Value       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyConditionEthereumTypedDataMessage) RawJSON() string { return r.JSON.raw }
-func (r *PolicyConditionEthereumTypedDataMessage) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type PolicyConditionEthereumTypedDataMessageTypedData struct {
-	PrimaryType string `json:"primary_type" api:"required"`
-	// The type definitions for EIP-712 typed data signing.
-	Types TypedDataTypesInputParamsResp `json:"types" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		PrimaryType respjson.Field
-		Types       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyConditionEthereumTypedDataMessageTypedData) RawJSON() string { return r.JSON.raw }
-func (r *PolicyConditionEthereumTypedDataMessageTypedData) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// PolicyConditionEthereumTypedDataMessageValueUnion contains all possible
-// properties and values from [string], [[]string].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfStringArray]
-type PolicyConditionEthereumTypedDataMessageValueUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [[]string] instead of an object.
-	OfStringArray []string `json:",inline"`
-	JSON          struct {
-		OfString      respjson.Field
-		OfStringArray respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-func (u PolicyConditionEthereumTypedDataMessageValueUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u PolicyConditionEthereumTypedDataMessageValueUnion) AsStringArray() (v []string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u PolicyConditionEthereumTypedDataMessageValueUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *PolicyConditionEthereumTypedDataMessageValueUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Allowed contract addresses for eth_sign7702Authorization requests.
-type PolicyConditionEthereum7702Authorization struct {
-	// Any of "contract".
-	Field       string                             `json:"field" api:"required"`
-	FieldSource constant.Ethereum7702Authorization `json:"field_source" default:"ethereum_7702_authorization"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                             `json:"operator" api:"required"`
-	Value    PolicyConditionEthereum7702AuthorizationValueUnion `json:"value" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Field       respjson.Field
-		FieldSource respjson.Field
-		Operator    respjson.Field
-		Value       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyConditionEthereum7702Authorization) RawJSON() string { return r.JSON.raw }
-func (r *PolicyConditionEthereum7702Authorization) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// PolicyConditionEthereum7702AuthorizationValueUnion contains all possible
-// properties and values from [string], [[]string].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfStringArray]
-type PolicyConditionEthereum7702AuthorizationValueUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [[]string] instead of an object.
-	OfStringArray []string `json:",inline"`
-	JSON          struct {
-		OfString      respjson.Field
-		OfStringArray respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-func (u PolicyConditionEthereum7702AuthorizationValueUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u PolicyConditionEthereum7702AuthorizationValueUnion) AsStringArray() (v []string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u PolicyConditionEthereum7702AuthorizationValueUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *PolicyConditionEthereum7702AuthorizationValueUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Solana Program attributes, enables allowlisting Solana Programs.
-type PolicyConditionSolanaProgramInstruction struct {
-	// Any of "programId".
-	Field       string                            `json:"field" api:"required"`
-	FieldSource constant.SolanaProgramInstruction `json:"field_source" default:"solana_program_instruction"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                            `json:"operator" api:"required"`
-	Value    PolicyConditionSolanaProgramInstructionValueUnion `json:"value" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Field       respjson.Field
-		FieldSource respjson.Field
-		Operator    respjson.Field
-		Value       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyConditionSolanaProgramInstruction) RawJSON() string { return r.JSON.raw }
-func (r *PolicyConditionSolanaProgramInstruction) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// PolicyConditionSolanaProgramInstructionValueUnion contains all possible
-// properties and values from [string], [[]string].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfStringArray]
-type PolicyConditionSolanaProgramInstructionValueUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [[]string] instead of an object.
-	OfStringArray []string `json:",inline"`
-	JSON          struct {
-		OfString      respjson.Field
-		OfStringArray respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-func (u PolicyConditionSolanaProgramInstructionValueUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u PolicyConditionSolanaProgramInstructionValueUnion) AsStringArray() (v []string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u PolicyConditionSolanaProgramInstructionValueUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *PolicyConditionSolanaProgramInstructionValueUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Solana System Program attributes, including more granular Transfer instruction
-// fields.
-type PolicyConditionSolanaSystemProgramInstruction struct {
-	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
-	Field       string                                  `json:"field" api:"required"`
-	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" default:"solana_system_program_instruction"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                  `json:"operator" api:"required"`
-	Value    PolicyConditionSolanaSystemProgramInstructionValueUnion `json:"value" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Field       respjson.Field
-		FieldSource respjson.Field
-		Operator    respjson.Field
-		Value       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyConditionSolanaSystemProgramInstruction) RawJSON() string { return r.JSON.raw }
-func (r *PolicyConditionSolanaSystemProgramInstruction) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// PolicyConditionSolanaSystemProgramInstructionValueUnion contains all possible
-// properties and values from [string], [[]string].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfStringArray]
-type PolicyConditionSolanaSystemProgramInstructionValueUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [[]string] instead of an object.
-	OfStringArray []string `json:",inline"`
-	JSON          struct {
-		OfString      respjson.Field
-		OfStringArray respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-func (u PolicyConditionSolanaSystemProgramInstructionValueUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u PolicyConditionSolanaSystemProgramInstructionValueUnion) AsStringArray() (v []string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u PolicyConditionSolanaSystemProgramInstructionValueUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *PolicyConditionSolanaSystemProgramInstructionValueUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Solana Token Program attributes, including more granular TransferChecked
-// instruction fields.
-type PolicyConditionSolanaTokenProgramInstruction struct {
-	// Any of "instructionName", "Transfer.source", "Transfer.destination",
-	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
-	// "TransferChecked.destination", "TransferChecked.authority",
-	// "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint",
-	// "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account",
-	// "MintTo.authority", "MintTo.amount", "CloseAccount.account",
-	// "CloseAccount.destination", "CloseAccount.authority",
-	// "InitializeAccount3.account", "InitializeAccount3.mint",
-	// "InitializeAccount3.owner".
-	Field       string                                 `json:"field" api:"required"`
-	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" default:"solana_token_program_instruction"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                 `json:"operator" api:"required"`
-	Value    PolicyConditionSolanaTokenProgramInstructionValueUnion `json:"value" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Field       respjson.Field
-		FieldSource respjson.Field
-		Operator    respjson.Field
-		Value       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyConditionSolanaTokenProgramInstruction) RawJSON() string { return r.JSON.raw }
-func (r *PolicyConditionSolanaTokenProgramInstruction) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// PolicyConditionSolanaTokenProgramInstructionValueUnion contains all possible
-// properties and values from [string], [[]string].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfStringArray]
-type PolicyConditionSolanaTokenProgramInstructionValueUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [[]string] instead of an object.
-	OfStringArray []string `json:",inline"`
-	JSON          struct {
-		OfString      respjson.Field
-		OfStringArray respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-func (u PolicyConditionSolanaTokenProgramInstructionValueUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u PolicyConditionSolanaTokenProgramInstructionValueUnion) AsStringArray() (v []string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u PolicyConditionSolanaTokenProgramInstructionValueUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *PolicyConditionSolanaTokenProgramInstructionValueUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// System attributes, including current unix timestamp (in seconds).
-type PolicyConditionSystem struct {
-	// Any of "current_unix_timestamp".
-	Field       string          `json:"field" api:"required"`
-	FieldSource constant.System `json:"field_source" default:"system"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                          `json:"operator" api:"required"`
-	Value    PolicyConditionSystemValueUnion `json:"value" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Field       respjson.Field
-		FieldSource respjson.Field
-		Operator    respjson.Field
-		Value       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyConditionSystem) RawJSON() string { return r.JSON.raw }
-func (r *PolicyConditionSystem) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// PolicyConditionSystemValueUnion contains all possible properties and values from
-// [string], [[]string].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfStringArray]
-type PolicyConditionSystemValueUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [[]string] instead of an object.
-	OfStringArray []string `json:",inline"`
-	JSON          struct {
-		OfString      respjson.Field
-		OfStringArray respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-func (u PolicyConditionSystemValueUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u PolicyConditionSystemValueUnion) AsStringArray() (v []string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u PolicyConditionSystemValueUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *PolicyConditionSystemValueUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func PolicyConditionParamOfEthereumTransaction[T string | []string](field string, operator string, value T) PolicyConditionUnionParam {
-	var ethereumTransaction PolicyConditionEthereumTransactionParam
-	ethereumTransaction.Field = field
-	ethereumTransaction.Operator = operator
-	switch v := any(value).(type) {
-	case string:
-		ethereumTransaction.Value.OfString = param.NewOpt(v)
-	case []string:
-		ethereumTransaction.Value.OfStringArray = v
-	}
-	return PolicyConditionUnionParam{OfEthereumTransaction: &ethereumTransaction}
-}
-
-func PolicyConditionParamOfEthereumTypedDataDomain[T string | []string](field string, operator string, value T) PolicyConditionUnionParam {
-	var ethereumTypedDataDomain PolicyConditionEthereumTypedDataDomainParam
-	ethereumTypedDataDomain.Field = field
-	ethereumTypedDataDomain.Operator = operator
-	switch v := any(value).(type) {
-	case string:
-		ethereumTypedDataDomain.Value.OfString = param.NewOpt(v)
-	case []string:
-		ethereumTypedDataDomain.Value.OfStringArray = v
-	}
-	return PolicyConditionUnionParam{OfEthereumTypedDataDomain: &ethereumTypedDataDomain}
-}
-
-func PolicyConditionParamOfEthereum7702Authorization[T string | []string](field string, operator string, value T) PolicyConditionUnionParam {
-	var ethereum7702Authorization PolicyConditionEthereum7702AuthorizationParam
-	ethereum7702Authorization.Field = field
-	ethereum7702Authorization.Operator = operator
-	switch v := any(value).(type) {
-	case string:
-		ethereum7702Authorization.Value.OfString = param.NewOpt(v)
-	case []string:
-		ethereum7702Authorization.Value.OfStringArray = v
-	}
-	return PolicyConditionUnionParam{OfEthereum7702Authorization: &ethereum7702Authorization}
-}
-
-func PolicyConditionParamOfSolanaProgramInstruction[T string | []string](field string, operator string, value T) PolicyConditionUnionParam {
-	var solanaProgramInstruction PolicyConditionSolanaProgramInstructionParam
-	solanaProgramInstruction.Field = field
-	solanaProgramInstruction.Operator = operator
-	switch v := any(value).(type) {
-	case string:
-		solanaProgramInstruction.Value.OfString = param.NewOpt(v)
-	case []string:
-		solanaProgramInstruction.Value.OfStringArray = v
-	}
-	return PolicyConditionUnionParam{OfSolanaProgramInstruction: &solanaProgramInstruction}
-}
-
-func PolicyConditionParamOfSolanaSystemProgramInstruction[T string | []string](field string, operator string, value T) PolicyConditionUnionParam {
-	var solanaSystemProgramInstruction PolicyConditionSolanaSystemProgramInstructionParam
-	solanaSystemProgramInstruction.Field = field
-	solanaSystemProgramInstruction.Operator = operator
-	switch v := any(value).(type) {
-	case string:
-		solanaSystemProgramInstruction.Value.OfString = param.NewOpt(v)
-	case []string:
-		solanaSystemProgramInstruction.Value.OfStringArray = v
-	}
-	return PolicyConditionUnionParam{OfSolanaSystemProgramInstruction: &solanaSystemProgramInstruction}
-}
-
-func PolicyConditionParamOfSolanaTokenProgramInstruction[T string | []string](field string, operator string, value T) PolicyConditionUnionParam {
-	var solanaTokenProgramInstruction PolicyConditionSolanaTokenProgramInstructionParam
-	solanaTokenProgramInstruction.Field = field
-	solanaTokenProgramInstruction.Operator = operator
-	switch v := any(value).(type) {
-	case string:
-		solanaTokenProgramInstruction.Value.OfString = param.NewOpt(v)
-	case []string:
-		solanaTokenProgramInstruction.Value.OfStringArray = v
-	}
-	return PolicyConditionUnionParam{OfSolanaTokenProgramInstruction: &solanaTokenProgramInstruction}
-}
-
-func PolicyConditionParamOfSystem[T string | []string](field string, operator string, value T) PolicyConditionUnionParam {
-	var system PolicyConditionSystemParam
-	system.Field = field
-	system.Operator = operator
-	switch v := any(value).(type) {
-	case string:
-		system.Value.OfString = param.NewOpt(v)
-	case []string:
-		system.Value.OfStringArray = v
-	}
-	return PolicyConditionUnionParam{OfSystem: &system}
-}
-
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
 type PolicyConditionUnionParam struct {
-	OfEthereumTransaction            *PolicyConditionEthereumTransactionParam            `json:",omitzero,inline"`
-	OfEthereumCalldata               *PolicyConditionEthereumCalldataParam               `json:",omitzero,inline"`
-	OfEthereumTypedDataDomain        *PolicyConditionEthereumTypedDataDomainParam        `json:",omitzero,inline"`
-	OfEthereumTypedDataMessage       *PolicyConditionEthereumTypedDataMessageParam       `json:",omitzero,inline"`
-	OfEthereum7702Authorization      *PolicyConditionEthereum7702AuthorizationParam      `json:",omitzero,inline"`
-	OfSolanaProgramInstruction       *PolicyConditionSolanaProgramInstructionParam       `json:",omitzero,inline"`
-	OfSolanaSystemProgramInstruction *PolicyConditionSolanaSystemProgramInstructionParam `json:",omitzero,inline"`
-	OfSolanaTokenProgramInstruction  *PolicyConditionSolanaTokenProgramInstructionParam  `json:",omitzero,inline"`
-	OfSystem                         *PolicyConditionSystemParam                         `json:",omitzero,inline"`
-	OfTronTransaction                *TronTransactionConditionParam                      `json:",omitzero,inline"`
-	OfTronTriggerSmartContractData   *TronCalldataConditionParam                         `json:",omitzero,inline"`
-	OfSuiTransactionCommand          *SuiTransactionCommandConditionParam                `json:",omitzero,inline"`
-	OfSuiTransferObjectsCommand      *SuiTransferObjectsCommandConditionParam            `json:",omitzero,inline"`
-	OfReference                      *AggregationConditionParam                          `json:",omitzero,inline"`
+	OfEthereumTransaction            *EthereumTransactionConditionParam            `json:",omitzero,inline"`
+	OfEthereumCalldata               *EthereumCalldataConditionParam               `json:",omitzero,inline"`
+	OfEthereumTypedDataDomain        *EthereumTypedDataDomainConditionParam        `json:",omitzero,inline"`
+	OfEthereumTypedDataMessage       *EthereumTypedDataMessageConditionParam       `json:",omitzero,inline"`
+	OfEthereum7702Authorization      *Ethereum7702AuthorizationConditionParam      `json:",omitzero,inline"`
+	OfSolanaProgramInstruction       *SolanaProgramInstructionConditionParam       `json:",omitzero,inline"`
+	OfSolanaSystemProgramInstruction *SolanaSystemProgramInstructionConditionParam `json:",omitzero,inline"`
+	OfSolanaTokenProgramInstruction  *SolanaTokenProgramInstructionConditionParam  `json:",omitzero,inline"`
+	OfSystem                         *SystemConditionParam                         `json:",omitzero,inline"`
+	OfTronTransaction                *TronTransactionConditionParam                `json:",omitzero,inline"`
+	OfTronTriggerSmartContractData   *TronCalldataConditionParam                   `json:",omitzero,inline"`
+	OfSuiTransactionCommand          *SuiTransactionCommandConditionParam          `json:",omitzero,inline"`
+	OfSuiTransferObjectsCommand      *SuiTransferObjectsCommandConditionParam      `json:",omitzero,inline"`
+	OfReference                      *AggregationConditionParam                    `json:",omitzero,inline"`
 	paramUnion
 }
 
@@ -1966,477 +1915,21 @@ func (u *PolicyConditionUnionParam) UnmarshalJSON(data []byte) error {
 func init() {
 	apijson.RegisterUnion[PolicyConditionUnionParam](
 		"field_source",
-		apijson.Discriminator[PolicyConditionEthereumTransactionParam]("ethereum_transaction"),
-		apijson.Discriminator[PolicyConditionEthereumCalldataParam]("ethereum_calldata"),
-		apijson.Discriminator[PolicyConditionEthereumTypedDataDomainParam]("ethereum_typed_data_domain"),
-		apijson.Discriminator[PolicyConditionEthereumTypedDataMessageParam]("ethereum_typed_data_message"),
-		apijson.Discriminator[PolicyConditionEthereum7702AuthorizationParam]("ethereum_7702_authorization"),
-		apijson.Discriminator[PolicyConditionSolanaProgramInstructionParam]("solana_program_instruction"),
-		apijson.Discriminator[PolicyConditionSolanaSystemProgramInstructionParam]("solana_system_program_instruction"),
-		apijson.Discriminator[PolicyConditionSolanaTokenProgramInstructionParam]("solana_token_program_instruction"),
-		apijson.Discriminator[PolicyConditionSystemParam]("system"),
+		apijson.Discriminator[EthereumTransactionConditionParam]("ethereum_transaction"),
+		apijson.Discriminator[EthereumCalldataConditionParam]("ethereum_calldata"),
+		apijson.Discriminator[EthereumTypedDataDomainConditionParam]("ethereum_typed_data_domain"),
+		apijson.Discriminator[EthereumTypedDataMessageConditionParam]("ethereum_typed_data_message"),
+		apijson.Discriminator[Ethereum7702AuthorizationConditionParam]("ethereum_7702_authorization"),
+		apijson.Discriminator[SolanaProgramInstructionConditionParam]("solana_program_instruction"),
+		apijson.Discriminator[SolanaSystemProgramInstructionConditionParam]("solana_system_program_instruction"),
+		apijson.Discriminator[SolanaTokenProgramInstructionConditionParam]("solana_token_program_instruction"),
+		apijson.Discriminator[SystemConditionParam]("system"),
 		apijson.Discriminator[TronTransactionConditionParam]("tron_transaction"),
 		apijson.Discriminator[TronCalldataConditionParam]("tron_trigger_smart_contract_data"),
 		apijson.Discriminator[SuiTransactionCommandConditionParam]("sui_transaction_command"),
 		apijson.Discriminator[SuiTransferObjectsCommandConditionParam]("sui_transfer_objects_command"),
 		apijson.Discriminator[AggregationConditionParam]("reference"),
 	)
-}
-
-// The verbatim Ethereum transaction object in an eth_signTransaction or
-// eth_sendTransaction request.
-//
-// The properties Field, FieldSource, Operator, Value are required.
-type PolicyConditionEthereumTransactionParam struct {
-	// Any of "to", "value", "chain_id".
-	Field string `json:"field,omitzero" api:"required"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                            `json:"operator,omitzero" api:"required"`
-	Value    PolicyConditionEthereumTransactionValueUnionParam `json:"value,omitzero" api:"required"`
-	// This field can be elided, and will marshal its zero value as
-	// "ethereum_transaction".
-	FieldSource constant.EthereumTransaction `json:"field_source" default:"ethereum_transaction"`
-	paramObj
-}
-
-func (r PolicyConditionEthereumTransactionParam) MarshalJSON() (data []byte, err error) {
-	type shadow PolicyConditionEthereumTransactionParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *PolicyConditionEthereumTransactionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func init() {
-	apijson.RegisterFieldValidator[PolicyConditionEthereumTransactionParam](
-		"field", "to", "value", "chain_id",
-	)
-	apijson.RegisterFieldValidator[PolicyConditionEthereumTransactionParam](
-		"operator", "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set",
-	)
-}
-
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type PolicyConditionEthereumTransactionValueUnionParam struct {
-	OfString      param.Opt[string] `json:",omitzero,inline"`
-	OfStringArray []string          `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u PolicyConditionEthereumTransactionValueUnionParam) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfString, u.OfStringArray)
-}
-func (u *PolicyConditionEthereumTransactionValueUnionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
-// The decoded calldata in a smart contract interaction as the smart contract
-// method's parameters. Note that that 'ethereum_calldata' conditions must contain
-// an abi parameter with the JSON ABI of the smart contract.
-//
-// The properties Abi, Field, FieldSource, Operator, Value are required.
-type PolicyConditionEthereumCalldataParam struct {
-	// A Solidity ABI definition for decoding smart contract calldata.
-	Abi   AbiSchemaParam `json:"abi,omitzero" api:"required"`
-	Field string         `json:"field" api:"required"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                         `json:"operator,omitzero" api:"required"`
-	Value    PolicyConditionEthereumCalldataValueUnionParam `json:"value,omitzero" api:"required"`
-	// This field can be elided, and will marshal its zero value as
-	// "ethereum_calldata".
-	FieldSource constant.EthereumCalldata `json:"field_source" default:"ethereum_calldata"`
-	paramObj
-}
-
-func (r PolicyConditionEthereumCalldataParam) MarshalJSON() (data []byte, err error) {
-	type shadow PolicyConditionEthereumCalldataParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *PolicyConditionEthereumCalldataParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func init() {
-	apijson.RegisterFieldValidator[PolicyConditionEthereumCalldataParam](
-		"operator", "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set",
-	)
-}
-
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type PolicyConditionEthereumCalldataValueUnionParam struct {
-	OfString      param.Opt[string] `json:",omitzero,inline"`
-	OfStringArray []string          `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u PolicyConditionEthereumCalldataValueUnionParam) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfString, u.OfStringArray)
-}
-func (u *PolicyConditionEthereumCalldataValueUnionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
-// Attributes from the signing domain that will verify the signature.
-//
-// The properties Field, FieldSource, Operator, Value are required.
-type PolicyConditionEthereumTypedDataDomainParam struct {
-	// Any of "chainId", "verifyingContract", "chain_id", "verifying_contract".
-	Field string `json:"field,omitzero" api:"required"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                `json:"operator,omitzero" api:"required"`
-	Value    PolicyConditionEthereumTypedDataDomainValueUnionParam `json:"value,omitzero" api:"required"`
-	// This field can be elided, and will marshal its zero value as
-	// "ethereum_typed_data_domain".
-	FieldSource constant.EthereumTypedDataDomain `json:"field_source" default:"ethereum_typed_data_domain"`
-	paramObj
-}
-
-func (r PolicyConditionEthereumTypedDataDomainParam) MarshalJSON() (data []byte, err error) {
-	type shadow PolicyConditionEthereumTypedDataDomainParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *PolicyConditionEthereumTypedDataDomainParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func init() {
-	apijson.RegisterFieldValidator[PolicyConditionEthereumTypedDataDomainParam](
-		"field", "chainId", "verifyingContract", "chain_id", "verifying_contract",
-	)
-	apijson.RegisterFieldValidator[PolicyConditionEthereumTypedDataDomainParam](
-		"operator", "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set",
-	)
-}
-
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type PolicyConditionEthereumTypedDataDomainValueUnionParam struct {
-	OfString      param.Opt[string] `json:",omitzero,inline"`
-	OfStringArray []string          `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u PolicyConditionEthereumTypedDataDomainValueUnionParam) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfString, u.OfStringArray)
-}
-func (u *PolicyConditionEthereumTypedDataDomainValueUnionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
-// 'types' and 'primary_type' attributes of the TypedData JSON object defined in
-// EIP-712.
-//
-// The properties Field, FieldSource, Operator, TypedData, Value are required.
-type PolicyConditionEthereumTypedDataMessageParam struct {
-	Field string `json:"field" api:"required"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator  string                                                 `json:"operator,omitzero" api:"required"`
-	TypedData PolicyConditionEthereumTypedDataMessageTypedDataParam  `json:"typed_data,omitzero" api:"required"`
-	Value     PolicyConditionEthereumTypedDataMessageValueUnionParam `json:"value,omitzero" api:"required"`
-	// This field can be elided, and will marshal its zero value as
-	// "ethereum_typed_data_message".
-	FieldSource constant.EthereumTypedDataMessage `json:"field_source" default:"ethereum_typed_data_message"`
-	paramObj
-}
-
-func (r PolicyConditionEthereumTypedDataMessageParam) MarshalJSON() (data []byte, err error) {
-	type shadow PolicyConditionEthereumTypedDataMessageParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *PolicyConditionEthereumTypedDataMessageParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func init() {
-	apijson.RegisterFieldValidator[PolicyConditionEthereumTypedDataMessageParam](
-		"operator", "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set",
-	)
-}
-
-// The properties PrimaryType, Types are required.
-type PolicyConditionEthereumTypedDataMessageTypedDataParam struct {
-	PrimaryType string `json:"primary_type" api:"required"`
-	// The type definitions for EIP-712 typed data signing.
-	Types TypedDataTypesInputParams `json:"types,omitzero" api:"required"`
-	paramObj
-}
-
-func (r PolicyConditionEthereumTypedDataMessageTypedDataParam) MarshalJSON() (data []byte, err error) {
-	type shadow PolicyConditionEthereumTypedDataMessageTypedDataParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *PolicyConditionEthereumTypedDataMessageTypedDataParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type PolicyConditionEthereumTypedDataMessageValueUnionParam struct {
-	OfString      param.Opt[string] `json:",omitzero,inline"`
-	OfStringArray []string          `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u PolicyConditionEthereumTypedDataMessageValueUnionParam) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfString, u.OfStringArray)
-}
-func (u *PolicyConditionEthereumTypedDataMessageValueUnionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
-// Allowed contract addresses for eth_sign7702Authorization requests.
-//
-// The properties Field, FieldSource, Operator, Value are required.
-type PolicyConditionEthereum7702AuthorizationParam struct {
-	// Any of "contract".
-	Field string `json:"field,omitzero" api:"required"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                  `json:"operator,omitzero" api:"required"`
-	Value    PolicyConditionEthereum7702AuthorizationValueUnionParam `json:"value,omitzero" api:"required"`
-	// This field can be elided, and will marshal its zero value as
-	// "ethereum_7702_authorization".
-	FieldSource constant.Ethereum7702Authorization `json:"field_source" default:"ethereum_7702_authorization"`
-	paramObj
-}
-
-func (r PolicyConditionEthereum7702AuthorizationParam) MarshalJSON() (data []byte, err error) {
-	type shadow PolicyConditionEthereum7702AuthorizationParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *PolicyConditionEthereum7702AuthorizationParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func init() {
-	apijson.RegisterFieldValidator[PolicyConditionEthereum7702AuthorizationParam](
-		"field", "contract",
-	)
-	apijson.RegisterFieldValidator[PolicyConditionEthereum7702AuthorizationParam](
-		"operator", "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set",
-	)
-}
-
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type PolicyConditionEthereum7702AuthorizationValueUnionParam struct {
-	OfString      param.Opt[string] `json:",omitzero,inline"`
-	OfStringArray []string          `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u PolicyConditionEthereum7702AuthorizationValueUnionParam) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfString, u.OfStringArray)
-}
-func (u *PolicyConditionEthereum7702AuthorizationValueUnionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
-// Solana Program attributes, enables allowlisting Solana Programs.
-//
-// The properties Field, FieldSource, Operator, Value are required.
-type PolicyConditionSolanaProgramInstructionParam struct {
-	// Any of "programId".
-	Field string `json:"field,omitzero" api:"required"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                 `json:"operator,omitzero" api:"required"`
-	Value    PolicyConditionSolanaProgramInstructionValueUnionParam `json:"value,omitzero" api:"required"`
-	// This field can be elided, and will marshal its zero value as
-	// "solana_program_instruction".
-	FieldSource constant.SolanaProgramInstruction `json:"field_source" default:"solana_program_instruction"`
-	paramObj
-}
-
-func (r PolicyConditionSolanaProgramInstructionParam) MarshalJSON() (data []byte, err error) {
-	type shadow PolicyConditionSolanaProgramInstructionParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *PolicyConditionSolanaProgramInstructionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func init() {
-	apijson.RegisterFieldValidator[PolicyConditionSolanaProgramInstructionParam](
-		"field", "programId",
-	)
-	apijson.RegisterFieldValidator[PolicyConditionSolanaProgramInstructionParam](
-		"operator", "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set",
-	)
-}
-
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type PolicyConditionSolanaProgramInstructionValueUnionParam struct {
-	OfString      param.Opt[string] `json:",omitzero,inline"`
-	OfStringArray []string          `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u PolicyConditionSolanaProgramInstructionValueUnionParam) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfString, u.OfStringArray)
-}
-func (u *PolicyConditionSolanaProgramInstructionValueUnionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
-// Solana System Program attributes, including more granular Transfer instruction
-// fields.
-//
-// The properties Field, FieldSource, Operator, Value are required.
-type PolicyConditionSolanaSystemProgramInstructionParam struct {
-	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
-	Field string `json:"field,omitzero" api:"required"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                       `json:"operator,omitzero" api:"required"`
-	Value    PolicyConditionSolanaSystemProgramInstructionValueUnionParam `json:"value,omitzero" api:"required"`
-	// This field can be elided, and will marshal its zero value as
-	// "solana_system_program_instruction".
-	FieldSource constant.SolanaSystemProgramInstruction `json:"field_source" default:"solana_system_program_instruction"`
-	paramObj
-}
-
-func (r PolicyConditionSolanaSystemProgramInstructionParam) MarshalJSON() (data []byte, err error) {
-	type shadow PolicyConditionSolanaSystemProgramInstructionParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *PolicyConditionSolanaSystemProgramInstructionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func init() {
-	apijson.RegisterFieldValidator[PolicyConditionSolanaSystemProgramInstructionParam](
-		"field", "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports",
-	)
-	apijson.RegisterFieldValidator[PolicyConditionSolanaSystemProgramInstructionParam](
-		"operator", "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set",
-	)
-}
-
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type PolicyConditionSolanaSystemProgramInstructionValueUnionParam struct {
-	OfString      param.Opt[string] `json:",omitzero,inline"`
-	OfStringArray []string          `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u PolicyConditionSolanaSystemProgramInstructionValueUnionParam) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfString, u.OfStringArray)
-}
-func (u *PolicyConditionSolanaSystemProgramInstructionValueUnionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
-// Solana Token Program attributes, including more granular TransferChecked
-// instruction fields.
-//
-// The properties Field, FieldSource, Operator, Value are required.
-type PolicyConditionSolanaTokenProgramInstructionParam struct {
-	// Any of "instructionName", "Transfer.source", "Transfer.destination",
-	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
-	// "TransferChecked.destination", "TransferChecked.authority",
-	// "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint",
-	// "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account",
-	// "MintTo.authority", "MintTo.amount", "CloseAccount.account",
-	// "CloseAccount.destination", "CloseAccount.authority",
-	// "InitializeAccount3.account", "InitializeAccount3.mint",
-	// "InitializeAccount3.owner".
-	Field string `json:"field,omitzero" api:"required"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                                                      `json:"operator,omitzero" api:"required"`
-	Value    PolicyConditionSolanaTokenProgramInstructionValueUnionParam `json:"value,omitzero" api:"required"`
-	// This field can be elided, and will marshal its zero value as
-	// "solana_token_program_instruction".
-	FieldSource constant.SolanaTokenProgramInstruction `json:"field_source" default:"solana_token_program_instruction"`
-	paramObj
-}
-
-func (r PolicyConditionSolanaTokenProgramInstructionParam) MarshalJSON() (data []byte, err error) {
-	type shadow PolicyConditionSolanaTokenProgramInstructionParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *PolicyConditionSolanaTokenProgramInstructionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func init() {
-	apijson.RegisterFieldValidator[PolicyConditionSolanaTokenProgramInstructionParam](
-		"field", "instructionName", "Transfer.source", "Transfer.destination", "Transfer.authority", "Transfer.amount", "TransferChecked.source", "TransferChecked.destination", "TransferChecked.authority", "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint", "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account", "MintTo.authority", "MintTo.amount", "CloseAccount.account", "CloseAccount.destination", "CloseAccount.authority", "InitializeAccount3.account", "InitializeAccount3.mint", "InitializeAccount3.owner",
-	)
-	apijson.RegisterFieldValidator[PolicyConditionSolanaTokenProgramInstructionParam](
-		"operator", "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set",
-	)
-}
-
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type PolicyConditionSolanaTokenProgramInstructionValueUnionParam struct {
-	OfString      param.Opt[string] `json:",omitzero,inline"`
-	OfStringArray []string          `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u PolicyConditionSolanaTokenProgramInstructionValueUnionParam) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfString, u.OfStringArray)
-}
-func (u *PolicyConditionSolanaTokenProgramInstructionValueUnionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
-// System attributes, including current unix timestamp (in seconds).
-//
-// The properties Field, FieldSource, Operator, Value are required.
-type PolicyConditionSystemParam struct {
-	// Any of "current_unix_timestamp".
-	Field string `json:"field,omitzero" api:"required"`
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator string                               `json:"operator,omitzero" api:"required"`
-	Value    PolicyConditionSystemValueUnionParam `json:"value,omitzero" api:"required"`
-	// This field can be elided, and will marshal its zero value as "system".
-	FieldSource constant.System `json:"field_source" default:"system"`
-	paramObj
-}
-
-func (r PolicyConditionSystemParam) MarshalJSON() (data []byte, err error) {
-	type shadow PolicyConditionSystemParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *PolicyConditionSystemParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func init() {
-	apijson.RegisterFieldValidator[PolicyConditionSystemParam](
-		"field", "current_unix_timestamp",
-	)
-	apijson.RegisterFieldValidator[PolicyConditionSystemParam](
-		"operator", "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set",
-	)
-}
-
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type PolicyConditionSystemValueUnionParam struct {
-	OfString      param.Opt[string] `json:",omitzero,inline"`
-	OfStringArray []string          `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u PolicyConditionSystemValueUnionParam) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfString, u.OfStringArray)
-}
-func (u *PolicyConditionSystemValueUnionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
 }
 
 // Method the rule applies to.
