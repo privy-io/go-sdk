@@ -249,10 +249,11 @@ func (s *PrivyWalletService) Import(ctx context.Context, params WalletImportPara
 		hd := params.Wallet.OfHD
 		privateKeyBytes = hd.PrivateKey
 		initParams = WalletInitImportParams{
-			OfHD: &WalletInitImportParamsBodyHD{
+			OfHD: &HDInitInput{
 				Address:        hd.Address,
 				ChainType:      WalletImportSupportedChains(hd.ChainType),
-				EncryptionType: "HPKE",
+				EncryptionType: HpkeEncryptionHpke,
+				EntropyType:    HDInitInputEntropyTypeHD,
 				Index:          hd.Index,
 			},
 		}
@@ -260,10 +261,11 @@ func (s *PrivyWalletService) Import(ctx context.Context, params WalletImportPara
 		pk := params.Wallet.OfPrivateKey
 		privateKeyBytes = pk.PrivateKey
 		initParams = WalletInitImportParams{
-			OfPrivateKey: &WalletInitImportParamsBodyPrivateKey{
+			OfPrivateKey: &PrivateKeyInitInput{
 				Address:        pk.Address,
 				ChainType:      WalletImportSupportedChains(pk.ChainType),
-				EncryptionType: "HPKE",
+				EncryptionType: HpkeEncryptionHpke,
+				EntropyType:    PrivateKeyInitInputEntropyTypePrivateKey,
 			},
 		}
 	default:
@@ -305,24 +307,26 @@ func (s *PrivyWalletService) Import(ctx context.Context, params WalletImportPara
 	case params.Wallet.OfHD != nil:
 		hd := params.Wallet.OfHD
 		submitParams.Wallet = WalletSubmitImportParamsWalletUnion{
-			OfHD: &WalletSubmitImportParamsWalletHD{
+			OfHD: &HDSubmitInput{
 				Address:         hd.Address,
 				ChainType:       WalletImportSupportedChains(hd.ChainType),
 				Ciphertext:      ctB64,
 				EncapsulatedKey: encKeyB64,
-				EncryptionType:  "HPKE",
+				EncryptionType:  HpkeEncryptionHpke,
+				EntropyType:     HDSubmitInputEntropyTypeHD,
 				Index:           hd.Index,
 			},
 		}
 	case params.Wallet.OfPrivateKey != nil:
 		pk := params.Wallet.OfPrivateKey
 		submitParams.Wallet = WalletSubmitImportParamsWalletUnion{
-			OfPrivateKey: &WalletSubmitImportParamsWalletPrivateKey{
+			OfPrivateKey: &PrivateKeySubmitInput{
 				Address:         pk.Address,
 				ChainType:       WalletImportSupportedChains(pk.ChainType),
 				Ciphertext:      ctB64,
 				EncapsulatedKey: encKeyB64,
-				EncryptionType:  "HPKE",
+				EncryptionType:  HpkeEncryptionHpke,
+				EntropyType:     PrivateKeySubmitInputEntropyTypePrivateKey,
 			},
 		}
 	}
@@ -330,7 +334,7 @@ func (s *PrivyWalletService) Import(ctx context.Context, params WalletImportPara
 	submitParams.Owner = params.Owner
 	submitParams.OwnerID = params.OwnerID
 	submitParams.AdditionalSigners = params.AdditionalSigners
-	submitParams.PolicyIDs = params.PolicyIDs
+	submitParams.PolicyIDs = PolicyInput(params.PolicyIDs)
 
 	return s.WalletService.SubmitImport(ctx, submitParams)
 }
@@ -372,8 +376,10 @@ func (s *PrivyWalletService) Export(
 	}
 
 	params := WalletExportParams{
-		EncryptionType:     HpkeEncryptionHpke,
-		RecipientPublicKey: base64.StdEncoding.EncodeToString(recipient.PublicKeySpki),
+		WalletExportRequestBody: WalletExportRequestBody{
+			EncryptionType:     HpkeEncryptionHpke,
+			RecipientPublicKey: base64.StdEncoding.EncodeToString(recipient.PublicKeySpki),
+		},
 	}
 
 	prepared, err := prepareRequest(ctx, s.appID, s.jwtExchanger, prepareRequestInput{
