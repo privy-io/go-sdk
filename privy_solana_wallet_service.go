@@ -25,7 +25,7 @@ func (s *PrivySolanaWalletService) SignMessage(
 	message string,
 	opts ...RequestOption,
 ) (*SolanaSignMessageRpcResponseData, error) {
-	input := SolanaSignMessageRpcInputParam{
+	input := SolanaSignMessageRpcInput{
 		Method: SolanaSignMessageRpcInputMethodSignMessage,
 		Params: SolanaSignMessageRpcInputParams{
 			Message:  message,
@@ -34,7 +34,7 @@ func (s *PrivySolanaWalletService) SignMessage(
 	}
 
 	params := WalletRpcParams{
-		WalletRpcRequestBody: WalletRpcRequestBodyUnionParam{
+		WalletRpcRequestBody: WalletRpcRequestBodyUnion{
 			OfSignMessage: &input,
 		},
 	}
@@ -70,13 +70,13 @@ func (s *PrivySolanaWalletService) SignTransaction(
 	params SolanaSignTransactionRpcInputParams,
 	opts ...RequestOption,
 ) (*SolanaSignTransactionRpcResponseData, error) {
-	input := SolanaSignTransactionRpcInputParam{
+	input := SolanaSignTransactionRpcInput{
 		Method: SolanaSignTransactionRpcInputMethodSignTransaction,
 		Params: params,
 	}
 
 	rpcParams := WalletRpcParams{
-		WalletRpcRequestBody: WalletRpcRequestBodyUnionParam{
+		WalletRpcRequestBody: WalletRpcRequestBodyUnion{
 			OfSignTransaction: &input,
 		},
 	}
@@ -118,14 +118,14 @@ func (s *PrivySolanaWalletService) SignAndSendTransaction(
 	params SolanaSignAndSendTransactionRpcInputParams,
 	opts ...RequestOption,
 ) (*SolanaSignAndSendTransactionRpcResponseData, error) {
-	input := SolanaSignAndSendTransactionRpcInputParam{
+	input := SolanaSignAndSendTransactionRpcInput{
 		Caip2:  caip2,
 		Method: SolanaSignAndSendTransactionRpcInputMethodSignAndSendTransaction,
 		Params: params,
 	}
 
 	rpcParams := WalletRpcParams{
-		WalletRpcRequestBody: WalletRpcRequestBodyUnionParam{
+		WalletRpcRequestBody: WalletRpcRequestBodyUnion{
 			OfSignAndSendTransaction: &input,
 		},
 	}

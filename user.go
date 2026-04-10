@@ -239,16 +239,16 @@ func (r *UserService) UnlinkLinkedAccount(ctx context.Context, userID string, bo
 	return res, err
 }
 
-type CustomMetadata map[string]CustomMetadataItemUnion
+type CustomMetadataResp map[string]CustomMetadataItemUnionResp
 
-// CustomMetadataItemUnion contains all possible properties and values from
+// CustomMetadataItemUnionResp contains all possible properties and values from
 // [string], [float64], [bool].
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 //
 // If the underlying value is not a json object, one of the following properties
 // will be valid: OfString OfFloat OfBool]
-type CustomMetadataItemUnion struct {
+type CustomMetadataItemUnionResp struct {
 	// This field will be present if the value is a [string] instead of an object.
 	OfString string `json:",inline"`
 	// This field will be present if the value is a [float64] instead of an object.
@@ -263,44 +263,44 @@ type CustomMetadataItemUnion struct {
 	} `json:"-"`
 }
 
-func (u CustomMetadataItemUnion) AsString() (v string) {
+func (u CustomMetadataItemUnionResp) AsString() (v string) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u CustomMetadataItemUnion) AsFloat() (v float64) {
+func (u CustomMetadataItemUnionResp) AsFloat() (v float64) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u CustomMetadataItemUnion) AsBool() (v bool) {
+func (u CustomMetadataItemUnionResp) AsBool() (v bool) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
 // Returns the unmodified JSON received from the API
-func (u CustomMetadataItemUnion) RawJSON() string { return u.JSON.raw }
+func (u CustomMetadataItemUnionResp) RawJSON() string { return u.JSON.raw }
 
-func (r *CustomMetadataItemUnion) UnmarshalJSON(data []byte) error {
+func (r *CustomMetadataItemUnionResp) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type CustomMetadataParam map[string]CustomMetadataItemUnionParam
+type CustomMetadata map[string]CustomMetadataItemUnion
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type CustomMetadataItemUnionParam struct {
+type CustomMetadataItemUnion struct {
 	OfString param.Opt[string]  `json:",omitzero,inline"`
 	OfFloat  param.Opt[float64] `json:",omitzero,inline"`
 	OfBool   param.Opt[bool]    `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u CustomMetadataItemUnionParam) MarshalJSON() ([]byte, error) {
+func (u CustomMetadataItemUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfString, u.OfFloat, u.OfBool)
 }
-func (u *CustomMetadataItemUnionParam) UnmarshalJSON(data []byte) error {
+func (u *CustomMetadataItemUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
 }
 
@@ -2587,7 +2587,7 @@ type User struct {
 	LinkedAccounts []LinkedAccountUnion   `json:"linked_accounts" api:"required"`
 	MfaMethods     []LinkedMfaMethodUnion `json:"mfa_methods" api:"required"`
 	// Custom metadata associated with the user.
-	CustomMetadata CustomMetadata `json:"custom_metadata"`
+	CustomMetadata CustomMetadataResp `json:"custom_metadata"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID               respjson.Field
@@ -2611,7 +2611,7 @@ func (r *User) UnmarshalJSON(data []byte) error {
 type UserNewParams struct {
 	LinkedAccounts []LinkedAccountInputUnion `json:"linked_accounts,omitzero" api:"required"`
 	// Custom metadata associated with the user.
-	CustomMetadata CustomMetadataParam `json:"custom_metadata,omitzero"`
+	CustomMetadata CustomMetadata `json:"custom_metadata,omitzero"`
 	// Wallets to create for the user.
 	Wallets []UserNewParamsWallet `json:"wallets,omitzero"`
 	paramObj
@@ -2906,7 +2906,7 @@ func (r *UserSearchParamsBodyObject) UnmarshalJSON(data []byte) error {
 
 type UserSetCustomMetadataParams struct {
 	// Custom metadata associated with the user.
-	CustomMetadata CustomMetadataParam `json:"custom_metadata,omitzero" api:"required"`
+	CustomMetadata CustomMetadata `json:"custom_metadata,omitzero" api:"required"`
 	paramObj
 }
 

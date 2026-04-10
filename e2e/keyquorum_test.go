@@ -76,7 +76,7 @@ func TestKeyQuorums(t *testing.T) {
 			ctx,
 			kq1.ID,
 			KeyQuorumUpdateParams{
-				KeyQuorumUpdateRequestBody: KeyQuorumUpdateRequestBodyParam{
+				KeyQuorumUpdateRequestBody: KeyQuorumUpdateRequestBody{
 					DisplayName: String("go-sdk-test-key-quorum-updated"),
 				},
 			},

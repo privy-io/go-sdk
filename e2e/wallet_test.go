@@ -34,17 +34,17 @@ func TestWallets(t *testing.T) {
 
 		owners := []struct {
 			name  string
-			value OwnerInputUnionParam
+			value OwnerInputUnion
 			ID    param.Opt[string]
 		}{
-			{name: "Ownerless", value: param.NullStruct[OwnerInputUnionParam]()},
-			{name: "P256Owned", value: OwnerInputUnionParam{
-				OfOwnerInputPublicKey: &OwnerInputPublicKeyParam{PublicKey: res.p256KeyPair.PublicKey},
+			{name: "Ownerless", value: param.NullStruct[OwnerInputUnion]()},
+			{name: "P256Owned", value: OwnerInputUnion{
+				OfOwnerInputPublicKey: &OwnerInputPublicKey{PublicKey: res.p256KeyPair.PublicKey},
 			}},
-			{name: "UserOwned", value: OwnerInputUnionParam{
-				OfOwnerInputUser: &OwnerInputUserParam{UserID: res.userID},
+			{name: "UserOwned", value: OwnerInputUnion{
+				OfOwnerInputUser: &OwnerInputUser{UserID: res.userID},
 			}},
-			{name: "KeyAndUserQuorumOwned", value: param.NullStruct[OwnerInputUnionParam](), ID: String(res.quorumID)},
+			{name: "KeyAndUserQuorumOwned", value: param.NullStruct[OwnerInputUnion](), ID: String(res.quorumID)},
 		}
 		for _, chainType := range chainTypes {
 			t.Run(chainType.name, func(t *testing.T) {
@@ -99,8 +99,8 @@ func TestWallets(t *testing.T) {
 		// Create a P256-owned wallet on demand
 		wallet, err := client.Wallets.New(ctx, WalletNewParams{
 			ChainType: WalletChainTypeEthereum,
-			Owner: OwnerInputUnionParam{
-				OfOwnerInputPublicKey: &OwnerInputPublicKeyParam{PublicKey: res.p256KeyPair.PublicKey},
+			Owner: OwnerInputUnion{
+				OfOwnerInputPublicKey: &OwnerInputPublicKey{PublicKey: res.p256KeyPair.PublicKey},
 			},
 		})
 		if err != nil {
@@ -117,7 +117,7 @@ func TestWallets(t *testing.T) {
 			walletID,
 			WalletUpdateParams{
 				WalletUpdateRequestBody: WalletUpdateRequestBody{
-					Owner: param.NullStruct[OwnerInputUnionParam](),
+					Owner: param.NullStruct[OwnerInputUnion](),
 				},
 			},
 			WithAuthorizationContext(authCtx),
@@ -141,8 +141,8 @@ func TestWallets(t *testing.T) {
 			walletID,
 			WalletUpdateParams{
 				WalletUpdateRequestBody: WalletUpdateRequestBody{
-					Owner: OwnerInputUnionParam{
-						OfOwnerInputPublicKey: &OwnerInputPublicKeyParam{PublicKey: res.p256KeyPair.PublicKey},
+					Owner: OwnerInputUnion{
+						OfOwnerInputPublicKey: &OwnerInputPublicKey{PublicKey: res.p256KeyPair.PublicKey},
 					},
 				},
 			},

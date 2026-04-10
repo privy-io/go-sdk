@@ -140,8 +140,8 @@ func (r *testWalletResources) createTestWallets(t *testing.T, chainType WalletCh
 			name: "KeyOwned",
 			params: WalletNewParams{
 				ChainType: chainType,
-				Owner: OwnerInputUnionParam{
-					OfOwnerInputPublicKey: &OwnerInputPublicKeyParam{PublicKey: r.p256KeyPair.PublicKey},
+				Owner: OwnerInputUnion{
+					OfOwnerInputPublicKey: &OwnerInputPublicKey{PublicKey: r.p256KeyPair.PublicKey},
 				},
 			},
 			authCtx: &authorization.AuthorizationContext{PrivateKeys: []string{r.p256KeyPair.PrivateKey}},
@@ -150,8 +150,8 @@ func (r *testWalletResources) createTestWallets(t *testing.T, chainType WalletCh
 			name: "UserOwned",
 			params: WalletNewParams{
 				ChainType: chainType,
-				Owner: OwnerInputUnionParam{
-					OfOwnerInputUser: &OwnerInputUserParam{UserID: r.userID},
+				Owner: OwnerInputUnion{
+					OfOwnerInputUser: &OwnerInputUser{UserID: r.userID},
 				},
 			},
 			authCtx: &authorization.AuthorizationContext{UserJwts: []string{jwt}},

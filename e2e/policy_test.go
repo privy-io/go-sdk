@@ -98,8 +98,8 @@ func TestPolicies(t *testing.T) {
 		ChainType: WalletChainTypeEthereum,
 		Version:   PolicyNewParamsVersion1_0,
 		Rules:     []PolicyNewParamsRule{},
-		Owner: OwnerInputUnionParam{
-			OfOwnerInputPublicKey: &OwnerInputPublicKeyParam{
+		Owner: OwnerInputUnion{
+			OfOwnerInputPublicKey: &OwnerInputPublicKey{
 				PublicKey: pair.PublicKey,
 			},
 		},
@@ -165,19 +165,19 @@ func TestPolicyRules(t *testing.T) {
 		ChainType: WalletChainTypeEthereum,
 		Version:   PolicyNewParamsVersion1_0,
 		Rules:     []PolicyNewParamsRule{},
-		Owner: OwnerInputUnionParam{
-			OfOwnerInputPublicKey: &OwnerInputPublicKeyParam{
+		Owner: OwnerInputUnion{
+			OfOwnerInputPublicKey: &OwnerInputPublicKey{
 				PublicKey: pair.PublicKey,
 			},
 		},
 	}, authCtx)
 
 	rule := createRule(t, ctx, client, policy.ID, PolicyNewRuleParams{
-		PolicyRuleRequestBody: PolicyRuleRequestBodyParam{
+		PolicyRuleRequestBody: PolicyRuleRequestBody{
 			Name:       "go-sdk-test-rule",
 			Action:     PolicyActionAllow,
 			Method:     PolicyMethodStar,
-			Conditions: []PolicyConditionUnionParam{},
+			Conditions: []PolicyConditionUnion{},
 		},
 	}, authCtx)
 
@@ -187,11 +187,11 @@ func TestPolicyRules(t *testing.T) {
 			rule.ID,
 			PolicyUpdateRuleParams{
 				PolicyID: policy.ID,
-				PolicyRuleRequestBody: PolicyRuleRequestBodyParam{
+				PolicyRuleRequestBody: PolicyRuleRequestBody{
 					Name:       "go-sdk-test-rule-updated",
 					Action:     PolicyActionDeny,
 					Method:     PolicyMethodStar,
-					Conditions: []PolicyConditionUnionParam{},
+					Conditions: []PolicyConditionUnion{},
 				},
 			},
 			WithAuthorizationContext(&authCtx),
