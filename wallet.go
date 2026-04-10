@@ -152,6 +152,14 @@ func (r *WalletService) Get(ctx context.Context, walletID string, opts ...option
 	return res, err
 }
 
+// Look up a wallet by its blockchain address. Returns the wallet object if found.
+func (r *WalletService) GetWalletByAddress(ctx context.Context, body WalletGetWalletByAddressParams, opts ...option.RequestOption) (res *Wallet, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "v1/wallets/address"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return res, err
+}
+
 // Sign a message with a wallet by wallet ID.
 func (r *WalletService) RawSign(ctx context.Context, walletID string, params WalletRawSignParams, opts ...option.RequestOption) (res *RawSignResponse, err error) {
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
@@ -307,6 +315,8 @@ func (r *WalletAdditionalSignerItem) UnmarshalJSON(data []byte) error {
 }
 
 type WalletAdditionalSigner []WalletAdditionalSignerItem
+
+type Address = string
 
 // Information about the custodian managing this wallet.
 type WalletCustodian struct {
@@ -5199,6 +5209,23 @@ func (r *Wallet) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Request body for looking up a wallet by its blockchain address.
+//
+// The property Address is required.
+type GetByWalletAddressRequestBody struct {
+	// A blockchain wallet address (Ethereum or Solana).
+	Address Address `json:"address" api:"required"`
+	paramObj
+}
+
+func (r GetByWalletAddressRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow GetByWalletAddressRequestBody
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *GetByWalletAddressRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Request body for updating a wallet.
 type WalletUpdateRequestBody struct {
 	// A human-readable label for the wallet. Set to null to clear.
@@ -6990,6 +7017,19 @@ func (r WalletExportParams) MarshalJSON() (data []byte, err error) {
 	return shimjson.Marshal(r.WalletExportRequestBody)
 }
 func (r *WalletExportParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type WalletGetWalletByAddressParams struct {
+	// Request body for looking up a wallet by its blockchain address.
+	GetByWalletAddressRequestBody GetByWalletAddressRequestBody
+	paramObj
+}
+
+func (r WalletGetWalletByAddressParams) MarshalJSON() (data []byte, err error) {
+	return shimjson.Marshal(r.GetByWalletAddressRequestBody)
+}
+func (r *WalletGetWalletByAddressParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
