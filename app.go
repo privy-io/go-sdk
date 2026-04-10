@@ -462,6 +462,8 @@ const (
 	AppResponseEnabledCaptchaProviderHcaptcha  AppResponseEnabledCaptchaProvider = "hcaptcha"
 )
 
+type EmailDomain = string
+
 // Allowlist invite input for an email address.
 //
 // The properties Type, Value are required.
@@ -534,10 +536,41 @@ const (
 	PhoneInviteInputTypePhone PhoneInviteInputType = "phone"
 )
 
+// Allowlist invite input for an email domain.
+//
+// The properties Type, Value are required.
+type EmailDomainInviteInput struct {
+	// Any of "emailDomain".
+	Type EmailDomainInviteInputType `json:"type,omitzero" api:"required"`
+	// An email domain.
+	Value EmailDomain `json:"value" api:"required"`
+	paramObj
+}
+
+func (r EmailDomainInviteInput) MarshalJSON() (data []byte, err error) {
+	type shadow EmailDomainInviteInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *EmailDomainInviteInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type EmailDomainInviteInputType string
+
+const (
+	EmailDomainInviteInputTypeEmailDomain EmailDomainInviteInputType = "emailDomain"
+)
+
 func UserInviteInputOfEmail(value string) UserInviteInputUnion {
 	var email EmailInviteInput
 	email.Value = value
 	return UserInviteInputUnion{OfEmail: &email}
+}
+
+func UserInviteInputOfEmailDomain(value EmailDomain) UserInviteInputUnion {
+	var emailDomain EmailDomainInviteInput
+	emailDomain.Value = value
+	return UserInviteInputUnion{OfEmailDomain: &emailDomain}
 }
 
 func UserInviteInputOfWallet(value string) UserInviteInputUnion {
@@ -556,14 +589,15 @@ func UserInviteInputOfPhone(value string) UserInviteInputUnion {
 //
 // Use [param.IsOmitted] to confirm if a field is set.
 type UserInviteInputUnion struct {
-	OfEmail  *EmailInviteInput  `json:",omitzero,inline"`
-	OfWallet *WalletInviteInput `json:",omitzero,inline"`
-	OfPhone  *PhoneInviteInput  `json:",omitzero,inline"`
+	OfEmail       *EmailInviteInput       `json:",omitzero,inline"`
+	OfEmailDomain *EmailDomainInviteInput `json:",omitzero,inline"`
+	OfWallet      *WalletInviteInput      `json:",omitzero,inline"`
+	OfPhone       *PhoneInviteInput       `json:",omitzero,inline"`
 	paramUnion
 }
 
 func (u UserInviteInputUnion) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfEmail, u.OfWallet, u.OfPhone)
+	return param.MarshalUnion(u, u.OfEmail, u.OfEmailDomain, u.OfWallet, u.OfPhone)
 }
 func (u *UserInviteInputUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
@@ -573,6 +607,7 @@ func init() {
 	apijson.RegisterUnion[UserInviteInputUnion](
 		"type",
 		apijson.Discriminator[EmailInviteInput]("email"),
+		apijson.Discriminator[EmailDomainInviteInput]("emailDomain"),
 		apijson.Discriminator[WalletInviteInput]("wallet"),
 		apijson.Discriminator[PhoneInviteInput]("phone"),
 	)
