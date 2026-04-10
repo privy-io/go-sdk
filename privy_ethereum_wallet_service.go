@@ -25,13 +25,13 @@ func (s *PrivyEthereumWalletService) Sign7702Authorization(
 	params EthereumSign7702AuthorizationRpcInputParams,
 	opts ...RequestOption,
 ) (*EthereumSign7702AuthorizationRpcResponseData, error) {
-	input := EthereumSign7702AuthorizationRpcInputParam{
+	input := EthereumSign7702AuthorizationRpcInput{
 		Method: EthereumSign7702AuthorizationRpcInputMethodEthSign7702Authorization,
 		Params: params,
 	}
 
 	rpcParams := WalletRpcParams{
-		WalletRpcRequestBody: WalletRpcRequestBodyUnionParam{
+		WalletRpcRequestBody: WalletRpcRequestBodyUnion{
 			OfEthSign7702Authorization: &input,
 		},
 	}
@@ -56,13 +56,13 @@ func (s *PrivyEthereumWalletService) SignUserOperation(
 	params EthereumSignUserOperationRpcInputParams,
 	opts ...RequestOption,
 ) (*EthereumSignUserOperationRpcResponseData, error) {
-	input := EthereumSignUserOperationRpcInputParam{
+	input := EthereumSignUserOperationRpcInput{
 		Method: EthereumSignUserOperationRpcInputMethodEthSignUserOperation,
 		Params: params,
 	}
 
 	rpcParams := WalletRpcParams{
-		WalletRpcRequestBody: WalletRpcRequestBodyUnionParam{
+		WalletRpcRequestBody: WalletRpcRequestBodyUnion{
 			OfEthSignUserOperation: &input,
 		},
 	}
@@ -87,13 +87,13 @@ func (s *PrivyEthereumWalletService) SignSecp256k1(
 	params EthereumSecp256k1SignRpcInputParams,
 	opts ...RequestOption,
 ) (*EthereumSecp256k1SignRpcResponseData, error) {
-	input := EthereumSecp256k1SignRpcInputParam{
+	input := EthereumSecp256k1SignRpcInput{
 		Method: EthereumSecp256k1SignRpcInputMethodSecp256k1Sign,
 		Params: params,
 	}
 
 	rpcParams := WalletRpcParams{
-		WalletRpcRequestBody: WalletRpcRequestBodyUnionParam{
+		WalletRpcRequestBody: WalletRpcRequestBodyUnion{
 			OfSecp256k1Sign: &input,
 		},
 	}
@@ -153,7 +153,7 @@ func (s *PrivyEthereumWalletService) signMessage(
 	encoding EthereumPersonalSignRpcInputParamsEncoding,
 	opts ...RequestOption,
 ) (*EthereumPersonalSignRpcResponseData, error) {
-	input := EthereumPersonalSignRpcInputParam{
+	input := EthereumPersonalSignRpcInput{
 		Method: EthereumPersonalSignRpcInputMethodPersonalSign,
 		Params: EthereumPersonalSignRpcInputParams{
 			Message:  message,
@@ -162,7 +162,7 @@ func (s *PrivyEthereumWalletService) signMessage(
 	}
 
 	params := WalletRpcParams{
-		WalletRpcRequestBody: WalletRpcRequestBodyUnionParam{
+		WalletRpcRequestBody: WalletRpcRequestBodyUnion{
 			OfPersonalSign: &input,
 		},
 	}
@@ -187,13 +187,13 @@ func (s *PrivyEthereumWalletService) SignTypedData(
 	params EthereumSignTypedDataRpcInputParams,
 	opts ...RequestOption,
 ) (*EthereumSignTypedDataRpcResponseData, error) {
-	input := EthereumSignTypedDataRpcInputParam{
+	input := EthereumSignTypedDataRpcInput{
 		Method: EthereumSignTypedDataRpcInputMethodEthSignTypedDataV4,
 		Params: params,
 	}
 
 	rpcParams := WalletRpcParams{
-		WalletRpcRequestBody: WalletRpcRequestBodyUnionParam{
+		WalletRpcRequestBody: WalletRpcRequestBodyUnion{
 			OfEthSignTypedDataV4: &input,
 		},
 	}
@@ -218,13 +218,13 @@ func (s *PrivyEthereumWalletService) SignTransaction(
 	params EthereumSignTransactionRpcInputParams,
 	opts ...RequestOption,
 ) (*EthereumSignTransactionRpcResponseData, error) {
-	input := EthereumSignTransactionRpcInputParam{
+	input := EthereumSignTransactionRpcInput{
 		Method: EthereumSignTransactionRpcInputMethodEthSignTransaction,
 		Params: params,
 	}
 
 	rpcParams := WalletRpcParams{
-		WalletRpcRequestBody: WalletRpcRequestBodyUnionParam{
+		WalletRpcRequestBody: WalletRpcRequestBodyUnion{
 			OfEthSignTransaction: &input,
 		},
 	}
@@ -250,14 +250,14 @@ func (s *PrivyEthereumWalletService) SendTransaction(
 	params EthereumSendTransactionRpcInputParams,
 	opts ...RequestOption,
 ) (*EthereumSendTransactionRpcResponseData, error) {
-	input := EthereumSendTransactionRpcInputParam{
+	input := EthereumSendTransactionRpcInput{
 		Caip2:  caip2,
 		Method: EthereumSendTransactionRpcInputMethodEthSendTransaction,
 		Params: params,
 	}
 
 	rpcParams := WalletRpcParams{
-		WalletRpcRequestBody: WalletRpcRequestBodyUnionParam{
+		WalletRpcRequestBody: WalletRpcRequestBodyUnion{
 			OfEthSendTransaction: &input,
 		},
 	}

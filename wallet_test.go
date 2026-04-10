@@ -29,14 +29,14 @@ func TestWalletNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Wallets.New(context.TODO(), privyclient.WalletNewParams{
 		ChainType: privyclient.WalletChainTypeEthereum,
-		AdditionalSigners: privyclient.AdditionalSignerInputParam{privyclient.AdditionalSignerItemInputParam{
+		AdditionalSigners: privyclient.AdditionalSignerInput{privyclient.AdditionalSignerItemInput{
 			SignerID:          "string",
 			OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 		}},
 		DisplayName: privyclient.String("display_name"),
 		ExternalID:  privyclient.String("my-order-123"),
-		Owner: privyclient.OwnerInputUnionParam{
-			OfOwnerInputUser: &privyclient.OwnerInputUserParam{
+		Owner: privyclient.OwnerInputUnion{
+			OfOwnerInputUser: &privyclient.OwnerInputUser{
 				UserID: "user_id",
 			},
 		},
@@ -72,13 +72,13 @@ func TestWalletUpdateWithOptionalParams(t *testing.T) {
 		"wallet_id",
 		privyclient.WalletUpdateParams{
 			WalletUpdateRequestBody: privyclient.WalletUpdateRequestBody{
-				AdditionalSigners: privyclient.AdditionalSignerInputParam{privyclient.AdditionalSignerItemInputParam{
+				AdditionalSigners: privyclient.AdditionalSignerInput{privyclient.AdditionalSignerItemInput{
 					SignerID:          "string",
 					OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 				}},
 				DisplayName: privyclient.String("display_name"),
-				Owner: privyclient.OwnerInputUnionParam{
-					OfOwnerInputUser: &privyclient.OwnerInputUserParam{
+				Owner: privyclient.OwnerInputUnion{
+					OfOwnerInputUser: &privyclient.OwnerInputUser{
 						UserID: "user_id",
 					},
 				},
@@ -190,14 +190,14 @@ func TestWalletSubmitImportWithOptionalParams(t *testing.T) {
 				},
 			},
 		},
-		AdditionalSigners: privyclient.AdditionalSignerInputParam{privyclient.AdditionalSignerItemInputParam{
+		AdditionalSigners: privyclient.AdditionalSignerInput{privyclient.AdditionalSignerItemInput{
 			SignerID:          "string",
 			OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 		}},
 		DisplayName: privyclient.String("display_name"),
 		ExternalID:  privyclient.String("external_id"),
-		Owner: privyclient.OwnerInputUnionParam{
-			OfOwnerInputUser: &privyclient.OwnerInputUserParam{
+		Owner: privyclient.OwnerInputUnion{
+			OfOwnerInputUser: &privyclient.OwnerInputUser{
 				UserID: "user_id",
 			},
 		},
@@ -360,47 +360,47 @@ func TestWalletRpcWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"wallet_id",
 		privyclient.WalletRpcParams{
-			WalletRpcRequestBody: privyclient.WalletRpcRequestBodyUnionParam{
-				OfEthSendTransaction: &privyclient.EthereumSendTransactionRpcInputParam{
+			WalletRpcRequestBody: privyclient.WalletRpcRequestBodyUnion{
+				OfEthSendTransaction: &privyclient.EthereumSendTransactionRpcInput{
 					Caip2:  "eip155:8453",
 					Method: privyclient.EthereumSendTransactionRpcInputMethodEthSendTransaction,
 					Params: privyclient.EthereumSendTransactionRpcInputParams{
-						Transaction: privyclient.UnsignedEthereumTransactionParam{
-							AuthorizationList: []privyclient.EthereumSign7702AuthorizationParam{{
-								ChainID: privyclient.QuantityUnionParam{
+						Transaction: privyclient.UnsignedEthereumTransaction{
+							AuthorizationList: []privyclient.EthereumSign7702Authorization{{
+								ChainID: privyclient.QuantityUnion{
 									OfString: privyclient.String("string"),
 								},
 								Contract: "contract",
-								Nonce: privyclient.QuantityUnionParam{
+								Nonce: privyclient.QuantityUnion{
 									OfString: privyclient.String("string"),
 								},
 								R:       "string",
 								S:       "string",
 								YParity: 0,
 							}},
-							ChainID: privyclient.QuantityUnionParam{
+							ChainID: privyclient.QuantityUnion{
 								OfString: privyclient.String("string"),
 							},
 							Data: privyclient.String("string"),
 							From: privyclient.String("from"),
-							GasLimit: privyclient.QuantityUnionParam{
+							GasLimit: privyclient.QuantityUnion{
 								OfString: privyclient.String("string"),
 							},
-							GasPrice: privyclient.QuantityUnionParam{
+							GasPrice: privyclient.QuantityUnion{
 								OfString: privyclient.String("string"),
 							},
-							MaxFeePerGas: privyclient.QuantityUnionParam{
+							MaxFeePerGas: privyclient.QuantityUnion{
 								OfString: privyclient.String("string"),
 							},
-							MaxPriorityFeePerGas: privyclient.QuantityUnionParam{
+							MaxPriorityFeePerGas: privyclient.QuantityUnion{
 								OfString: privyclient.String("string"),
 							},
-							Nonce: privyclient.QuantityUnionParam{
+							Nonce: privyclient.QuantityUnion{
 								OfString: privyclient.String("string"),
 							},
 							To:   privyclient.String("0x0000000000000000000000000000000000000000"),
 							Type: 0,
-							Value: privyclient.QuantityUnionParam{
+							Value: privyclient.QuantityUnion{
 								OfInt: privyclient.Int(1),
 							},
 						},

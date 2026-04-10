@@ -52,7 +52,7 @@ type P256PublicKey = string
 type KeyQuorumID = string
 
 // Owner input specifying a Privy user ID.
-type OwnerInputUser struct {
+type OwnerInputUserResp struct {
 	UserID string `json:"user_id" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -63,38 +63,38 @@ type OwnerInputUser struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r OwnerInputUser) RawJSON() string { return r.JSON.raw }
-func (r *OwnerInputUser) UnmarshalJSON(data []byte) error {
+func (r OwnerInputUserResp) RawJSON() string { return r.JSON.raw }
+func (r *OwnerInputUserResp) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// ToParam converts this OwnerInputUser to a OwnerInputUserParam.
+// ToParam converts this OwnerInputUserResp to a OwnerInputUser.
 //
 // Warning: the fields of the param type will not be present. ToParam should only
 // be used at the last possible moment before sending a request. Test for this with
-// OwnerInputUserParam.Overrides()
-func (r OwnerInputUser) ToParam() OwnerInputUserParam {
-	return param.Override[OwnerInputUserParam](json.RawMessage(r.RawJSON()))
+// OwnerInputUser.Overrides()
+func (r OwnerInputUserResp) ToParam() OwnerInputUser {
+	return param.Override[OwnerInputUser](json.RawMessage(r.RawJSON()))
 }
 
 // Owner input specifying a Privy user ID.
 //
 // The property UserID is required.
-type OwnerInputUserParam struct {
+type OwnerInputUser struct {
 	UserID string `json:"user_id" api:"required"`
 	paramObj
 }
 
-func (r OwnerInputUserParam) MarshalJSON() (data []byte, err error) {
-	type shadow OwnerInputUserParam
+func (r OwnerInputUser) MarshalJSON() (data []byte, err error) {
+	type shadow OwnerInputUser
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *OwnerInputUserParam) UnmarshalJSON(data []byte) error {
+func (r *OwnerInputUser) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 // Owner input specifying a P-256 public key.
-type OwnerInputPublicKey struct {
+type OwnerInputPublicKeyResp struct {
 	// A P-256 (secp256r1) public key.
 	PublicKey P256PublicKey `json:"public_key" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -106,45 +106,45 @@ type OwnerInputPublicKey struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r OwnerInputPublicKey) RawJSON() string { return r.JSON.raw }
-func (r *OwnerInputPublicKey) UnmarshalJSON(data []byte) error {
+func (r OwnerInputPublicKeyResp) RawJSON() string { return r.JSON.raw }
+func (r *OwnerInputPublicKeyResp) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// ToParam converts this OwnerInputPublicKey to a OwnerInputPublicKeyParam.
+// ToParam converts this OwnerInputPublicKeyResp to a OwnerInputPublicKey.
 //
 // Warning: the fields of the param type will not be present. ToParam should only
 // be used at the last possible moment before sending a request. Test for this with
-// OwnerInputPublicKeyParam.Overrides()
-func (r OwnerInputPublicKey) ToParam() OwnerInputPublicKeyParam {
-	return param.Override[OwnerInputPublicKeyParam](json.RawMessage(r.RawJSON()))
+// OwnerInputPublicKey.Overrides()
+func (r OwnerInputPublicKeyResp) ToParam() OwnerInputPublicKey {
+	return param.Override[OwnerInputPublicKey](json.RawMessage(r.RawJSON()))
 }
 
 // Owner input specifying a P-256 public key.
 //
 // The property PublicKey is required.
-type OwnerInputPublicKeyParam struct {
+type OwnerInputPublicKey struct {
 	// A P-256 (secp256r1) public key.
 	PublicKey P256PublicKey `json:"public_key" api:"required"`
 	paramObj
 }
 
-func (r OwnerInputPublicKeyParam) MarshalJSON() (data []byte, err error) {
-	type shadow OwnerInputPublicKeyParam
+func (r OwnerInputPublicKey) MarshalJSON() (data []byte, err error) {
+	type shadow OwnerInputPublicKey
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *OwnerInputPublicKeyParam) UnmarshalJSON(data []byte) error {
+func (r *OwnerInputPublicKey) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// OwnerInputUnion contains all possible properties and values from
-// [OwnerInputUser], [OwnerInputPublicKey].
+// OwnerInputUnionResp contains all possible properties and values from
+// [OwnerInputUserResp], [OwnerInputPublicKeyResp].
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
-type OwnerInputUnion struct {
-	// This field is from variant [OwnerInputUser].
+type OwnerInputUnionResp struct {
+	// This field is from variant [OwnerInputUserResp].
 	UserID string `json:"user_id"`
-	// This field is from variant [OwnerInputPublicKey].
+	// This field is from variant [OwnerInputPublicKeyResp].
 	PublicKey P256PublicKey `json:"public_key"`
 	JSON      struct {
 		UserID    respjson.Field
@@ -153,57 +153,57 @@ type OwnerInputUnion struct {
 	} `json:"-"`
 }
 
-func (u OwnerInputUnion) AsOwnerInputUser() (v OwnerInputUser) {
+func (u OwnerInputUnionResp) AsOwnerInputUser() (v OwnerInputUserResp) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u OwnerInputUnion) AsOwnerInputPublicKey() (v OwnerInputPublicKey) {
+func (u OwnerInputUnionResp) AsOwnerInputPublicKey() (v OwnerInputPublicKeyResp) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
 // Returns the unmodified JSON received from the API
-func (u OwnerInputUnion) RawJSON() string { return u.JSON.raw }
+func (u OwnerInputUnionResp) RawJSON() string { return u.JSON.raw }
 
-func (r *OwnerInputUnion) UnmarshalJSON(data []byte) error {
+func (r *OwnerInputUnionResp) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// ToParam converts this OwnerInputUnion to a OwnerInputUnionParam.
+// ToParam converts this OwnerInputUnionResp to a OwnerInputUnion.
 //
 // Warning: the fields of the param type will not be present. ToParam should only
 // be used at the last possible moment before sending a request. Test for this with
-// OwnerInputUnionParam.Overrides()
-func (r OwnerInputUnion) ToParam() OwnerInputUnionParam {
-	return param.Override[OwnerInputUnionParam](json.RawMessage(r.RawJSON()))
+// OwnerInputUnion.Overrides()
+func (r OwnerInputUnionResp) ToParam() OwnerInputUnion {
+	return param.Override[OwnerInputUnion](json.RawMessage(r.RawJSON()))
 }
 
-func OwnerInputParamOfOwnerInputUser(userID string) OwnerInputUnionParam {
-	var variant OwnerInputUserParam
+func OwnerInputOfOwnerInputUser(userID string) OwnerInputUnion {
+	var variant OwnerInputUser
 	variant.UserID = userID
-	return OwnerInputUnionParam{OfOwnerInputUser: &variant}
+	return OwnerInputUnion{OfOwnerInputUser: &variant}
 }
 
-func OwnerInputParamOfOwnerInputPublicKey(publicKey P256PublicKey) OwnerInputUnionParam {
-	var variant OwnerInputPublicKeyParam
+func OwnerInputOfOwnerInputPublicKey(publicKey P256PublicKey) OwnerInputUnion {
+	var variant OwnerInputPublicKey
 	variant.PublicKey = publicKey
-	return OwnerInputUnionParam{OfOwnerInputPublicKey: &variant}
+	return OwnerInputUnion{OfOwnerInputPublicKey: &variant}
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
-type OwnerInputUnionParam struct {
-	OfOwnerInputUser      *OwnerInputUserParam      `json:",omitzero,inline"`
-	OfOwnerInputPublicKey *OwnerInputPublicKeyParam `json:",omitzero,inline"`
+type OwnerInputUnion struct {
+	OfOwnerInputUser      *OwnerInputUser      `json:",omitzero,inline"`
+	OfOwnerInputPublicKey *OwnerInputPublicKey `json:",omitzero,inline"`
 	paramUnion
 }
 
-func (u OwnerInputUnionParam) MarshalJSON() ([]byte, error) {
+func (u OwnerInputUnion) MarshalJSON() ([]byte, error) {
 	return param.MarshalUnion(u, u.OfOwnerInputUser, u.OfOwnerInputPublicKey)
 }
-func (u *OwnerInputUnionParam) UnmarshalJSON(data []byte) error {
+func (u *OwnerInputUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
 }
 
