@@ -65,14 +65,14 @@ func TestIntentNewPolicyRuleWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"policy_id",
 		privyclient.IntentNewPolicyRuleParams{
-			PolicyRuleRequestBody: privyclient.PolicyRuleRequestBodyParam{
+			PolicyRuleRequestBody: privyclient.PolicyRuleRequestBody{
 				Action: privyclient.PolicyActionAllow,
-				Conditions: []privyclient.PolicyConditionUnionParam{{
-					OfEthereumTransaction: &privyclient.EthereumTransactionConditionParam{
+				Conditions: []privyclient.PolicyConditionUnion{{
+					OfEthereumTransaction: &privyclient.EthereumTransactionCondition{
 						Field:       privyclient.EthereumTransactionConditionFieldTo,
 						FieldSource: privyclient.EthereumTransactionConditionFieldSourceEthereumTransaction,
 						Operator:    privyclient.ConditionOperatorEq,
-						Value: privyclient.ConditionValueUnionParam{
+						Value: privyclient.ConditionValueUnion{
 							OfString: privyclient.String("string"),
 						},
 					},
@@ -165,46 +165,46 @@ func TestIntentRpcWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"wallet_id",
 		privyclient.IntentRpcParams{
-			WalletRpcRequestBody: privyclient.WalletRpcRequestBodyUnionParam{
-				OfEthSignTransaction: &privyclient.EthereumSignTransactionRpcInputParam{
+			WalletRpcRequestBody: privyclient.WalletRpcRequestBodyUnion{
+				OfEthSignTransaction: &privyclient.EthereumSignTransactionRpcInput{
 					Method: privyclient.EthereumSignTransactionRpcInputMethodEthSignTransaction,
 					Params: privyclient.EthereumSignTransactionRpcInputParams{
-						Transaction: privyclient.UnsignedEthereumTransactionParam{
-							AuthorizationList: []privyclient.EthereumSign7702AuthorizationParam{{
-								ChainID: privyclient.QuantityUnionParam{
+						Transaction: privyclient.UnsignedEthereumTransaction{
+							AuthorizationList: []privyclient.EthereumSign7702Authorization{{
+								ChainID: privyclient.QuantityUnion{
 									OfString: privyclient.String("string"),
 								},
 								Contract: "contract",
-								Nonce: privyclient.QuantityUnionParam{
+								Nonce: privyclient.QuantityUnion{
 									OfString: privyclient.String("string"),
 								},
 								R:       "string",
 								S:       "string",
 								YParity: 0,
 							}},
-							ChainID: privyclient.QuantityUnionParam{
+							ChainID: privyclient.QuantityUnion{
 								OfString: privyclient.String("string"),
 							},
 							Data: privyclient.String("string"),
 							From: privyclient.String("from"),
-							GasLimit: privyclient.QuantityUnionParam{
+							GasLimit: privyclient.QuantityUnion{
 								OfString: privyclient.String("string"),
 							},
-							GasPrice: privyclient.QuantityUnionParam{
+							GasPrice: privyclient.QuantityUnion{
 								OfString: privyclient.String("string"),
 							},
-							MaxFeePerGas: privyclient.QuantityUnionParam{
+							MaxFeePerGas: privyclient.QuantityUnion{
 								OfString: privyclient.String("string"),
 							},
-							MaxPriorityFeePerGas: privyclient.QuantityUnionParam{
+							MaxPriorityFeePerGas: privyclient.QuantityUnion{
 								OfString: privyclient.String("string"),
 							},
-							Nonce: privyclient.QuantityUnionParam{
+							Nonce: privyclient.QuantityUnion{
 								OfString: privyclient.String("string"),
 							},
 							To:   privyclient.String("to"),
 							Type: 0,
-							Value: privyclient.QuantityUnionParam{
+							Value: privyclient.QuantityUnion{
 								OfString: privyclient.String("string"),
 							},
 						},
@@ -244,7 +244,7 @@ func TestIntentUpdateKeyQuorumWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"key_quorum_id",
 		privyclient.IntentUpdateKeyQuorumParams{
-			KeyQuorumUpdateRequestBody: privyclient.KeyQuorumUpdateRequestBodyParam{
+			KeyQuorumUpdateRequestBody: privyclient.KeyQuorumUpdateRequestBody{
 				AuthorizationThreshold: privyclient.Float(0),
 				DisplayName:            privyclient.String("display_name"),
 				KeyQuorumIDs:           []string{"string"},
@@ -282,20 +282,20 @@ func TestIntentUpdatePolicyWithOptionalParams(t *testing.T) {
 		"policy_id",
 		privyclient.IntentUpdatePolicyParams{
 			Name: privyclient.String("x"),
-			Owner: privyclient.OwnerInputUnionParam{
-				OfOwnerInputUser: &privyclient.OwnerInputUserParam{
+			Owner: privyclient.OwnerInputUnion{
+				OfOwnerInputUser: &privyclient.OwnerInputUser{
 					UserID: "user_id",
 				},
 			},
 			OwnerID: privyclient.String("string"),
-			Rules: []privyclient.PolicyRuleRequestBodyParam{{
+			Rules: []privyclient.PolicyRuleRequestBody{{
 				Action: privyclient.PolicyActionAllow,
-				Conditions: []privyclient.PolicyConditionUnionParam{{
-					OfEthereumTransaction: &privyclient.EthereumTransactionConditionParam{
+				Conditions: []privyclient.PolicyConditionUnion{{
+					OfEthereumTransaction: &privyclient.EthereumTransactionCondition{
 						Field:       privyclient.EthereumTransactionConditionFieldTo,
 						FieldSource: privyclient.EthereumTransactionConditionFieldSourceEthereumTransaction,
 						Operator:    privyclient.ConditionOperatorEq,
-						Value: privyclient.ConditionValueUnionParam{
+						Value: privyclient.ConditionValueUnion{
 							OfString: privyclient.String("string"),
 						},
 					},
@@ -334,14 +334,14 @@ func TestIntentUpdatePolicyRuleWithOptionalParams(t *testing.T) {
 		"rule_id",
 		privyclient.IntentUpdatePolicyRuleParams{
 			PolicyID: "policy_id",
-			PolicyRuleRequestBody: privyclient.PolicyRuleRequestBodyParam{
+			PolicyRuleRequestBody: privyclient.PolicyRuleRequestBody{
 				Action: privyclient.PolicyActionAllow,
-				Conditions: []privyclient.PolicyConditionUnionParam{{
-					OfEthereumTransaction: &privyclient.EthereumTransactionConditionParam{
+				Conditions: []privyclient.PolicyConditionUnion{{
+					OfEthereumTransaction: &privyclient.EthereumTransactionCondition{
 						Field:       privyclient.EthereumTransactionConditionFieldTo,
 						FieldSource: privyclient.EthereumTransactionConditionFieldSourceEthereumTransaction,
 						Operator:    privyclient.ConditionOperatorEq,
-						Value: privyclient.ConditionValueUnionParam{
+						Value: privyclient.ConditionValueUnion{
 							OfString: privyclient.String("string"),
 						},
 					},
@@ -380,13 +380,13 @@ func TestIntentUpdateWalletWithOptionalParams(t *testing.T) {
 		"wallet_id",
 		privyclient.IntentUpdateWalletParams{
 			WalletUpdateRequestBody: privyclient.WalletUpdateRequestBody{
-				AdditionalSigners: privyclient.AdditionalSignerInputParam{privyclient.AdditionalSignerItemInputParam{
+				AdditionalSigners: privyclient.AdditionalSignerInput{privyclient.AdditionalSignerItemInput{
 					SignerID:          "string",
 					OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 				}},
 				DisplayName: privyclient.String("display_name"),
-				Owner: privyclient.OwnerInputUnionParam{
-					OfOwnerInputUser: &privyclient.OwnerInputUserParam{
+				Owner: privyclient.OwnerInputUnion{
+					OfOwnerInputUser: &privyclient.OwnerInputUser{
 						UserID: "user_id",
 					},
 				},
