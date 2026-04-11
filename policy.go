@@ -2064,7 +2064,7 @@ type Policy struct {
 	// The wallet chain types.
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
-	// "tron", "bitcoin-segwit", "near", "ton", "starknet", "spark".
+	// "tron", "bitcoin-segwit", "bitcoin-taproot", "near", "ton", "starknet", "spark".
 	ChainType WalletChainType `json:"chain_type" api:"required"`
 	// Unix timestamp of when the policy was created in milliseconds.
 	CreatedAt float64 `json:"created_at" api:"required"`
@@ -2108,7 +2108,7 @@ type PolicyNewParams struct {
 	// The wallet chain types.
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
-	// "tron", "bitcoin-segwit", "near", "ton", "starknet", "spark".
+	// "tron", "bitcoin-segwit", "bitcoin-taproot", "near", "ton", "starknet", "spark".
 	ChainType WalletChainType `json:"chain_type,omitzero" api:"required"`
 	// Name to assign to policy.
 	Name  string                `json:"name" api:"required"`

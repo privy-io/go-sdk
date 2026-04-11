@@ -1465,7 +1465,7 @@ type LinkedAccountCurveSigningEmbeddedWallet struct {
 	// The wallet chain types that support curve-based signing.
 	//
 	// Any of "cosmos", "stellar", "sui", "aptos", "movement", "tron",
-	// "bitcoin-segwit", "near", "ton", "starknet".
+	// "bitcoin-segwit", "bitcoin-taproot", "near", "ton", "starknet".
 	ChainType CurveSigningChainType `json:"chain_type" api:"required"`
 	// Any of "embedded".
 	ConnectorType    LinkedAccountCurveSigningEmbeddedWalletConnectorType `json:"connector_type" api:"required"`
@@ -2630,7 +2630,7 @@ type UserNewParamsWallet struct {
 	// The wallet chain types.
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
-	// "tron", "bitcoin-segwit", "near", "ton", "starknet", "spark".
+	// "tron", "bitcoin-segwit", "bitcoin-taproot", "near", "ton", "starknet", "spark".
 	ChainType WalletChainType `json:"chain_type,omitzero" api:"required"`
 	// Create a smart wallet with this wallet as the signer. Only supported for wallets
 	// with `chain_type: "ethereum"`.
