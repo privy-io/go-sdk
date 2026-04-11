@@ -206,35 +206,37 @@ func (r *WalletService) Rpc(ctx context.Context, walletID string, params WalletR
 type CurveSigningChainType string
 
 const (
-	CurveSigningChainTypeCosmos        CurveSigningChainType = "cosmos"
-	CurveSigningChainTypeStellar       CurveSigningChainType = "stellar"
-	CurveSigningChainTypeSui           CurveSigningChainType = "sui"
-	CurveSigningChainTypeAptos         CurveSigningChainType = "aptos"
-	CurveSigningChainTypeMovement      CurveSigningChainType = "movement"
-	CurveSigningChainTypeTron          CurveSigningChainType = "tron"
-	CurveSigningChainTypeBitcoinSegwit CurveSigningChainType = "bitcoin-segwit"
-	CurveSigningChainTypeNear          CurveSigningChainType = "near"
-	CurveSigningChainTypeTon           CurveSigningChainType = "ton"
-	CurveSigningChainTypeStarknet      CurveSigningChainType = "starknet"
+	CurveSigningChainTypeCosmos         CurveSigningChainType = "cosmos"
+	CurveSigningChainTypeStellar        CurveSigningChainType = "stellar"
+	CurveSigningChainTypeSui            CurveSigningChainType = "sui"
+	CurveSigningChainTypeAptos          CurveSigningChainType = "aptos"
+	CurveSigningChainTypeMovement       CurveSigningChainType = "movement"
+	CurveSigningChainTypeTron           CurveSigningChainType = "tron"
+	CurveSigningChainTypeBitcoinSegwit  CurveSigningChainType = "bitcoin-segwit"
+	CurveSigningChainTypeBitcoinTaproot CurveSigningChainType = "bitcoin-taproot"
+	CurveSigningChainTypeNear           CurveSigningChainType = "near"
+	CurveSigningChainTypeTon            CurveSigningChainType = "ton"
+	CurveSigningChainTypeStarknet       CurveSigningChainType = "starknet"
 )
 
 // The wallet chain types.
 type WalletChainType string
 
 const (
-	WalletChainTypeEthereum      WalletChainType = "ethereum"
-	WalletChainTypeSolana        WalletChainType = "solana"
-	WalletChainTypeCosmos        WalletChainType = "cosmos"
-	WalletChainTypeStellar       WalletChainType = "stellar"
-	WalletChainTypeSui           WalletChainType = "sui"
-	WalletChainTypeAptos         WalletChainType = "aptos"
-	WalletChainTypeMovement      WalletChainType = "movement"
-	WalletChainTypeTron          WalletChainType = "tron"
-	WalletChainTypeBitcoinSegwit WalletChainType = "bitcoin-segwit"
-	WalletChainTypeNear          WalletChainType = "near"
-	WalletChainTypeTon           WalletChainType = "ton"
-	WalletChainTypeStarknet      WalletChainType = "starknet"
-	WalletChainTypeSpark         WalletChainType = "spark"
+	WalletChainTypeEthereum       WalletChainType = "ethereum"
+	WalletChainTypeSolana         WalletChainType = "solana"
+	WalletChainTypeCosmos         WalletChainType = "cosmos"
+	WalletChainTypeStellar        WalletChainType = "stellar"
+	WalletChainTypeSui            WalletChainType = "sui"
+	WalletChainTypeAptos          WalletChainType = "aptos"
+	WalletChainTypeMovement       WalletChainType = "movement"
+	WalletChainTypeTron           WalletChainType = "tron"
+	WalletChainTypeBitcoinSegwit  WalletChainType = "bitcoin-segwit"
+	WalletChainTypeBitcoinTaproot WalletChainType = "bitcoin-taproot"
+	WalletChainTypeNear           WalletChainType = "near"
+	WalletChainTypeTon            WalletChainType = "ton"
+	WalletChainTypeStarknet       WalletChainType = "starknet"
+	WalletChainTypeSpark          WalletChainType = "spark"
 )
 
 type PolicyInput []string
@@ -5156,7 +5158,7 @@ type Wallet struct {
 	// The wallet chain types.
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
-	// "tron", "bitcoin-segwit", "near", "ton", "starknet", "spark".
+	// "tron", "bitcoin-segwit", "bitcoin-taproot", "near", "ton", "starknet", "spark".
 	ChainType WalletChainType `json:"chain_type" api:"required"`
 	// Unix timestamp of when the wallet was created in milliseconds.
 	CreatedAt float64 `json:"created_at" api:"required"`
@@ -6833,7 +6835,7 @@ type WalletNewParams struct {
 	// The wallet chain types.
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
-	// "tron", "bitcoin-segwit", "near", "ton", "starknet", "spark".
+	// "tron", "bitcoin-segwit", "bitcoin-taproot", "near", "ton", "starknet", "spark".
 	ChainType WalletChainType `json:"chain_type,omitzero" api:"required"`
 	// The key quorum ID to set as the owner of the resource. If you provide this, do
 	// not specify an owner.
@@ -6898,7 +6900,7 @@ type WalletListParams struct {
 	// The wallet chain types.
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
-	// "tron", "bitcoin-segwit", "near", "ton", "starknet", "spark".
+	// "tron", "bitcoin-segwit", "bitcoin-taproot", "near", "ton", "starknet", "spark".
 	ChainType WalletChainType `query:"chain_type,omitzero" json:"-"`
 	paramObj
 }
