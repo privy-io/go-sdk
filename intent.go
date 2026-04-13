@@ -130,6 +130,22 @@ func (r *IntentService) Rpc(ctx context.Context, walletID string, params IntentR
 	return res, err
 }
 
+// Create an intent to execute a token transfer via a wallet. The intent must be
+// authorized by either the wallet owner or signers before it can be executed.
+func (r *IntentService) Transfer(ctx context.Context, walletID string, params IntentTransferParams, opts ...option.RequestOption) (res *TransferIntentResponse, err error) {
+	if !param.IsOmitted(params.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
+	}
+	opts = slices.Concat(r.Options, opts)
+	if walletID == "" {
+		err = errors.New("missing required wallet_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/intents/wallets/%s/transfer", url.PathEscape(walletID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
+	return res, err
+}
+
 // Create an intent to update a key quorum. The intent must be authorized by the
 // key quorum members before it can be executed.
 func (r *IntentService) UpdateKeyQuorum(ctx context.Context, keyQuorumID string, params IntentUpdateKeyQuorumParams, opts ...option.RequestOption) (res *KeyQuorumIntentResponse, err error) {
@@ -827,7 +843,7 @@ func (r *TransferIntentResponse) UnmarshalJSON(data []byte) error {
 // The original transfer request that would be sent to the wallet transfer endpoint
 type TransferIntentResponseRequestDetails struct {
 	// Request body for initiating a sponsored token transfer from an embedded wallet.
-	Body TransferRequestBody `json:"body" api:"required"`
+	Body TransferRequestBodyResp `json:"body" api:"required"`
 	// Any of "POST".
 	Method string `json:"method" api:"required"`
 	URL    string `json:"url" api:"required"`
@@ -1275,8 +1291,8 @@ func (r *IntentResponseUnion) UnmarshalJSON(data []byte) error {
 // For type safety it is recommended to directly use a variant of the
 // [IntentResponseUnion].
 type IntentResponseUnionRequestDetails struct {
-	// This field is a union of [WalletRpcRequestBodyUnionResp], [TransferRequestBody],
-	// [WalletIntentResponseRequestDetailsBody],
+	// This field is a union of [WalletRpcRequestBodyUnionResp],
+	// [TransferRequestBodyResp], [WalletIntentResponseRequestDetailsBody],
 	// [PolicyIntentResponseRequestDetailsBody], [PolicyRuleRequestBodyResp], [any],
 	// [KeyQuorumUpdateRequestBodyResp]
 	Body   IntentResponseUnionRequestDetailsBody `json:"body"`
@@ -1335,10 +1351,10 @@ type IntentResponseUnionRequestDetailsBody struct {
 	Sponsor     bool   `json:"sponsor"`
 	// This field is from variant [WalletRpcRequestBodyUnionResp].
 	Network SparkNetwork `json:"network"`
-	// This field is from variant [TransferRequestBody].
-	Destination TokenTransferDestination `json:"destination"`
-	// This field is from variant [TransferRequestBody].
-	Source TokenTransferSource `json:"source"`
+	// This field is from variant [TransferRequestBodyResp].
+	Destination TokenTransferDestinationResp `json:"destination"`
+	// This field is from variant [TransferRequestBodyResp].
+	Source TokenTransferSourceResp `json:"source"`
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
 	AdditionalSigners AdditionalSignerInputResp `json:"additional_signers"`
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
@@ -1731,6 +1747,22 @@ func (r IntentRpcParams) MarshalJSON() (data []byte, err error) {
 	return shimjson.Marshal(r.WalletRpcRequestBody)
 }
 func (r *IntentRpcParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type IntentTransferParams struct {
+	// Request body for initiating a sponsored token transfer from an embedded wallet.
+	TransferRequestBody TransferRequestBody
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
+	paramObj
+}
+
+func (r IntentTransferParams) MarshalJSON() (data []byte, err error) {
+	return shimjson.Marshal(r.TransferRequestBody)
+}
+func (r *IntentTransferParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
