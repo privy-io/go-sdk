@@ -6787,6 +6787,20 @@ const (
 	SuiCommandNameMergeCoins      SuiCommandName = "MergeCoins"
 )
 
+// A named asset supported across all chains.
+type WalletAsset string
+
+const (
+	WalletAssetUsdc  WalletAsset = "usdc"
+	WalletAssetUsdcE WalletAsset = "usdc.e"
+	WalletAssetEth   WalletAsset = "eth"
+	WalletAssetPol   WalletAsset = "pol"
+	WalletAssetUsdt  WalletAsset = "usdt"
+	WalletAssetEurc  WalletAsset = "eurc"
+	WalletAssetUsdb  WalletAsset = "usdb"
+	WalletAssetSol   WalletAsset = "sol"
+)
+
 type WalletInitImportResponse struct {
 	// The base64-encoded encryption public key to encrypt the wallet entropy with.
 	EncryptionPublicKey string `json:"encryption_public_key" api:"required"`
