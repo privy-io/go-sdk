@@ -6621,7 +6621,7 @@ func (r *WalletExportResponseBody) UnmarshalJSON(data []byte) error {
 }
 
 // The source asset, amount, and chain for a token transfer.
-type TokenTransferSource struct {
+type TokenTransferSourceResp struct {
 	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
 	// USDC, "0.01" for 0.01 ETH). Not in the smallest on-chain unit (wei, lamports,
 	// etc.).
@@ -6644,13 +6644,48 @@ type TokenTransferSource struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r TokenTransferSource) RawJSON() string { return r.JSON.raw }
+func (r TokenTransferSourceResp) RawJSON() string { return r.JSON.raw }
+func (r *TokenTransferSourceResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TokenTransferSourceResp to a TokenTransferSource.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TokenTransferSource.Overrides()
+func (r TokenTransferSourceResp) ToParam() TokenTransferSource {
+	return param.Override[TokenTransferSource](json.RawMessage(r.RawJSON()))
+}
+
+// The source asset, amount, and chain for a token transfer.
+//
+// The properties Amount, Asset, Chain are required.
+type TokenTransferSource struct {
+	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
+	// USDC, "0.01" for 0.01 ETH). Not in the smallest on-chain unit (wei, lamports,
+	// etc.).
+	Amount string `json:"amount" api:"required"`
+	// The asset to transfer. Supported: 'usdc', 'usdb', 'usdt' (stablecoins), 'eth'
+	// (native Ethereum), 'sol' (native Solana).
+	Asset string `json:"asset" api:"required"`
+	// The blockchain network on which to perform the transfer. Supported chains
+	// include: 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and their
+	// respective testnets.
+	Chain string `json:"chain" api:"required"`
+	paramObj
+}
+
+func (r TokenTransferSource) MarshalJSON() (data []byte, err error) {
+	type shadow TokenTransferSource
+	return param.MarshalObject(r, (*shadow)(&r))
+}
 func (r *TokenTransferSource) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 // The destination address for a token transfer.
-type TokenTransferDestination struct {
+type TokenTransferDestinationResp struct {
 	// Recipient address (hex for EVM, base58 for Solana)
 	Address string `json:"address" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -6662,17 +6697,44 @@ type TokenTransferDestination struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r TokenTransferDestination) RawJSON() string { return r.JSON.raw }
+func (r TokenTransferDestinationResp) RawJSON() string { return r.JSON.raw }
+func (r *TokenTransferDestinationResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TokenTransferDestinationResp to a
+// TokenTransferDestination.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TokenTransferDestination.Overrides()
+func (r TokenTransferDestinationResp) ToParam() TokenTransferDestination {
+	return param.Override[TokenTransferDestination](json.RawMessage(r.RawJSON()))
+}
+
+// The destination address for a token transfer.
+//
+// The property Address is required.
+type TokenTransferDestination struct {
+	// Recipient address (hex for EVM, base58 for Solana)
+	Address string `json:"address" api:"required"`
+	paramObj
+}
+
+func (r TokenTransferDestination) MarshalJSON() (data []byte, err error) {
+	type shadow TokenTransferDestination
+	return param.MarshalObject(r, (*shadow)(&r))
+}
 func (r *TokenTransferDestination) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 // Request body for initiating a sponsored token transfer from an embedded wallet.
-type TransferRequestBody struct {
+type TransferRequestBodyResp struct {
 	// The destination address for a token transfer.
-	Destination TokenTransferDestination `json:"destination" api:"required"`
+	Destination TokenTransferDestinationResp `json:"destination" api:"required"`
 	// The source asset, amount, and chain for a token transfer.
-	Source TokenTransferSource `json:"source" api:"required"`
+	Source TokenTransferSourceResp `json:"source" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Destination respjson.Field
@@ -6683,7 +6745,35 @@ type TransferRequestBody struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r TransferRequestBody) RawJSON() string { return r.JSON.raw }
+func (r TransferRequestBodyResp) RawJSON() string { return r.JSON.raw }
+func (r *TransferRequestBodyResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TransferRequestBodyResp to a TransferRequestBody.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TransferRequestBody.Overrides()
+func (r TransferRequestBodyResp) ToParam() TransferRequestBody {
+	return param.Override[TransferRequestBody](json.RawMessage(r.RawJSON()))
+}
+
+// Request body for initiating a sponsored token transfer from an embedded wallet.
+//
+// The properties Destination, Source are required.
+type TransferRequestBody struct {
+	// The destination address for a token transfer.
+	Destination TokenTransferDestination `json:"destination,omitzero" api:"required"`
+	// The source asset, amount, and chain for a token transfer.
+	Source TokenTransferSource `json:"source,omitzero" api:"required"`
+	paramObj
+}
+
+func (r TransferRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow TransferRequestBody
+	return param.MarshalObject(r, (*shadow)(&r))
+}
 func (r *TransferRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
