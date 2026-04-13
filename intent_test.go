@@ -226,6 +226,46 @@ func TestIntentRpcWithOptionalParams(t *testing.T) {
 	}
 }
 
+func TestIntentTransferWithOptionalParams(t *testing.T) {
+	t.Skip("Mock server tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := privyclient.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAppID("My App ID"),
+		option.WithAppSecret("My App Secret"),
+	)
+	_, err := client.Intents.Transfer(
+		context.TODO(),
+		"wallet_id",
+		privyclient.IntentTransferParams{
+			TransferRequestBody: privyclient.TransferRequestBody{
+				Destination: privyclient.TokenTransferDestination{
+					Address: "0xB00F0759DbeeF5E543Cc3E3B07A6442F5f3928a2",
+				},
+				Source: privyclient.TokenTransferSource{
+					Amount: "10.5",
+					Asset:  "usdc",
+					Chain:  "base",
+				},
+			},
+			PrivyRequestExpiry: privyclient.String("privy-request-expiry"),
+		},
+	)
+	if err != nil {
+		var apierr *privyclient.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
 func TestIntentUpdateKeyQuorumWithOptionalParams(t *testing.T) {
 	t.Skip("Mock server tests are disabled")
 	baseURL := "http://localhost:4010"
