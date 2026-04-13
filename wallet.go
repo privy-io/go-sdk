@@ -320,6 +320,20 @@ type WalletAdditionalSigner []WalletAdditionalSignerItem
 
 type Address = string
 
+// A named asset supported across all chains.
+type WalletAsset string
+
+const (
+	WalletAssetUsdc  WalletAsset = "usdc"
+	WalletAssetUsdcE WalletAsset = "usdc.e"
+	WalletAssetEth   WalletAsset = "eth"
+	WalletAssetPol   WalletAsset = "pol"
+	WalletAssetUsdt  WalletAsset = "usdt"
+	WalletAssetEurc  WalletAsset = "eurc"
+	WalletAssetUsdb  WalletAsset = "usdb"
+	WalletAssetSol   WalletAsset = "sol"
+)
+
 // Information about the custodian managing this wallet.
 type WalletCustodian struct {
 	// The custodian responsible for the wallet.
@@ -6620,6 +6634,15 @@ func (r *WalletExportResponseBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// SUI transaction commands allowlist for raw_sign endpoint policy evaluation
+type SuiCommandName string
+
+const (
+	SuiCommandNameTransferObjects SuiCommandName = "TransferObjects"
+	SuiCommandNameSplitCoins      SuiCommandName = "SplitCoins"
+	SuiCommandNameMergeCoins      SuiCommandName = "MergeCoins"
+)
+
 // The source asset, amount, and chain for a token transfer.
 type TokenTransferSourceResp struct {
 	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
@@ -6777,15 +6800,6 @@ func (r TransferRequestBody) MarshalJSON() (data []byte, err error) {
 func (r *TransferRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-// SUI transaction commands allowlist for raw_sign endpoint policy evaluation
-type SuiCommandName string
-
-const (
-	SuiCommandNameTransferObjects SuiCommandName = "TransferObjects"
-	SuiCommandNameSplitCoins      SuiCommandName = "SplitCoins"
-	SuiCommandNameMergeCoins      SuiCommandName = "MergeCoins"
-)
 
 type WalletInitImportResponse struct {
 	// The base64-encoded encryption public key to encrypt the wallet entropy with.
