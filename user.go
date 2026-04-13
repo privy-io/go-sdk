@@ -304,7 +304,7 @@ func (u *CustomMetadataItemUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
 }
 
-// A snail mail account linked to the user.
+// An email account linked to the user.
 type LinkedAccountEmail struct {
 	Address          string  `json:"address" api:"required"`
 	FirstVerifiedAt  float64 `json:"first_verified_at" api:"required"`

@@ -187,11 +187,11 @@ const (
 
 // A parameter in a Solidity ABI function or event definition.
 type AbiParameterResp struct {
-	Type         string `json:"type" api:"required"`
-	Components   []any  `json:"components"`
-	Indexed      bool   `json:"indexed"`
-	InternalType string `json:"internalType"`
-	Name         string `json:"name"`
+	Type         string           `json:"type" api:"required"`
+	Components   []map[string]any `json:"components"`
+	Indexed      bool             `json:"indexed"`
+	InternalType string           `json:"internalType"`
+	Name         string           `json:"name"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Type         respjson.Field
@@ -227,7 +227,7 @@ type AbiParameter struct {
 	Indexed      param.Opt[bool]   `json:"indexed,omitzero"`
 	InternalType param.Opt[string] `json:"internalType,omitzero"`
 	Name         param.Opt[string] `json:"name,omitzero"`
-	Components   []any             `json:"components,omitzero"`
+	Components   []map[string]any  `json:"components,omitzero"`
 	paramObj
 }
 
