@@ -301,7 +301,7 @@ type RuleIntentDeleteRequestDetails struct {
 	// Any of "DELETE".
 	Method RuleIntentDeleteRequestDetailsMethod `json:"method" api:"required"`
 	URL    string                               `json:"url" api:"required"`
-	Body   any                                  `json:"body"`
+	Body   RuleIntentDeleteRequestDetailsBody   `json:"body"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Method      respjson.Field
@@ -324,6 +324,20 @@ const (
 	RuleIntentDeleteRequestDetailsMethodDelete RuleIntentDeleteRequestDetailsMethod = "DELETE"
 )
 
+type RuleIntentDeleteRequestDetailsBody struct {
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentDeleteRequestDetailsBody) RawJSON() string { return r.JSON.raw }
+func (r *RuleIntentDeleteRequestDetailsBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // RuleIntentRequestDetailsUnion contains all possible properties and values from
 // [RuleIntentCreateRequestDetails], [RuleIntentUpdateRequestDetails],
 // [RuleIntentDeleteRequestDetails].
@@ -332,7 +346,8 @@ const (
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 type RuleIntentRequestDetailsUnion struct {
-	// This field is a union of [PolicyRuleRequestBodyResp], [any]
+	// This field is a union of [PolicyRuleRequestBodyResp],
+	// [RuleIntentDeleteRequestDetailsBody]
 	Body RuleIntentRequestDetailsUnionBody `json:"body"`
 	// Any of "POST", "PATCH", "DELETE".
 	Method string `json:"method"`
@@ -405,12 +420,7 @@ func (r *RuleIntentRequestDetailsUnion) UnmarshalJSON(data []byte) error {
 //
 // For type safety it is recommended to directly use a variant of the
 // [RuleIntentRequestDetailsUnion].
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfRuleIntentDeleteRequestDetailsBody]
 type RuleIntentRequestDetailsUnionBody struct {
-	// This field will be present if the value is a [any] instead of an object.
-	OfRuleIntentDeleteRequestDetailsBody any `json:",inline"`
 	// This field is from variant [PolicyRuleRequestBodyResp].
 	Action PolicyAction `json:"action"`
 	// This field is from variant [PolicyRuleRequestBodyResp].
@@ -420,12 +430,11 @@ type RuleIntentRequestDetailsUnionBody struct {
 	// This field is from variant [PolicyRuleRequestBodyResp].
 	Name string `json:"name"`
 	JSON struct {
-		OfRuleIntentDeleteRequestDetailsBody respjson.Field
-		Action                               respjson.Field
-		Conditions                           respjson.Field
-		Method                               respjson.Field
-		Name                                 respjson.Field
-		raw                                  string
+		Action     respjson.Field
+		Conditions respjson.Field
+		Method     respjson.Field
+		Name       respjson.Field
+		raw        string
 	} `json:"-"`
 }
 
@@ -1293,8 +1302,8 @@ func (r *IntentResponseUnion) UnmarshalJSON(data []byte) error {
 type IntentResponseUnionRequestDetails struct {
 	// This field is a union of [WalletRpcRequestBodyUnionResp],
 	// [TransferRequestBodyResp], [WalletIntentResponseRequestDetailsBody],
-	// [PolicyIntentResponseRequestDetailsBody], [PolicyRuleRequestBodyResp], [any],
-	// [KeyQuorumUpdateRequestBodyResp]
+	// [PolicyIntentResponseRequestDetailsBody], [PolicyRuleRequestBodyResp],
+	// [RuleIntentDeleteRequestDetailsBody], [KeyQuorumUpdateRequestBodyResp]
 	Body   IntentResponseUnionRequestDetailsBody `json:"body"`
 	Method string                                `json:"method"`
 	URL    string                                `json:"url"`
@@ -1316,13 +1325,8 @@ func (r *IntentResponseUnionRequestDetails) UnmarshalJSON(data []byte) error {
 //
 // For type safety it is recommended to directly use a variant of the
 // [IntentResponseUnion].
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfRuleIntentDeleteRequestDetailsBody]
 type IntentResponseUnionRequestDetailsBody struct {
-	// This field will be present if the value is a [any] instead of an object.
-	OfRuleIntentDeleteRequestDetailsBody any    `json:",inline"`
-	Method                               string `json:"method"`
+	Method string `json:"method"`
 	// This field is a union of [EthereumSignTransactionRpcInputParamsResp],
 	// [EthereumSendTransactionRpcInputParamsResp],
 	// [EthereumPersonalSignRpcInputParamsResp],
@@ -1381,33 +1385,32 @@ type IntentResponseUnionRequestDetailsBody struct {
 	// This field is from variant [KeyQuorumUpdateRequestBodyResp].
 	UserIDs []string `json:"user_ids"`
 	JSON    struct {
-		OfRuleIntentDeleteRequestDetailsBody respjson.Field
-		Method                               respjson.Field
-		Params                               respjson.Field
-		Address                              respjson.Field
-		ChainType                            respjson.Field
-		WalletID                             respjson.Field
-		Caip2                                respjson.Field
-		ReferenceID                          respjson.Field
-		Sponsor                              respjson.Field
-		Network                              respjson.Field
-		Destination                          respjson.Field
-		Source                               respjson.Field
-		AdditionalSigners                    respjson.Field
-		AuthorizationKeyIDs                  respjson.Field
-		AuthorizationThreshold               respjson.Field
-		DisplayName                          respjson.Field
-		Owner                                respjson.Field
-		OwnerID                              respjson.Field
-		PolicyIDs                            respjson.Field
-		Name                                 respjson.Field
-		Rules                                respjson.Field
-		Action                               respjson.Field
-		Conditions                           respjson.Field
-		KeyQuorumIDs                         respjson.Field
-		PublicKeys                           respjson.Field
-		UserIDs                              respjson.Field
-		raw                                  string
+		Method                 respjson.Field
+		Params                 respjson.Field
+		Address                respjson.Field
+		ChainType              respjson.Field
+		WalletID               respjson.Field
+		Caip2                  respjson.Field
+		ReferenceID            respjson.Field
+		Sponsor                respjson.Field
+		Network                respjson.Field
+		Destination            respjson.Field
+		Source                 respjson.Field
+		AdditionalSigners      respjson.Field
+		AuthorizationKeyIDs    respjson.Field
+		AuthorizationThreshold respjson.Field
+		DisplayName            respjson.Field
+		Owner                  respjson.Field
+		OwnerID                respjson.Field
+		PolicyIDs              respjson.Field
+		Name                   respjson.Field
+		Rules                  respjson.Field
+		Action                 respjson.Field
+		Conditions             respjson.Field
+		KeyQuorumIDs           respjson.Field
+		PublicKeys             respjson.Field
+		UserIDs                respjson.Field
+		raw                    string
 	} `json:"-"`
 }
 
