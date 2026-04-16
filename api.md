@@ -242,10 +242,9 @@ Methods:
 
 Methods:
 
+- <code title="post /v1/wallets/{wallet_id}/earn/ethereum/incentive/claim">client.Wallets.Earn.Ethereum.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletEarnEthereumService.ClaimIncentive">ClaimIncentive</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, walletID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletEarnEthereumClaimIncentiveParams">WalletEarnEthereumClaimIncentiveParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EarnIncentiveClaimActionResponse">EarnIncentiveClaimActionResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="post /v1/wallets/{wallet_id}/earn/ethereum/deposit">client.Wallets.Earn.Ethereum.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletEarnEthereumService.Deposit">Deposit</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, walletID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletEarnEthereumDepositParams">WalletEarnEthereumDepositParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EarnDepositActionResponse">EarnDepositActionResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="post /v1/wallets/{wallet_id}/earn/ethereum/withdraw">client.Wallets.Earn.Ethereum.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletEarnEthereumService.Withdraw">Withdraw</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, walletID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletEarnEthereumWithdrawParams">WalletEarnEthereumWithdrawParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EarnWithdrawActionResponse">EarnWithdrawActionResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-
-#### Incentive
 
 ## Transactions
 
@@ -578,6 +577,7 @@ Params Types:
 
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EarnDepositRequestBody">EarnDepositRequestBody</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EarnWithdrawRequestBody">EarnWithdrawRequestBody</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EarnIncentiveClaimRequestBody">EarnIncentiveClaimRequestBody</a>
 
 Response Types:
 
@@ -590,8 +590,10 @@ Response Types:
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SvmTransactionWalletActionStep">SvmTransactionWalletActionStep</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletActionStepUnion">WalletActionStepUnion</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TransferActionResponse">TransferActionResponse</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EarnIncetiveClaimRewardEntry">EarnIncetiveClaimRewardEntry</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EarnDepositActionResponse">EarnDepositActionResponse</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EarnWithdrawActionResponse">EarnWithdrawActionResponse</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EarnIncentiveClaimActionResponse">EarnIncentiveClaimActionResponse</a>
 
 # Analytics
 
