@@ -393,7 +393,7 @@ func TestWalletRpcWithOptionalParams(t *testing.T) {
 					Caip2:  "eip155:8453",
 					Method: privyclient.EthereumSendTransactionRpcInputMethodEthSendTransaction,
 					Params: privyclient.EthereumSendTransactionRpcInputParams{
-						Transaction: privyclient.UnsignedEthereumTransaction{
+						Transaction: privyclient.UnsignedStandardEthereumTransaction{
 							AuthorizationList: []privyclient.EthereumSign7702Authorization{{
 								ChainID: privyclient.QuantityUnion{
 									OfString: privyclient.String("string"),
