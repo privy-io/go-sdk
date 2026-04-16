@@ -169,7 +169,7 @@ func TestIntentRpcWithOptionalParams(t *testing.T) {
 				OfEthSignTransaction: &privyclient.EthereumSignTransactionRpcInput{
 					Method: privyclient.EthereumSignTransactionRpcInputMethodEthSignTransaction,
 					Params: privyclient.EthereumSignTransactionRpcInputParams{
-						Transaction: privyclient.UnsignedEthereumTransaction{
+						Transaction: privyclient.UnsignedStandardEthereumTransaction{
 							AuthorizationList: []privyclient.EthereumSign7702Authorization{{
 								ChainID: privyclient.QuantityUnion{
 									OfString: privyclient.String("string"),
