@@ -116,6 +116,21 @@ func (r *WalletService) SubmitImport(ctx context.Context, body WalletSubmitImpor
 	return res, err
 }
 
+// Transfer tokens from a wallet to a destination address.
+func (r *WalletService) Transfer(ctx context.Context, walletID string, params WalletTransferParams, opts ...option.RequestOption) (res *TransferActionResponse, err error) {
+	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
+		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
+	}
+	opts = slices.Concat(r.Options, opts)
+	if walletID == "" {
+		err = errors.New("missing required wallet_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/wallets/%s/transfer", url.PathEscape(walletID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
+	return res, err
+}
+
 // Obtain a session key to enable wallet access.
 func (r *WalletService) AuthenticateWithJwt(ctx context.Context, body WalletAuthenticateWithJwtParams, opts ...option.RequestOption) (res *WalletAuthenticateWithJwtResponseUnion, err error) {
 	opts = slices.Concat(r.Options, opts)
@@ -200,21 +215,6 @@ func (r *WalletService) Rpc(ctx context.Context, walletID string, params WalletR
 		return nil, err
 	}
 	path := fmt.Sprintf("v1/wallets/%s/rpc", url.PathEscape(walletID))
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
-	return res, err
-}
-
-// Transfer tokens from a wallet to a destination address.
-func (r *WalletService) Transfer(ctx context.Context, walletID string, params WalletTransferParams, opts ...option.RequestOption) (res *TransferActionResponse, err error) {
-	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
-		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
-	}
-	opts = slices.Concat(r.Options, opts)
-	if walletID == "" {
-		err = errors.New("missing required wallet_id parameter")
-		return nil, err
-	}
-	path := fmt.Sprintf("v1/wallets/%s/transfer", url.PathEscape(walletID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return res, err
 }
@@ -7132,6 +7132,22 @@ func init() {
 	)
 }
 
+type WalletTransferParams struct {
+	// Request body for initiating a sponsored token transfer from an embedded wallet.
+	TransferRequestBody TransferRequestBody
+	// Request authorization signature. If multiple signatures are required, they
+	// should be comma separated.
+	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
+	paramObj
+}
+
+func (r WalletTransferParams) MarshalJSON() (data []byte, err error) {
+	return shimjson.Marshal(r.TransferRequestBody)
+}
+func (r *WalletTransferParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 type WalletAuthenticateWithJwtParams struct {
 	// Request body for wallet authentication with HPKE-encrypted response.
 	WalletAuthenticateRequestBody WalletAuthenticateRequestBody
@@ -7219,21 +7235,5 @@ func (r WalletRpcParams) MarshalJSON() (data []byte, err error) {
 	return shimjson.Marshal(r.WalletRpcRequestBody)
 }
 func (r *WalletRpcParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type WalletTransferParams struct {
-	// Request body for initiating a sponsored token transfer from an embedded wallet.
-	TransferRequestBody TransferRequestBody
-	// Request authorization signature. If multiple signatures are required, they
-	// should be comma separated.
-	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
-	paramObj
-}
-
-func (r WalletTransferParams) MarshalJSON() (data []byte, err error) {
-	return shimjson.Marshal(r.TransferRequestBody)
-}
-func (r *WalletTransferParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
