@@ -376,30 +376,6 @@ const (
 	TransferActionResponseTypeTransfer TransferActionResponseType = "transfer"
 )
 
-// A specific reward token and amount associated with an earn incentive claim.
-type EarnIncetiveClaimRewardEntry struct {
-	// Claimable amount in base units.
-	Amount string `json:"amount" api:"required"`
-	// Address of the reward token.
-	TokenAddress string `json:"token_address" api:"required"`
-	// Symbol of the reward token (e.g. "MORPHO").
-	TokenSymbol string `json:"token_symbol" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Amount       respjson.Field
-		TokenAddress respjson.Field
-		TokenSymbol  respjson.Field
-		ExtraFields  map[string]respjson.Field
-		raw          string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r EarnIncetiveClaimRewardEntry) RawJSON() string { return r.JSON.raw }
-func (r *EarnIncetiveClaimRewardEntry) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // Response for an earn deposit action.
 type EarnDepositActionResponse struct {
 	// The ID of the wallet action.
@@ -548,56 +524,6 @@ const (
 	EarnWithdrawActionResponseTypeEarnWithdraw EarnWithdrawActionResponseType = "earn_withdraw"
 )
 
-// Response for an earn incentive claim action.
-type EarnIncentiveClaimActionResponse struct {
-	// The ID of the wallet action.
-	ID string `json:"id" api:"required"`
-	// EVM chain name (e.g. "base", "ethereum").
-	Chain string `json:"chain" api:"required"`
-	// ISO 8601 timestamp of when the wallet action was created.
-	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Claimed reward tokens. Populated after the preparation step fetches from Merkl.
-	Rewards []EarnIncetiveClaimRewardEntry `json:"rewards" api:"required"`
-	// Status of a wallet action.
-	//
-	// Any of "pending", "succeeded", "rejected", "failed".
-	Status WalletActionStatus `json:"status" api:"required"`
-	// Any of "earn_incentive_claim".
-	Type EarnIncentiveClaimActionResponseType `json:"type" api:"required"`
-	// The ID of the wallet involved in the action.
-	WalletID string `json:"wallet_id" api:"required"`
-	// A description of why a wallet action (or a step within a wallet action) failed.
-	FailureReason FailureReason `json:"failure_reason"`
-	// The steps of the wallet action. Only returned if `?include=steps` is provided.
-	Steps []WalletActionStepUnion `json:"steps"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID            respjson.Field
-		Chain         respjson.Field
-		CreatedAt     respjson.Field
-		Rewards       respjson.Field
-		Status        respjson.Field
-		Type          respjson.Field
-		WalletID      respjson.Field
-		FailureReason respjson.Field
-		Steps         respjson.Field
-		ExtraFields   map[string]respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r EarnIncentiveClaimActionResponse) RawJSON() string { return r.JSON.raw }
-func (r *EarnIncentiveClaimActionResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type EarnIncentiveClaimActionResponseType string
-
-const (
-	EarnIncentiveClaimActionResponseTypeEarnIncentiveClaim EarnIncentiveClaimActionResponseType = "earn_incentive_claim"
-)
-
 // Input for depositing assets into an ERC-4626 vault. Exactly one of `amount` or
 // `raw_amount` must be provided.
 //
@@ -643,24 +569,5 @@ func (r EarnWithdrawRequestBody) MarshalJSON() (data []byte, err error) {
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *EarnWithdrawRequestBody) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Input for claiming incentive rewards.
-//
-// The property Chain is required.
-type EarnIncentiveClaimRequestBody struct {
-	// The blockchain network on which to perform the incentive claim. Supported chains
-	// include: 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and more, along
-	// with their respective testnets.
-	Chain string `json:"chain" api:"required"`
-	paramObj
-}
-
-func (r EarnIncentiveClaimRequestBody) MarshalJSON() (data []byte, err error) {
-	type shadow EarnIncentiveClaimRequestBody
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *EarnIncentiveClaimRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }

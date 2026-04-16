@@ -26,7 +26,8 @@ import (
 // automatically. You should not instantiate this service directly, and instead use
 // the [NewWalletEarnEthereumService] method instead.
 type WalletEarnEthereumService struct {
-	Options []option.RequestOption
+	Options   []option.RequestOption
+	Incentive WalletEarnEthereumIncentiveService
 }
 
 // NewWalletEarnEthereumService generates a new service that applies the given
@@ -35,22 +36,8 @@ type WalletEarnEthereumService struct {
 func NewWalletEarnEthereumService(opts ...option.RequestOption) (r WalletEarnEthereumService) {
 	r = WalletEarnEthereumService{}
 	r.Options = opts
+	r.Incentive = NewWalletEarnEthereumIncentiveService(opts...)
 	return
-}
-
-// Claim incentive rewards for a wallet.
-func (r *WalletEarnEthereumService) ClaimIncentive(ctx context.Context, walletID string, params WalletEarnEthereumClaimIncentiveParams, opts ...option.RequestOption) (res *EarnIncentiveClaimActionResponse, err error) {
-	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
-		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
-	}
-	opts = slices.Concat(r.Options, opts)
-	if walletID == "" {
-		err = errors.New("missing required wallet_id parameter")
-		return nil, err
-	}
-	path := fmt.Sprintf("v1/wallets/%s/earn/ethereum/incentive/claim", url.PathEscape(walletID))
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
-	return res, err
 }
 
 // Deposit assets into an ERC-4626 vault.
@@ -81,22 +68,6 @@ func (r *WalletEarnEthereumService) Withdraw(ctx context.Context, walletID strin
 	path := fmt.Sprintf("v1/wallets/%s/earn/ethereum/withdraw", url.PathEscape(walletID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return res, err
-}
-
-type WalletEarnEthereumClaimIncentiveParams struct {
-	// Input for claiming incentive rewards.
-	EarnIncentiveClaimRequestBody EarnIncentiveClaimRequestBody
-	// Request authorization signature. If multiple signatures are required, they
-	// should be comma separated.
-	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
-	paramObj
-}
-
-func (r WalletEarnEthereumClaimIncentiveParams) MarshalJSON() (data []byte, err error) {
-	return shimjson.Marshal(r.EarnIncentiveClaimRequestBody)
-}
-func (r *WalletEarnEthereumClaimIncentiveParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
 }
 
 type WalletEarnEthereumDepositParams struct {
