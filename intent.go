@@ -1350,9 +1350,11 @@ type IntentResponseUnionRequestDetailsBody struct {
 	ChainType string                                      `json:"chain_type"`
 	WalletID  string                                      `json:"wallet_id"`
 	// This field is from variant [WalletRpcRequestBodyUnionResp].
-	Caip2       Caip2  `json:"caip2"`
-	ReferenceID string `json:"reference_id"`
-	Sponsor     bool   `json:"sponsor"`
+	Caip2 Caip2 `json:"caip2"`
+	// This field is from variant [WalletRpcRequestBodyUnionResp].
+	ExperimentalDataSuffix Hex    `json:"experimental_data_suffix"`
+	ReferenceID            string `json:"reference_id"`
+	Sponsor                bool   `json:"sponsor"`
 	// This field is from variant [WalletRpcRequestBodyUnionResp].
 	Network SparkNetwork `json:"network"`
 	// This field is from variant [TransferRequestBodyResp].
@@ -1391,6 +1393,7 @@ type IntentResponseUnionRequestDetailsBody struct {
 		ChainType              respjson.Field
 		WalletID               respjson.Field
 		Caip2                  respjson.Field
+		ExperimentalDataSuffix respjson.Field
 		ReferenceID            respjson.Field
 		Sponsor                respjson.Field
 		Network                respjson.Field
