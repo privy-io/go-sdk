@@ -1609,22 +1609,25 @@ type EthereumSendTransactionRpcInputResp struct {
 	Params  EthereumSendTransactionRpcInputParamsResp `json:"params" api:"required"`
 	Address string                                    `json:"address"`
 	// Any of "ethereum".
-	ChainType   EthereumSendTransactionRpcInputChainType `json:"chain_type"`
-	ReferenceID string                                   `json:"reference_id"`
-	Sponsor     bool                                     `json:"sponsor"`
-	WalletID    string                                   `json:"wallet_id"`
+	ChainType EthereumSendTransactionRpcInputChainType `json:"chain_type"`
+	// A hex-encoded string prefixed with '0x'.
+	ExperimentalDataSuffix Hex    `json:"experimental_data_suffix"`
+	ReferenceID            string `json:"reference_id"`
+	Sponsor                bool   `json:"sponsor"`
+	WalletID               string `json:"wallet_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		Caip2       respjson.Field
-		Method      respjson.Field
-		Params      respjson.Field
-		Address     respjson.Field
-		ChainType   respjson.Field
-		ReferenceID respjson.Field
-		Sponsor     respjson.Field
-		WalletID    respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
+		Caip2                  respjson.Field
+		Method                 respjson.Field
+		Params                 respjson.Field
+		Address                respjson.Field
+		ChainType              respjson.Field
+		ExperimentalDataSuffix respjson.Field
+		ReferenceID            respjson.Field
+		Sponsor                respjson.Field
+		WalletID               respjson.Field
+		ExtraFields            map[string]respjson.Field
+		raw                    string
 	} `json:"-"`
 }
 
@@ -1665,11 +1668,13 @@ type EthereumSendTransactionRpcInput struct {
 	// Any of "eth_sendTransaction".
 	Method EthereumSendTransactionRpcInputMethod `json:"method,omitzero" api:"required"`
 	// Parameters for the EVM `eth_sendTransaction` RPC.
-	Params      EthereumSendTransactionRpcInputParams `json:"params,omitzero" api:"required"`
-	Address     param.Opt[string]                     `json:"address,omitzero"`
-	ReferenceID param.Opt[string]                     `json:"reference_id,omitzero"`
-	Sponsor     param.Opt[bool]                       `json:"sponsor,omitzero"`
-	WalletID    param.Opt[string]                     `json:"wallet_id,omitzero"`
+	Params  EthereumSendTransactionRpcInputParams `json:"params,omitzero" api:"required"`
+	Address param.Opt[string]                     `json:"address,omitzero"`
+	// A hex-encoded string prefixed with '0x'.
+	ExperimentalDataSuffix param.Opt[Hex]    `json:"experimental_data_suffix,omitzero"`
+	ReferenceID            param.Opt[string] `json:"reference_id,omitzero"`
+	Sponsor                param.Opt[bool]   `json:"sponsor,omitzero"`
+	WalletID               param.Opt[string] `json:"wallet_id,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumSendTransactionRpcInputChainType `json:"chain_type,omitzero"`
 	paramObj
@@ -2354,19 +2359,22 @@ type EthereumSendCallsRpcInputResp struct {
 	Address string                              `json:"address"`
 	// Any of "ethereum".
 	ChainType EthereumSendCallsRpcInputChainType `json:"chain_type"`
-	Sponsor   bool                               `json:"sponsor"`
-	WalletID  string                             `json:"wallet_id"`
+	// A hex-encoded string prefixed with '0x'.
+	ExperimentalDataSuffix Hex    `json:"experimental_data_suffix"`
+	Sponsor                bool   `json:"sponsor"`
+	WalletID               string `json:"wallet_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		Caip2       respjson.Field
-		Method      respjson.Field
-		Params      respjson.Field
-		Address     respjson.Field
-		ChainType   respjson.Field
-		Sponsor     respjson.Field
-		WalletID    respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
+		Caip2                  respjson.Field
+		Method                 respjson.Field
+		Params                 respjson.Field
+		Address                respjson.Field
+		ChainType              respjson.Field
+		ExperimentalDataSuffix respjson.Field
+		Sponsor                respjson.Field
+		WalletID               respjson.Field
+		ExtraFields            map[string]respjson.Field
+		raw                    string
 	} `json:"-"`
 }
 
@@ -2408,10 +2416,12 @@ type EthereumSendCallsRpcInput struct {
 	// Any of "wallet_sendCalls".
 	Method EthereumSendCallsRpcInputMethod `json:"method,omitzero" api:"required"`
 	// Parameters for the `wallet_sendCalls` RPC.
-	Params   EthereumSendCallsRpcInputParams `json:"params,omitzero" api:"required"`
-	Address  param.Opt[string]               `json:"address,omitzero"`
-	Sponsor  param.Opt[bool]                 `json:"sponsor,omitzero"`
-	WalletID param.Opt[string]               `json:"wallet_id,omitzero"`
+	Params  EthereumSendCallsRpcInputParams `json:"params,omitzero" api:"required"`
+	Address param.Opt[string]               `json:"address,omitzero"`
+	// A hex-encoded string prefixed with '0x'.
+	ExperimentalDataSuffix param.Opt[Hex]    `json:"experimental_data_suffix,omitzero"`
+	Sponsor                param.Opt[bool]   `json:"sponsor,omitzero"`
+	WalletID               param.Opt[string] `json:"wallet_id,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumSendCallsRpcInputChainType `json:"chain_type,omitzero"`
 	paramObj
@@ -5323,22 +5333,25 @@ type WalletRpcRequestBodyUnionResp struct {
 	ChainType string                              `json:"chain_type"`
 	WalletID  string                              `json:"wallet_id"`
 	// This field is from variant [EthereumSendTransactionRpcInputResp].
-	Caip2       Caip2  `json:"caip2"`
-	ReferenceID string `json:"reference_id"`
-	Sponsor     bool   `json:"sponsor"`
+	Caip2 Caip2 `json:"caip2"`
+	// This field is from variant [EthereumSendTransactionRpcInputResp].
+	ExperimentalDataSuffix Hex    `json:"experimental_data_suffix"`
+	ReferenceID            string `json:"reference_id"`
+	Sponsor                bool   `json:"sponsor"`
 	// This field is from variant [SparkTransferRpcInputResp].
 	Network SparkNetwork `json:"network"`
 	JSON    struct {
-		Method      respjson.Field
-		Params      respjson.Field
-		Address     respjson.Field
-		ChainType   respjson.Field
-		WalletID    respjson.Field
-		Caip2       respjson.Field
-		ReferenceID respjson.Field
-		Sponsor     respjson.Field
-		Network     respjson.Field
-		raw         string
+		Method                 respjson.Field
+		Params                 respjson.Field
+		Address                respjson.Field
+		ChainType              respjson.Field
+		WalletID               respjson.Field
+		Caip2                  respjson.Field
+		ExperimentalDataSuffix respjson.Field
+		ReferenceID            respjson.Field
+		Sponsor                respjson.Field
+		Network                respjson.Field
+		raw                    string
 	} `json:"-"`
 }
 
