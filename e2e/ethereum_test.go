@@ -208,7 +208,7 @@ func TestWallets_Ethereum(t *testing.T) {
 			t.Run(wallet.name, func(t *testing.T) {
 				data, err := client.Wallets.Ethereum.SignTransaction(ctx, wallet.id,
 					EthereumSignTransactionRpcInputParams{
-						Transaction: UnsignedEthereumTransaction{
+						Transaction: UnsignedStandardEthereumTransaction{
 							Type: 2,
 							ChainID: QuantityUnion{
 								OfInt: Int(1),
@@ -247,7 +247,7 @@ func TestWallets_Ethereum(t *testing.T) {
 				data, err := client.Wallets.Ethereum.SendTransaction(ctx, wallet.id,
 					"eip155:11155111", // Sepolia
 					EthereumSendTransactionRpcInputParams{
-						Transaction: UnsignedEthereumTransaction{
+						Transaction: UnsignedStandardEthereumTransaction{
 							To: param.NewOpt("0x429c8e85D3A18F9F0a64a7A851777e24D591485C"),
 							Value: QuantityUnion{
 								OfString: param.NewOpt("0x1"), // 1 wei

@@ -302,7 +302,7 @@ func TestIntents_Rpc(t *testing.T) {
 			OfEthSignTransaction: &EthereumSignTransactionRpcInput{
 				Method: EthereumSignTransactionRpcInputMethodEthSignTransaction,
 				Params: EthereumSignTransactionRpcInputParams{
-					Transaction: UnsignedEthereumTransaction{
+					Transaction: UnsignedStandardEthereumTransaction{
 						Type: 2,
 						ChainID: QuantityUnion{
 							OfInt: Int(1),
