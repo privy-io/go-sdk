@@ -1428,7 +1428,8 @@ func (r *IntentResponseUnionRequestDetailsBody) UnmarshalJSON(data []byte) error
 // For type safety it is recommended to directly use a variant of the
 // [IntentResponseUnion].
 type IntentResponseUnionRequestDetailsBodyParams struct {
-	// This field is a union of [UnsignedEthereumTransactionResp], [string], [string]
+	// This field is a union of [UnsignedStandardEthereumTransactionResp], [string],
+	// [string]
 	Transaction IntentResponseUnionRequestDetailsBodyParamsTransaction `json:"transaction"`
 	Encoding    string                                                 `json:"encoding"`
 	Message     string                                                 `json:"message"`
@@ -1546,29 +1547,29 @@ func (r *IntentResponseUnionRequestDetailsBodyParams) UnmarshalJSON(data []byte)
 type IntentResponseUnionRequestDetailsBodyParamsTransaction struct {
 	// This field will be present if the value is a [string] instead of an object.
 	OfString string `json:",inline"`
-	// This field is from variant [UnsignedEthereumTransactionResp].
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
 	AuthorizationList []EthereumSign7702AuthorizationResp `json:"authorization_list"`
-	// This field is from variant [UnsignedEthereumTransactionResp].
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
 	ChainID QuantityUnionResp `json:"chain_id"`
-	// This field is from variant [UnsignedEthereumTransactionResp].
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
 	Data Hex `json:"data"`
-	// This field is from variant [UnsignedEthereumTransactionResp].
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
 	From string `json:"from"`
-	// This field is from variant [UnsignedEthereumTransactionResp].
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
 	GasLimit QuantityUnionResp `json:"gas_limit"`
-	// This field is from variant [UnsignedEthereumTransactionResp].
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
 	GasPrice QuantityUnionResp `json:"gas_price"`
-	// This field is from variant [UnsignedEthereumTransactionResp].
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
 	MaxFeePerGas QuantityUnionResp `json:"max_fee_per_gas"`
-	// This field is from variant [UnsignedEthereumTransactionResp].
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
 	MaxPriorityFeePerGas QuantityUnionResp `json:"max_priority_fee_per_gas"`
-	// This field is from variant [UnsignedEthereumTransactionResp].
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
 	Nonce QuantityUnionResp `json:"nonce"`
-	// This field is from variant [UnsignedEthereumTransactionResp].
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
 	To string `json:"to"`
-	// This field is from variant [UnsignedEthereumTransactionResp].
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
 	Type float64 `json:"type"`
-	// This field is from variant [UnsignedEthereumTransactionResp].
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
 	Value QuantityUnionResp `json:"value"`
 	JSON  struct {
 		OfString             respjson.Field
