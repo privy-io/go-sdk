@@ -384,13 +384,16 @@ type EarnIncetiveClaimRewardEntry struct {
 	TokenAddress string `json:"token_address" api:"required"`
 	// Symbol of the reward token (e.g. "MORPHO").
 	TokenSymbol string `json:"token_symbol" api:"required"`
+	// Number of decimal places for the reward token.
+	TokenDecimals int64 `json:"token_decimals"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		Amount       respjson.Field
-		TokenAddress respjson.Field
-		TokenSymbol  respjson.Field
-		ExtraFields  map[string]respjson.Field
-		raw          string
+		Amount        respjson.Field
+		TokenAddress  respjson.Field
+		TokenSymbol   respjson.Field
+		TokenDecimals respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
 	} `json:"-"`
 }
 
