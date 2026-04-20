@@ -695,7 +695,7 @@ You may also replace the default `http.Client` with
 accepted (this overwrites any previous client) and receives requests after any
 middleware has been applied.
 
-When using `NewPrivyClient`, set a client-wide default with `PrivyClientOptions.HTTPClient`. It applies to every request, including the hand-written wrappers. Per-call `option.WithHTTPClient` still overrides it.
+When using `NewPrivyClient`, optionally set a client-wide default with `PrivyClientOptions.HTTPClient` to use the specified HTTPClient across all requests. Per-call `option.WithHTTPClient` still overrides it.
 
 ```go
 client := privy.NewPrivyClient(privy.PrivyClientOptions{
