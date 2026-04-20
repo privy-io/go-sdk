@@ -36,12 +36,9 @@ type PrivyClientOptions struct {
 	// Can be overridden per-request, where applicable, using WithRequestExpiry.
 	DefaultRequestExpiryMs int64
 
-	// HTTPClient sets the default [*http.Client] used for every outbound request (optional).
-	// If not provided, the SDK uses [http.DefaultClient].
-	// Per-call [option.WithHTTPClient] still overrides it.
-	//
-	// Useful for configuring a custom transport (e.g. otelhttp) or timeouts once,
-	// so they apply to both generated services and the hand-written wrappers.
+	// HTTPClient sets the default *http.Client used across all requests (optional).
+	// If not provided, defaults to http.DefaultClient.
+	// Can be overridden per-request using WithHTTPClient.
 	HTTPClient *http.Client
 }
 
