@@ -1565,6 +1565,76 @@ func (r *SuiTransferObjectsCommandCondition) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Condition on the original wallet action API request body fields.
+type ActionRequestBodyConditionResp struct {
+	Field string `json:"field" api:"required"`
+	// Any of "action_request_body".
+	FieldSource ActionRequestBodyConditionFieldSource `json:"field_source" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator ConditionOperator `json:"operator" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnionResp `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ActionRequestBodyConditionResp) RawJSON() string { return r.JSON.raw }
+func (r *ActionRequestBodyConditionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this ActionRequestBodyConditionResp to a
+// ActionRequestBodyCondition.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// ActionRequestBodyCondition.Overrides()
+func (r ActionRequestBodyConditionResp) ToParam() ActionRequestBodyCondition {
+	return param.Override[ActionRequestBodyCondition](json.RawMessage(r.RawJSON()))
+}
+
+type ActionRequestBodyConditionFieldSource string
+
+const (
+	ActionRequestBodyConditionFieldSourceActionRequestBody ActionRequestBodyConditionFieldSource = "action_request_body"
+)
+
+// Condition on the original wallet action API request body fields.
+//
+// The properties Field, FieldSource, Operator, Value are required.
+type ActionRequestBodyCondition struct {
+	Field string `json:"field" api:"required"`
+	// Any of "action_request_body".
+	FieldSource ActionRequestBodyConditionFieldSource `json:"field_source,omitzero" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnion `json:"value,omitzero" api:"required"`
+	paramObj
+}
+
+func (r ActionRequestBodyCondition) MarshalJSON() (data []byte, err error) {
+	type shadow ActionRequestBodyCondition
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *ActionRequestBodyCondition) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Condition referencing an aggregation value. The field must start with
 // "aggregation." followed by the aggregation ID.
 type AggregationConditionResp struct {
@@ -1645,7 +1715,7 @@ func (r *AggregationCondition) UnmarshalJSON(data []byte) error {
 // [SolanaTokenProgramInstructionConditionResp], [SystemConditionResp],
 // [TronTransactionConditionResp], [TronCalldataConditionResp],
 // [SuiTransactionCommandConditionResp], [SuiTransferObjectsCommandConditionResp],
-// [AggregationConditionResp].
+// [ActionRequestBodyConditionResp], [AggregationConditionResp].
 //
 // Use the [PolicyConditionUnionResp.AsAny] method to switch on the variant.
 //
@@ -1657,7 +1727,8 @@ type PolicyConditionUnionResp struct {
 	// "ethereum_7702_authorization", "solana_program_instruction",
 	// "solana_system_program_instruction", "solana_token_program_instruction",
 	// "system", "tron_transaction", "tron_trigger_smart_contract_data",
-	// "sui_transaction_command", "sui_transfer_objects_command", "reference".
+	// "sui_transaction_command", "sui_transfer_objects_command",
+	// "action_request_body", "reference".
 	FieldSource string `json:"field_source"`
 	Operator    string `json:"operator"`
 	// This field is a union of [ConditionValueUnionResp],
@@ -1698,6 +1769,7 @@ func (TronTransactionConditionResp) implPolicyConditionUnionResp()              
 func (TronCalldataConditionResp) implPolicyConditionUnionResp()                   {}
 func (SuiTransactionCommandConditionResp) implPolicyConditionUnionResp()          {}
 func (SuiTransferObjectsCommandConditionResp) implPolicyConditionUnionResp()      {}
+func (ActionRequestBodyConditionResp) implPolicyConditionUnionResp()              {}
 func (AggregationConditionResp) implPolicyConditionUnionResp()                    {}
 
 // Use the following switch statement to find the correct variant
@@ -1716,6 +1788,7 @@ func (AggregationConditionResp) implPolicyConditionUnionResp()                  
 //	case privyclient.TronCalldataConditionResp:
 //	case privyclient.SuiTransactionCommandConditionResp:
 //	case privyclient.SuiTransferObjectsCommandConditionResp:
+//	case privyclient.ActionRequestBodyConditionResp:
 //	case privyclient.AggregationConditionResp:
 //	default:
 //	  fmt.Errorf("no variant present")
@@ -1748,6 +1821,8 @@ func (u PolicyConditionUnionResp) AsAny() anyPolicyConditionResp {
 		return u.AsSuiTransactionCommand()
 	case "sui_transfer_objects_command":
 		return u.AsSuiTransferObjectsCommand()
+	case "action_request_body":
+		return u.AsActionRequestBody()
 	case "reference":
 		return u.AsReference()
 	}
@@ -1815,6 +1890,11 @@ func (u PolicyConditionUnionResp) AsSuiTransactionCommand() (v SuiTransactionCom
 }
 
 func (u PolicyConditionUnionResp) AsSuiTransferObjectsCommand() (v SuiTransferObjectsCommandConditionResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyConditionUnionResp) AsActionRequestBody() (v ActionRequestBodyConditionResp) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -1890,6 +1970,7 @@ type PolicyConditionUnion struct {
 	OfTronTriggerSmartContractData   *TronCalldataCondition                   `json:",omitzero,inline"`
 	OfSuiTransactionCommand          *SuiTransactionCommandCondition          `json:",omitzero,inline"`
 	OfSuiTransferObjectsCommand      *SuiTransferObjectsCommandCondition      `json:",omitzero,inline"`
+	OfActionRequestBody              *ActionRequestBodyCondition              `json:",omitzero,inline"`
 	OfReference                      *AggregationCondition                    `json:",omitzero,inline"`
 	paramUnion
 }
@@ -1908,6 +1989,7 @@ func (u PolicyConditionUnion) MarshalJSON() ([]byte, error) {
 		u.OfTronTriggerSmartContractData,
 		u.OfSuiTransactionCommand,
 		u.OfSuiTransferObjectsCommand,
+		u.OfActionRequestBody,
 		u.OfReference)
 }
 func (u *PolicyConditionUnion) UnmarshalJSON(data []byte) error {
@@ -1930,6 +2012,7 @@ func init() {
 		apijson.Discriminator[TronCalldataCondition]("tron_trigger_smart_contract_data"),
 		apijson.Discriminator[SuiTransactionCommandCondition]("sui_transaction_command"),
 		apijson.Discriminator[SuiTransferObjectsCommandCondition]("sui_transfer_objects_command"),
+		apijson.Discriminator[ActionRequestBodyCondition]("action_request_body"),
 		apijson.Discriminator[AggregationCondition]("reference"),
 	)
 }
@@ -1949,6 +2032,8 @@ const (
 	PolicyMethodExportPrivateKey         PolicyMethod = "exportPrivateKey"
 	PolicyMethodExportSeedPhrase         PolicyMethod = "exportSeedPhrase"
 	PolicyMethodSignTransactionBytes     PolicyMethod = "signTransactionBytes"
+	PolicyMethodEarnDeposit              PolicyMethod = "earn_deposit"
+	PolicyMethodEarnWithdraw             PolicyMethod = "earn_withdraw"
 	PolicyMethodStar                     PolicyMethod = "*"
 )
 
@@ -1964,7 +2049,8 @@ type PolicyRuleRequestBodyResp struct {
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "eth_sign7702Authorization", "wallet_sendCalls",
 	// "signTransaction", "signAndSendTransaction", "exportPrivateKey",
-	// "exportSeedPhrase", "signTransactionBytes", "\*".
+	// "exportSeedPhrase", "signTransactionBytes", "earn_deposit", "earn_withdraw",
+	// "\*".
 	Method PolicyMethod `json:"method" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -2007,7 +2093,8 @@ type PolicyRuleRequestBody struct {
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "eth_sign7702Authorization", "wallet_sendCalls",
 	// "signTransaction", "signAndSendTransaction", "exportPrivateKey",
-	// "exportSeedPhrase", "signTransactionBytes", "\*".
+	// "exportSeedPhrase", "signTransactionBytes", "earn_deposit", "earn_withdraw",
+	// "\*".
 	Method PolicyMethod `json:"method,omitzero" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	paramObj
@@ -2035,7 +2122,8 @@ type PolicyRuleResponse struct {
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "eth_sign7702Authorization", "wallet_sendCalls",
 	// "signTransaction", "signAndSendTransaction", "exportPrivateKey",
-	// "exportSeedPhrase", "signTransactionBytes", "\*".
+	// "exportSeedPhrase", "signTransactionBytes", "earn_deposit", "earn_withdraw",
+	// "\*".
 	Method PolicyMethod `json:"method" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -2149,7 +2237,8 @@ type PolicyNewParamsRule struct {
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "eth_sign7702Authorization", "wallet_sendCalls",
 	// "signTransaction", "signAndSendTransaction", "exportPrivateKey",
-	// "exportSeedPhrase", "signTransactionBytes", "\*".
+	// "exportSeedPhrase", "signTransactionBytes", "earn_deposit", "earn_withdraw",
+	// "\*".
 	Method PolicyMethod      `json:"method,omitzero" api:"required"`
 	Name   string            `json:"name" api:"required"`
 	ID     param.Opt[string] `json:"id,omitzero"`
