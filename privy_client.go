@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/privy-io/go-sdk/authorization"
@@ -34,6 +35,11 @@ type PrivyClientOptions struct {
 	// If not provided, defaults to 15 minutes (900000 ms).
 	// Can be overridden per-request, where applicable, using WithRequestExpiry.
 	DefaultRequestExpiryMs int64
+
+	// HTTPClient sets the default *http.Client used across all requests (optional).
+	// If not provided, defaults to http.DefaultClient.
+	// Can be overridden per-request using WithHTTPClient.
+	HTTPClient *http.Client
 }
 
 // PrivyClient is the main entrypoint for the Privy API Go SDK.
@@ -110,6 +116,10 @@ func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
 	if opts.LogLevel >= LogLevelDebug {
 		debugLogger := log.New(os.Stdout, "[Privy][HTTP] ", 0)
 		requestOpts = append(requestOpts, option.WithDebugLog(debugLogger))
+	}
+
+	if opts.HTTPClient != nil {
+		requestOpts = append(requestOpts, option.WithHTTPClient(opts.HTTPClient))
 	}
 
 	// Compute base URL
