@@ -247,12 +247,16 @@ func TestIntentTransferWithOptionalParams(t *testing.T) {
 			TransferRequestBody: privyclient.TransferRequestBody{
 				Destination: privyclient.TokenTransferDestination{
 					Address: "0xB00F0759DbeeF5E543Cc3E3B07A6442F5f3928a2",
+					Asset:   privyclient.String("asset"),
+					Chain:   privyclient.String("chain"),
 				},
 				Source: privyclient.TokenTransferSource{
 					Amount: "10.5",
 					Asset:  "usdc",
 					Chain:  "base",
 				},
+				AmountType:  privyclient.AmountTypeExactInput,
+				SlippageBps: privyclient.Int(0),
 			},
 			PrivyRequestExpiry: privyclient.String("privy-request-expiry"),
 		},
