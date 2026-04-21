@@ -1,5 +1,45 @@
 # Changelog
 
+## 0.6.0 (2026-04-21)
+
+Full Changelog: [v0.5.0...v0.6.0](https://github.com/privy-io/go-sdk/compare/v0.5.0...v0.6.0)
+
+### Features
+
+* allow configuring a default *http.Client via PrivyClientOptions ([ffcbb46](https://github.com/privy-io/go-sdk/commit/ffcbb467b2b1846eeb361b2127224628d8803717))
+* **api:** add underscore to transfer api ([4f43929](https://github.com/privy-io/go-sdk/commit/4f43929f1fe9552574f111edd8073d959f61dfa3))
+* **api:** allowlist intents/transfer ([40dd8a4](https://github.com/privy-io/go-sdk/commit/40dd8a4d6d99864bf540649add4237b1a2c5e180))
+* **api:** api update ([f991ee1](https://github.com/privy-io/go-sdk/commit/f991ee1866fadc330ff30241981e987c28101c10))
+* **api:** api update ([4345537](https://github.com/privy-io/go-sdk/commit/434553753b0a39b02f819c394f6c86fdbee20e1a))
+* **api:** api update ([bf26be0](https://github.com/privy-io/go-sdk/commit/bf26be0d600b4e114a52145a297a4108f82da4e3))
+* **api:** api update ([18da341](https://github.com/privy-io/go-sdk/commit/18da34103be8ca01573ceb6082bba7124679f2dd))
+* **api:** api update ([3e0d549](https://github.com/privy-io/go-sdk/commit/3e0d54982e2225cb111fb4462365c46988354f05))
+* **api:** api update ([8dca94e](https://github.com/privy-io/go-sdk/commit/8dca94ef2e74b5baa4709e610f6427f91a4560b6))
+* **api:** api update ([390892c](https://github.com/privy-io/go-sdk/commit/390892c7ab475e6cce7bf5f2af93e5548e198bc0))
+* **api:** api update ([fe5b8fa](https://github.com/privy-io/go-sdk/commit/fe5b8faa42a0dbbb5fdb6dd3c9afc9872c2ef6c0))
+* **api:** api update ([3543d1a](https://github.com/privy-io/go-sdk/commit/3543d1ae23591d0b1c7c48db3b3a3f79441a104b))
+* **api:** api update ([6c2dc3a](https://github.com/privy-io/go-sdk/commit/6c2dc3a1e678cc4f414ced7f36eeb19f05a22a2e))
+* **api:** api update ([89630b3](https://github.com/privy-io/go-sdk/commit/89630b36e3ba024231f8a68ccb867376fd3c8d04))
+* **api:** manual updates ([62344e8](https://github.com/privy-io/go-sdk/commit/62344e8b677f00f353e812c2e06a4b44e77be05f))
+* **api:** manual updates ([a6734d9](https://github.com/privy-io/go-sdk/commit/a6734d904c0903d349de2da41198c1c8790c8790))
+* **api:** manual updates ([147ea2d](https://github.com/privy-io/go-sdk/commit/147ea2d4fd7697c76d82354965667ef26780a781))
+* **api:** manual updates ([df4fd80](https://github.com/privy-io/go-sdk/commit/df4fd80bd1949624ee231df5c1e3d51e00e818c5))
+* **api:** manual updates ([86dcb64](https://github.com/privy-io/go-sdk/commit/86dcb64b5d65bd6cab24b16ac0e49c4e85d928a1))
+* **api:** manual updates ([38bc999](https://github.com/privy-io/go-sdk/commit/38bc999088996eb7af045d67f938e1abd1af2cb9))
+* **go:** globally suffix response structs instead of request structs ([b60974f](https://github.com/privy-io/go-sdk/commit/b60974f996f9ef584bf9367a604e6442e585ba7c))
+
+
+### Bug Fixes
+
+* adapts to the latest breaking changes on type rename ([#78](https://github.com/privy-io/go-sdk/issues/78)) ([e67caff](https://github.com/privy-io/go-sdk/commit/e67caff6331da8d99d3ac910e80dd92a9516915f))
+* rename UnsignedEthereumTransaction to UnsignedStandardEthereumTransaction in e2e tests ([#80](https://github.com/privy-io/go-sdk/issues/80)) ([7877bcd](https://github.com/privy-io/go-sdk/commit/7877bcdae2c71d16996eaf1a0347de8367eb6ee9))
+
+
+### Chores
+
+* apply review suggestion ([8641094](https://github.com/privy-io/go-sdk/commit/8641094f1cf3a84a8807461e047387aa67fbf9be))
+* apply review suggestion ([392bd08](https://github.com/privy-io/go-sdk/commit/392bd0832001bbd55298b57e904c7b0b24e2c4fc))
+
 ## 0.5.0 (2026-04-06)
 
 Full Changelog: [v0.4.0...v0.5.0](https://github.com/privy-io/go-sdk/compare/v0.4.0...v0.5.0)
