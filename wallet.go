@@ -535,6 +535,14 @@ func (r *SeedPhraseExportResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Whether the amount refers to the input token or output token.
+type AmountType string
+
+const (
+	AmountTypeExactInput  AmountType = "exact_input"
+	AmountTypeExactOutput AmountType = "exact_output"
+)
+
 // The chain type of the wallet to import. Currently supports `ethereum` and
 // `solana`.
 type WalletImportSupportedChains string
@@ -6728,13 +6736,22 @@ func (r *TokenTransferSource) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// The destination address for a token transfer.
+// The destination address for a token transfer. Optionally specify a different
+// asset or chain for cross-asset or cross-chain transfers.
 type TokenTransferDestinationResp struct {
 	// Recipient address (hex for EVM, base58 for Solana)
 	Address string `json:"address" api:"required"`
+	// The destination asset. Required for cross-asset transfers (e.g., source 'usdt'
+	// to destination 'usdc').
+	Asset string `json:"asset"`
+	// The destination blockchain network. Required for cross-chain transfers (e.g.,
+	// source 'base' to destination 'arbitrum').
+	Chain string `json:"chain"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Address     respjson.Field
+		Asset       respjson.Field
+		Chain       respjson.Field
 		ExtraFields map[string]respjson.Field
 		raw         string
 	} `json:"-"`
@@ -6756,12 +6773,19 @@ func (r TokenTransferDestinationResp) ToParam() TokenTransferDestination {
 	return param.Override[TokenTransferDestination](json.RawMessage(r.RawJSON()))
 }
 
-// The destination address for a token transfer.
+// The destination address for a token transfer. Optionally specify a different
+// asset or chain for cross-asset or cross-chain transfers.
 //
 // The property Address is required.
 type TokenTransferDestination struct {
 	// Recipient address (hex for EVM, base58 for Solana)
 	Address string `json:"address" api:"required"`
+	// The destination asset. Required for cross-asset transfers (e.g., source 'usdt'
+	// to destination 'usdc').
+	Asset param.Opt[string] `json:"asset,omitzero"`
+	// The destination blockchain network. Required for cross-chain transfers (e.g.,
+	// source 'base' to destination 'arbitrum').
+	Chain param.Opt[string] `json:"chain,omitzero"`
 	paramObj
 }
 
@@ -6775,14 +6799,23 @@ func (r *TokenTransferDestination) UnmarshalJSON(data []byte) error {
 
 // Request body for initiating a sponsored token transfer from an embedded wallet.
 type TransferRequestBodyResp struct {
-	// The destination address for a token transfer.
+	// The destination address for a token transfer. Optionally specify a different
+	// asset or chain for cross-asset or cross-chain transfers.
 	Destination TokenTransferDestinationResp `json:"destination" api:"required"`
 	// The source asset, amount, and chain for a token transfer.
 	Source TokenTransferSourceResp `json:"source" api:"required"`
+	// Whether the amount refers to the input token or output token.
+	//
+	// Any of "exact_input", "exact_output".
+	AmountType AmountType `json:"amount_type"`
+	// Maximum allowed slippage in basis points (1 bps = 0.01%).
+	SlippageBps int64 `json:"slippage_bps"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Destination respjson.Field
 		Source      respjson.Field
+		AmountType  respjson.Field
+		SlippageBps respjson.Field
 		ExtraFields map[string]respjson.Field
 		raw         string
 	} `json:"-"`
@@ -6807,10 +6840,17 @@ func (r TransferRequestBodyResp) ToParam() TransferRequestBody {
 //
 // The properties Destination, Source are required.
 type TransferRequestBody struct {
-	// The destination address for a token transfer.
+	// The destination address for a token transfer. Optionally specify a different
+	// asset or chain for cross-asset or cross-chain transfers.
 	Destination TokenTransferDestination `json:"destination,omitzero" api:"required"`
 	// The source asset, amount, and chain for a token transfer.
 	Source TokenTransferSource `json:"source,omitzero" api:"required"`
+	// Maximum allowed slippage in basis points (1 bps = 0.01%).
+	SlippageBps param.Opt[int64] `json:"slippage_bps,omitzero"`
+	// Whether the amount refers to the input token or output token.
+	//
+	// Any of "exact_input", "exact_output".
+	AmountType AmountType `json:"amount_type,omitzero"`
 	paramObj
 }
 
