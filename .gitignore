@@ -7,3 +7,5 @@ Brewfile.lock.json
 .env.secret
 
 .claude/settings.local.json
+
+.DS_Store

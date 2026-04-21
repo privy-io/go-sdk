@@ -9,7 +9,7 @@ on:
       - '!generated'
       - '!codegen/**'
       - 'codegen/stl/**'
-  pull_request:
+  pull_request_target:
     branches-ignore:
       - 'stl-preview-head/**'
       - 'stl-preview-base/**'
@@ -54,6 +54,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Setup go
         uses: actions/setup-go@v5
@@ -73,6 +75,8 @@ jobs:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.fork
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Setup go
         uses: actions/setup-go@v5
