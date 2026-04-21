@@ -30,6 +30,56 @@ func NewEmbeddedWalletService(opts ...option.RequestOption) (r EmbeddedWalletSer
 	return
 }
 
+// An additional signer configuration for a wallet.
+//
+// The property SignerID is required.
+type WalletCreationAdditionalSignerItem struct {
+	// A unique identifier for a key quorum.
+	SignerID KeyQuorumID `json:"signer_id" api:"required" format:"cuid2"`
+	// The array of policy IDs that will be applied to wallet requests. If specified,
+	// this will override the base policy IDs set on the wallet. Currently, only one
+	// policy is supported per signer.
+	OverridePolicyIDs []string `json:"override_policy_ids,omitzero"`
+	paramObj
+}
+
+func (r WalletCreationAdditionalSignerItem) MarshalJSON() (data []byte, err error) {
+	type shadow WalletCreationAdditionalSignerItem
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *WalletCreationAdditionalSignerItem) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The fields on wallet creation that can be specified when creating a
+// user-controlled embedded server wallet.
+//
+// The property ChainType is required.
+type WalletCreationInput struct {
+	// The wallet chain types.
+	//
+	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
+	// "tron", "bitcoin-segwit", "bitcoin-taproot", "near", "ton", "starknet", "spark".
+	ChainType WalletChainType `json:"chain_type,omitzero" api:"required"`
+	// Create a smart wallet with this wallet as the signer. Only supported for wallets
+	// with `chain_type: "ethereum"`.
+	CreateSmartWallet param.Opt[bool] `json:"create_smart_wallet,omitzero"`
+	// Additional signers for the wallet.
+	AdditionalSigners []WalletCreationAdditionalSignerItem `json:"additional_signers,omitzero"`
+	// Policy IDs to enforce on the wallet. Currently, only one policy is supported per
+	// wallet.
+	PolicyIDs []string `json:"policy_ids,omitzero"`
+	paramObj
+}
+
+func (r WalletCreationInput) MarshalJSON() (data []byte, err error) {
+	type shadow WalletCreationInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *WalletCreationInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // The supported smart wallet providers.
 type SmartWalletType string
 
@@ -168,55 +218,5 @@ func (u SmartWalletConfigurationUnion) AsSmartWalletConfigurationEnabled() (v Sm
 func (u SmartWalletConfigurationUnion) RawJSON() string { return u.JSON.raw }
 
 func (r *SmartWalletConfigurationUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// An additional signer configuration for a wallet.
-//
-// The property SignerID is required.
-type WalletCreationAdditionalSignerItem struct {
-	// A unique identifier for a key quorum.
-	SignerID KeyQuorumID `json:"signer_id" api:"required" format:"cuid2"`
-	// The array of policy IDs that will be applied to wallet requests. If specified,
-	// this will override the base policy IDs set on the wallet. Currently, only one
-	// policy is supported per signer.
-	OverridePolicyIDs []string `json:"override_policy_ids,omitzero"`
-	paramObj
-}
-
-func (r WalletCreationAdditionalSignerItem) MarshalJSON() (data []byte, err error) {
-	type shadow WalletCreationAdditionalSignerItem
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *WalletCreationAdditionalSignerItem) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The fields on wallet creation that can be specified when creating a
-// user-controlled embedded server wallet.
-//
-// The property ChainType is required.
-type WalletCreationInput struct {
-	// The wallet chain types.
-	//
-	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
-	// "tron", "bitcoin-segwit", "near", "ton", "starknet", "spark".
-	ChainType WalletChainType `json:"chain_type,omitzero" api:"required"`
-	// Create a smart wallet with this wallet as the signer. Only supported for wallets
-	// with `chain_type: "ethereum"`.
-	CreateSmartWallet param.Opt[bool] `json:"create_smart_wallet,omitzero"`
-	// Additional signers for the wallet.
-	AdditionalSigners []WalletCreationAdditionalSignerItem `json:"additional_signers,omitzero"`
-	// Policy IDs to enforce on the wallet. Currently, only one policy is supported per
-	// wallet.
-	PolicyIDs []string `json:"policy_ids,omitzero"`
-	paramObj
-}
-
-func (r WalletCreationInput) MarshalJSON() (data []byte, err error) {
-	type shadow WalletCreationInput
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *WalletCreationInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }

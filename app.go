@@ -11,6 +11,7 @@ import (
 	"slices"
 
 	"github.com/privy-io/go-sdk/internal/apijson"
+	"github.com/privy-io/go-sdk/internal/apiquery"
 	"github.com/privy-io/go-sdk/internal/requestconfig"
 	"github.com/privy-io/go-sdk/option"
 	"github.com/privy-io/go-sdk/packages/param"
@@ -50,6 +51,15 @@ func (r *AppService) Get(ctx context.Context, appID string, opts ...option.Reque
 	}
 	path := fmt.Sprintf("v1/apps/%s", url.PathEscape(appID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return res, err
+}
+
+// Get aggregated Privy gas credits charged for a set of wallets over a time range.
+// Maximum 100 wallet IDs and 30-day range per request.
+func (r *AppService) GetGasSpend(ctx context.Context, query AppGetGasSpendParams, opts ...option.RequestOption) (res *GasSpendResponseBody, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "v1/apps/gas_spend"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return res, err
 }
 
@@ -462,6 +472,8 @@ const (
 	AppResponseEnabledCaptchaProviderHcaptcha  AppResponseEnabledCaptchaProvider = "hcaptcha"
 )
 
+type EmailDomain = string
+
 // Allowlist invite input for an email address.
 //
 // The properties Type, Value are required.
@@ -534,10 +546,41 @@ const (
 	PhoneInviteInputTypePhone PhoneInviteInputType = "phone"
 )
 
+// Allowlist invite input for an email domain.
+//
+// The properties Type, Value are required.
+type EmailDomainInviteInput struct {
+	// Any of "emailDomain".
+	Type EmailDomainInviteInputType `json:"type,omitzero" api:"required"`
+	// An email domain.
+	Value EmailDomain `json:"value" api:"required"`
+	paramObj
+}
+
+func (r EmailDomainInviteInput) MarshalJSON() (data []byte, err error) {
+	type shadow EmailDomainInviteInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *EmailDomainInviteInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type EmailDomainInviteInputType string
+
+const (
+	EmailDomainInviteInputTypeEmailDomain EmailDomainInviteInputType = "emailDomain"
+)
+
 func UserInviteInputOfEmail(value string) UserInviteInputUnion {
 	var email EmailInviteInput
 	email.Value = value
 	return UserInviteInputUnion{OfEmail: &email}
+}
+
+func UserInviteInputOfEmailDomain(value EmailDomain) UserInviteInputUnion {
+	var emailDomain EmailDomainInviteInput
+	emailDomain.Value = value
+	return UserInviteInputUnion{OfEmailDomain: &emailDomain}
 }
 
 func UserInviteInputOfWallet(value string) UserInviteInputUnion {
@@ -556,14 +599,15 @@ func UserInviteInputOfPhone(value string) UserInviteInputUnion {
 //
 // Use [param.IsOmitted] to confirm if a field is set.
 type UserInviteInputUnion struct {
-	OfEmail  *EmailInviteInput  `json:",omitzero,inline"`
-	OfWallet *WalletInviteInput `json:",omitzero,inline"`
-	OfPhone  *PhoneInviteInput  `json:",omitzero,inline"`
+	OfEmail       *EmailInviteInput       `json:",omitzero,inline"`
+	OfEmailDomain *EmailDomainInviteInput `json:",omitzero,inline"`
+	OfWallet      *WalletInviteInput      `json:",omitzero,inline"`
+	OfPhone       *PhoneInviteInput       `json:",omitzero,inline"`
 	paramUnion
 }
 
 func (u UserInviteInputUnion) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfEmail, u.OfWallet, u.OfPhone)
+	return param.MarshalUnion(u, u.OfEmail, u.OfEmailDomain, u.OfWallet, u.OfPhone)
 }
 func (u *UserInviteInputUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
@@ -573,6 +617,7 @@ func init() {
 	apijson.RegisterUnion[UserInviteInputUnion](
 		"type",
 		apijson.Discriminator[EmailInviteInput]("email"),
+		apijson.Discriminator[EmailDomainInviteInput]("emailDomain"),
 		apijson.Discriminator[WalletInviteInput]("wallet"),
 		apijson.Discriminator[PhoneInviteInput]("phone"),
 	)
@@ -662,4 +707,49 @@ type TestAccountsResponse struct {
 func (r TestAccountsResponse) RawJSON() string { return r.JSON.raw }
 func (r *TestAccountsResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+// Currency for gas spend values.
+type GasSpendCurrency string
+
+const (
+	GasSpendCurrencyUsd GasSpendCurrency = "usd"
+)
+
+// Aggregated Privy gas credits charged for a set of wallets over a time range.
+type GasSpendResponseBody struct {
+	// Currency for gas spend values.
+	//
+	// Any of "usd".
+	Currency GasSpendCurrency `json:"currency" api:"required"`
+	// Total Privy credits charged as a decimal string.
+	Value string `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Currency    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r GasSpendResponseBody) RawJSON() string { return r.JSON.raw }
+func (r *GasSpendResponseBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type AppGetGasSpendParams struct {
+	EndTimestamp   float64  `query:"end_timestamp" api:"required" json:"-"`
+	StartTimestamp float64  `query:"start_timestamp" api:"required" json:"-"`
+	WalletIDs      []string `query:"wallet_ids,omitzero" api:"required" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [AppGetGasSpendParams]'s query parameters as `url.Values`.
+func (r AppGetGasSpendParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }

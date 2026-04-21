@@ -33,8 +33,8 @@ func TestUserNewWithOptionalParams(t *testing.T) {
 				Address: "tom.bombadill@privy.io",
 			},
 		}},
-		CustomMetadata: privyclient.CustomMetadataParam{
-			"foo": privyclient.CustomMetadataItemUnionParam{
+		CustomMetadata: privyclient.CustomMetadata{
+			"foo": privyclient.CustomMetadataItemUnion{
 				OfString: privyclient.String("string"),
 			},
 		},
@@ -528,8 +528,8 @@ func TestUserSetCustomMetadata(t *testing.T) {
 		context.TODO(),
 		"user_id",
 		privyclient.UserSetCustomMetadataParams{
-			CustomMetadata: privyclient.CustomMetadataParam{
-				"key": privyclient.CustomMetadataItemUnionParam{
+			CustomMetadata: privyclient.CustomMetadata{
+				"key": privyclient.CustomMetadataItemUnion{
 					OfString: privyclient.String("value"),
 				},
 			},

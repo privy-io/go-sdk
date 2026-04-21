@@ -130,6 +130,22 @@ func (r *IntentService) Rpc(ctx context.Context, walletID string, params IntentR
 	return res, err
 }
 
+// Create an intent to execute a token transfer via a wallet. The intent must be
+// authorized by either the wallet owner or signers before it can be executed.
+func (r *IntentService) Transfer(ctx context.Context, walletID string, params IntentTransferParams, opts ...option.RequestOption) (res *TransferIntentResponse, err error) {
+	if !param.IsOmitted(params.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
+	}
+	opts = slices.Concat(r.Options, opts)
+	if walletID == "" {
+		err = errors.New("missing required wallet_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/intents/wallets/%s/transfer", url.PathEscape(walletID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
+	return res, err
+}
+
 // Create an intent to update a key quorum. The intent must be authorized by the
 // key quorum members before it can be executed.
 func (r *IntentService) UpdateKeyQuorum(ctx context.Context, keyQuorumID string, params IntentUpdateKeyQuorumParams, opts ...option.RequestOption) (res *KeyQuorumIntentResponse, err error) {
@@ -225,7 +241,7 @@ const (
 // Request details for creating a rule via intent.
 type RuleIntentCreateRequestDetails struct {
 	// The rules that apply to each method the policy covers.
-	Body PolicyRuleRequestBody `json:"body" api:"required"`
+	Body PolicyRuleRequestBodyResp `json:"body" api:"required"`
 	// Any of "POST".
 	Method RuleIntentCreateRequestDetailsMethod `json:"method" api:"required"`
 	URL    string                               `json:"url" api:"required"`
@@ -254,7 +270,7 @@ const (
 // Request details for updating a rule via intent.
 type RuleIntentUpdateRequestDetails struct {
 	// The rules that apply to each method the policy covers.
-	Body PolicyRuleRequestBody `json:"body" api:"required"`
+	Body PolicyRuleRequestBodyResp `json:"body" api:"required"`
 	// Any of "PATCH".
 	Method RuleIntentUpdateRequestDetailsMethod `json:"method" api:"required"`
 	URL    string                               `json:"url" api:"required"`
@@ -285,7 +301,7 @@ type RuleIntentDeleteRequestDetails struct {
 	// Any of "DELETE".
 	Method RuleIntentDeleteRequestDetailsMethod `json:"method" api:"required"`
 	URL    string                               `json:"url" api:"required"`
-	Body   any                                  `json:"body"`
+	Body   RuleIntentDeleteRequestDetailsBody   `json:"body"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Method      respjson.Field
@@ -308,6 +324,20 @@ const (
 	RuleIntentDeleteRequestDetailsMethodDelete RuleIntentDeleteRequestDetailsMethod = "DELETE"
 )
 
+type RuleIntentDeleteRequestDetailsBody struct {
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentDeleteRequestDetailsBody) RawJSON() string { return r.JSON.raw }
+func (r *RuleIntentDeleteRequestDetailsBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // RuleIntentRequestDetailsUnion contains all possible properties and values from
 // [RuleIntentCreateRequestDetails], [RuleIntentUpdateRequestDetails],
 // [RuleIntentDeleteRequestDetails].
@@ -316,7 +346,8 @@ const (
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 type RuleIntentRequestDetailsUnion struct {
-	// This field is a union of [PolicyRuleRequestBody], [any]
+	// This field is a union of [PolicyRuleRequestBodyResp],
+	// [RuleIntentDeleteRequestDetailsBody]
 	Body RuleIntentRequestDetailsUnionBody `json:"body"`
 	// Any of "POST", "PATCH", "DELETE".
 	Method string `json:"method"`
@@ -389,27 +420,21 @@ func (r *RuleIntentRequestDetailsUnion) UnmarshalJSON(data []byte) error {
 //
 // For type safety it is recommended to directly use a variant of the
 // [RuleIntentRequestDetailsUnion].
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfRuleIntentDeleteRequestDetailsBody]
 type RuleIntentRequestDetailsUnionBody struct {
-	// This field will be present if the value is a [any] instead of an object.
-	OfRuleIntentDeleteRequestDetailsBody any `json:",inline"`
-	// This field is from variant [PolicyRuleRequestBody].
+	// This field is from variant [PolicyRuleRequestBodyResp].
 	Action PolicyAction `json:"action"`
-	// This field is from variant [PolicyRuleRequestBody].
-	Conditions []PolicyConditionUnion `json:"conditions"`
-	// This field is from variant [PolicyRuleRequestBody].
+	// This field is from variant [PolicyRuleRequestBodyResp].
+	Conditions []PolicyConditionUnionResp `json:"conditions"`
+	// This field is from variant [PolicyRuleRequestBodyResp].
 	Method PolicyMethod `json:"method"`
-	// This field is from variant [PolicyRuleRequestBody].
+	// This field is from variant [PolicyRuleRequestBodyResp].
 	Name string `json:"name"`
 	JSON struct {
-		OfRuleIntentDeleteRequestDetailsBody respjson.Field
-		Action                               respjson.Field
-		Conditions                           respjson.Field
-		Method                               respjson.Field
-		Name                                 respjson.Field
-		raw                                  string
+		Action     respjson.Field
+		Conditions respjson.Field
+		Method     respjson.Field
+		Name       respjson.Field
+		raw        string
 	} `json:"-"`
 }
 
@@ -775,7 +800,7 @@ func (r *RpcIntentResponse) UnmarshalJSON(data []byte) error {
 // The original RPC request that would be sent to the wallet endpoint
 type RpcIntentResponseRequestDetails struct {
 	// Request body for wallet RPC operations, discriminated by method.
-	Body WalletRpcRequestBodyUnion `json:"body" api:"required"`
+	Body WalletRpcRequestBodyUnionResp `json:"body" api:"required"`
 	// Any of "POST".
 	Method string `json:"method" api:"required"`
 	URL    string `json:"url" api:"required"`
@@ -827,7 +852,7 @@ func (r *TransferIntentResponse) UnmarshalJSON(data []byte) error {
 // The original transfer request that would be sent to the wallet transfer endpoint
 type TransferIntentResponseRequestDetails struct {
 	// Request body for initiating a sponsored token transfer from an embedded wallet.
-	Body CreateTokenTransferRequest `json:"body" api:"required"`
+	Body TransferRequestBodyResp `json:"body" api:"required"`
 	// Any of "POST".
 	Method string `json:"method" api:"required"`
 	URL    string `json:"url" api:"required"`
@@ -900,13 +925,13 @@ func (r *WalletIntentResponseRequestDetails) UnmarshalJSON(data []byte) error {
 
 type WalletIntentResponseRequestDetailsBody struct {
 	// Additional signers for the wallet.
-	AdditionalSigners      AdditionalSignerInput `json:"additional_signers"`
-	AuthorizationKeyIDs    []string              `json:"authorization_key_ids"`
-	AuthorizationThreshold float64               `json:"authorization_threshold"`
-	DisplayName            string                `json:"display_name" api:"nullable"`
+	AdditionalSigners      AdditionalSignerInputResp `json:"additional_signers"`
+	AuthorizationKeyIDs    []string                  `json:"authorization_key_ids"`
+	AuthorizationThreshold float64                   `json:"authorization_threshold"`
+	DisplayName            string                    `json:"display_name" api:"nullable"`
 	// The owner of the resource, specified as a Privy user ID, a P-256 public key, or
 	// null to remove the current owner.
-	Owner OwnerInputUnion `json:"owner" api:"nullable"`
+	Owner OwnerInputUnionResp `json:"owner" api:"nullable"`
 	// The key quorum ID to set as the owner of the resource. If you provide this, do
 	// not specify an owner.
 	OwnerID OwnerIDInput `json:"owner_id" api:"nullable" format:"cuid2"`
@@ -988,11 +1013,11 @@ type PolicyIntentResponseRequestDetailsBody struct {
 	Name string `json:"name"`
 	// The owner of the resource, specified as a Privy user ID, a P-256 public key, or
 	// null to remove the current owner.
-	Owner OwnerInputUnion `json:"owner" api:"nullable"`
+	Owner OwnerInputUnionResp `json:"owner" api:"nullable"`
 	// The key quorum ID to set as the owner of the resource. If you provide this, do
 	// not specify an owner.
-	OwnerID OwnerIDInput            `json:"owner_id" api:"nullable" format:"cuid2"`
-	Rules   []PolicyRuleRequestBody `json:"rules"`
+	OwnerID OwnerIDInput                `json:"owner_id" api:"nullable" format:"cuid2"`
+	Rules   []PolicyRuleRequestBodyResp `json:"rules"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Name        respjson.Field
@@ -1044,7 +1069,7 @@ func (r *KeyQuorumIntentResponse) UnmarshalJSON(data []byte) error {
 // endpoint
 type KeyQuorumIntentResponseRequestDetails struct {
 	// Request input for updating an existing key quorum.
-	Body KeyQuorumUpdateRequestBody `json:"body" api:"required"`
+	Body KeyQuorumUpdateRequestBodyResp `json:"body" api:"required"`
 	// Any of "PATCH".
 	Method string `json:"method" api:"required"`
 	URL    string `json:"url" api:"required"`
@@ -1275,10 +1300,10 @@ func (r *IntentResponseUnion) UnmarshalJSON(data []byte) error {
 // For type safety it is recommended to directly use a variant of the
 // [IntentResponseUnion].
 type IntentResponseUnionRequestDetails struct {
-	// This field is a union of [WalletRpcRequestBodyUnion],
-	// [CreateTokenTransferRequest], [WalletIntentResponseRequestDetailsBody],
-	// [PolicyIntentResponseRequestDetailsBody], [PolicyRuleRequestBody], [any],
-	// [KeyQuorumUpdateRequestBody]
+	// This field is a union of [WalletRpcRequestBodyUnionResp],
+	// [TransferRequestBodyResp], [WalletIntentResponseRequestDetailsBody],
+	// [PolicyIntentResponseRequestDetailsBody], [PolicyRuleRequestBodyResp],
+	// [RuleIntentDeleteRequestDetailsBody], [KeyQuorumUpdateRequestBodyResp]
 	Body   IntentResponseUnionRequestDetailsBody `json:"body"`
 	Method string                                `json:"method"`
 	URL    string                                `json:"url"`
@@ -1300,13 +1325,8 @@ func (r *IntentResponseUnionRequestDetails) UnmarshalJSON(data []byte) error {
 //
 // For type safety it is recommended to directly use a variant of the
 // [IntentResponseUnion].
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfRuleIntentDeleteRequestDetailsBody]
 type IntentResponseUnionRequestDetailsBody struct {
-	// This field will be present if the value is a [any] instead of an object.
-	OfRuleIntentDeleteRequestDetailsBody any    `json:",inline"`
-	Method                               string `json:"method"`
+	Method string `json:"method"`
 	// This field is a union of [EthereumSignTransactionRpcInputParamsResp],
 	// [EthereumSendTransactionRpcInputParamsResp],
 	// [EthereumPersonalSignRpcInputParamsResp],
@@ -1323,75 +1343,83 @@ type IntentResponseUnionRequestDetailsBody struct {
 	// [SparkClaimStaticDepositRpcInputParamsResp],
 	// [SparkCreateLightningInvoiceRpcInputParamsResp],
 	// [SparkPayLightningInvoiceRpcInputParamsResp],
-	// [SparkSignMessageWithIdentityKeyRpcInputParamsResp], [PrivateKeyExportInput],
-	// [SeedPhraseExportInput]
+	// [SparkSignMessageWithIdentityKeyRpcInputParamsResp],
+	// [PrivateKeyExportInputResp], [SeedPhraseExportInputResp]
 	Params    IntentResponseUnionRequestDetailsBodyParams `json:"params"`
 	Address   string                                      `json:"address"`
 	ChainType string                                      `json:"chain_type"`
 	WalletID  string                                      `json:"wallet_id"`
-	// This field is from variant [WalletRpcRequestBodyUnion].
-	Caip2       Caip2  `json:"caip2"`
-	ReferenceID string `json:"reference_id"`
-	Sponsor     bool   `json:"sponsor"`
-	// This field is from variant [WalletRpcRequestBodyUnion].
+	// This field is from variant [WalletRpcRequestBodyUnionResp].
+	Caip2 Caip2 `json:"caip2"`
+	// This field is from variant [WalletRpcRequestBodyUnionResp].
+	ExperimentalDataSuffix Hex    `json:"experimental_data_suffix"`
+	ReferenceID            string `json:"reference_id"`
+	Sponsor                bool   `json:"sponsor"`
+	// This field is from variant [WalletRpcRequestBodyUnionResp].
 	Network SparkNetwork `json:"network"`
-	// This field is from variant [CreateTokenTransferRequest].
-	Destination TokenTransferDestination `json:"destination"`
-	// This field is from variant [CreateTokenTransferRequest].
-	Source TokenTransferSource `json:"source"`
+	// This field is from variant [TransferRequestBodyResp].
+	Destination TokenTransferDestinationResp `json:"destination"`
+	// This field is from variant [TransferRequestBodyResp].
+	Source TokenTransferSourceResp `json:"source"`
+	// This field is from variant [TransferRequestBodyResp].
+	AmountType AmountType `json:"amount_type"`
+	// This field is from variant [TransferRequestBodyResp].
+	SlippageBps int64 `json:"slippage_bps"`
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
-	AdditionalSigners AdditionalSignerInput `json:"additional_signers"`
+	AdditionalSigners AdditionalSignerInputResp `json:"additional_signers"`
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
 	AuthorizationKeyIDs    []string `json:"authorization_key_ids"`
 	AuthorizationThreshold float64  `json:"authorization_threshold"`
 	DisplayName            string   `json:"display_name"`
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
-	Owner OwnerInputUnion `json:"owner"`
+	Owner OwnerInputUnionResp `json:"owner"`
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
 	OwnerID OwnerIDInput `json:"owner_id"`
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
 	PolicyIDs PolicyInput `json:"policy_ids"`
 	Name      string      `json:"name"`
 	// This field is from variant [PolicyIntentResponseRequestDetailsBody].
-	Rules []PolicyRuleRequestBody `json:"rules"`
-	// This field is from variant [PolicyRuleRequestBody].
+	Rules []PolicyRuleRequestBodyResp `json:"rules"`
+	// This field is from variant [PolicyRuleRequestBodyResp].
 	Action PolicyAction `json:"action"`
-	// This field is from variant [PolicyRuleRequestBody].
-	Conditions []PolicyConditionUnion `json:"conditions"`
-	// This field is from variant [KeyQuorumUpdateRequestBody].
+	// This field is from variant [PolicyRuleRequestBodyResp].
+	Conditions []PolicyConditionUnionResp `json:"conditions"`
+	// This field is from variant [KeyQuorumUpdateRequestBodyResp].
 	KeyQuorumIDs []string `json:"key_quorum_ids"`
-	// This field is from variant [KeyQuorumUpdateRequestBody].
+	// This field is from variant [KeyQuorumUpdateRequestBodyResp].
 	PublicKeys []string `json:"public_keys"`
-	// This field is from variant [KeyQuorumUpdateRequestBody].
+	// This field is from variant [KeyQuorumUpdateRequestBodyResp].
 	UserIDs []string `json:"user_ids"`
 	JSON    struct {
-		OfRuleIntentDeleteRequestDetailsBody respjson.Field
-		Method                               respjson.Field
-		Params                               respjson.Field
-		Address                              respjson.Field
-		ChainType                            respjson.Field
-		WalletID                             respjson.Field
-		Caip2                                respjson.Field
-		ReferenceID                          respjson.Field
-		Sponsor                              respjson.Field
-		Network                              respjson.Field
-		Destination                          respjson.Field
-		Source                               respjson.Field
-		AdditionalSigners                    respjson.Field
-		AuthorizationKeyIDs                  respjson.Field
-		AuthorizationThreshold               respjson.Field
-		DisplayName                          respjson.Field
-		Owner                                respjson.Field
-		OwnerID                              respjson.Field
-		PolicyIDs                            respjson.Field
-		Name                                 respjson.Field
-		Rules                                respjson.Field
-		Action                               respjson.Field
-		Conditions                           respjson.Field
-		KeyQuorumIDs                         respjson.Field
-		PublicKeys                           respjson.Field
-		UserIDs                              respjson.Field
-		raw                                  string
+		Method                 respjson.Field
+		Params                 respjson.Field
+		Address                respjson.Field
+		ChainType              respjson.Field
+		WalletID               respjson.Field
+		Caip2                  respjson.Field
+		ExperimentalDataSuffix respjson.Field
+		ReferenceID            respjson.Field
+		Sponsor                respjson.Field
+		Network                respjson.Field
+		Destination            respjson.Field
+		Source                 respjson.Field
+		AmountType             respjson.Field
+		SlippageBps            respjson.Field
+		AdditionalSigners      respjson.Field
+		AuthorizationKeyIDs    respjson.Field
+		AuthorizationThreshold respjson.Field
+		DisplayName            respjson.Field
+		Owner                  respjson.Field
+		OwnerID                respjson.Field
+		PolicyIDs              respjson.Field
+		Name                   respjson.Field
+		Rules                  respjson.Field
+		Action                 respjson.Field
+		Conditions             respjson.Field
+		KeyQuorumIDs           respjson.Field
+		PublicKeys             respjson.Field
+		UserIDs                respjson.Field
+		raw                    string
 	} `json:"-"`
 }
 
@@ -1406,27 +1434,28 @@ func (r *IntentResponseUnionRequestDetailsBody) UnmarshalJSON(data []byte) error
 // For type safety it is recommended to directly use a variant of the
 // [IntentResponseUnion].
 type IntentResponseUnionRequestDetailsBodyParams struct {
-	// This field is a union of [UnsignedEthereumTransaction], [string], [string]
+	// This field is a union of [UnsignedStandardEthereumTransactionResp], [string],
+	// [string]
 	Transaction IntentResponseUnionRequestDetailsBodyParamsTransaction `json:"transaction"`
 	Encoding    string                                                 `json:"encoding"`
 	Message     string                                                 `json:"message"`
 	// This field is from variant [EthereumSignTypedDataRpcInputParamsResp].
-	TypedData EthereumTypedDataInput `json:"typed_data"`
+	TypedData EthereumTypedDataInputResp `json:"typed_data"`
 	// This field is from variant [EthereumSecp256k1SignRpcInputParamsResp].
 	Hash Hex `json:"hash"`
 	// This field is from variant [EthereumSign7702AuthorizationRpcInputParamsResp].
-	ChainID  QuantityUnion `json:"chain_id"`
-	Contract string        `json:"contract"`
+	ChainID  QuantityUnionResp `json:"chain_id"`
+	Contract string            `json:"contract"`
 	// This field is from variant [EthereumSign7702AuthorizationRpcInputParamsResp].
 	Executor EthereumSign7702AuthorizationRpcInputParamsExecutor `json:"executor"`
 	// This field is from variant [EthereumSign7702AuthorizationRpcInputParamsResp].
-	Nonce QuantityUnion `json:"nonce"`
+	Nonce QuantityUnionResp `json:"nonce"`
 	// This field is from variant [EthereumSignUserOperationRpcInputParamsResp].
-	UserOperation UserOperationInput `json:"user_operation"`
+	UserOperation UserOperationInputResp `json:"user_operation"`
 	// This field is from variant [EthereumSendCallsRpcInputParamsResp].
-	Calls                []EthereumSendCallsCall `json:"calls"`
-	AmountSats           float64                 `json:"amount_sats"`
-	ReceiverSparkAddress string                  `json:"receiver_spark_address"`
+	Calls                []EthereumSendCallsCallResp `json:"calls"`
+	AmountSats           float64                     `json:"amount_sats"`
+	ReceiverSparkAddress string                      `json:"receiver_spark_address"`
 	// This field is from variant [SparkTransferTokensRpcInputParamsResp].
 	TokenAmount float64 `json:"token_amount"`
 	// This field is from variant [SparkTransferTokensRpcInputParamsResp].
@@ -1434,9 +1463,9 @@ type IntentResponseUnionRequestDetailsBodyParams struct {
 	// This field is from variant [SparkTransferTokensRpcInputParamsResp].
 	OutputSelectionStrategy SparkOutputSelectionStrategy `json:"output_selection_strategy"`
 	// This field is from variant [SparkTransferTokensRpcInputParamsResp].
-	SelectedOutputs []OutputWithPreviousTransactionData `json:"selected_outputs"`
-	TransactionID   string                              `json:"transaction_id"`
-	OutputIndex     float64                             `json:"output_index"`
+	SelectedOutputs []OutputWithPreviousTransactionDataResp `json:"selected_outputs"`
+	TransactionID   string                                  `json:"transaction_id"`
+	OutputIndex     float64                                 `json:"output_index"`
 	// This field is from variant [SparkClaimStaticDepositRpcInputParamsResp].
 	CreditAmountSats float64 `json:"credit_amount_sats"`
 	// This field is from variant [SparkClaimStaticDepositRpcInputParamsResp].
@@ -1461,12 +1490,12 @@ type IntentResponseUnionRequestDetailsBodyParams struct {
 	PreferSpark bool `json:"prefer_spark"`
 	// This field is from variant [SparkSignMessageWithIdentityKeyRpcInputParamsResp].
 	Compact bool `json:"compact"`
-	// This field is from variant [PrivateKeyExportInput].
+	// This field is from variant [PrivateKeyExportInputResp].
 	EncryptionType HpkeEncryption `json:"encryption_type"`
-	// This field is from variant [PrivateKeyExportInput].
+	// This field is from variant [PrivateKeyExportInputResp].
 	RecipientPublicKey RecipientPublicKey `json:"recipient_public_key"`
 	ExportSeedPhrase   bool               `json:"export_seed_phrase"`
-	// This field is from variant [PrivateKeyExportInput].
+	// This field is from variant [PrivateKeyExportInputResp].
 	ExportType ExportType `json:"export_type"`
 	JSON       struct {
 		Transaction             respjson.Field
@@ -1524,30 +1553,30 @@ func (r *IntentResponseUnionRequestDetailsBodyParams) UnmarshalJSON(data []byte)
 type IntentResponseUnionRequestDetailsBodyParamsTransaction struct {
 	// This field will be present if the value is a [string] instead of an object.
 	OfString string `json:",inline"`
-	// This field is from variant [UnsignedEthereumTransaction].
-	AuthorizationList []EthereumSign7702Authorization `json:"authorization_list"`
-	// This field is from variant [UnsignedEthereumTransaction].
-	ChainID QuantityUnion `json:"chain_id"`
-	// This field is from variant [UnsignedEthereumTransaction].
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	AuthorizationList []EthereumSign7702AuthorizationResp `json:"authorization_list"`
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	ChainID QuantityUnionResp `json:"chain_id"`
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
 	Data Hex `json:"data"`
-	// This field is from variant [UnsignedEthereumTransaction].
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
 	From string `json:"from"`
-	// This field is from variant [UnsignedEthereumTransaction].
-	GasLimit QuantityUnion `json:"gas_limit"`
-	// This field is from variant [UnsignedEthereumTransaction].
-	GasPrice QuantityUnion `json:"gas_price"`
-	// This field is from variant [UnsignedEthereumTransaction].
-	MaxFeePerGas QuantityUnion `json:"max_fee_per_gas"`
-	// This field is from variant [UnsignedEthereumTransaction].
-	MaxPriorityFeePerGas QuantityUnion `json:"max_priority_fee_per_gas"`
-	// This field is from variant [UnsignedEthereumTransaction].
-	Nonce QuantityUnion `json:"nonce"`
-	// This field is from variant [UnsignedEthereumTransaction].
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	GasLimit QuantityUnionResp `json:"gas_limit"`
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	GasPrice QuantityUnionResp `json:"gas_price"`
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	MaxFeePerGas QuantityUnionResp `json:"max_fee_per_gas"`
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	MaxPriorityFeePerGas QuantityUnionResp `json:"max_priority_fee_per_gas"`
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	Nonce QuantityUnionResp `json:"nonce"`
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
 	To string `json:"to"`
-	// This field is from variant [UnsignedEthereumTransaction].
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
 	Type float64 `json:"type"`
-	// This field is from variant [UnsignedEthereumTransaction].
-	Value QuantityUnion `json:"value"`
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	Value QuantityUnionResp `json:"value"`
 	JSON  struct {
 		OfString             respjson.Field
 		AuthorizationList    respjson.Field
@@ -1608,7 +1637,7 @@ type IntentResponseUnionCurrentResourceData struct {
 	// This field is from variant [PolicyRuleResponse].
 	Action PolicyAction `json:"action"`
 	// This field is from variant [PolicyRuleResponse].
-	Conditions []PolicyConditionUnion `json:"conditions"`
+	Conditions []PolicyConditionUnionResp `json:"conditions"`
 	// This field is from variant [PolicyRuleResponse].
 	Method PolicyMethod `json:"method"`
 	// This field is from variant [KeyQuorum].
@@ -1695,7 +1724,7 @@ const (
 
 type IntentNewPolicyRuleParams struct {
 	// The rules that apply to each method the policy covers.
-	PolicyRuleRequestBody PolicyRuleRequestBodyParam
+	PolicyRuleRequestBody PolicyRuleRequestBody
 	// Request expiry. Value is a Unix timestamp in milliseconds representing the
 	// deadline by which the request must be processed.
 	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
@@ -1720,7 +1749,7 @@ type IntentDeletePolicyRuleParams struct {
 
 type IntentRpcParams struct {
 	// Request body for wallet RPC operations, discriminated by method.
-	WalletRpcRequestBody WalletRpcRequestBodyUnionParam
+	WalletRpcRequestBody WalletRpcRequestBodyUnion
 	// Request expiry. Value is a Unix timestamp in milliseconds representing the
 	// deadline by which the request must be processed.
 	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
@@ -1734,9 +1763,25 @@ func (r *IntentRpcParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+type IntentTransferParams struct {
+	// Request body for initiating a sponsored token transfer from an embedded wallet.
+	TransferRequestBody TransferRequestBody
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
+	paramObj
+}
+
+func (r IntentTransferParams) MarshalJSON() (data []byte, err error) {
+	return shimjson.Marshal(r.TransferRequestBody)
+}
+func (r *IntentTransferParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 type IntentUpdateKeyQuorumParams struct {
 	// Request input for updating an existing key quorum.
-	KeyQuorumUpdateRequestBody KeyQuorumUpdateRequestBodyParam
+	KeyQuorumUpdateRequestBody KeyQuorumUpdateRequestBody
 	// Request expiry. Value is a Unix timestamp in milliseconds representing the
 	// deadline by which the request must be processed.
 	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
@@ -1761,8 +1806,8 @@ type IntentUpdatePolicyParams struct {
 	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
 	// The owner of the resource, specified as a Privy user ID, a P-256 public key, or
 	// null to remove the current owner.
-	Owner OwnerInputUnionParam         `json:"owner,omitzero"`
-	Rules []PolicyRuleRequestBodyParam `json:"rules,omitzero"`
+	Owner OwnerInputUnion         `json:"owner,omitzero"`
+	Rules []PolicyRuleRequestBody `json:"rules,omitzero"`
 	paramObj
 }
 
@@ -1778,7 +1823,7 @@ type IntentUpdatePolicyRuleParams struct {
 	// ID of the policy.
 	PolicyID string `path:"policy_id" api:"required" json:"-"`
 	// The rules that apply to each method the policy covers.
-	PolicyRuleRequestBody PolicyRuleRequestBodyParam
+	PolicyRuleRequestBody PolicyRuleRequestBody
 	// Request expiry. Value is a Unix timestamp in milliseconds representing the
 	// deadline by which the request must be processed.
 	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`

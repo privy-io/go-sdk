@@ -23,8 +23,8 @@ func TestIntents_UpdateWallet(t *testing.T) {
 
 	intent, err := client.Intents.UpdateWallet(ctx, keyOwnedWallet.id, IntentUpdateWalletParams{
 		WalletUpdateRequestBody: WalletUpdateRequestBody{
-			Owner: OwnerInputUnionParam{
-				OfOwnerInputPublicKey: &OwnerInputPublicKeyParam{
+			Owner: OwnerInputUnion{
+				OfOwnerInputPublicKey: &OwnerInputPublicKey{
 					PublicKey: newPair.PublicKey,
 				},
 			},
@@ -101,8 +101,8 @@ func TestIntents_UpdatePolicy(t *testing.T) {
 		ChainType: WalletChainTypeEthereum,
 		Version:   PolicyNewParamsVersion1_0,
 		Rules:     []PolicyNewParamsRule{},
-		Owner: OwnerInputUnionParam{
-			OfOwnerInputPublicKey: &OwnerInputPublicKeyParam{
+		Owner: OwnerInputUnion{
+			OfOwnerInputPublicKey: &OwnerInputPublicKey{
 				PublicKey: pair.PublicKey,
 			},
 		},
@@ -156,8 +156,8 @@ func TestIntents_PolicyRules(t *testing.T) {
 		ChainType: WalletChainTypeEthereum,
 		Version:   PolicyNewParamsVersion1_0,
 		Rules:     []PolicyNewParamsRule{},
-		Owner: OwnerInputUnionParam{
-			OfOwnerInputPublicKey: &OwnerInputPublicKeyParam{
+		Owner: OwnerInputUnion{
+			OfOwnerInputPublicKey: &OwnerInputPublicKey{
 				PublicKey: pair.PublicKey,
 			},
 		},
@@ -165,11 +165,11 @@ func TestIntents_PolicyRules(t *testing.T) {
 
 	t.Run("NewPolicyRule", func(t *testing.T) {
 		intent, err := client.Intents.NewPolicyRule(ctx, policy.ID, IntentNewPolicyRuleParams{
-			PolicyRuleRequestBody: PolicyRuleRequestBodyParam{
+			PolicyRuleRequestBody: PolicyRuleRequestBody{
 				Name:       "go-sdk-test-intent-rule",
 				Action:     PolicyActionAllow,
 				Method:     PolicyMethodStar,
-				Conditions: []PolicyConditionUnionParam{},
+				Conditions: []PolicyConditionUnion{},
 			},
 		})
 		if err != nil {
@@ -210,7 +210,7 @@ func TestIntents_UpdateKeyQuorum(t *testing.T) {
 	})
 
 	intent, err := client.Intents.UpdateKeyQuorum(ctx, kq.ID, IntentUpdateKeyQuorumParams{
-		KeyQuorumUpdateRequestBody: KeyQuorumUpdateRequestBodyParam{
+		KeyQuorumUpdateRequestBody: KeyQuorumUpdateRequestBody{
 			DisplayName: String("go-sdk-test-intent-key-quorum-updated"),
 		},
 	})
@@ -298,20 +298,20 @@ func TestIntents_Rpc(t *testing.T) {
 	keyOwnedWallet := wallets[1]
 
 	intent, err := client.Intents.Rpc(ctx, keyOwnedWallet.id, IntentRpcParams{
-		WalletRpcRequestBody: WalletRpcRequestBodyUnionParam{
-			OfEthSignTransaction: &EthereumSignTransactionRpcInputParam{
+		WalletRpcRequestBody: WalletRpcRequestBodyUnion{
+			OfEthSignTransaction: &EthereumSignTransactionRpcInput{
 				Method: EthereumSignTransactionRpcInputMethodEthSignTransaction,
 				Params: EthereumSignTransactionRpcInputParams{
-					Transaction: UnsignedEthereumTransactionParam{
+					Transaction: UnsignedStandardEthereumTransaction{
 						Type: 2,
-						ChainID: QuantityUnionParam{
+						ChainID: QuantityUnion{
 							OfInt: Int(1),
 						},
 						To: String("0x742d35Cc6634C0532925a3b8D1A8a9ff1e7a7A4C"),
-						Value: QuantityUnionParam{
+						Value: QuantityUnion{
 							OfString: String("0x1"),
 						},
-						GasLimit: QuantityUnionParam{
+						GasLimit: QuantityUnion{
 							OfString: String("0x5208"),
 						},
 					},

@@ -13,7 +13,7 @@ import (
 	"github.com/privy-io/go-sdk/option"
 )
 
-func TestWalletBalanceGetWithOptionalParams(t *testing.T) {
+func TestWalletEarnEthereumIncentiveClaimWithOptionalParams(t *testing.T) {
 	t.Skip("Mock server tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -27,20 +27,14 @@ func TestWalletBalanceGetWithOptionalParams(t *testing.T) {
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Wallets.Balance.Get(
+	_, err := client.Wallets.Earn.Ethereum.Incentive.Claim(
 		context.TODO(),
 		"wallet_id",
-		privyclient.WalletBalanceGetParams{
-			Token: privyclient.WalletBalanceGetParamsTokenUnion{
-				OfString: privyclient.String("string"),
+		privyclient.WalletEarnEthereumIncentiveClaimParams{
+			EarnIncentiveClaimRequestBody: privyclient.EarnIncentiveClaimRequestBody{
+				Chain: "base",
 			},
-			Asset: privyclient.WalletBalanceGetParamsAssetUnion{
-				OfWalletBalanceGetsAssetString: privyclient.Opt(privyclient.WalletBalanceGetParamsAssetStringUsdc),
-			},
-			Chain: privyclient.WalletBalanceGetParamsChainUnion{
-				OfWalletBalanceGetsChainString: privyclient.String("ethereum"),
-			},
-			IncludeCurrency: privyclient.WalletBalanceGetParamsIncludeCurrencyUsd,
+			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
 		},
 	)
 	if err != nil {

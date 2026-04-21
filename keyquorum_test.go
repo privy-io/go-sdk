@@ -63,7 +63,7 @@ func TestKeyQuorumUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"string",
 		privyclient.KeyQuorumUpdateParams{
-			KeyQuorumUpdateRequestBody: privyclient.KeyQuorumUpdateRequestBodyParam{
+			KeyQuorumUpdateRequestBody: privyclient.KeyQuorumUpdateRequestBody{
 				AuthorizationThreshold: privyclient.Float(1),
 				DisplayName:            privyclient.String("Prod key quorum"),
 				KeyQuorumIDs:           []string{"string"},

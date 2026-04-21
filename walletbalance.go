@@ -68,7 +68,7 @@ func (r *WalletBalanceGetResponse) UnmarshalJSON(data []byte) error {
 }
 
 type WalletBalanceGetResponseBalance struct {
-	Asset string `json:"asset" api:"required"`
+	Asset WalletBalanceGetResponseBalanceAsset `json:"asset" api:"required"`
 	// Any of "ethereum", "arbitrum", "base", "tempo", "linea", "optimism", "polygon",
 	// "solana", "zksync_era", "sepolia", "arbitrum_sepolia", "base_sepolia",
 	// "linea_testnet", "optimism_sepolia", "polygon_amoy", "solana_devnet",
@@ -94,6 +94,19 @@ func (r WalletBalanceGetResponseBalance) RawJSON() string { return r.JSON.raw }
 func (r *WalletBalanceGetResponseBalance) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+type WalletBalanceGetResponseBalanceAsset string
+
+const (
+	WalletBalanceGetResponseBalanceAssetUsdc  WalletBalanceGetResponseBalanceAsset = "usdc"
+	WalletBalanceGetResponseBalanceAssetUsdcE WalletBalanceGetResponseBalanceAsset = "usdc.e"
+	WalletBalanceGetResponseBalanceAssetEth   WalletBalanceGetResponseBalanceAsset = "eth"
+	WalletBalanceGetResponseBalanceAssetPol   WalletBalanceGetResponseBalanceAsset = "pol"
+	WalletBalanceGetResponseBalanceAssetUsdt  WalletBalanceGetResponseBalanceAsset = "usdt"
+	WalletBalanceGetResponseBalanceAssetEurc  WalletBalanceGetResponseBalanceAsset = "eurc"
+	WalletBalanceGetResponseBalanceAssetUsdb  WalletBalanceGetResponseBalanceAsset = "usdb"
+	WalletBalanceGetResponseBalanceAssetSol   WalletBalanceGetResponseBalanceAsset = "sol"
+)
 
 type WalletBalanceGetParams struct {
 	// The token contract address(es) to query in format "chain:address" (e.g.,
@@ -130,8 +143,8 @@ type WalletBalanceGetParamsTokenUnion struct {
 type WalletBalanceGetParamsAssetUnion struct {
 	// Check if union is this variant with
 	// !param.IsOmitted(union.OfWalletBalanceGetsAssetString)
-	OfWalletBalanceGetsAssetString         param.Opt[string] `query:",omitzero,inline"`
-	OfWalletBalanceGetsAssetArrayItemArray []string          `query:",omitzero,inline"`
+	OfWalletBalanceGetsAssetString param.Opt[WalletBalanceGetParamsAssetString] `query:",omitzero,inline"`
+	OfWalletAssetArray             []WalletAsset                                `query:",omitzero,inline"`
 	paramUnion
 }
 

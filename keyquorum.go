@@ -168,7 +168,7 @@ func (r *KeyQuorumCreateRequestBody) UnmarshalJSON(data []byte) error {
 }
 
 // Request input for updating an existing key quorum.
-type KeyQuorumUpdateRequestBody struct {
+type KeyQuorumUpdateRequestBodyResp struct {
 	// The number of keys that must sign for an action to be valid. Must be less than
 	// or equal to total number of key quorum members.
 	AuthorizationThreshold float64 `json:"authorization_threshold"`
@@ -195,23 +195,23 @@ type KeyQuorumUpdateRequestBody struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r KeyQuorumUpdateRequestBody) RawJSON() string { return r.JSON.raw }
-func (r *KeyQuorumUpdateRequestBody) UnmarshalJSON(data []byte) error {
+func (r KeyQuorumUpdateRequestBodyResp) RawJSON() string { return r.JSON.raw }
+func (r *KeyQuorumUpdateRequestBodyResp) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// ToParam converts this KeyQuorumUpdateRequestBody to a
-// KeyQuorumUpdateRequestBodyParam.
+// ToParam converts this KeyQuorumUpdateRequestBodyResp to a
+// KeyQuorumUpdateRequestBody.
 //
 // Warning: the fields of the param type will not be present. ToParam should only
 // be used at the last possible moment before sending a request. Test for this with
-// KeyQuorumUpdateRequestBodyParam.Overrides()
-func (r KeyQuorumUpdateRequestBody) ToParam() KeyQuorumUpdateRequestBodyParam {
-	return param.Override[KeyQuorumUpdateRequestBodyParam](json.RawMessage(r.RawJSON()))
+// KeyQuorumUpdateRequestBody.Overrides()
+func (r KeyQuorumUpdateRequestBodyResp) ToParam() KeyQuorumUpdateRequestBody {
+	return param.Override[KeyQuorumUpdateRequestBody](json.RawMessage(r.RawJSON()))
 }
 
 // Request input for updating an existing key quorum.
-type KeyQuorumUpdateRequestBodyParam struct {
+type KeyQuorumUpdateRequestBody struct {
 	// The number of keys that must sign for an action to be valid. Must be less than
 	// or equal to total number of key quorum members.
 	AuthorizationThreshold param.Opt[float64] `json:"authorization_threshold,omitzero"`
@@ -228,11 +228,11 @@ type KeyQuorumUpdateRequestBodyParam struct {
 	paramObj
 }
 
-func (r KeyQuorumUpdateRequestBodyParam) MarshalJSON() (data []byte, err error) {
-	type shadow KeyQuorumUpdateRequestBodyParam
+func (r KeyQuorumUpdateRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow KeyQuorumUpdateRequestBody
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *KeyQuorumUpdateRequestBodyParam) UnmarshalJSON(data []byte) error {
+func (r *KeyQuorumUpdateRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -251,7 +251,7 @@ func (r *KeyQuorumNewParams) UnmarshalJSON(data []byte) error {
 
 type KeyQuorumUpdateParams struct {
 	// Request input for updating an existing key quorum.
-	KeyQuorumUpdateRequestBody KeyQuorumUpdateRequestBodyParam
+	KeyQuorumUpdateRequestBody KeyQuorumUpdateRequestBody
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.
 	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
