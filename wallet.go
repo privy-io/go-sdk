@@ -6672,8 +6672,9 @@ const (
 	SuiCommandNameMergeCoins      SuiCommandName = "MergeCoins"
 )
 
-// The source asset, amount, and chain for a token transfer.
-type TokenTransferSourceResp struct {
+// Source for a transfer identified by a named asset (e.g. "usdc", "eth"). Use this
+// variant for first-class assets maintained by Privy.
+type NamedTokenTransferSourceResp struct {
 	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
 	// USDC, "0.01" for 0.01 ETH). Not in the smallest on-chain unit (wei, lamports,
 	// etc.).
@@ -6696,24 +6697,26 @@ type TokenTransferSourceResp struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r TokenTransferSourceResp) RawJSON() string { return r.JSON.raw }
-func (r *TokenTransferSourceResp) UnmarshalJSON(data []byte) error {
+func (r NamedTokenTransferSourceResp) RawJSON() string { return r.JSON.raw }
+func (r *NamedTokenTransferSourceResp) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// ToParam converts this TokenTransferSourceResp to a TokenTransferSource.
+// ToParam converts this NamedTokenTransferSourceResp to a
+// NamedTokenTransferSource.
 //
 // Warning: the fields of the param type will not be present. ToParam should only
 // be used at the last possible moment before sending a request. Test for this with
-// TokenTransferSource.Overrides()
-func (r TokenTransferSourceResp) ToParam() TokenTransferSource {
-	return param.Override[TokenTransferSource](json.RawMessage(r.RawJSON()))
+// NamedTokenTransferSource.Overrides()
+func (r NamedTokenTransferSourceResp) ToParam() NamedTokenTransferSource {
+	return param.Override[NamedTokenTransferSource](json.RawMessage(r.RawJSON()))
 }
 
-// The source asset, amount, and chain for a token transfer.
+// Source for a transfer identified by a named asset (e.g. "usdc", "eth"). Use this
+// variant for first-class assets maintained by Privy.
 //
 // The properties Amount, Asset, Chain are required.
-type TokenTransferSource struct {
+type NamedTokenTransferSource struct {
 	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
 	// USDC, "0.01" for 0.01 ETH). Not in the smallest on-chain unit (wei, lamports,
 	// etc.).
@@ -6728,12 +6731,158 @@ type TokenTransferSource struct {
 	paramObj
 }
 
-func (r TokenTransferSource) MarshalJSON() (data []byte, err error) {
-	type shadow TokenTransferSource
+func (r NamedTokenTransferSource) MarshalJSON() (data []byte, err error) {
+	type shadow NamedTokenTransferSource
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *TokenTransferSource) UnmarshalJSON(data []byte) error {
+func (r *NamedTokenTransferSource) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+// Source for a transfer identified by a token contract address (EVM) or mint
+// address (Solana). Use this variant for tokens that are not first-class assets.
+type CustomTokenTransferSourceResp struct {
+	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
+	// USDC, "0.01" for 0.01 ETH). Not in the smallest on-chain unit (wei, lamports,
+	// etc.).
+	Amount string `json:"amount" api:"required"`
+	// The token contract address (EVM) or mint address (Solana) of the asset to
+	// transfer.
+	AssetAddress string `json:"asset_address" api:"required"`
+	// The blockchain network on which to perform the transfer. Supported chains
+	// include: 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and their
+	// respective testnets.
+	Chain string `json:"chain" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Amount       respjson.Field
+		AssetAddress respjson.Field
+		Chain        respjson.Field
+		ExtraFields  map[string]respjson.Field
+		raw          string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r CustomTokenTransferSourceResp) RawJSON() string { return r.JSON.raw }
+func (r *CustomTokenTransferSourceResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this CustomTokenTransferSourceResp to a
+// CustomTokenTransferSource.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// CustomTokenTransferSource.Overrides()
+func (r CustomTokenTransferSourceResp) ToParam() CustomTokenTransferSource {
+	return param.Override[CustomTokenTransferSource](json.RawMessage(r.RawJSON()))
+}
+
+// Source for a transfer identified by a token contract address (EVM) or mint
+// address (Solana). Use this variant for tokens that are not first-class assets.
+//
+// The properties Amount, AssetAddress, Chain are required.
+type CustomTokenTransferSource struct {
+	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
+	// USDC, "0.01" for 0.01 ETH). Not in the smallest on-chain unit (wei, lamports,
+	// etc.).
+	Amount string `json:"amount" api:"required"`
+	// The token contract address (EVM) or mint address (Solana) of the asset to
+	// transfer.
+	AssetAddress string `json:"asset_address" api:"required"`
+	// The blockchain network on which to perform the transfer. Supported chains
+	// include: 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and their
+	// respective testnets.
+	Chain string `json:"chain" api:"required"`
+	paramObj
+}
+
+func (r CustomTokenTransferSource) MarshalJSON() (data []byte, err error) {
+	type shadow CustomTokenTransferSource
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *CustomTokenTransferSource) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// TokenTransferSourceUnionResp contains all possible properties and values from
+// [NamedTokenTransferSourceResp], [CustomTokenTransferSourceResp].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type TokenTransferSourceUnionResp struct {
+	Amount string `json:"amount"`
+	// This field is from variant [NamedTokenTransferSourceResp].
+	Asset string `json:"asset"`
+	Chain string `json:"chain"`
+	// This field is from variant [CustomTokenTransferSourceResp].
+	AssetAddress string `json:"asset_address"`
+	JSON         struct {
+		Amount       respjson.Field
+		Asset        respjson.Field
+		Chain        respjson.Field
+		AssetAddress respjson.Field
+		raw          string
+	} `json:"-"`
+}
+
+func (u TokenTransferSourceUnionResp) AsNamedTokenTransferSource() (v NamedTokenTransferSourceResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u TokenTransferSourceUnionResp) AsCustomTokenTransferSource() (v CustomTokenTransferSourceResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u TokenTransferSourceUnionResp) RawJSON() string { return u.JSON.raw }
+
+func (r *TokenTransferSourceUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TokenTransferSourceUnionResp to a
+// TokenTransferSourceUnion.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TokenTransferSourceUnion.Overrides()
+func (r TokenTransferSourceUnionResp) ToParam() TokenTransferSourceUnion {
+	return param.Override[TokenTransferSourceUnion](json.RawMessage(r.RawJSON()))
+}
+
+func TokenTransferSourceOfNamedTokenTransferSource(amount string, asset string, chain string) TokenTransferSourceUnion {
+	var variant NamedTokenTransferSource
+	variant.Amount = amount
+	variant.Asset = asset
+	variant.Chain = chain
+	return TokenTransferSourceUnion{OfNamedTokenTransferSource: &variant}
+}
+
+func TokenTransferSourceOfCustomTokenTransferSource(amount string, assetAddress string, chain string) TokenTransferSourceUnion {
+	var variant CustomTokenTransferSource
+	variant.Amount = amount
+	variant.AssetAddress = assetAddress
+	variant.Chain = chain
+	return TokenTransferSourceUnion{OfCustomTokenTransferSource: &variant}
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type TokenTransferSourceUnion struct {
+	OfNamedTokenTransferSource  *NamedTokenTransferSource  `json:",omitzero,inline"`
+	OfCustomTokenTransferSource *CustomTokenTransferSource `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u TokenTransferSourceUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfNamedTokenTransferSource, u.OfCustomTokenTransferSource)
+}
+func (u *TokenTransferSourceUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
 }
 
 // The destination address for a token transfer. Optionally specify a different
@@ -6802,8 +6951,9 @@ type TransferRequestBodyResp struct {
 	// The destination address for a token transfer. Optionally specify a different
 	// asset or chain for cross-asset or cross-chain transfers.
 	Destination TokenTransferDestinationResp `json:"destination" api:"required"`
-	// The source asset, amount, and chain for a token transfer.
-	Source TokenTransferSourceResp `json:"source" api:"required"`
+	// The source asset, amount, and chain for a token transfer. Specify either `asset`
+	// (named) or `asset_address` (custom), not both.
+	Source TokenTransferSourceUnionResp `json:"source" api:"required"`
 	// Whether the amount refers to the input token or output token.
 	//
 	// Any of "exact_input", "exact_output".
@@ -6843,8 +6993,9 @@ type TransferRequestBody struct {
 	// The destination address for a token transfer. Optionally specify a different
 	// asset or chain for cross-asset or cross-chain transfers.
 	Destination TokenTransferDestination `json:"destination,omitzero" api:"required"`
-	// The source asset, amount, and chain for a token transfer.
-	Source TokenTransferSource `json:"source,omitzero" api:"required"`
+	// The source asset, amount, and chain for a token transfer. Specify either `asset`
+	// (named) or `asset_address` (custom), not both.
+	Source TokenTransferSourceUnion `json:"source,omitzero" api:"required"`
 	// Maximum allowed slippage in basis points (1 bps = 0.01%).
 	SlippageBps param.Opt[int64] `json:"slippage_bps,omitzero"`
 	// Whether the amount refers to the input token or output token.

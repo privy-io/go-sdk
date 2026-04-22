@@ -1360,7 +1360,7 @@ type IntentResponseUnionRequestDetailsBody struct {
 	// This field is from variant [TransferRequestBodyResp].
 	Destination TokenTransferDestinationResp `json:"destination"`
 	// This field is from variant [TransferRequestBodyResp].
-	Source TokenTransferSourceResp `json:"source"`
+	Source TokenTransferSourceUnionResp `json:"source"`
 	// This field is from variant [TransferRequestBodyResp].
 	AmountType AmountType `json:"amount_type"`
 	// This field is from variant [TransferRequestBodyResp].
