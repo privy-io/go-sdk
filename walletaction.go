@@ -328,10 +328,6 @@ type TransferActionResponse struct {
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Recipient address.
 	DestinationAddress string `json:"destination_address" api:"required"`
-	// Decimal amount as the user provided (e.g. "1.5").
-	SourceAmount string `json:"source_amount" api:"required"`
-	// Asset identifier (e.g. "usdc", "eth").
-	SourceAsset string `json:"source_asset" api:"required"`
 	// Chain name (e.g. "base", "ethereum").
 	SourceChain string `json:"source_chain" api:"required"`
 	// Status of a wallet action.
@@ -342,25 +338,49 @@ type TransferActionResponse struct {
 	Type TransferActionResponseType `json:"type" api:"required"`
 	// The ID of the wallet involved in the action.
 	WalletID string `json:"wallet_id" api:"required"`
+	// Amount received on the destination chain. Populated immediately for exact_output
+	// transfers, or after fill confirmation for exact_input transfers.
+	DestinationAmount string `json:"destination_amount"`
+	// Destination asset for cross-asset transfers. Omitted for same-asset transfers.
+	DestinationAsset string `json:"destination_asset"`
+	// Destination chain for cross-chain transfers. Omitted for same-chain transfers.
+	DestinationChain string `json:"destination_chain"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason"`
+	// Decimal amount sent on the source chain (e.g. "1.5"). Omitted for exact_output
+	// cross-chain transfers until the source amount is determined.
+	SourceAmount string `json:"source_amount"`
+	// Asset identifier (e.g. "usdc", "eth"). Present when the transfer was initiated
+	// with a named asset; omitted for custom-token transfers.
+	SourceAsset string `json:"source_asset"`
+	// Token contract address (EVM) or mint address (Solana). Present when the transfer
+	// was initiated with `asset_address`.
+	SourceAssetAddress string `json:"source_asset_address"`
+	// Number of decimals for the transferred token. Present when the transfer was
+	// initiated with `asset_address` and the decimals were resolved on-chain.
+	SourceAssetDecimals int64 `json:"source_asset_decimals"`
 	// The steps of the wallet action. Only returned if `?include=steps` is provided.
 	Steps []WalletActionStepUnion `json:"steps"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		ID                 respjson.Field
-		CreatedAt          respjson.Field
-		DestinationAddress respjson.Field
-		SourceAmount       respjson.Field
-		SourceAsset        respjson.Field
-		SourceChain        respjson.Field
-		Status             respjson.Field
-		Type               respjson.Field
-		WalletID           respjson.Field
-		FailureReason      respjson.Field
-		Steps              respjson.Field
-		ExtraFields        map[string]respjson.Field
-		raw                string
+		ID                  respjson.Field
+		CreatedAt           respjson.Field
+		DestinationAddress  respjson.Field
+		SourceChain         respjson.Field
+		Status              respjson.Field
+		Type                respjson.Field
+		WalletID            respjson.Field
+		DestinationAmount   respjson.Field
+		DestinationAsset    respjson.Field
+		DestinationChain    respjson.Field
+		FailureReason       respjson.Field
+		SourceAmount        respjson.Field
+		SourceAsset         respjson.Field
+		SourceAssetAddress  respjson.Field
+		SourceAssetDecimals respjson.Field
+		Steps               respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
 	} `json:"-"`
 }
 
