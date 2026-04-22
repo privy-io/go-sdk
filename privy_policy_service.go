@@ -82,7 +82,7 @@ func (s *PrivyPolicyService) Update(
 		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
 	}
 
-	return s.PolicyService.Update(ctx, policyID, params)
+	return s.PolicyService.Update(ctx, policyID, params, options.RequestOptions...)
 }
 
 // Delete removes a policy with automatic authorization signature generation.
@@ -127,7 +127,7 @@ func (s *PrivyPolicyService) Delete(
 		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
 	}
 
-	return s.PolicyService.Delete(ctx, policyID, params)
+	return s.PolicyService.Delete(ctx, policyID, params, options.RequestOptions...)
 }
 
 // NewRule creates a new rule on a policy with automatic authorization signature generation.
@@ -172,7 +172,7 @@ func (s *PrivyPolicyService) NewRule(
 		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
 	}
 
-	return s.PolicyService.NewRule(ctx, policyID, params)
+	return s.PolicyService.NewRule(ctx, policyID, params, options.RequestOptions...)
 }
 
 // DeleteRule removes a rule from a policy with automatic authorization signature generation.
@@ -217,7 +217,7 @@ func (s *PrivyPolicyService) DeleteRule(
 		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
 	}
 
-	return s.PolicyService.DeleteRule(ctx, ruleID, params)
+	return s.PolicyService.DeleteRule(ctx, ruleID, params, options.RequestOptions...)
 }
 
 // UpdateRule modifies a rule on a policy with automatic authorization signature generation.
@@ -262,5 +262,5 @@ func (s *PrivyPolicyService) UpdateRule(
 		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
 	}
 
-	return s.PolicyService.UpdateRule(ctx, ruleID, params)
+	return s.PolicyService.UpdateRule(ctx, ruleID, params, options.RequestOptions...)
 }
