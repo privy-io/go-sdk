@@ -7076,7 +7076,7 @@ func (r *WalletAuthenticateWithJwtResponseUnion) UnmarshalJSON(data []byte) erro
 type WalletAuthenticateWithJwtResponseWithEncryption struct {
 	// The encrypted authorization key data.
 	EncryptedAuthorizationKey WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey `json:"encrypted_authorization_key" api:"required"`
-	// The expiration time of the authorization key in seconds since the epoch.
+	// The expiration time of the authorization key in milliseconds since the epoch.
 	ExpiresAt float64  `json:"expires_at" api:"required"`
 	Wallets   []Wallet `json:"wallets" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -7128,7 +7128,7 @@ func (r *WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKe
 type WalletAuthenticateWithJwtResponseWithoutEncryption struct {
 	// The raw authorization key data.
 	AuthorizationKey string `json:"authorization_key" api:"required"`
-	// The expiration time of the authorization key in seconds since the epoch.
+	// The expiration time of the authorization key in milliseconds since the epoch.
 	ExpiresAt float64  `json:"expires_at" api:"required"`
 	Wallets   []Wallet `json:"wallets" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
