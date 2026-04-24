@@ -11,6 +11,7 @@ import (
 	"slices"
 
 	"github.com/privy-io/go-sdk/internal/apijson"
+	"github.com/privy-io/go-sdk/internal/apiquery"
 	"github.com/privy-io/go-sdk/internal/requestconfig"
 	"github.com/privy-io/go-sdk/option"
 	"github.com/privy-io/go-sdk/packages/param"
@@ -50,6 +51,15 @@ func (r *AppService) Get(ctx context.Context, appID string, opts ...option.Reque
 	}
 	path := fmt.Sprintf("v1/apps/%s", url.PathEscape(appID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return res, err
+}
+
+// Get aggregated Privy gas credits charged for a set of wallets over a time range.
+// Maximum 100 wallet IDs and 30-day range per request.
+func (r *AppService) GetGasSpend(ctx context.Context, query AppGetGasSpendParams, opts ...option.RequestOption) (res *GasSpendResponseBody, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "v1/apps/gas_spend"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return res, err
 }
 
@@ -697,4 +707,49 @@ type TestAccountsResponse struct {
 func (r TestAccountsResponse) RawJSON() string { return r.JSON.raw }
 func (r *TestAccountsResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+// Currency for gas spend values.
+type GasSpendCurrency string
+
+const (
+	GasSpendCurrencyUsd GasSpendCurrency = "usd"
+)
+
+// Aggregated Privy gas credits charged for a set of wallets over a time range.
+type GasSpendResponseBody struct {
+	// Currency for gas spend values.
+	//
+	// Any of "usd".
+	Currency GasSpendCurrency `json:"currency" api:"required"`
+	// Total Privy credits charged as a decimal string.
+	Value string `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Currency    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r GasSpendResponseBody) RawJSON() string { return r.JSON.raw }
+func (r *GasSpendResponseBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type AppGetGasSpendParams struct {
+	EndTimestamp   float64  `query:"end_timestamp" api:"required" json:"-"`
+	StartTimestamp float64  `query:"start_timestamp" api:"required" json:"-"`
+	WalletIDs      []string `query:"wallet_ids,omitzero" api:"required" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [AppGetGasSpendParams]'s query parameters as `url.Values`.
+func (r AppGetGasSpendParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }

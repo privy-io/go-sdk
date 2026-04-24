@@ -29,6 +29,7 @@ import (
 // the [NewWalletService] method instead.
 type WalletService struct {
 	Options []option.RequestOption
+	Earn    WalletEarnService
 	// Operations related to wallets
 	Transactions WalletTransactionService
 	// Operations related to wallets
@@ -41,6 +42,7 @@ type WalletService struct {
 func NewWalletService(opts ...option.RequestOption) (r WalletService) {
 	r = WalletService{}
 	r.Options = opts
+	r.Earn = NewWalletEarnService(opts...)
 	r.Transactions = NewWalletTransactionService(opts...)
 	r.Balance = NewWalletBalanceService(opts...)
 	return
@@ -114,20 +116,25 @@ func (r *WalletService) SubmitImport(ctx context.Context, body WalletSubmitImpor
 	return res, err
 }
 
+// Transfer tokens from a wallet to a destination address.
+func (r *WalletService) Transfer(ctx context.Context, walletID string, params WalletTransferParams, opts ...option.RequestOption) (res *TransferActionResponse, err error) {
+	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
+		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
+	}
+	opts = slices.Concat(r.Options, opts)
+	if walletID == "" {
+		err = errors.New("missing required wallet_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/wallets/%s/transfer", url.PathEscape(walletID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
+	return res, err
+}
+
 // Obtain a session key to enable wallet access.
 func (r *WalletService) AuthenticateWithJwt(ctx context.Context, body WalletAuthenticateWithJwtParams, opts ...option.RequestOption) (res *WalletAuthenticateWithJwtResponseUnion, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/wallets/authenticate"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return res, err
-}
-
-// Creates multiple wallets in a single request. Each wallet creation is
-// independent; failures for one wallet do not affect others. Maximum batch size is
-// 100 wallets.
-func (r *WalletService) Batch(ctx context.Context, body WalletBatchParams, opts ...option.RequestOption) (res *WalletBatchCreateResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	path := "v1/wallets/batch"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return res, err
 }
@@ -5303,171 +5310,6 @@ func (r *WalletUpdateRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Input for a single wallet in a batch creation request.
-//
-// The property ChainType is required.
-type WalletBatchItemInput struct {
-	// The wallet chain types.
-	//
-	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
-	// "tron", "bitcoin-segwit", "bitcoin-taproot", "near", "ton", "starknet", "spark".
-	ChainType WalletChainType `json:"chain_type,omitzero" api:"required"`
-	// The key quorum ID to set as the owner of the resource. If you provide this, do
-	// not specify an owner.
-	OwnerID param.Opt[OwnerIDInput] `json:"owner_id,omitzero" format:"cuid2"`
-	// A human-readable label for the wallet.
-	DisplayName param.Opt[string] `json:"display_name,omitzero"`
-	// A customer-provided identifier for mapping to external systems. URL-safe
-	// characters only ([a-zA-Z0-9_-]), max 64 chars. Write-once: cannot be changed
-	// after creation.
-	ExternalID param.Opt[string] `json:"external_id,omitzero"`
-	// The owner of the resource, specified as a Privy user ID, a P-256 public key, or
-	// null to remove the current owner.
-	Owner OwnerInputUnion `json:"owner,omitzero"`
-	// Additional signers for the wallet.
-	AdditionalSigners AdditionalSignerInput `json:"additional_signers,omitzero"`
-	// List of policy IDs for policies that should be enforced on the wallet.
-	// Currently, only one policy is supported per wallet.
-	PolicyIDs []string `json:"policy_ids,omitzero"`
-	paramObj
-}
-
-func (r WalletBatchItemInput) MarshalJSON() (data []byte, err error) {
-	type shadow WalletBatchItemInput
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *WalletBatchItemInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Request body for batch wallet creation.
-//
-// The property Wallets is required.
-type WalletBatchCreateInput struct {
-	// Array of wallet creation requests. Minimum 1, maximum 100.
-	Wallets []WalletBatchItemInput `json:"wallets,omitzero" api:"required"`
-	paramObj
-}
-
-func (r WalletBatchCreateInput) MarshalJSON() (data []byte, err error) {
-	type shadow WalletBatchCreateInput
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *WalletBatchCreateInput) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// WalletBatchCreateResultUnion contains all possible properties and values from
-// [WalletBatchCreateResultWalletBatchCreateSuccess],
-// [WalletBatchCreateResultWalletBatchCreateFailure].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-type WalletBatchCreateResultUnion struct {
-	Index   float64 `json:"index"`
-	Success bool    `json:"success"`
-	// This field is from variant [WalletBatchCreateResultWalletBatchCreateSuccess].
-	Wallet Wallet `json:"wallet"`
-	// This field is from variant [WalletBatchCreateResultWalletBatchCreateFailure].
-	Code string `json:"code"`
-	// This field is from variant [WalletBatchCreateResultWalletBatchCreateFailure].
-	Error string `json:"error"`
-	JSON  struct {
-		Index   respjson.Field
-		Success respjson.Field
-		Wallet  respjson.Field
-		Code    respjson.Field
-		Error   respjson.Field
-		raw     string
-	} `json:"-"`
-}
-
-func (u WalletBatchCreateResultUnion) AsWalletBatchCreateSuccess() (v WalletBatchCreateResultWalletBatchCreateSuccess) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u WalletBatchCreateResultUnion) AsWalletBatchCreateFailure() (v WalletBatchCreateResultWalletBatchCreateFailure) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u WalletBatchCreateResultUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *WalletBatchCreateResultUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// A successful wallet creation result within a batch operation.
-type WalletBatchCreateResultWalletBatchCreateSuccess struct {
-	// The index of the wallet in the original request array.
-	Index float64 `json:"index" api:"required"`
-	// Any of true.
-	Success bool `json:"success" api:"required"`
-	// A wallet managed by Privy's wallet infrastructure.
-	Wallet Wallet `json:"wallet" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Index       respjson.Field
-		Success     respjson.Field
-		Wallet      respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r WalletBatchCreateResultWalletBatchCreateSuccess) RawJSON() string { return r.JSON.raw }
-func (r *WalletBatchCreateResultWalletBatchCreateSuccess) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// A failed wallet creation result within a batch operation.
-type WalletBatchCreateResultWalletBatchCreateFailure struct {
-	// A PrivyErrorCode string identifying the error type (e.g., "invalid_data",
-	// "resource_conflict").
-	Code string `json:"code" api:"required"`
-	// A human-readable error message with details about what went wrong.
-	Error string `json:"error" api:"required"`
-	// The index of the wallet in the original request array.
-	Index float64 `json:"index" api:"required"`
-	// Any of false.
-	Success bool `json:"success" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Code        respjson.Field
-		Error       respjson.Field
-		Index       respjson.Field
-		Success     respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r WalletBatchCreateResultWalletBatchCreateFailure) RawJSON() string { return r.JSON.raw }
-func (r *WalletBatchCreateResultWalletBatchCreateFailure) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Response for a batch wallet creation request.
-type WalletBatchCreateResponse struct {
-	// Array of results for each wallet creation request, in the same order as input.
-	Results []WalletBatchCreateResultUnion `json:"results" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Results     respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r WalletBatchCreateResponse) RawJSON() string { return r.JSON.raw }
-func (r *WalletBatchCreateResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // WalletRpcRequestBodyUnionResp contains all possible properties and values from
 // [EthereumSignTransactionRpcInputResp], [EthereumSendTransactionRpcInputResp],
 // [EthereumPersonalSignRpcInputResp], [EthereumSignTypedDataRpcInputResp],
@@ -7481,6 +7323,22 @@ func init() {
 	)
 }
 
+type WalletTransferParams struct {
+	// Request body for initiating a sponsored token transfer from an embedded wallet.
+	TransferRequestBody TransferRequestBody
+	// Request authorization signature. If multiple signatures are required, they
+	// should be comma separated.
+	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
+	paramObj
+}
+
+func (r WalletTransferParams) MarshalJSON() (data []byte, err error) {
+	return shimjson.Marshal(r.TransferRequestBody)
+}
+func (r *WalletTransferParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 type WalletAuthenticateWithJwtParams struct {
 	// Request body for wallet authentication with HPKE-encrypted response.
 	WalletAuthenticateRequestBody WalletAuthenticateRequestBody
@@ -7491,19 +7349,6 @@ func (r WalletAuthenticateWithJwtParams) MarshalJSON() (data []byte, err error) 
 	return shimjson.Marshal(r.WalletAuthenticateRequestBody)
 }
 func (r *WalletAuthenticateWithJwtParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type WalletBatchParams struct {
-	// Request body for batch wallet creation.
-	WalletBatchCreateInput WalletBatchCreateInput
-	paramObj
-}
-
-func (r WalletBatchParams) MarshalJSON() (data []byte, err error) {
-	return shimjson.Marshal(r.WalletBatchCreateInput)
-}
-func (r *WalletBatchParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

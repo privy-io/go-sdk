@@ -13,7 +13,7 @@ import (
 	"github.com/privy-io/go-sdk/option"
 )
 
-func TestAppGet(t *testing.T) {
+func TestWalletEarnEthereumDepositWithOptionalParams(t *testing.T) {
 	t.Skip("Mock server tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -27,7 +27,18 @@ func TestAppGet(t *testing.T) {
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Apps.Get(context.TODO(), "app_id")
+	_, err := client.Wallets.Earn.Ethereum.Deposit(
+		context.TODO(),
+		"wallet_id",
+		privyclient.WalletEarnEthereumDepositParams{
+			EarnDepositRequestBody: privyclient.EarnDepositRequestBody{
+				VaultID:   "cm7oxq1el000e11o8iwp7d0d0",
+				Amount:    privyclient.String("1.5"),
+				RawAmount: privyclient.String("321669910225"),
+			},
+			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
+		},
+	)
 	if err != nil {
 		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
@@ -37,7 +48,7 @@ func TestAppGet(t *testing.T) {
 	}
 }
 
-func TestAppGetGasSpend(t *testing.T) {
+func TestWalletEarnEthereumWithdrawWithOptionalParams(t *testing.T) {
 	t.Skip("Mock server tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -51,35 +62,18 @@ func TestAppGetGasSpend(t *testing.T) {
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	_, err := client.Apps.GetGasSpend(context.TODO(), privyclient.AppGetGasSpendParams{
-		EndTimestamp:   0,
-		StartTimestamp: 0,
-		WalletIDs:      []string{"string"},
-	})
-	if err != nil {
-		var apierr *privyclient.Error
-		if errors.As(err, &apierr) {
-			t.Log(string(apierr.DumpRequest(true)))
-		}
-		t.Fatalf("err should be nil: %s", err.Error())
-	}
-}
-
-func TestAppGetTestCredentials(t *testing.T) {
-	t.Skip("Mock server tests are disabled")
-	baseURL := "http://localhost:4010"
-	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
-		baseURL = envURL
-	}
-	if !testutil.CheckTestServer(t, baseURL) {
-		return
-	}
-	client := privyclient.NewClient(
-		option.WithBaseURL(baseURL),
-		option.WithAppID("My App ID"),
-		option.WithAppSecret("My App Secret"),
+	_, err := client.Wallets.Earn.Ethereum.Withdraw(
+		context.TODO(),
+		"wallet_id",
+		privyclient.WalletEarnEthereumWithdrawParams{
+			EarnWithdrawRequestBody: privyclient.EarnWithdrawRequestBody{
+				VaultID:   "cm7oxq1el000e11o8iwp7d0d0",
+				Amount:    privyclient.String("1.5"),
+				RawAmount: privyclient.String("321669910225"),
+			},
+			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
+		},
 	)
-	_, err := client.Apps.GetTestCredentials(context.TODO(), "app_id")
 	if err != nil {
 		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {

@@ -213,6 +213,52 @@ func TestWalletSubmitImportWithOptionalParams(t *testing.T) {
 	}
 }
 
+func TestWalletTransferWithOptionalParams(t *testing.T) {
+	t.Skip("Mock server tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := privyclient.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAppID("My App ID"),
+		option.WithAppSecret("My App Secret"),
+	)
+	_, err := client.Wallets.Transfer(
+		context.TODO(),
+		"wallet_id",
+		privyclient.WalletTransferParams{
+			TransferRequestBody: privyclient.TransferRequestBody{
+				Destination: privyclient.TokenTransferDestination{
+					Address: "0xB00F0759DbeeF5E543Cc3E3B07A6442F5f3928a2",
+					Asset:   privyclient.String("usdc"),
+					Chain:   privyclient.String("base"),
+				},
+				Source: privyclient.TokenTransferSourceUnion{
+					OfNamedTokenTransferSource: &privyclient.NamedTokenTransferSource{
+						Amount: "10.5",
+						Asset:  "usdc",
+						Chain:  "base",
+					},
+				},
+				AmountType:  privyclient.AmountTypeExactInput,
+				SlippageBps: privyclient.Int(100),
+			},
+			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
+		},
+	)
+	if err != nil {
+		var apierr *privyclient.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
 func TestWalletAuthenticateWithJwt(t *testing.T) {
 	t.Skip("Mock server tests are disabled")
 	baseURL := "http://localhost:4010"
@@ -232,64 +278,6 @@ func TestWalletAuthenticateWithJwt(t *testing.T) {
 			EncryptionType:     privyclient.WalletAuthenticateRequestBodyEncryptionTypeHpke,
 			RecipientPublicKey: "DAQcDQgAEx4aoeD72yykviK+fckqE2CItVIGn1rCnvCXZ1HgpOcMEMialRmTrqIK4oZlYd1",
 			UserJwt:            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30",
-		},
-	})
-	if err != nil {
-		var apierr *privyclient.Error
-		if errors.As(err, &apierr) {
-			t.Log(string(apierr.DumpRequest(true)))
-		}
-		t.Fatalf("err should be nil: %s", err.Error())
-	}
-}
-
-func TestWalletBatch(t *testing.T) {
-	t.Skip("Mock server tests are disabled")
-	baseURL := "http://localhost:4010"
-	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
-		baseURL = envURL
-	}
-	if !testutil.CheckTestServer(t, baseURL) {
-		return
-	}
-	client := privyclient.NewClient(
-		option.WithBaseURL(baseURL),
-		option.WithAppID("My App ID"),
-		option.WithAppSecret("My App Secret"),
-	)
-	_, err := client.Wallets.Batch(context.TODO(), privyclient.WalletBatchParams{
-		WalletBatchCreateInput: privyclient.WalletBatchCreateInput{
-			Wallets: []privyclient.WalletBatchItemInput{{
-				ChainType: privyclient.WalletChainTypeEthereum,
-				AdditionalSigners: privyclient.AdditionalSignerInput{privyclient.AdditionalSignerItemInput{
-					SignerID:          "string",
-					OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
-				}},
-				DisplayName: privyclient.String("display_name"),
-				ExternalID:  privyclient.String("external_id"),
-				Owner: privyclient.OwnerInputUnion{
-					OfOwnerInputUser: &privyclient.OwnerInputUser{
-						UserID: "user_id",
-					},
-				},
-				OwnerID:   privyclient.String("string"),
-				PolicyIDs: []string{"xxxxxxxxxxxxxxxxxxxxxxxx"},
-			}, {
-				ChainType: privyclient.WalletChainTypeSolana,
-				AdditionalSigners: privyclient.AdditionalSignerInput{privyclient.AdditionalSignerItemInput{
-					SignerID:          "string",
-					OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
-				}},
-				DisplayName: privyclient.String("display_name"),
-				ExternalID:  privyclient.String("external_id"),
-				Owner: privyclient.OwnerInputUnion{
-					OfOwnerInputUser: &privyclient.OwnerInputUser{
-						UserID: "user_id",
-					},
-				},
-				OwnerID:   privyclient.String("string"),
-				PolicyIDs: []string{"xxxxxxxxxxxxxxxxxxxxxxxx"},
-			}},
 		},
 	})
 	if err != nil {
