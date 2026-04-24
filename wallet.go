@@ -337,20 +337,6 @@ type WalletAdditionalSigner []WalletAdditionalSignerItem
 
 type Address = string
 
-// A named asset supported across all chains.
-type WalletAsset string
-
-const (
-	WalletAssetUsdc  WalletAsset = "usdc"
-	WalletAssetUsdcE WalletAsset = "usdc.e"
-	WalletAssetEth   WalletAsset = "eth"
-	WalletAssetPol   WalletAsset = "pol"
-	WalletAssetUsdt  WalletAsset = "usdt"
-	WalletAssetEurc  WalletAsset = "eurc"
-	WalletAssetUsdb  WalletAsset = "usdb"
-	WalletAssetSol   WalletAsset = "sol"
-)
-
 // Information about the custodian managing this wallet.
 type WalletCustodian struct {
 	// The custodian responsible for the wallet.
@@ -7165,15 +7151,6 @@ func (r *WalletExportResponseBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// SUI transaction commands allowlist for raw_sign endpoint policy evaluation
-type SuiCommandName string
-
-const (
-	SuiCommandNameTransferObjects SuiCommandName = "TransferObjects"
-	SuiCommandNameSplitCoins      SuiCommandName = "SplitCoins"
-	SuiCommandNameMergeCoins      SuiCommandName = "MergeCoins"
-)
-
 // Source for a transfer identified by a named asset (e.g. "usdc", "eth"). Use this
 // variant for first-class assets maintained by Privy.
 type NamedTokenTransferSourceResp struct {
@@ -7514,6 +7491,29 @@ func (r TransferRequestBody) MarshalJSON() (data []byte, err error) {
 func (r *TransferRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// SUI transaction commands allowlist for raw_sign endpoint policy evaluation
+type SuiCommandName string
+
+const (
+	SuiCommandNameTransferObjects SuiCommandName = "TransferObjects"
+	SuiCommandNameSplitCoins      SuiCommandName = "SplitCoins"
+	SuiCommandNameMergeCoins      SuiCommandName = "MergeCoins"
+)
+
+// A named asset supported across all chains.
+type WalletAsset string
+
+const (
+	WalletAssetUsdc  WalletAsset = "usdc"
+	WalletAssetUsdcE WalletAsset = "usdc.e"
+	WalletAssetEth   WalletAsset = "eth"
+	WalletAssetPol   WalletAsset = "pol"
+	WalletAssetUsdt  WalletAsset = "usdt"
+	WalletAssetEurc  WalletAsset = "eurc"
+	WalletAssetUsdb  WalletAsset = "usdb"
+	WalletAssetSol   WalletAsset = "sol"
+)
 
 type WalletInitImportResponse struct {
 	// The base64-encoded encryption public key to encrypt the wallet entropy with.
