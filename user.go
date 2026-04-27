@@ -310,8 +310,9 @@ type LinkedAccountEmail struct {
 	FirstVerifiedAt  float64 `json:"first_verified_at" api:"required"`
 	LatestVerifiedAt float64 `json:"latest_verified_at" api:"required"`
 	// Any of "email".
-	Type       LinkedAccountEmailType `json:"type" api:"required"`
-	VerifiedAt float64                `json:"verified_at" api:"required"`
+	Type        LinkedAccountEmailType `json:"type" api:"required"`
+	VerifiedAt  float64                `json:"verified_at" api:"required"`
+	DisplayName string                 `json:"display_name"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Address          respjson.Field
@@ -319,6 +320,7 @@ type LinkedAccountEmail struct {
 		LatestVerifiedAt respjson.Field
 		Type             respjson.Field
 		VerifiedAt       respjson.Field
+		DisplayName      respjson.Field
 		ExtraFields      map[string]respjson.Field
 		raw              string
 	} `json:"-"`
@@ -1681,6 +1683,7 @@ type LinkedAccountUnion struct {
 	LatestVerifiedAt float64 `json:"latest_verified_at"`
 	Type             string  `json:"type"`
 	VerifiedAt       float64 `json:"verified_at"`
+	DisplayName      string  `json:"display_name"`
 	// This field is from variant [LinkedAccountPhone].
 	PhoneNumber string `json:"phoneNumber"`
 	// This field is from variant [LinkedAccountPhone].
@@ -1716,8 +1719,6 @@ type LinkedAccountUnion struct {
 	OwnerAddress string `json:"owner_address"`
 	// This field is from variant [LinkedAccountFarcaster].
 	Bio string `json:"bio"`
-	// This field is from variant [LinkedAccountFarcaster].
-	DisplayName string `json:"display_name"`
 	// This field is from variant [LinkedAccountFarcaster].
 	HomepageURL string `json:"homepage_url"`
 	// This field is from variant [LinkedAccountFarcaster].
@@ -1756,6 +1757,7 @@ type LinkedAccountUnion struct {
 		LatestVerifiedAt   respjson.Field
 		Type               respjson.Field
 		VerifiedAt         respjson.Field
+		DisplayName        respjson.Field
 		PhoneNumber        respjson.Field
 		Number             respjson.Field
 		ChainType          respjson.Field
@@ -1781,7 +1783,6 @@ type LinkedAccountUnion struct {
 		Fid                respjson.Field
 		OwnerAddress       respjson.Field
 		Bio                respjson.Field
-		DisplayName        respjson.Field
 		HomepageURL        respjson.Field
 		ProfilePicture     respjson.Field
 		SignerPublicKey    respjson.Field
