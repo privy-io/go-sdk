@@ -312,7 +312,6 @@ type LinkedAccountEmail struct {
 	// Any of "email".
 	Type       LinkedAccountEmailType `json:"type" api:"required"`
 	VerifiedAt float64                `json:"verified_at" api:"required"`
-	IsPrimary  bool                   `json:"is_primary"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Address          respjson.Field
@@ -320,7 +319,6 @@ type LinkedAccountEmail struct {
 		LatestVerifiedAt respjson.Field
 		Type             respjson.Field
 		VerifiedAt       respjson.Field
-		IsPrimary        respjson.Field
 		ExtraFields      map[string]respjson.Field
 		raw              string
 	} `json:"-"`
@@ -1683,8 +1681,6 @@ type LinkedAccountUnion struct {
 	LatestVerifiedAt float64 `json:"latest_verified_at"`
 	Type             string  `json:"type"`
 	VerifiedAt       float64 `json:"verified_at"`
-	// This field is from variant [LinkedAccountEmail].
-	IsPrimary bool `json:"is_primary"`
 	// This field is from variant [LinkedAccountPhone].
 	PhoneNumber string `json:"phoneNumber"`
 	// This field is from variant [LinkedAccountPhone].
@@ -1760,7 +1756,6 @@ type LinkedAccountUnion struct {
 		LatestVerifiedAt   respjson.Field
 		Type               respjson.Field
 		VerifiedAt         respjson.Field
-		IsPrimary          respjson.Field
 		PhoneNumber        respjson.Field
 		Number             respjson.Field
 		ChainType          respjson.Field

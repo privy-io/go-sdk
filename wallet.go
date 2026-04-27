@@ -1185,6 +1185,459 @@ func init() {
 	)
 }
 
+// A single call within a Tempo batched transaction.
+type TempoCallResp struct {
+	To string `json:"to" api:"required"`
+	// A hex-encoded string prefixed with '0x'.
+	Data Hex `json:"data"`
+	// A quantity value that can be either a hex string starting with '0x' or a
+	// non-negative integer.
+	Value QuantityUnionResp `json:"value"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		To          respjson.Field
+		Data        respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TempoCallResp) RawJSON() string { return r.JSON.raw }
+func (r *TempoCallResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TempoCallResp to a TempoCall.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TempoCall.Overrides()
+func (r TempoCallResp) ToParam() TempoCall {
+	return param.Override[TempoCall](json.RawMessage(r.RawJSON()))
+}
+
+// A single call within a Tempo batched transaction.
+//
+// The property To is required.
+type TempoCall struct {
+	To string `json:"to" api:"required"`
+	// A hex-encoded string prefixed with '0x'.
+	Data param.Opt[Hex] `json:"data,omitzero"`
+	// A quantity value that can be either a hex string starting with '0x' or a
+	// non-negative integer.
+	Value QuantityUnion `json:"value,omitzero"`
+	paramObj
+}
+
+func (r TempoCall) MarshalJSON() (data []byte, err error) {
+	type shadow TempoCall
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TempoCall) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A fee payer signature for sponsored Tempo transactions (secp256k1 only).
+type TempoFeePayerSignatureResp struct {
+	// A hex-encoded string prefixed with '0x'.
+	R Hex `json:"r" api:"required"`
+	// A hex-encoded string prefixed with '0x'.
+	S Hex `json:"s" api:"required"`
+	// Any of 0, 1.
+	YParity float64 `json:"y_parity" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		R           respjson.Field
+		S           respjson.Field
+		YParity     respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TempoFeePayerSignatureResp) RawJSON() string { return r.JSON.raw }
+func (r *TempoFeePayerSignatureResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TempoFeePayerSignatureResp to a TempoFeePayerSignature.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TempoFeePayerSignature.Overrides()
+func (r TempoFeePayerSignatureResp) ToParam() TempoFeePayerSignature {
+	return param.Override[TempoFeePayerSignature](json.RawMessage(r.RawJSON()))
+}
+
+// A fee payer signature for sponsored Tempo transactions (secp256k1 only).
+//
+// The properties R, S, YParity are required.
+type TempoFeePayerSignature struct {
+	// A hex-encoded string prefixed with '0x'.
+	R Hex `json:"r" api:"required"`
+	// A hex-encoded string prefixed with '0x'.
+	S Hex `json:"s" api:"required"`
+	// Any of 0, 1.
+	YParity float64 `json:"y_parity,omitzero" api:"required"`
+	paramObj
+}
+
+func (r TempoFeePayerSignature) MarshalJSON() (data []byte, err error) {
+	type shadow TempoFeePayerSignature
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TempoFeePayerSignature) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func init() {
+	apijson.RegisterFieldValidator[TempoFeePayerSignature](
+		"y_parity", 0, 1,
+	)
+}
+
+// An AA authorization for Tempo transactions with P256/WebAuthn signatures.
+type TempoAaAuthorizationResp struct {
+	// A quantity value that can be either a hex string starting with '0x' or a
+	// non-negative integer.
+	ChainID  QuantityUnionResp `json:"chain_id" api:"required"`
+	Contract string            `json:"contract" api:"required"`
+	// A quantity value that can be either a hex string starting with '0x' or a
+	// non-negative integer.
+	Nonce QuantityUnionResp `json:"nonce" api:"required"`
+	// A hex-encoded string prefixed with '0x'.
+	Signature Hex `json:"signature" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ChainID     respjson.Field
+		Contract    respjson.Field
+		Nonce       respjson.Field
+		Signature   respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TempoAaAuthorizationResp) RawJSON() string { return r.JSON.raw }
+func (r *TempoAaAuthorizationResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TempoAaAuthorizationResp to a TempoAaAuthorization.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TempoAaAuthorization.Overrides()
+func (r TempoAaAuthorizationResp) ToParam() TempoAaAuthorization {
+	return param.Override[TempoAaAuthorization](json.RawMessage(r.RawJSON()))
+}
+
+// An AA authorization for Tempo transactions with P256/WebAuthn signatures.
+//
+// The properties ChainID, Contract, Nonce, Signature are required.
+type TempoAaAuthorization struct {
+	// A quantity value that can be either a hex string starting with '0x' or a
+	// non-negative integer.
+	ChainID  QuantityUnion `json:"chain_id,omitzero" api:"required"`
+	Contract string        `json:"contract" api:"required"`
+	// A quantity value that can be either a hex string starting with '0x' or a
+	// non-negative integer.
+	Nonce QuantityUnion `json:"nonce,omitzero" api:"required"`
+	// A hex-encoded string prefixed with '0x'.
+	Signature Hex `json:"signature" api:"required"`
+	paramObj
+}
+
+func (r TempoAaAuthorization) MarshalJSON() (data []byte, err error) {
+	type shadow TempoAaAuthorization
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TempoAaAuthorization) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// An unsigned Tempo transaction (type 118) with batched calls.
+type UnsignedTempoTransactionResp struct {
+	Calls []TempoCallResp `json:"calls" api:"required"`
+	// Any of 118.
+	Type                float64                                  `json:"type" api:"required"`
+	AaAuthorizationList []TempoAaAuthorizationResp               `json:"aa_authorization_list"`
+	AccessList          []UnsignedTempoTransactionAccessListResp `json:"access_list"`
+	// A quantity value that can be either a hex string starting with '0x' or a
+	// non-negative integer.
+	ChainID QuantityUnionResp `json:"chain_id"`
+	// A fee payer signature for sponsored Tempo transactions (secp256k1 only).
+	FeePayerSignature TempoFeePayerSignatureResp `json:"fee_payer_signature"`
+	FeeToken          string                     `json:"fee_token"`
+	From              string                     `json:"from"`
+	// A quantity value that can be either a hex string starting with '0x' or a
+	// non-negative integer.
+	GasLimit QuantityUnionResp `json:"gas_limit"`
+	// A quantity value that can be either a hex string starting with '0x' or a
+	// non-negative integer.
+	MaxFeePerGas QuantityUnionResp `json:"max_fee_per_gas"`
+	// A quantity value that can be either a hex string starting with '0x' or a
+	// non-negative integer.
+	MaxPriorityFeePerGas QuantityUnionResp `json:"max_priority_fee_per_gas"`
+	// A quantity value that can be either a hex string starting with '0x' or a
+	// non-negative integer.
+	Nonce QuantityUnionResp `json:"nonce"`
+	// A quantity value that can be either a hex string starting with '0x' or a
+	// non-negative integer.
+	NonceKey QuantityUnionResp `json:"nonce_key"`
+	// A quantity value that can be either a hex string starting with '0x' or a
+	// non-negative integer.
+	ValidAfter QuantityUnionResp `json:"valid_after"`
+	// A quantity value that can be either a hex string starting with '0x' or a
+	// non-negative integer.
+	ValidBefore QuantityUnionResp `json:"valid_before"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Calls                respjson.Field
+		Type                 respjson.Field
+		AaAuthorizationList  respjson.Field
+		AccessList           respjson.Field
+		ChainID              respjson.Field
+		FeePayerSignature    respjson.Field
+		FeeToken             respjson.Field
+		From                 respjson.Field
+		GasLimit             respjson.Field
+		MaxFeePerGas         respjson.Field
+		MaxPriorityFeePerGas respjson.Field
+		Nonce                respjson.Field
+		NonceKey             respjson.Field
+		ValidAfter           respjson.Field
+		ValidBefore          respjson.Field
+		ExtraFields          map[string]respjson.Field
+		raw                  string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r UnsignedTempoTransactionResp) RawJSON() string { return r.JSON.raw }
+func (r *UnsignedTempoTransactionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this UnsignedTempoTransactionResp to a
+// UnsignedTempoTransaction.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// UnsignedTempoTransaction.Overrides()
+func (r UnsignedTempoTransactionResp) ToParam() UnsignedTempoTransaction {
+	return param.Override[UnsignedTempoTransaction](json.RawMessage(r.RawJSON()))
+}
+
+type UnsignedTempoTransactionAccessListResp struct {
+	Address     string `json:"address" api:"required"`
+	StorageKeys []Hex  `json:"storage_keys" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Address     respjson.Field
+		StorageKeys respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r UnsignedTempoTransactionAccessListResp) RawJSON() string { return r.JSON.raw }
+func (r *UnsignedTempoTransactionAccessListResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// An unsigned Tempo transaction (type 118) with batched calls.
+//
+// The properties Calls, Type are required.
+type UnsignedTempoTransaction struct {
+	Calls []TempoCall `json:"calls,omitzero" api:"required"`
+	// Any of 118.
+	Type                float64                              `json:"type,omitzero" api:"required"`
+	FeeToken            param.Opt[string]                    `json:"fee_token,omitzero"`
+	From                param.Opt[string]                    `json:"from,omitzero"`
+	AaAuthorizationList []TempoAaAuthorization               `json:"aa_authorization_list,omitzero"`
+	AccessList          []UnsignedTempoTransactionAccessList `json:"access_list,omitzero"`
+	// A quantity value that can be either a hex string starting with '0x' or a
+	// non-negative integer.
+	ChainID QuantityUnion `json:"chain_id,omitzero"`
+	// A fee payer signature for sponsored Tempo transactions (secp256k1 only).
+	FeePayerSignature TempoFeePayerSignature `json:"fee_payer_signature,omitzero"`
+	// A quantity value that can be either a hex string starting with '0x' or a
+	// non-negative integer.
+	GasLimit QuantityUnion `json:"gas_limit,omitzero"`
+	// A quantity value that can be either a hex string starting with '0x' or a
+	// non-negative integer.
+	MaxFeePerGas QuantityUnion `json:"max_fee_per_gas,omitzero"`
+	// A quantity value that can be either a hex string starting with '0x' or a
+	// non-negative integer.
+	MaxPriorityFeePerGas QuantityUnion `json:"max_priority_fee_per_gas,omitzero"`
+	// A quantity value that can be either a hex string starting with '0x' or a
+	// non-negative integer.
+	Nonce QuantityUnion `json:"nonce,omitzero"`
+	// A quantity value that can be either a hex string starting with '0x' or a
+	// non-negative integer.
+	NonceKey QuantityUnion `json:"nonce_key,omitzero"`
+	// A quantity value that can be either a hex string starting with '0x' or a
+	// non-negative integer.
+	ValidAfter QuantityUnion `json:"valid_after,omitzero"`
+	// A quantity value that can be either a hex string starting with '0x' or a
+	// non-negative integer.
+	ValidBefore QuantityUnion `json:"valid_before,omitzero"`
+	paramObj
+}
+
+func (r UnsignedTempoTransaction) MarshalJSON() (data []byte, err error) {
+	type shadow UnsignedTempoTransaction
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *UnsignedTempoTransaction) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func init() {
+	apijson.RegisterFieldValidator[UnsignedTempoTransaction](
+		"type", 118,
+	)
+}
+
+// The properties Address, StorageKeys are required.
+type UnsignedTempoTransactionAccessList struct {
+	Address     string `json:"address" api:"required"`
+	StorageKeys []Hex  `json:"storage_keys,omitzero" api:"required"`
+	paramObj
+}
+
+func (r UnsignedTempoTransactionAccessList) MarshalJSON() (data []byte, err error) {
+	type shadow UnsignedTempoTransactionAccessList
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *UnsignedTempoTransactionAccessList) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// UnsignedEthereumTransactionUnionResp contains all possible properties and values
+// from [UnsignedStandardEthereumTransactionResp], [UnsignedTempoTransactionResp].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type UnsignedEthereumTransactionUnionResp struct {
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	AuthorizationList []EthereumSign7702AuthorizationResp `json:"authorization_list"`
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	ChainID QuantityUnionResp `json:"chain_id"`
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	Data Hex    `json:"data"`
+	From string `json:"from"`
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	GasLimit QuantityUnionResp `json:"gas_limit"`
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	GasPrice QuantityUnionResp `json:"gas_price"`
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	MaxFeePerGas QuantityUnionResp `json:"max_fee_per_gas"`
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	MaxPriorityFeePerGas QuantityUnionResp `json:"max_priority_fee_per_gas"`
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	Nonce QuantityUnionResp `json:"nonce"`
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	To   string  `json:"to"`
+	Type float64 `json:"type"`
+	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	Value QuantityUnionResp `json:"value"`
+	// This field is from variant [UnsignedTempoTransactionResp].
+	Calls []TempoCallResp `json:"calls"`
+	// This field is from variant [UnsignedTempoTransactionResp].
+	AaAuthorizationList []TempoAaAuthorizationResp `json:"aa_authorization_list"`
+	// This field is from variant [UnsignedTempoTransactionResp].
+	AccessList []UnsignedTempoTransactionAccessListResp `json:"access_list"`
+	// This field is from variant [UnsignedTempoTransactionResp].
+	FeePayerSignature TempoFeePayerSignatureResp `json:"fee_payer_signature"`
+	// This field is from variant [UnsignedTempoTransactionResp].
+	FeeToken string `json:"fee_token"`
+	// This field is from variant [UnsignedTempoTransactionResp].
+	NonceKey QuantityUnionResp `json:"nonce_key"`
+	// This field is from variant [UnsignedTempoTransactionResp].
+	ValidAfter QuantityUnionResp `json:"valid_after"`
+	// This field is from variant [UnsignedTempoTransactionResp].
+	ValidBefore QuantityUnionResp `json:"valid_before"`
+	JSON        struct {
+		AuthorizationList    respjson.Field
+		ChainID              respjson.Field
+		Data                 respjson.Field
+		From                 respjson.Field
+		GasLimit             respjson.Field
+		GasPrice             respjson.Field
+		MaxFeePerGas         respjson.Field
+		MaxPriorityFeePerGas respjson.Field
+		Nonce                respjson.Field
+		To                   respjson.Field
+		Type                 respjson.Field
+		Value                respjson.Field
+		Calls                respjson.Field
+		AaAuthorizationList  respjson.Field
+		AccessList           respjson.Field
+		FeePayerSignature    respjson.Field
+		FeeToken             respjson.Field
+		NonceKey             respjson.Field
+		ValidAfter           respjson.Field
+		ValidBefore          respjson.Field
+		raw                  string
+	} `json:"-"`
+}
+
+func (u UnsignedEthereumTransactionUnionResp) AsUnsignedStandardEthereumTransaction() (v UnsignedStandardEthereumTransactionResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u UnsignedEthereumTransactionUnionResp) AsUnsignedTempoTransaction() (v UnsignedTempoTransactionResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u UnsignedEthereumTransactionUnionResp) RawJSON() string { return u.JSON.raw }
+
+func (r *UnsignedEthereumTransactionUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this UnsignedEthereumTransactionUnionResp to a
+// UnsignedEthereumTransactionUnion.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// UnsignedEthereumTransactionUnion.Overrides()
+func (r UnsignedEthereumTransactionUnionResp) ToParam() UnsignedEthereumTransactionUnion {
+	return param.Override[UnsignedEthereumTransactionUnion](json.RawMessage(r.RawJSON()))
+}
+
+func UnsignedEthereumTransactionOfUnsignedTempoTransaction(calls []TempoCall, type_ float64) UnsignedEthereumTransactionUnion {
+	var variant UnsignedTempoTransaction
+	variant.Calls = calls
+	variant.Type = type_
+	return UnsignedEthereumTransactionUnion{OfUnsignedTempoTransaction: &variant}
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type UnsignedEthereumTransactionUnion struct {
+	OfUnsignedStandardEthereumTransaction *UnsignedStandardEthereumTransaction `json:",omitzero,inline"`
+	OfUnsignedTempoTransaction            *UnsignedTempoTransaction            `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u UnsignedEthereumTransactionUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfUnsignedStandardEthereumTransaction, u.OfUnsignedTempoTransaction)
+}
+func (u *UnsignedEthereumTransactionUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
 // An ERC-4337 user operation.
 type UserOperationInputResp struct {
 	// A hex-encoded string prefixed with '0x'.
@@ -1462,9 +1915,9 @@ func (r *EthereumPersonalSignRpcInput) UnmarshalJSON(data []byte) error {
 
 // Parameters for the EVM `eth_signTransaction` RPC.
 type EthereumSignTransactionRpcInputParamsResp struct {
-	// An unsigned standard Ethereum transaction object. Supports EVM transaction types
-	// 0, 1, 2, and 4.
-	Transaction UnsignedStandardEthereumTransactionResp `json:"transaction" api:"required"`
+	// An unsigned Ethereum transaction object. Supports standard EVM transaction types
+	// (0, 1, 2, 4) and Tempo transactions (type 118).
+	Transaction UnsignedEthereumTransactionUnionResp `json:"transaction" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Transaction respjson.Field
@@ -1493,9 +1946,9 @@ func (r EthereumSignTransactionRpcInputParamsResp) ToParam() EthereumSignTransac
 //
 // The property Transaction is required.
 type EthereumSignTransactionRpcInputParams struct {
-	// An unsigned standard Ethereum transaction object. Supports EVM transaction types
-	// 0, 1, 2, and 4.
-	Transaction UnsignedStandardEthereumTransaction `json:"transaction,omitzero" api:"required"`
+	// An unsigned Ethereum transaction object. Supports standard EVM transaction types
+	// (0, 1, 2, 4) and Tempo transactions (type 118).
+	Transaction UnsignedEthereumTransactionUnion `json:"transaction,omitzero" api:"required"`
 	paramObj
 }
 
@@ -5616,8 +6069,8 @@ func (r *WalletRpcRequestBodyUnionResp) UnmarshalJSON(data []byte) error {
 // For type safety it is recommended to directly use a variant of the
 // [WalletRpcRequestBodyUnionResp].
 type WalletRpcRequestBodyUnionRespParams struct {
-	// This field is a union of [UnsignedStandardEthereumTransactionResp], [string],
-	// [string]
+	// This field is a union of [UnsignedEthereumTransactionUnionResp],
+	// [UnsignedStandardEthereumTransactionResp], [string], [string]
 	Transaction WalletRpcRequestBodyUnionRespParamsTransaction `json:"transaction"`
 	Encoding    string                                         `json:"encoding"`
 	Message     string                                         `json:"message"`
@@ -5735,31 +6188,55 @@ func (r *WalletRpcRequestBodyUnionRespParams) UnmarshalJSON(data []byte) error {
 type WalletRpcRequestBodyUnionRespParamsTransaction struct {
 	// This field will be present if the value is a [string] instead of an object.
 	OfString string `json:",inline"`
-	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	// This field is from variant [UnsignedEthereumTransactionUnionResp],
+	// [UnsignedStandardEthereumTransactionResp].
 	AuthorizationList []EthereumSign7702AuthorizationResp `json:"authorization_list"`
-	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	// This field is from variant [UnsignedEthereumTransactionUnionResp],
+	// [UnsignedStandardEthereumTransactionResp].
 	ChainID QuantityUnionResp `json:"chain_id"`
-	// This field is from variant [UnsignedStandardEthereumTransactionResp].
-	Data Hex `json:"data"`
-	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	// This field is from variant [UnsignedEthereumTransactionUnionResp],
+	// [UnsignedStandardEthereumTransactionResp].
+	Data Hex    `json:"data"`
 	From string `json:"from"`
-	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	// This field is from variant [UnsignedEthereumTransactionUnionResp],
+	// [UnsignedStandardEthereumTransactionResp].
 	GasLimit QuantityUnionResp `json:"gas_limit"`
-	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	// This field is from variant [UnsignedEthereumTransactionUnionResp],
+	// [UnsignedStandardEthereumTransactionResp].
 	GasPrice QuantityUnionResp `json:"gas_price"`
-	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	// This field is from variant [UnsignedEthereumTransactionUnionResp],
+	// [UnsignedStandardEthereumTransactionResp].
 	MaxFeePerGas QuantityUnionResp `json:"max_fee_per_gas"`
-	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	// This field is from variant [UnsignedEthereumTransactionUnionResp],
+	// [UnsignedStandardEthereumTransactionResp].
 	MaxPriorityFeePerGas QuantityUnionResp `json:"max_priority_fee_per_gas"`
-	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	// This field is from variant [UnsignedEthereumTransactionUnionResp],
+	// [UnsignedStandardEthereumTransactionResp].
 	Nonce QuantityUnionResp `json:"nonce"`
-	// This field is from variant [UnsignedStandardEthereumTransactionResp].
-	To string `json:"to"`
-	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	// This field is from variant [UnsignedEthereumTransactionUnionResp],
+	// [UnsignedStandardEthereumTransactionResp].
+	To   string  `json:"to"`
 	Type float64 `json:"type"`
-	// This field is from variant [UnsignedStandardEthereumTransactionResp].
+	// This field is from variant [UnsignedEthereumTransactionUnionResp],
+	// [UnsignedStandardEthereumTransactionResp].
 	Value QuantityUnionResp `json:"value"`
-	JSON  struct {
+	// This field is from variant [UnsignedEthereumTransactionUnionResp].
+	Calls []TempoCallResp `json:"calls"`
+	// This field is from variant [UnsignedEthereumTransactionUnionResp].
+	AaAuthorizationList []TempoAaAuthorizationResp `json:"aa_authorization_list"`
+	// This field is from variant [UnsignedEthereumTransactionUnionResp].
+	AccessList []UnsignedTempoTransactionAccessListResp `json:"access_list"`
+	// This field is from variant [UnsignedEthereumTransactionUnionResp].
+	FeePayerSignature TempoFeePayerSignatureResp `json:"fee_payer_signature"`
+	// This field is from variant [UnsignedEthereumTransactionUnionResp].
+	FeeToken string `json:"fee_token"`
+	// This field is from variant [UnsignedEthereumTransactionUnionResp].
+	NonceKey QuantityUnionResp `json:"nonce_key"`
+	// This field is from variant [UnsignedEthereumTransactionUnionResp].
+	ValidAfter QuantityUnionResp `json:"valid_after"`
+	// This field is from variant [UnsignedEthereumTransactionUnionResp].
+	ValidBefore QuantityUnionResp `json:"valid_before"`
+	JSON        struct {
 		OfString             respjson.Field
 		AuthorizationList    respjson.Field
 		ChainID              respjson.Field
@@ -5773,6 +6250,14 @@ type WalletRpcRequestBodyUnionRespParamsTransaction struct {
 		To                   respjson.Field
 		Type                 respjson.Field
 		Value                respjson.Field
+		Calls                respjson.Field
+		AaAuthorizationList  respjson.Field
+		AccessList           respjson.Field
+		FeePayerSignature    respjson.Field
+		FeeToken             respjson.Field
+		NonceKey             respjson.Field
+		ValidAfter           respjson.Field
+		ValidBefore          respjson.Field
 		raw                  string
 	} `json:"-"`
 }
