@@ -2035,9 +2035,9 @@ func (r *EthereumSignTransactionRpcInput) UnmarshalJSON(data []byte) error {
 
 // Parameters for the EVM `eth_sendTransaction` RPC.
 type EthereumSendTransactionRpcInputParamsResp struct {
-	// An unsigned standard Ethereum transaction object. Supports EVM transaction types
-	// 0, 1, 2, and 4.
-	Transaction UnsignedStandardEthereumTransactionResp `json:"transaction" api:"required"`
+	// An unsigned Ethereum transaction object. Supports standard EVM transaction types
+	// (0, 1, 2, 4) and Tempo transactions (type 118).
+	Transaction UnsignedEthereumTransactionUnionResp `json:"transaction" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Transaction respjson.Field
@@ -2066,9 +2066,9 @@ func (r EthereumSendTransactionRpcInputParamsResp) ToParam() EthereumSendTransac
 //
 // The property Transaction is required.
 type EthereumSendTransactionRpcInputParams struct {
-	// An unsigned standard Ethereum transaction object. Supports EVM transaction types
-	// 0, 1, 2, and 4.
-	Transaction UnsignedStandardEthereumTransaction `json:"transaction,omitzero" api:"required"`
+	// An unsigned Ethereum transaction object. Supports standard EVM transaction types
+	// (0, 1, 2, 4) and Tempo transactions (type 118).
+	Transaction UnsignedEthereumTransactionUnion `json:"transaction,omitzero" api:"required"`
 	paramObj
 }
 
@@ -3029,10 +3029,10 @@ type EthereumSendTransactionRpcResponseData struct {
 	Hash          string `json:"hash" api:"required"`
 	ReferenceID   string `json:"reference_id" api:"nullable"`
 	TransactionID string `json:"transaction_id"`
-	// An unsigned standard Ethereum transaction object. Supports EVM transaction types
-	// 0, 1, 2, and 4.
-	TransactionRequest UnsignedStandardEthereumTransactionResp `json:"transaction_request"`
-	UserOperationHash  string                                  `json:"user_operation_hash"`
+	// An unsigned Ethereum transaction object. Supports standard EVM transaction types
+	// (0, 1, 2, 4) and Tempo transactions (type 118).
+	TransactionRequest UnsignedEthereumTransactionUnionResp `json:"transaction_request"`
+	UserOperationHash  string                               `json:"user_operation_hash"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2              respjson.Field
@@ -6069,8 +6069,8 @@ func (r *WalletRpcRequestBodyUnionResp) UnmarshalJSON(data []byte) error {
 // For type safety it is recommended to directly use a variant of the
 // [WalletRpcRequestBodyUnionResp].
 type WalletRpcRequestBodyUnionRespParams struct {
-	// This field is a union of [UnsignedEthereumTransactionUnionResp],
-	// [UnsignedStandardEthereumTransactionResp], [string], [string]
+	// This field is a union of [UnsignedEthereumTransactionUnionResp], [string],
+	// [string]
 	Transaction WalletRpcRequestBodyUnionRespParamsTransaction `json:"transaction"`
 	Encoding    string                                         `json:"encoding"`
 	Message     string                                         `json:"message"`
@@ -6188,37 +6188,27 @@ func (r *WalletRpcRequestBodyUnionRespParams) UnmarshalJSON(data []byte) error {
 type WalletRpcRequestBodyUnionRespParamsTransaction struct {
 	// This field will be present if the value is a [string] instead of an object.
 	OfString string `json:",inline"`
-	// This field is from variant [UnsignedEthereumTransactionUnionResp],
-	// [UnsignedStandardEthereumTransactionResp].
+	// This field is from variant [UnsignedEthereumTransactionUnionResp].
 	AuthorizationList []EthereumSign7702AuthorizationResp `json:"authorization_list"`
-	// This field is from variant [UnsignedEthereumTransactionUnionResp],
-	// [UnsignedStandardEthereumTransactionResp].
+	// This field is from variant [UnsignedEthereumTransactionUnionResp].
 	ChainID QuantityUnionResp `json:"chain_id"`
-	// This field is from variant [UnsignedEthereumTransactionUnionResp],
-	// [UnsignedStandardEthereumTransactionResp].
+	// This field is from variant [UnsignedEthereumTransactionUnionResp].
 	Data Hex    `json:"data"`
 	From string `json:"from"`
-	// This field is from variant [UnsignedEthereumTransactionUnionResp],
-	// [UnsignedStandardEthereumTransactionResp].
+	// This field is from variant [UnsignedEthereumTransactionUnionResp].
 	GasLimit QuantityUnionResp `json:"gas_limit"`
-	// This field is from variant [UnsignedEthereumTransactionUnionResp],
-	// [UnsignedStandardEthereumTransactionResp].
+	// This field is from variant [UnsignedEthereumTransactionUnionResp].
 	GasPrice QuantityUnionResp `json:"gas_price"`
-	// This field is from variant [UnsignedEthereumTransactionUnionResp],
-	// [UnsignedStandardEthereumTransactionResp].
+	// This field is from variant [UnsignedEthereumTransactionUnionResp].
 	MaxFeePerGas QuantityUnionResp `json:"max_fee_per_gas"`
-	// This field is from variant [UnsignedEthereumTransactionUnionResp],
-	// [UnsignedStandardEthereumTransactionResp].
+	// This field is from variant [UnsignedEthereumTransactionUnionResp].
 	MaxPriorityFeePerGas QuantityUnionResp `json:"max_priority_fee_per_gas"`
-	// This field is from variant [UnsignedEthereumTransactionUnionResp],
-	// [UnsignedStandardEthereumTransactionResp].
+	// This field is from variant [UnsignedEthereumTransactionUnionResp].
 	Nonce QuantityUnionResp `json:"nonce"`
-	// This field is from variant [UnsignedEthereumTransactionUnionResp],
-	// [UnsignedStandardEthereumTransactionResp].
+	// This field is from variant [UnsignedEthereumTransactionUnionResp].
 	To   string  `json:"to"`
 	Type float64 `json:"type"`
-	// This field is from variant [UnsignedEthereumTransactionUnionResp],
-	// [UnsignedStandardEthereumTransactionResp].
+	// This field is from variant [UnsignedEthereumTransactionUnionResp].
 	Value QuantityUnionResp `json:"value"`
 	// This field is from variant [UnsignedEthereumTransactionUnionResp].
 	Calls []TempoCallResp `json:"calls"`
@@ -6794,7 +6784,7 @@ type WalletRpcResponseUnionData struct {
 	ReferenceID   string `json:"reference_id"`
 	TransactionID string `json:"transaction_id"`
 	// This field is from variant [EthereumSendTransactionRpcResponseData].
-	TransactionRequest UnsignedStandardEthereumTransactionResp `json:"transaction_request"`
+	TransactionRequest UnsignedEthereumTransactionUnionResp `json:"transaction_request"`
 	// This field is from variant [EthereumSendTransactionRpcResponseData].
 	UserOperationHash string `json:"user_operation_hash"`
 	// This field is from variant [EthereumSign7702AuthorizationRpcResponseData].
