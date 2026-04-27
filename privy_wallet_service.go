@@ -99,7 +99,7 @@ func (s *PrivyWalletService) Rpc(
 		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
 	}
 
-	return s.WalletService.Rpc(ctx, walletID, params)
+	return s.WalletService.Rpc(ctx, walletID, params, options.RequestOptions...)
 }
 
 // Update modifies a wallet with automatic authorization signature generation.
@@ -145,7 +145,7 @@ func (s *PrivyWalletService) Update(
 		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
 	}
 
-	return s.WalletService.Update(ctx, walletID, params)
+	return s.WalletService.Update(ctx, walletID, params, options.RequestOptions...)
 }
 
 // RawSign signs a hash or bytes with a wallet, with automatic authorization signature generation.
@@ -194,7 +194,7 @@ func (s *PrivyWalletService) RawSign(
 		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
 	}
 
-	return s.WalletService.RawSign(ctx, walletID, params)
+	return s.WalletService.RawSign(ctx, walletID, params, options.RequestOptions...)
 }
 
 // WalletImportParams contains the parameters for importing a wallet.
@@ -237,7 +237,8 @@ type WalletImportParamsWalletPrivateKey struct {
 
 // Import imports a wallet by orchestrating the two-step InitImport/SubmitImport
 // flow with automatic HPKE encryption of the private key material.
-func (s *PrivyWalletService) Import(ctx context.Context, params WalletImportParams) (*Wallet, error) {
+func (s *PrivyWalletService) Import(ctx context.Context, params WalletImportParams, opts ...RequestOption) (*Wallet, error) {
+	options := applyRequestOptions(opts)
 	sender := hpke.NewHpkeSender()
 
 	// Determine wallet variant and build InitImport params
@@ -277,7 +278,7 @@ func (s *PrivyWalletService) Import(ctx context.Context, params WalletImportPara
 	}
 
 	// Step 1: InitImport to get the server's encryption public key
-	initResp, err := s.WalletService.InitImport(ctx, initParams)
+	initResp, err := s.WalletService.InitImport(ctx, initParams, options.RequestOptions...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to init import: %w", err)
 	}
@@ -336,7 +337,7 @@ func (s *PrivyWalletService) Import(ctx context.Context, params WalletImportPara
 	submitParams.AdditionalSigners = params.AdditionalSigners
 	submitParams.PolicyIDs = PolicyInput(params.PolicyIDs)
 
-	return s.WalletService.SubmitImport(ctx, submitParams)
+	return s.WalletService.SubmitImport(ctx, submitParams, options.RequestOptions...)
 }
 
 // WalletExportResult contains the decrypted private key from a wallet export operation.
@@ -401,7 +402,7 @@ func (s *PrivyWalletService) Export(
 		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
 	}
 
-	response, err := s.WalletService.Export(ctx, walletID, params)
+	response, err := s.WalletService.Export(ctx, walletID, params, options.RequestOptions...)
 	if err != nil {
 		return nil, err
 	}
