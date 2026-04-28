@@ -208,19 +208,21 @@ func TestWallets_Ethereum(t *testing.T) {
 			t.Run(wallet.name, func(t *testing.T) {
 				data, err := client.Wallets.Ethereum.SignTransaction(ctx, wallet.id,
 					EthereumSignTransactionRpcInputParams{
-						Transaction: UnsignedStandardEthereumTransaction{
-							Type: 2,
-							ChainID: QuantityUnion{
-								OfInt: Int(1),
+						Transaction: UnsignedEthereumTransactionUnion{
+							OfUnsignedStandardEthereumTransaction: &UnsignedStandardEthereumTransaction{
+								Type: 2,
+								ChainID: QuantityUnion{
+									OfInt: Int(1),
+								},
+								To: param.NewOpt("0x742d35Cc6634C0532925a3b8D1A8a9ff1e7a7A4C"),
+								Value: QuantityUnion{
+									OfString: param.NewOpt("0x1"),
+								},
+								GasLimit: QuantityUnion{
+									OfString: param.NewOpt("0x5208"),
+								},
+								Data: param.NewOpt("0x"),
 							},
-							To: param.NewOpt("0x742d35Cc6634C0532925a3b8D1A8a9ff1e7a7A4C"),
-							Value: QuantityUnion{
-								OfString: param.NewOpt("0x1"),
-							},
-							GasLimit: QuantityUnion{
-								OfString: param.NewOpt("0x5208"),
-							},
-							Data: param.NewOpt("0x"),
 						},
 					},
 					WithAuthorizationContext(wallet.authCtx),
@@ -247,13 +249,15 @@ func TestWallets_Ethereum(t *testing.T) {
 				data, err := client.Wallets.Ethereum.SendTransaction(ctx, wallet.id,
 					"eip155:11155111", // Sepolia
 					EthereumSendTransactionRpcInputParams{
-						Transaction: UnsignedStandardEthereumTransaction{
-							To: param.NewOpt("0x429c8e85D3A18F9F0a64a7A851777e24D591485C"),
-							Value: QuantityUnion{
-								OfString: param.NewOpt("0x1"), // 1 wei
-							},
-							ChainID: QuantityUnion{
-								OfInt: Int(11155111), // Sepolia
+						Transaction: UnsignedEthereumTransactionUnion{
+							OfUnsignedStandardEthereumTransaction: &UnsignedStandardEthereumTransaction{
+								To: param.NewOpt("0x429c8e85D3A18F9F0a64a7A851777e24D591485C"),
+								Value: QuantityUnion{
+									OfString: param.NewOpt("0x1"), // 1 wei
+								},
+								ChainID: QuantityUnion{
+									OfInt: Int(11155111), // Sepolia
+								},
 							},
 						},
 					},
