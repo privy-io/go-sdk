@@ -34,15 +34,15 @@ type Client struct {
 	Shared          SharedService
 	EmbeddedWallets EmbeddedWalletService
 	WalletActions   WalletActionService
+	Aggregations    AggregationService
 	Analytics       AnalyticsService
 	Funding         FundingService
-	Aggregations    AggregationService
-	Webhooks        WebhookService
-	Accounts        AccountService
-	Yield           YieldService
-	Swaps           SwapService
-	KrakenEmbed     KrakenEmbedService
 	CrossApp        CrossAppService
+	KrakenEmbed     KrakenEmbedService
+	Webhooks        WebhookService
+	Yield           YieldService
+	Accounts        AccountService
+	Swaps           SwapService
 }
 
 // DefaultClientOptions read from the environment (PRIVY_APP_ID, PRIVY_APP_SECRET,
@@ -89,15 +89,15 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.Shared = NewSharedService(opts...)
 	r.EmbeddedWallets = NewEmbeddedWalletService(opts...)
 	r.WalletActions = NewWalletActionService(opts...)
+	r.Aggregations = NewAggregationService(opts...)
 	r.Analytics = NewAnalyticsService(opts...)
 	r.Funding = NewFundingService(opts...)
-	r.Aggregations = NewAggregationService(opts...)
-	r.Webhooks = NewWebhookService(opts...)
-	r.Accounts = NewAccountService(opts...)
-	r.Yield = NewYieldService(opts...)
-	r.Swaps = NewSwapService(opts...)
-	r.KrakenEmbed = NewKrakenEmbedService(opts...)
 	r.CrossApp = NewCrossAppService(opts...)
+	r.KrakenEmbed = NewKrakenEmbedService(opts...)
+	r.Webhooks = NewWebhookService(opts...)
+	r.Yield = NewYieldService(opts...)
+	r.Accounts = NewAccountService(opts...)
+	r.Swaps = NewSwapService(opts...)
 
 	return
 }
