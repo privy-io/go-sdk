@@ -47,7 +47,7 @@ type Client struct {
 // DefaultClientOptions read from the environment (PRIVY_APP_ID, PRIVY_APP_SECRET,
 // PRIVY_API_BASE_URL). This should be used to initialize new clients.
 func DefaultClientOptions() []option.RequestOption {
-	defaults := []option.RequestOption{option.WithEnvironmentProduction()}
+	defaults := []option.RequestOption{option.WithHTTPClient(defaultHTTPClient()), option.WithEnvironmentProduction()}
 	if o, ok := os.LookupEnv("PRIVY_API_BASE_URL"); ok {
 		defaults = append(defaults, option.WithBaseURL(o))
 	}
