@@ -13,11 +13,12 @@ type PrivyPolicyService struct {
 	// Directly embed the generated PolicyService to expose all its methods through PrivyPolicyService
 	PolicyService
 
-	jwtExchanger          jwtexchange.JwtExchanger
-	baseURL               string
-	appID                 string
+	jwtExchanger           jwtexchange.JwtExchanger
+	baseURL                string
+	appID                  string
 	defaultRequestExpiryMs int64
-	logger                logger
+	requestExpiryEnabled   bool
+	logger                 logger
 }
 
 // newPrivyPolicyService creates a new wrapped policy service.
@@ -28,6 +29,7 @@ func newPrivyPolicyService(
 	baseURL string,
 	appID string,
 	defaultRequestExpiryMs int64,
+	requestExpiryEnabled bool,
 	logger logger,
 ) *PrivyPolicyService {
 	return &PrivyPolicyService{
@@ -36,6 +38,7 @@ func newPrivyPolicyService(
 		baseURL:                baseURL,
 		appID:                  appID,
 		defaultRequestExpiryMs: defaultRequestExpiryMs,
+		requestExpiryEnabled:   requestExpiryEnabled,
 		logger:                 logger,
 	}
 }
@@ -60,7 +63,7 @@ func (s *PrivyPolicyService) Update(
 	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
-	if requestExpiry == nil {
+	if requestExpiry == nil && s.requestExpiryEnabled {
 		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
@@ -105,7 +108,7 @@ func (s *PrivyPolicyService) Delete(
 	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
-	if requestExpiry == nil {
+	if requestExpiry == nil && s.requestExpiryEnabled {
 		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
@@ -150,7 +153,7 @@ func (s *PrivyPolicyService) NewRule(
 	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
-	if requestExpiry == nil {
+	if requestExpiry == nil && s.requestExpiryEnabled {
 		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
@@ -195,7 +198,7 @@ func (s *PrivyPolicyService) DeleteRule(
 	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
-	if requestExpiry == nil {
+	if requestExpiry == nil && s.requestExpiryEnabled {
 		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
@@ -240,7 +243,7 @@ func (s *PrivyPolicyService) UpdateRule(
 	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
-	if requestExpiry == nil {
+	if requestExpiry == nil && s.requestExpiryEnabled {
 		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 

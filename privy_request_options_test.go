@@ -9,6 +9,70 @@ import (
 	"github.com/privy-io/go-sdk/option"
 )
 
+func TestRequestExpiryDisabled(t *testing.T) {
+	var capturedReq *http.Request
+	customClient := &http.Client{
+		Transport: &closureTransport{
+			fn: func(req *http.Request) (*http.Response, error) {
+				capturedReq = req
+				return &http.Response{StatusCode: http.StatusOK}, nil
+			},
+		},
+	}
+
+	enabled := false
+	client := privyclient.NewPrivyClient(privyclient.PrivyClientOptions{
+		AppID:                "test-app-id",
+		AppSecret:            "test-app-secret",
+		RequestExpiryEnabled: &enabled,
+		HTTPClient:           customClient,
+	})
+
+	_, _ = client.Wallets.Rpc(
+		context.Background(),
+		"wallet-id",
+		privyclient.WalletRpcParams{},
+	)
+
+	if capturedReq == nil {
+		t.Fatal("expected request to be captured")
+	}
+	if got := capturedReq.Header.Get("Privy-Request-Expiry"); got != "" {
+		t.Errorf("expected no privy-request-expiry header when disabled, got %q", got)
+	}
+}
+
+func TestRequestExpiryEnabledByDefault(t *testing.T) {
+	var capturedReq *http.Request
+	customClient := &http.Client{
+		Transport: &closureTransport{
+			fn: func(req *http.Request) (*http.Response, error) {
+				capturedReq = req
+				return &http.Response{StatusCode: http.StatusOK}, nil
+			},
+		},
+	}
+
+	client := privyclient.NewPrivyClient(privyclient.PrivyClientOptions{
+		AppID:      "test-app-id",
+		AppSecret:  "test-app-secret",
+		HTTPClient: customClient,
+	})
+
+	_, _ = client.Wallets.Rpc(
+		context.Background(),
+		"wallet-id",
+		privyclient.WalletRpcParams{},
+	)
+
+	if capturedReq == nil {
+		t.Fatal("expected request to be captured")
+	}
+	if got := capturedReq.Header.Get("Privy-Request-Expiry"); got == "" {
+		t.Error("expected privy-request-expiry header to be set by default")
+	}
+}
+
 func TestWithRequestOptionsForwardsHTTPClient(t *testing.T) {
 	called := false
 	customClient := &http.Client{

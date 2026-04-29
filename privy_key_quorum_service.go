@@ -11,11 +11,12 @@ type PrivyKeyQuorumService struct {
 	// Directly embed the generated KeyQuorumService to expose all its methods through PrivyKeyQuorumService
 	KeyQuorumService
 
-	jwtExchanger          jwtexchange.JwtExchanger
-	baseURL               string
-	appID                 string
+	jwtExchanger           jwtexchange.JwtExchanger
+	baseURL                string
+	appID                  string
 	defaultRequestExpiryMs int64
-	logger                logger
+	requestExpiryEnabled   bool
+	logger                 logger
 }
 
 // newPrivyKeyQuorumService creates a new wrapped key quorum service.
@@ -26,6 +27,7 @@ func newPrivyKeyQuorumService(
 	baseURL string,
 	appID string,
 	defaultRequestExpiryMs int64,
+	requestExpiryEnabled bool,
 	logger logger,
 ) *PrivyKeyQuorumService {
 	return &PrivyKeyQuorumService{
@@ -34,6 +36,7 @@ func newPrivyKeyQuorumService(
 		baseURL:                baseURL,
 		appID:                  appID,
 		defaultRequestExpiryMs: defaultRequestExpiryMs,
+		requestExpiryEnabled:   requestExpiryEnabled,
 		logger:                 logger,
 	}
 }
@@ -54,7 +57,7 @@ func (s *PrivyKeyQuorumService) Update(
 	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
-	if requestExpiry == nil {
+	if requestExpiry == nil && s.requestExpiryEnabled {
 		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
@@ -95,7 +98,7 @@ func (s *PrivyKeyQuorumService) Delete(
 	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
-	if requestExpiry == nil {
+	if requestExpiry == nil && s.requestExpiryEnabled {
 		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
