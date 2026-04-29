@@ -36,11 +36,10 @@ type PrivyClientOptions struct {
 	// Can be overridden per-request, where applicable, using WithRequestExpiry.
 	DefaultRequestExpiryMs int64
 
-	// RequestExpiryEnabled controls whether the SDK automatically sets the
-	// "privy-request-expiry" header on requests. Defaults to true (nil = true).
-	// Set to a pointer to false to disable — no expiry header will be sent unless
-	// explicitly provided per-request via WithRequestExpiry.
-	RequestExpiryEnabled *bool
+	// DisableRequestExpiry opts out of automatically setting the "privy-request-expiry"
+	// header on requests. When true, no expiry header will be sent unless explicitly
+	// provided per-request via WithRequestExpiry. Defaults to false.
+	DisableRequestExpiry bool
 
 	// HTTPClient sets the default *http.Client used across all requests (optional).
 	// If not provided, defaults to http.DefaultClient.
@@ -140,11 +139,8 @@ func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
 		defaultRequestExpiryMs = 15 * 60 * 1000
 	}
 
-	// Resolve request expiry enabled (default to true)
-	requestExpiryEnabled := true
-	if opts.RequestExpiryEnabled != nil {
-		requestExpiryEnabled = *opts.RequestExpiryEnabled
-	}
+	// Resolve request expiry enabled (inverted from DisableRequestExpiry)
+	requestExpiryEnabled := !opts.DisableRequestExpiry
 
 	client := NewClient(requestOpts...)
 

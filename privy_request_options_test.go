@@ -20,11 +20,10 @@ func TestRequestExpiryDisabled(t *testing.T) {
 		},
 	}
 
-	enabled := false
 	client := privyclient.NewPrivyClient(privyclient.PrivyClientOptions{
 		AppID:                "test-app-id",
 		AppSecret:            "test-app-secret",
-		RequestExpiryEnabled: &enabled,
+		DisableRequestExpiry: true,
 		HTTPClient:           customClient,
 	})
 
