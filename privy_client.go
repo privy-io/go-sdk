@@ -34,6 +34,10 @@ type PrivyClientOptions struct {
 	// If not provided, defaults to 15 minutes (900000 ms).
 	// Can be overridden per-request, where applicable, using WithRequestExpiry.
 	DefaultRequestExpiryMs int64
+
+	// WebhookSigningSecret is used to verify incoming webhook signatures (optional).
+	// Can be overridden per-call via VerifyInput.SigningSecret.
+	WebhookSigningSecret string
 }
 
 // PrivyClient is the main entrypoint for the Privy API Go SDK.
@@ -144,7 +148,7 @@ func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
 		Analytics:    newPrivyAnalyticsService(client.Analytics, logger),
 		Apps:         newPrivyAppService(client.Apps, logger),
 		Aggregations: newPrivyAggregationService(client.Aggregations, logger),
-		Webhooks:     newPrivyWebhookService(client.Webhooks, logger),
+		Webhooks:     newPrivyWebhookService(client.Webhooks, opts.WebhookSigningSecret, logger),
 		JwtExchange:  jwtExchange,
 	}
 }
