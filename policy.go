@@ -476,8 +476,8 @@ func (r *EthereumTransactionCondition) UnmarshalJSON(data []byte) error {
 }
 
 // The decoded calldata in a smart contract interaction as the smart contract
-// method's parameters. Note that that 'ethereum_calldata' conditions must contain
-// an abi parameter with the JSON ABI of the smart contract.
+// method's parameters. Note that 'ethereum_calldata' conditions must contain an
+// abi parameter with the JSON ABI of the smart contract.
 type EthereumCalldataConditionResp struct {
 	// A Solidity ABI definition for decoding smart contract calldata.
 	Abi   AbiSchemaResp `json:"abi" api:"required"`
@@ -526,8 +526,8 @@ const (
 )
 
 // The decoded calldata in a smart contract interaction as the smart contract
-// method's parameters. Note that that 'ethereum_calldata' conditions must contain
-// an abi parameter with the JSON ABI of the smart contract.
+// method's parameters. Note that 'ethereum_calldata' conditions must contain an
+// abi parameter with the JSON ABI of the smart contract.
 //
 // The properties Abi, Field, FieldSource, Operator, Value are required.
 type EthereumCalldataCondition struct {
