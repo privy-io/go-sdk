@@ -7,6 +7,10 @@ import (
 	svix "github.com/svix/svix-webhooks/go"
 )
 
+// WebhookPayload is the verified, typed webhook event payload returned by [PrivyWebhookService.Verify].
+// It is an alias for the generated [UnsafeUnwrapWebhookEventUnion].
+type WebhookPayload = UnsafeUnwrapWebhookEventUnion
+
 // PrivyWebhookService wraps the generated WebhookService with signature verification.
 type PrivyWebhookService struct {
 	WebhookService
@@ -38,7 +42,7 @@ type VerifyInput struct {
 
 // Verify checks the svix webhook signature and returns the typed event payload.
 // Returns an InvalidWebhookError if verification fails.
-func (s *PrivyWebhookService) Verify(input VerifyInput) (*UnsafeUnwrapWebhookEventUnion, error) {
+func (s *PrivyWebhookService) Verify(input VerifyInput) (*WebhookPayload, error) {
 	secret := input.SigningSecret
 	if secret == "" {
 		secret = s.signingSecret
