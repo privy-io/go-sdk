@@ -625,6 +625,8 @@ Response Types:
 
 # Analytics
 
+# Organizations
+
 # Funding
 
 # CrossApp
