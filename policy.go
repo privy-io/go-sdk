@@ -476,8 +476,8 @@ func (r *EthereumTransactionCondition) UnmarshalJSON(data []byte) error {
 }
 
 // The decoded calldata in a smart contract interaction as the smart contract
-// method's parameters. Note that that 'ethereum_calldata' conditions must contain
-// an abi parameter with the JSON ABI of the smart contract.
+// method's parameters. Note that 'ethereum_calldata' conditions must contain an
+// abi parameter with the JSON ABI of the smart contract.
 type EthereumCalldataConditionResp struct {
 	// A Solidity ABI definition for decoding smart contract calldata.
 	Abi   AbiSchemaResp `json:"abi" api:"required"`
@@ -526,8 +526,8 @@ const (
 )
 
 // The decoded calldata in a smart contract interaction as the smart contract
-// method's parameters. Note that that 'ethereum_calldata' conditions must contain
-// an abi parameter with the JSON ABI of the smart contract.
+// method's parameters. Note that 'ethereum_calldata' conditions must contain an
+// abi parameter with the JSON ABI of the smart contract.
 //
 // The properties Abi, Field, FieldSource, Operator, Value are required.
 type EthereumCalldataCondition struct {
@@ -2036,6 +2036,7 @@ const (
 	PolicyMethodSignTransactionBytes     PolicyMethod = "signTransactionBytes"
 	PolicyMethodEarnDeposit              PolicyMethod = "earn_deposit"
 	PolicyMethodEarnWithdraw             PolicyMethod = "earn_withdraw"
+	PolicyMethodTransfer                 PolicyMethod = "transfer"
 	PolicyMethodStar                     PolicyMethod = "*"
 )
 
@@ -2052,7 +2053,7 @@ type PolicyRuleRequestBodyResp struct {
 	// "eth_signTypedData_v4", "eth_sign7702Authorization", "personal_sign",
 	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
 	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "earn_deposit",
-	// "earn_withdraw", "\*".
+	// "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod `json:"method" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -2096,7 +2097,7 @@ type PolicyRuleRequestBody struct {
 	// "eth_signTypedData_v4", "eth_sign7702Authorization", "personal_sign",
 	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
 	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "earn_deposit",
-	// "earn_withdraw", "\*".
+	// "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod `json:"method,omitzero" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	paramObj
@@ -2125,7 +2126,7 @@ type PolicyRuleResponse struct {
 	// "eth_signTypedData_v4", "eth_sign7702Authorization", "personal_sign",
 	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
 	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "earn_deposit",
-	// "earn_withdraw", "\*".
+	// "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod `json:"method" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -2240,7 +2241,7 @@ type PolicyNewParamsRule struct {
 	// "eth_signTypedData_v4", "eth_sign7702Authorization", "personal_sign",
 	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
 	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "earn_deposit",
-	// "earn_withdraw", "\*".
+	// "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod      `json:"method,omitzero" api:"required"`
 	Name   string            `json:"name" api:"required"`
 	ID     param.Opt[string] `json:"id,omitzero"`
