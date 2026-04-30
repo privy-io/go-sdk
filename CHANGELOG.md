@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.7.0 (2026-04-30)
+
+Full Changelog: [v0.6.0...v0.7.0](https://github.com/privy-io/go-sdk/compare/v0.6.0...v0.7.0)
+
+### Features
+
+* **api:** api update ([fc19324](https://github.com/privy-io/go-sdk/commit/fc193248f06b64d636a544a669f9389e4cb530ff))
+* **api:** api update ([cd81fba](https://github.com/privy-io/go-sdk/commit/cd81fba99cf145598c8917f12bfdcc54e70e3d8a))
+* **api:** api update ([243c8a7](https://github.com/privy-io/go-sdk/commit/243c8a7c03deff32773e87d8018234a6a202c9a9))
+* **api:** api update ([db405e0](https://github.com/privy-io/go-sdk/commit/db405e09843bd3ea9052fd6fd39ce7f514b30a99))
+* **api:** api update ([eaa9a9f](https://github.com/privy-io/go-sdk/commit/eaa9a9fdda739d8afa8891955bc470ea85c476c7))
+* **api:** api update ([c48dd86](https://github.com/privy-io/go-sdk/commit/c48dd86b6598defcce0b4ebaf517029eb21d2217))
+* **api:** updates ([57da97c](https://github.com/privy-io/go-sdk/commit/57da97ce168176648982e2fd5e1f52bcdb6684b1))
+* forward per-call request options through wrapper methods ([#85](https://github.com/privy-io/go-sdk/issues/85)) ([4b7e705](https://github.com/privy-io/go-sdk/commit/4b7e705eac527eda392f04f633979495f9ba0dd2)), closes [#81](https://github.com/privy-io/go-sdk/issues/81)
+* **go:** add default http client with timeout ([f9f8344](https://github.com/privy-io/go-sdk/commit/f9f8344d7095a2155c22ecec6a88ab3a26ea96b0))
+* support setting headers via env ([db22522](https://github.com/privy-io/go-sdk/commit/db225220ac8b4620b48d5098ce2ce6875e786694))
+
+
+### Bug Fixes
+
+* update test files for new UnsignedEthereumTransactionUnion discriminated union type ([#87](https://github.com/privy-io/go-sdk/issues/87)) ([b64c2a0](https://github.com/privy-io/go-sdk/commit/b64c2a0d640b480fb61a592bdecffc0d202b4dbf))
+
+
+### Chores
+
+* **internal:** more robust bootstrap script ([acdecf0](https://github.com/privy-io/go-sdk/commit/acdecf070018ad33d48be17cb2fb2ce044ef9166))
+
 ## 0.6.0 (2026-04-21)
 
 Full Changelog: [v0.5.0...v0.6.0](https://github.com/privy-io/go-sdk/compare/v0.5.0...v0.6.0)

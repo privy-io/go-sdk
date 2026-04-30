@@ -76,7 +76,7 @@ func (s *PrivyKeyQuorumService) Update(
 		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
 	}
 
-	return s.KeyQuorumService.Update(ctx, keyQuorumID, params)
+	return s.KeyQuorumService.Update(ctx, keyQuorumID, params, options.RequestOptions...)
 }
 
 // Delete removes a key quorum
@@ -117,5 +117,5 @@ func (s *PrivyKeyQuorumService) Delete(
 		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
 	}
 
-	return s.KeyQuorumService.Delete(ctx, keyQuorumID, params)
+	return s.KeyQuorumService.Delete(ctx, keyQuorumID, params, options.RequestOptions...)
 }

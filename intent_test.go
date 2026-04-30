@@ -169,43 +169,45 @@ func TestIntentRpcWithOptionalParams(t *testing.T) {
 				OfEthSignTransaction: &privyclient.EthereumSignTransactionRpcInput{
 					Method: privyclient.EthereumSignTransactionRpcInputMethodEthSignTransaction,
 					Params: privyclient.EthereumSignTransactionRpcInputParams{
-						Transaction: privyclient.UnsignedStandardEthereumTransaction{
-							AuthorizationList: []privyclient.EthereumSign7702Authorization{{
+						Transaction: privyclient.UnsignedEthereumTransactionUnion{
+							OfUnsignedStandardEthereumTransaction: &privyclient.UnsignedStandardEthereumTransaction{
+								AuthorizationList: []privyclient.EthereumSign7702Authorization{{
+									ChainID: privyclient.QuantityUnion{
+										OfString: privyclient.String("string"),
+									},
+									Contract: "contract",
+									Nonce: privyclient.QuantityUnion{
+										OfString: privyclient.String("string"),
+									},
+									R:       "string",
+									S:       "string",
+									YParity: 0,
+								}},
 								ChainID: privyclient.QuantityUnion{
 									OfString: privyclient.String("string"),
 								},
-								Contract: "contract",
+								Data: privyclient.String("string"),
+								From: privyclient.String("from"),
+								GasLimit: privyclient.QuantityUnion{
+									OfString: privyclient.String("string"),
+								},
+								GasPrice: privyclient.QuantityUnion{
+									OfString: privyclient.String("string"),
+								},
+								MaxFeePerGas: privyclient.QuantityUnion{
+									OfString: privyclient.String("string"),
+								},
+								MaxPriorityFeePerGas: privyclient.QuantityUnion{
+									OfString: privyclient.String("string"),
+								},
 								Nonce: privyclient.QuantityUnion{
 									OfString: privyclient.String("string"),
 								},
-								R:       "string",
-								S:       "string",
-								YParity: 0,
-							}},
-							ChainID: privyclient.QuantityUnion{
-								OfString: privyclient.String("string"),
-							},
-							Data: privyclient.String("string"),
-							From: privyclient.String("from"),
-							GasLimit: privyclient.QuantityUnion{
-								OfString: privyclient.String("string"),
-							},
-							GasPrice: privyclient.QuantityUnion{
-								OfString: privyclient.String("string"),
-							},
-							MaxFeePerGas: privyclient.QuantityUnion{
-								OfString: privyclient.String("string"),
-							},
-							MaxPriorityFeePerGas: privyclient.QuantityUnion{
-								OfString: privyclient.String("string"),
-							},
-							Nonce: privyclient.QuantityUnion{
-								OfString: privyclient.String("string"),
-							},
-							To:   privyclient.String("to"),
-							Type: 0,
-							Value: privyclient.QuantityUnion{
-								OfString: privyclient.String("string"),
+								To:   privyclient.String("to"),
+								Type: 0,
+								Value: privyclient.QuantityUnion{
+									OfString: privyclient.String("string"),
+								},
 							},
 						},
 					},
@@ -250,10 +252,12 @@ func TestIntentTransferWithOptionalParams(t *testing.T) {
 					Asset:   privyclient.String("asset"),
 					Chain:   privyclient.String("chain"),
 				},
-				Source: privyclient.TokenTransferSource{
-					Amount: "10.5",
-					Asset:  "usdc",
-					Chain:  "base",
+				Source: privyclient.TokenTransferSourceUnion{
+					OfNamedTokenTransferSource: &privyclient.NamedTokenTransferSource{
+						Amount: "10.5",
+						Asset:  "usdc",
+						Chain:  "base",
+					},
 				},
 				AmountType:  privyclient.AmountTypeExactInput,
 				SlippageBps: privyclient.Int(0),
