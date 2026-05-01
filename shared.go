@@ -30,112 +30,9 @@ func NewSharedService(opts ...option.RequestOption) (r SharedService) {
 	return
 }
 
-// A simple success response.
-type SuccessResponse struct {
-	Success bool `json:"success" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Success     respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r SuccessResponse) RawJSON() string { return r.JSON.raw }
-func (r *SuccessResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type P256PublicKey = string
-
 type KeyQuorumID = string
 
-// Owner input specifying a Privy user ID.
-type OwnerInputUserResp struct {
-	UserID string `json:"user_id" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		UserID      respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r OwnerInputUserResp) RawJSON() string { return r.JSON.raw }
-func (r *OwnerInputUserResp) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// ToParam converts this OwnerInputUserResp to a OwnerInputUser.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// OwnerInputUser.Overrides()
-func (r OwnerInputUserResp) ToParam() OwnerInputUser {
-	return param.Override[OwnerInputUser](json.RawMessage(r.RawJSON()))
-}
-
-// Owner input specifying a Privy user ID.
-//
-// The property UserID is required.
-type OwnerInputUser struct {
-	UserID string `json:"user_id" api:"required"`
-	paramObj
-}
-
-func (r OwnerInputUser) MarshalJSON() (data []byte, err error) {
-	type shadow OwnerInputUser
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *OwnerInputUser) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Owner input specifying a P-256 public key.
-type OwnerInputPublicKeyResp struct {
-	// A P-256 (secp256r1) public key.
-	PublicKey P256PublicKey `json:"public_key" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		PublicKey   respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r OwnerInputPublicKeyResp) RawJSON() string { return r.JSON.raw }
-func (r *OwnerInputPublicKeyResp) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// ToParam converts this OwnerInputPublicKeyResp to a OwnerInputPublicKey.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// OwnerInputPublicKey.Overrides()
-func (r OwnerInputPublicKeyResp) ToParam() OwnerInputPublicKey {
-	return param.Override[OwnerInputPublicKey](json.RawMessage(r.RawJSON()))
-}
-
-// Owner input specifying a P-256 public key.
-//
-// The property PublicKey is required.
-type OwnerInputPublicKey struct {
-	// A P-256 (secp256r1) public key.
-	PublicKey P256PublicKey `json:"public_key" api:"required"`
-	paramObj
-}
-
-func (r OwnerInputPublicKey) MarshalJSON() (data []byte, err error) {
-	type shadow OwnerInputPublicKey
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *OwnerInputPublicKey) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
+type OwnerIDInput = string
 
 // OwnerInputUnionResp contains all possible properties and values from
 // [OwnerInputUserResp], [OwnerInputPublicKeyResp].
@@ -207,4 +104,107 @@ func (u *OwnerInputUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
 }
 
-type OwnerIDInput = string
+// Owner input specifying a P-256 public key.
+type OwnerInputPublicKeyResp struct {
+	// A P-256 (secp256r1) public key.
+	PublicKey P256PublicKey `json:"public_key" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		PublicKey   respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r OwnerInputPublicKeyResp) RawJSON() string { return r.JSON.raw }
+func (r *OwnerInputPublicKeyResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this OwnerInputPublicKeyResp to a OwnerInputPublicKey.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// OwnerInputPublicKey.Overrides()
+func (r OwnerInputPublicKeyResp) ToParam() OwnerInputPublicKey {
+	return param.Override[OwnerInputPublicKey](json.RawMessage(r.RawJSON()))
+}
+
+// Owner input specifying a P-256 public key.
+//
+// The property PublicKey is required.
+type OwnerInputPublicKey struct {
+	// A P-256 (secp256r1) public key.
+	PublicKey P256PublicKey `json:"public_key" api:"required"`
+	paramObj
+}
+
+func (r OwnerInputPublicKey) MarshalJSON() (data []byte, err error) {
+	type shadow OwnerInputPublicKey
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *OwnerInputPublicKey) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Owner input specifying a Privy user ID.
+type OwnerInputUserResp struct {
+	UserID string `json:"user_id" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		UserID      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r OwnerInputUserResp) RawJSON() string { return r.JSON.raw }
+func (r *OwnerInputUserResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this OwnerInputUserResp to a OwnerInputUser.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// OwnerInputUser.Overrides()
+func (r OwnerInputUserResp) ToParam() OwnerInputUser {
+	return param.Override[OwnerInputUser](json.RawMessage(r.RawJSON()))
+}
+
+// Owner input specifying a Privy user ID.
+//
+// The property UserID is required.
+type OwnerInputUser struct {
+	UserID string `json:"user_id" api:"required"`
+	paramObj
+}
+
+func (r OwnerInputUser) MarshalJSON() (data []byte, err error) {
+	type shadow OwnerInputUser
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *OwnerInputUser) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type P256PublicKey = string
+
+// A simple success response.
+type SuccessResponse struct {
+	Success bool `json:"success" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Success     respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SuccessResponse) RawJSON() string { return r.JSON.raw }
+func (r *SuccessResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}

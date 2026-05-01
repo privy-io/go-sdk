@@ -397,8 +397,10 @@ func TestWalletRawSignWithOptionalParams(t *testing.T) {
 		privyclient.WalletRawSignParams{
 			RawSignInput: privyclient.RawSignInput{
 				Params: privyclient.RawSignInputParamsUnion{
-					OfRawSignHashs: &privyclient.RawSignHashParams{
-						Hash: "0x0775aeed9c9ce6e0fbc4db25c5e4e6368029651c905c286f813126a09025a21e",
+					OfRawSignBytess: &privyclient.RawSignBytesParams{
+						Bytes:        "0a0234ea220809701d7a17a77e04408093e981a6335a66080112620a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412310a15417009bf59e27d2031a23a61e1590289fc3d21b3cd121541132b98ed6fb80a2d45f177cdef091ae2d9dc115418e80770a0bee581a633",
+						Encoding:     privyclient.RawSignBytesEncodingHex,
+						HashFunction: privyclient.RawSignBytesHashFunctionSha256,
 					},
 				},
 			},

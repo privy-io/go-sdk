@@ -31,18 +31,18 @@ type Client struct {
 	// Operations related to app settings and allowlist management
 	Apps            AppService
 	Webhooks        WebhookService
-	ClientAuth      ClientAuthService
-	Shared          SharedService
-	EmbeddedWallets EmbeddedWalletService
-	WalletActions   WalletActionService
-	Aggregations    AggregationService
-	Analytics       AnalyticsService
-	Organizations   OrganizationService
-	Funding         FundingService
-	CrossApp        CrossAppService
-	KrakenEmbed     KrakenEmbedService
-	Yield           YieldService
 	Accounts        AccountService
+	Aggregations    AggregationService
+	EmbeddedWallets EmbeddedWalletService
+	Analytics       AnalyticsService
+	ClientAuth      ClientAuthService
+	Funding         FundingService
+	Organizations   OrganizationService
+	CrossApp        CrossAppService
+	Shared          SharedService
+	WalletActions   WalletActionService
+	Yield           YieldService
+	KrakenEmbed     KrakenEmbedService
 	Swaps           SwapService
 }
 
@@ -87,18 +87,18 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.Intents = NewIntentService(opts...)
 	r.Apps = NewAppService(opts...)
 	r.Webhooks = NewWebhookService(opts...)
-	r.ClientAuth = NewClientAuthService(opts...)
-	r.Shared = NewSharedService(opts...)
-	r.EmbeddedWallets = NewEmbeddedWalletService(opts...)
-	r.WalletActions = NewWalletActionService(opts...)
-	r.Aggregations = NewAggregationService(opts...)
-	r.Analytics = NewAnalyticsService(opts...)
-	r.Organizations = NewOrganizationService(opts...)
-	r.Funding = NewFundingService(opts...)
-	r.CrossApp = NewCrossAppService(opts...)
-	r.KrakenEmbed = NewKrakenEmbedService(opts...)
-	r.Yield = NewYieldService(opts...)
 	r.Accounts = NewAccountService(opts...)
+	r.Aggregations = NewAggregationService(opts...)
+	r.EmbeddedWallets = NewEmbeddedWalletService(opts...)
+	r.Analytics = NewAnalyticsService(opts...)
+	r.ClientAuth = NewClientAuthService(opts...)
+	r.Funding = NewFundingService(opts...)
+	r.Organizations = NewOrganizationService(opts...)
+	r.CrossApp = NewCrossAppService(opts...)
+	r.Shared = NewSharedService(opts...)
+	r.WalletActions = NewWalletActionService(opts...)
+	r.Yield = NewYieldService(opts...)
+	r.KrakenEmbed = NewKrakenEmbedService(opts...)
 	r.Swaps = NewSwapService(opts...)
 
 	return

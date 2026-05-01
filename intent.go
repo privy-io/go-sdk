@@ -214,231 +214,110 @@ func (r *IntentService) UpdateWallet(ctx context.Context, walletID string, param
 	return res, err
 }
 
-// Type of intent.
-type IntentType string
-
-const (
-	IntentTypeKeyQuorum IntentType = "KEY_QUORUM"
-	IntentTypePolicy    IntentType = "POLICY"
-	IntentTypeRule      IntentType = "RULE"
-	IntentTypeRpc       IntentType = "RPC"
-	IntentTypeTransfer  IntentType = "TRANSFER"
-	IntentTypeWallet    IntentType = "WALLET"
-)
-
-// Current status of an intent.
-type IntentStatus string
-
-const (
-	IntentStatusPending   IntentStatus = "pending"
-	IntentStatusExecuted  IntentStatus = "executed"
-	IntentStatusFailed    IntentStatus = "failed"
-	IntentStatusExpired   IntentStatus = "expired"
-	IntentStatusRejected  IntentStatus = "rejected"
-	IntentStatusDismissed IntentStatus = "dismissed"
-)
-
-// Request details for creating a rule via intent.
-type RuleIntentCreateRequestDetails struct {
-	// The rules that apply to each method the policy covers.
-	Body PolicyRuleRequestBodyResp `json:"body" api:"required"`
-	// Any of "POST".
-	Method RuleIntentCreateRequestDetailsMethod `json:"method" api:"required"`
-	URL    string                               `json:"url" api:"required"`
+// Common fields for intent action execution results.
+type BaseActionResult struct {
+	// Unix timestamp when the action was executed
+	ExecutedAt float64 `json:"executed_at" api:"required"`
+	// HTTP status code from the action execution
+	StatusCode float64 `json:"status_code" api:"required"`
+	// Display name of the key quorum that authorized execution
+	AuthorizedByDisplayName string `json:"authorized_by_display_name"`
+	// ID of the key quorum that authorized execution
+	AuthorizedByID string `json:"authorized_by_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		Body        respjson.Field
-		Method      respjson.Field
-		URL         respjson.Field
+		ExecutedAt              respjson.Field
+		StatusCode              respjson.Field
+		AuthorizedByDisplayName respjson.Field
+		AuthorizedByID          respjson.Field
+		ExtraFields             map[string]respjson.Field
+		raw                     string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r BaseActionResult) RawJSON() string { return r.JSON.raw }
+func (r *BaseActionResult) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Common fields shared by all intent response types.
+type BaseIntentResponse struct {
+	// Detailed authorization information including key quorum members, thresholds, and
+	// signature status
+	AuthorizationDetails []IntentAuthorization `json:"authorization_details" api:"required"`
+	// Unix timestamp when the intent was created
+	CreatedAt float64 `json:"created_at" api:"required"`
+	// Display name of the user who created the intent
+	CreatedByDisplayName string `json:"created_by_display_name" api:"required"`
+	// Whether this intent has a custom expiry time set by the client. If false, the
+	// intent expires after a default duration.
+	CustomExpiry bool `json:"custom_expiry" api:"required"`
+	// Unix timestamp when the intent expires
+	ExpiresAt float64 `json:"expires_at" api:"required"`
+	// Unique ID for the intent
+	IntentID string `json:"intent_id" api:"required"`
+	// ID of the resource being modified (wallet_id, policy_id, etc)
+	ResourceID string `json:"resource_id" api:"required"`
+	// Current status of an intent.
+	//
+	// Any of "pending", "executed", "failed", "expired", "rejected", "dismissed".
+	Status IntentStatus `json:"status" api:"required"`
+	// ID of the user who created the intent. If undefined, the intent was created
+	// using the app secret
+	CreatedByID string `json:"created_by_id"`
+	// Human-readable reason for dismissal, present when status is 'dismissed'
+	DismissalReason string `json:"dismissal_reason"`
+	// Unix timestamp when the intent was dismissed, present when status is 'dismissed'
+	DismissedAt float64 `json:"dismissed_at"`
+	// Unix timestamp when the intent was rejected, present when status is 'rejected'
+	RejectedAt float64 `json:"rejected_at"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		AuthorizationDetails respjson.Field
+		CreatedAt            respjson.Field
+		CreatedByDisplayName respjson.Field
+		CustomExpiry         respjson.Field
+		ExpiresAt            respjson.Field
+		IntentID             respjson.Field
+		ResourceID           respjson.Field
+		Status               respjson.Field
+		CreatedByID          respjson.Field
+		DismissalReason      respjson.Field
+		DismissedAt          respjson.Field
+		RejectedAt           respjson.Field
+		ExtraFields          map[string]respjson.Field
+		raw                  string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r BaseIntentResponse) RawJSON() string { return r.JSON.raw }
+func (r *BaseIntentResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Authorization quorum for an intent
+type IntentAuthorization struct {
+	// Members in this authorization quorum
+	Members []IntentAuthorizationMemberUnion `json:"members" api:"required"`
+	// Number of signatures required to satisfy this quorum
+	Threshold float64 `json:"threshold" api:"required"`
+	// Display name of the key quorum
+	DisplayName string `json:"display_name"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Members     respjson.Field
+		Threshold   respjson.Field
+		DisplayName respjson.Field
 		ExtraFields map[string]respjson.Field
 		raw         string
 	} `json:"-"`
 }
 
 // Returns the unmodified JSON received from the API
-func (r RuleIntentCreateRequestDetails) RawJSON() string { return r.JSON.raw }
-func (r *RuleIntentCreateRequestDetails) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type RuleIntentCreateRequestDetailsMethod string
-
-const (
-	RuleIntentCreateRequestDetailsMethodPost RuleIntentCreateRequestDetailsMethod = "POST"
-)
-
-// Request details for updating a rule via intent.
-type RuleIntentUpdateRequestDetails struct {
-	// The rules that apply to each method the policy covers.
-	Body PolicyRuleRequestBodyResp `json:"body" api:"required"`
-	// Any of "PATCH".
-	Method RuleIntentUpdateRequestDetailsMethod `json:"method" api:"required"`
-	URL    string                               `json:"url" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Body        respjson.Field
-		Method      respjson.Field
-		URL         respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r RuleIntentUpdateRequestDetails) RawJSON() string { return r.JSON.raw }
-func (r *RuleIntentUpdateRequestDetails) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type RuleIntentUpdateRequestDetailsMethod string
-
-const (
-	RuleIntentUpdateRequestDetailsMethodPatch RuleIntentUpdateRequestDetailsMethod = "PATCH"
-)
-
-// Request details for deleting a rule via intent.
-type RuleIntentDeleteRequestDetails struct {
-	// Any of "DELETE".
-	Method RuleIntentDeleteRequestDetailsMethod `json:"method" api:"required"`
-	URL    string                               `json:"url" api:"required"`
-	Body   RuleIntentDeleteRequestDetailsBody   `json:"body"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Method      respjson.Field
-		URL         respjson.Field
-		Body        respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r RuleIntentDeleteRequestDetails) RawJSON() string { return r.JSON.raw }
-func (r *RuleIntentDeleteRequestDetails) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type RuleIntentDeleteRequestDetailsMethod string
-
-const (
-	RuleIntentDeleteRequestDetailsMethodDelete RuleIntentDeleteRequestDetailsMethod = "DELETE"
-)
-
-type RuleIntentDeleteRequestDetailsBody struct {
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r RuleIntentDeleteRequestDetailsBody) RawJSON() string { return r.JSON.raw }
-func (r *RuleIntentDeleteRequestDetailsBody) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// RuleIntentRequestDetailsUnion contains all possible properties and values from
-// [RuleIntentCreateRequestDetails], [RuleIntentUpdateRequestDetails],
-// [RuleIntentDeleteRequestDetails].
-//
-// Use the [RuleIntentRequestDetailsUnion.AsAny] method to switch on the variant.
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-type RuleIntentRequestDetailsUnion struct {
-	// This field is a union of [PolicyRuleRequestBodyResp],
-	// [RuleIntentDeleteRequestDetailsBody]
-	Body RuleIntentRequestDetailsUnionBody `json:"body"`
-	// Any of "POST", "PATCH", "DELETE".
-	Method string `json:"method"`
-	URL    string `json:"url"`
-	JSON   struct {
-		Body   respjson.Field
-		Method respjson.Field
-		URL    respjson.Field
-		raw    string
-	} `json:"-"`
-}
-
-// anyRuleIntentRequestDetails is implemented by each variant of
-// [RuleIntentRequestDetailsUnion] to add type safety for the return type of
-// [RuleIntentRequestDetailsUnion.AsAny]
-type anyRuleIntentRequestDetails interface {
-	implRuleIntentRequestDetailsUnion()
-}
-
-func (RuleIntentCreateRequestDetails) implRuleIntentRequestDetailsUnion() {}
-func (RuleIntentUpdateRequestDetails) implRuleIntentRequestDetailsUnion() {}
-func (RuleIntentDeleteRequestDetails) implRuleIntentRequestDetailsUnion() {}
-
-// Use the following switch statement to find the correct variant
-//
-//	switch variant := RuleIntentRequestDetailsUnion.AsAny().(type) {
-//	case privyclient.RuleIntentCreateRequestDetails:
-//	case privyclient.RuleIntentUpdateRequestDetails:
-//	case privyclient.RuleIntentDeleteRequestDetails:
-//	default:
-//	  fmt.Errorf("no variant present")
-//	}
-func (u RuleIntentRequestDetailsUnion) AsAny() anyRuleIntentRequestDetails {
-	switch u.Method {
-	case "POST":
-		return u.AsPost()
-	case "PATCH":
-		return u.AsPatch()
-	case "DELETE":
-		return u.AsDelete()
-	}
-	return nil
-}
-
-func (u RuleIntentRequestDetailsUnion) AsPost() (v RuleIntentCreateRequestDetails) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u RuleIntentRequestDetailsUnion) AsPatch() (v RuleIntentUpdateRequestDetails) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u RuleIntentRequestDetailsUnion) AsDelete() (v RuleIntentDeleteRequestDetails) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u RuleIntentRequestDetailsUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *RuleIntentRequestDetailsUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// RuleIntentRequestDetailsUnionBody is an implicit subunion of
-// [RuleIntentRequestDetailsUnion]. RuleIntentRequestDetailsUnionBody provides
-// convenient access to the sub-properties of the union.
-//
-// For type safety it is recommended to directly use a variant of the
-// [RuleIntentRequestDetailsUnion].
-type RuleIntentRequestDetailsUnionBody struct {
-	// This field is from variant [PolicyRuleRequestBodyResp].
-	Action PolicyAction `json:"action"`
-	// This field is from variant [PolicyRuleRequestBodyResp].
-	Conditions []PolicyConditionUnionResp `json:"conditions"`
-	// This field is from variant [PolicyRuleRequestBodyResp].
-	Method PolicyMethod `json:"method"`
-	// This field is from variant [PolicyRuleRequestBodyResp].
-	Name string `json:"name"`
-	JSON struct {
-		Action     respjson.Field
-		Conditions respjson.Field
-		Method     respjson.Field
-		Name       respjson.Field
-		raw        string
-	} `json:"-"`
-}
-
-func (r *RuleIntentRequestDetailsUnionBody) UnmarshalJSON(data []byte) error {
+func (r IntentAuthorization) RawJSON() string { return r.JSON.raw }
+func (r *IntentAuthorization) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -659,466 +538,6 @@ type IntentAuthorizationMemberKeyQuorumMember struct {
 // Returns the unmodified JSON received from the API
 func (r IntentAuthorizationMemberKeyQuorumMember) RawJSON() string { return r.JSON.raw }
 func (r *IntentAuthorizationMemberKeyQuorumMember) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Authorization quorum for an intent
-type IntentAuthorization struct {
-	// Members in this authorization quorum
-	Members []IntentAuthorizationMemberUnion `json:"members" api:"required"`
-	// Number of signatures required to satisfy this quorum
-	Threshold float64 `json:"threshold" api:"required"`
-	// Display name of the key quorum
-	DisplayName string `json:"display_name"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Members     respjson.Field
-		Threshold   respjson.Field
-		DisplayName respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r IntentAuthorization) RawJSON() string { return r.JSON.raw }
-func (r *IntentAuthorization) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Common fields shared by all intent response types.
-type BaseIntentResponse struct {
-	// Detailed authorization information including key quorum members, thresholds, and
-	// signature status
-	AuthorizationDetails []IntentAuthorization `json:"authorization_details" api:"required"`
-	// Unix timestamp when the intent was created
-	CreatedAt float64 `json:"created_at" api:"required"`
-	// Display name of the user who created the intent
-	CreatedByDisplayName string `json:"created_by_display_name" api:"required"`
-	// Whether this intent has a custom expiry time set by the client. If false, the
-	// intent expires after a default duration.
-	CustomExpiry bool `json:"custom_expiry" api:"required"`
-	// Unix timestamp when the intent expires
-	ExpiresAt float64 `json:"expires_at" api:"required"`
-	// Unique ID for the intent
-	IntentID string `json:"intent_id" api:"required"`
-	// ID of the resource being modified (wallet_id, policy_id, etc)
-	ResourceID string `json:"resource_id" api:"required"`
-	// Current status of an intent.
-	//
-	// Any of "pending", "executed", "failed", "expired", "rejected", "dismissed".
-	Status IntentStatus `json:"status" api:"required"`
-	// ID of the user who created the intent. If undefined, the intent was created
-	// using the app secret
-	CreatedByID string `json:"created_by_id"`
-	// Human-readable reason for dismissal, present when status is 'dismissed'
-	DismissalReason string `json:"dismissal_reason"`
-	// Unix timestamp when the intent was dismissed, present when status is 'dismissed'
-	DismissedAt float64 `json:"dismissed_at"`
-	// Unix timestamp when the intent was rejected, present when status is 'rejected'
-	RejectedAt float64 `json:"rejected_at"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		AuthorizationDetails respjson.Field
-		CreatedAt            respjson.Field
-		CreatedByDisplayName respjson.Field
-		CustomExpiry         respjson.Field
-		ExpiresAt            respjson.Field
-		IntentID             respjson.Field
-		ResourceID           respjson.Field
-		Status               respjson.Field
-		CreatedByID          respjson.Field
-		DismissalReason      respjson.Field
-		DismissedAt          respjson.Field
-		RejectedAt           respjson.Field
-		ExtraFields          map[string]respjson.Field
-		raw                  string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r BaseIntentResponse) RawJSON() string { return r.JSON.raw }
-func (r *BaseIntentResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Common fields for intent action execution results.
-type BaseActionResult struct {
-	// Unix timestamp when the action was executed
-	ExecutedAt float64 `json:"executed_at" api:"required"`
-	// HTTP status code from the action execution
-	StatusCode float64 `json:"status_code" api:"required"`
-	// Display name of the key quorum that authorized execution
-	AuthorizedByDisplayName string `json:"authorized_by_display_name"`
-	// ID of the key quorum that authorized execution
-	AuthorizedByID string `json:"authorized_by_id"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ExecutedAt              respjson.Field
-		StatusCode              respjson.Field
-		AuthorizedByDisplayName respjson.Field
-		AuthorizedByID          respjson.Field
-		ExtraFields             map[string]respjson.Field
-		raw                     string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r BaseActionResult) RawJSON() string { return r.JSON.raw }
-func (r *BaseActionResult) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Response for an RPC intent
-type RpcIntentResponse struct {
-	// Any of "RPC".
-	IntentType string `json:"intent_type" api:"required"`
-	// The original RPC request that would be sent to the wallet endpoint
-	RequestDetails RpcIntentResponseRequestDetails `json:"request_details" api:"required"`
-	// Result of RPC execution (only present if status is 'executed' or 'failed')
-	ActionResult BaseActionResult `json:"action_result"`
-	// A wallet managed by Privy's wallet infrastructure.
-	CurrentResourceData Wallet `json:"current_resource_data"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		IntentType          respjson.Field
-		RequestDetails      respjson.Field
-		ActionResult        respjson.Field
-		CurrentResourceData respjson.Field
-		ExtraFields         map[string]respjson.Field
-		raw                 string
-	} `json:"-"`
-	BaseIntentResponse
-}
-
-// Returns the unmodified JSON received from the API
-func (r RpcIntentResponse) RawJSON() string { return r.JSON.raw }
-func (r *RpcIntentResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The original RPC request that would be sent to the wallet endpoint
-type RpcIntentResponseRequestDetails struct {
-	// Request body for wallet RPC operations, discriminated by method.
-	Body WalletRpcRequestBodyUnionResp `json:"body" api:"required"`
-	// Any of "POST".
-	Method string `json:"method" api:"required"`
-	URL    string `json:"url" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Body        respjson.Field
-		Method      respjson.Field
-		URL         respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r RpcIntentResponseRequestDetails) RawJSON() string { return r.JSON.raw }
-func (r *RpcIntentResponseRequestDetails) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Response for a transfer intent
-type TransferIntentResponse struct {
-	// Any of "TRANSFER".
-	IntentType string `json:"intent_type" api:"required"`
-	// The original transfer request that would be sent to the wallet transfer endpoint
-	RequestDetails TransferIntentResponseRequestDetails `json:"request_details" api:"required"`
-	// Result of transfer execution (only present if intent status is 'executed' or
-	// 'failed')
-	ActionResult BaseActionResult `json:"action_result"`
-	// A wallet managed by Privy's wallet infrastructure.
-	CurrentResourceData Wallet `json:"current_resource_data"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		IntentType          respjson.Field
-		RequestDetails      respjson.Field
-		ActionResult        respjson.Field
-		CurrentResourceData respjson.Field
-		ExtraFields         map[string]respjson.Field
-		raw                 string
-	} `json:"-"`
-	BaseIntentResponse
-}
-
-// Returns the unmodified JSON received from the API
-func (r TransferIntentResponse) RawJSON() string { return r.JSON.raw }
-func (r *TransferIntentResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The original transfer request that would be sent to the wallet transfer endpoint
-type TransferIntentResponseRequestDetails struct {
-	// Request body for initiating a sponsored token transfer from an embedded wallet.
-	Body TransferRequestBodyResp `json:"body" api:"required"`
-	// Any of "POST".
-	Method string `json:"method" api:"required"`
-	URL    string `json:"url" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Body        respjson.Field
-		Method      respjson.Field
-		URL         respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r TransferIntentResponseRequestDetails) RawJSON() string { return r.JSON.raw }
-func (r *TransferIntentResponseRequestDetails) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Response for a wallet intent
-type WalletIntentResponse struct {
-	// Any of "WALLET".
-	IntentType string `json:"intent_type" api:"required"`
-	// The original wallet update request that would be sent to the wallet endpoint
-	RequestDetails WalletIntentResponseRequestDetails `json:"request_details" api:"required"`
-	// Result of wallet update execution (only present if status is 'executed' or
-	// 'failed')
-	ActionResult BaseActionResult `json:"action_result"`
-	// A wallet managed by Privy's wallet infrastructure.
-	CurrentResourceData Wallet `json:"current_resource_data"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		IntentType          respjson.Field
-		RequestDetails      respjson.Field
-		ActionResult        respjson.Field
-		CurrentResourceData respjson.Field
-		ExtraFields         map[string]respjson.Field
-		raw                 string
-	} `json:"-"`
-	BaseIntentResponse
-}
-
-// Returns the unmodified JSON received from the API
-func (r WalletIntentResponse) RawJSON() string { return r.JSON.raw }
-func (r *WalletIntentResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The original wallet update request that would be sent to the wallet endpoint
-type WalletIntentResponseRequestDetails struct {
-	Body WalletIntentResponseRequestDetailsBody `json:"body" api:"required"`
-	// Any of "PATCH".
-	Method string `json:"method" api:"required"`
-	URL    string `json:"url" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Body        respjson.Field
-		Method      respjson.Field
-		URL         respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r WalletIntentResponseRequestDetails) RawJSON() string { return r.JSON.raw }
-func (r *WalletIntentResponseRequestDetails) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type WalletIntentResponseRequestDetailsBody struct {
-	// Additional signers for the wallet.
-	AdditionalSigners      AdditionalSignerInputResp `json:"additional_signers"`
-	AuthorizationKeyIDs    []string                  `json:"authorization_key_ids"`
-	AuthorizationThreshold float64                   `json:"authorization_threshold"`
-	DisplayName            string                    `json:"display_name" api:"nullable"`
-	// The owner of the resource, specified as a Privy user ID, a P-256 public key, or
-	// null to remove the current owner.
-	Owner OwnerInputUnionResp `json:"owner" api:"nullable"`
-	// The key quorum ID to set as the owner of the resource. If you provide this, do
-	// not specify an owner.
-	OwnerID OwnerIDInput `json:"owner_id" api:"nullable" format:"cuid2"`
-	// An optional list of up to one policy ID to enforce on the wallet.
-	PolicyIDs PolicyInput `json:"policy_ids" format:"cuid2"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		AdditionalSigners      respjson.Field
-		AuthorizationKeyIDs    respjson.Field
-		AuthorizationThreshold respjson.Field
-		DisplayName            respjson.Field
-		Owner                  respjson.Field
-		OwnerID                respjson.Field
-		PolicyIDs              respjson.Field
-		ExtraFields            map[string]respjson.Field
-		raw                    string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r WalletIntentResponseRequestDetailsBody) RawJSON() string { return r.JSON.raw }
-func (r *WalletIntentResponseRequestDetailsBody) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Response for a policy intent
-type PolicyIntentResponse struct {
-	// Any of "POLICY".
-	IntentType string `json:"intent_type" api:"required"`
-	// The original policy update request that would be sent to the policy endpoint
-	RequestDetails PolicyIntentResponseRequestDetails `json:"request_details" api:"required"`
-	// Result of policy update execution (only present if status is 'executed' or
-	// 'failed')
-	ActionResult BaseActionResult `json:"action_result"`
-	// A policy for controlling wallet operations.
-	CurrentResourceData Policy `json:"current_resource_data"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		IntentType          respjson.Field
-		RequestDetails      respjson.Field
-		ActionResult        respjson.Field
-		CurrentResourceData respjson.Field
-		ExtraFields         map[string]respjson.Field
-		raw                 string
-	} `json:"-"`
-	BaseIntentResponse
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyIntentResponse) RawJSON() string { return r.JSON.raw }
-func (r *PolicyIntentResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The original policy update request that would be sent to the policy endpoint
-type PolicyIntentResponseRequestDetails struct {
-	Body PolicyIntentResponseRequestDetailsBody `json:"body" api:"required"`
-	// Any of "PATCH".
-	Method string `json:"method" api:"required"`
-	URL    string `json:"url" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Body        respjson.Field
-		Method      respjson.Field
-		URL         respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyIntentResponseRequestDetails) RawJSON() string { return r.JSON.raw }
-func (r *PolicyIntentResponseRequestDetails) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type PolicyIntentResponseRequestDetailsBody struct {
-	// Name to assign to policy.
-	Name string `json:"name"`
-	// The owner of the resource, specified as a Privy user ID, a P-256 public key, or
-	// null to remove the current owner.
-	Owner OwnerInputUnionResp `json:"owner" api:"nullable"`
-	// The key quorum ID to set as the owner of the resource. If you provide this, do
-	// not specify an owner.
-	OwnerID OwnerIDInput                `json:"owner_id" api:"nullable" format:"cuid2"`
-	Rules   []PolicyRuleRequestBodyResp `json:"rules"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Name        respjson.Field
-		Owner       respjson.Field
-		OwnerID     respjson.Field
-		Rules       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PolicyIntentResponseRequestDetailsBody) RawJSON() string { return r.JSON.raw }
-func (r *PolicyIntentResponseRequestDetailsBody) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Response for a key quorum intent
-type KeyQuorumIntentResponse struct {
-	// Any of "KEY_QUORUM".
-	IntentType string `json:"intent_type" api:"required"`
-	// The original key quorum update request that would be sent to the key quorum
-	// endpoint
-	RequestDetails KeyQuorumIntentResponseRequestDetails `json:"request_details" api:"required"`
-	// Result of key quorum update execution (only present if status is 'executed' or
-	// 'failed')
-	ActionResult BaseActionResult `json:"action_result"`
-	// A key quorum for authorizing wallet operations.
-	CurrentResourceData KeyQuorum `json:"current_resource_data"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		IntentType          respjson.Field
-		RequestDetails      respjson.Field
-		ActionResult        respjson.Field
-		CurrentResourceData respjson.Field
-		ExtraFields         map[string]respjson.Field
-		raw                 string
-	} `json:"-"`
-	BaseIntentResponse
-}
-
-// Returns the unmodified JSON received from the API
-func (r KeyQuorumIntentResponse) RawJSON() string { return r.JSON.raw }
-func (r *KeyQuorumIntentResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The original key quorum update request that would be sent to the key quorum
-// endpoint
-type KeyQuorumIntentResponseRequestDetails struct {
-	// Request input for updating an existing key quorum.
-	Body KeyQuorumUpdateRequestBodyResp `json:"body" api:"required"`
-	// Any of "PATCH".
-	Method string `json:"method" api:"required"`
-	URL    string `json:"url" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Body        respjson.Field
-		Method      respjson.Field
-		URL         respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r KeyQuorumIntentResponseRequestDetails) RawJSON() string { return r.JSON.raw }
-func (r *KeyQuorumIntentResponseRequestDetails) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Response for a rule intent
-type RuleIntentResponse struct {
-	// Any of "RULE".
-	IntentType string `json:"intent_type" api:"required"`
-	// The original rule request. Method is POST (create), PATCH (update), or DELETE
-	// (delete)
-	RequestDetails RuleIntentRequestDetailsUnion `json:"request_details" api:"required"`
-	// Result of rule execution (only present if status is 'executed' or 'failed')
-	ActionResult BaseActionResult `json:"action_result"`
-	// A rule that defines the conditions and action to take if the conditions are
-	// true.
-	CurrentResourceData PolicyRuleResponse `json:"current_resource_data"`
-	// A policy for controlling wallet operations.
-	Policy Policy `json:"policy"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		IntentType          respjson.Field
-		RequestDetails      respjson.Field
-		ActionResult        respjson.Field
-		CurrentResourceData respjson.Field
-		Policy              respjson.Field
-		ExtraFields         map[string]respjson.Field
-		raw                 string
-	} `json:"-"`
-	BaseIntentResponse
-}
-
-// Returns the unmodified JSON received from the API
-func (r RuleIntentResponse) RawJSON() string { return r.JSON.raw }
-func (r *RuleIntentResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -1697,6 +1116,587 @@ type IntentResponseUnionCurrentResourceData struct {
 }
 
 func (r *IntentResponseUnionCurrentResourceData) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Current status of an intent.
+type IntentStatus string
+
+const (
+	IntentStatusPending   IntentStatus = "pending"
+	IntentStatusExecuted  IntentStatus = "executed"
+	IntentStatusFailed    IntentStatus = "failed"
+	IntentStatusExpired   IntentStatus = "expired"
+	IntentStatusRejected  IntentStatus = "rejected"
+	IntentStatusDismissed IntentStatus = "dismissed"
+)
+
+// Type of intent.
+type IntentType string
+
+const (
+	IntentTypeKeyQuorum IntentType = "KEY_QUORUM"
+	IntentTypePolicy    IntentType = "POLICY"
+	IntentTypeRule      IntentType = "RULE"
+	IntentTypeRpc       IntentType = "RPC"
+	IntentTypeTransfer  IntentType = "TRANSFER"
+	IntentTypeWallet    IntentType = "WALLET"
+)
+
+// Response for a key quorum intent
+type KeyQuorumIntentResponse struct {
+	// Any of "KEY_QUORUM".
+	IntentType string `json:"intent_type" api:"required"`
+	// The original key quorum update request that would be sent to the key quorum
+	// endpoint
+	RequestDetails KeyQuorumIntentResponseRequestDetails `json:"request_details" api:"required"`
+	// Result of key quorum update execution (only present if status is 'executed' or
+	// 'failed')
+	ActionResult BaseActionResult `json:"action_result"`
+	// A key quorum for authorizing wallet operations.
+	CurrentResourceData KeyQuorum `json:"current_resource_data"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		CurrentResourceData respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
+	} `json:"-"`
+	BaseIntentResponse
+}
+
+// Returns the unmodified JSON received from the API
+func (r KeyQuorumIntentResponse) RawJSON() string { return r.JSON.raw }
+func (r *KeyQuorumIntentResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The original key quorum update request that would be sent to the key quorum
+// endpoint
+type KeyQuorumIntentResponseRequestDetails struct {
+	// Request input for updating an existing key quorum.
+	Body KeyQuorumUpdateRequestBodyResp `json:"body" api:"required"`
+	// Any of "PATCH".
+	Method string `json:"method" api:"required"`
+	URL    string `json:"url" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Body        respjson.Field
+		Method      respjson.Field
+		URL         respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r KeyQuorumIntentResponseRequestDetails) RawJSON() string { return r.JSON.raw }
+func (r *KeyQuorumIntentResponseRequestDetails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response for a policy intent
+type PolicyIntentResponse struct {
+	// Any of "POLICY".
+	IntentType string `json:"intent_type" api:"required"`
+	// The original policy update request that would be sent to the policy endpoint
+	RequestDetails PolicyIntentResponseRequestDetails `json:"request_details" api:"required"`
+	// Result of policy update execution (only present if status is 'executed' or
+	// 'failed')
+	ActionResult BaseActionResult `json:"action_result"`
+	// A policy for controlling wallet operations.
+	CurrentResourceData Policy `json:"current_resource_data"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		CurrentResourceData respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
+	} `json:"-"`
+	BaseIntentResponse
+}
+
+// Returns the unmodified JSON received from the API
+func (r PolicyIntentResponse) RawJSON() string { return r.JSON.raw }
+func (r *PolicyIntentResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The original policy update request that would be sent to the policy endpoint
+type PolicyIntentResponseRequestDetails struct {
+	Body PolicyIntentResponseRequestDetailsBody `json:"body" api:"required"`
+	// Any of "PATCH".
+	Method string `json:"method" api:"required"`
+	URL    string `json:"url" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Body        respjson.Field
+		Method      respjson.Field
+		URL         respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PolicyIntentResponseRequestDetails) RawJSON() string { return r.JSON.raw }
+func (r *PolicyIntentResponseRequestDetails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type PolicyIntentResponseRequestDetailsBody struct {
+	// Name to assign to policy.
+	Name string `json:"name"`
+	// The owner of the resource, specified as a Privy user ID, a P-256 public key, or
+	// null to remove the current owner.
+	Owner OwnerInputUnionResp `json:"owner" api:"nullable"`
+	// The key quorum ID to set as the owner of the resource. If you provide this, do
+	// not specify an owner.
+	OwnerID OwnerIDInput                `json:"owner_id" api:"nullable" format:"cuid2"`
+	Rules   []PolicyRuleRequestBodyResp `json:"rules"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Name        respjson.Field
+		Owner       respjson.Field
+		OwnerID     respjson.Field
+		Rules       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PolicyIntentResponseRequestDetailsBody) RawJSON() string { return r.JSON.raw }
+func (r *PolicyIntentResponseRequestDetailsBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response for an RPC intent
+type RpcIntentResponse struct {
+	// Any of "RPC".
+	IntentType string `json:"intent_type" api:"required"`
+	// The original RPC request that would be sent to the wallet endpoint
+	RequestDetails RpcIntentResponseRequestDetails `json:"request_details" api:"required"`
+	// Result of RPC execution (only present if status is 'executed' or 'failed')
+	ActionResult BaseActionResult `json:"action_result"`
+	// A wallet managed by Privy's wallet infrastructure.
+	CurrentResourceData Wallet `json:"current_resource_data"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		CurrentResourceData respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
+	} `json:"-"`
+	BaseIntentResponse
+}
+
+// Returns the unmodified JSON received from the API
+func (r RpcIntentResponse) RawJSON() string { return r.JSON.raw }
+func (r *RpcIntentResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The original RPC request that would be sent to the wallet endpoint
+type RpcIntentResponseRequestDetails struct {
+	// Request body for wallet RPC operations, discriminated by method.
+	Body WalletRpcRequestBodyUnionResp `json:"body" api:"required"`
+	// Any of "POST".
+	Method string `json:"method" api:"required"`
+	URL    string `json:"url" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Body        respjson.Field
+		Method      respjson.Field
+		URL         respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RpcIntentResponseRequestDetails) RawJSON() string { return r.JSON.raw }
+func (r *RpcIntentResponseRequestDetails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Request details for creating a rule via intent.
+type RuleIntentCreateRequestDetails struct {
+	// The rules that apply to each method the policy covers.
+	Body PolicyRuleRequestBodyResp `json:"body" api:"required"`
+	// Any of "POST".
+	Method RuleIntentCreateRequestDetailsMethod `json:"method" api:"required"`
+	URL    string                               `json:"url" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Body        respjson.Field
+		Method      respjson.Field
+		URL         respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentCreateRequestDetails) RawJSON() string { return r.JSON.raw }
+func (r *RuleIntentCreateRequestDetails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type RuleIntentCreateRequestDetailsMethod string
+
+const (
+	RuleIntentCreateRequestDetailsMethodPost RuleIntentCreateRequestDetailsMethod = "POST"
+)
+
+// Request details for deleting a rule via intent.
+type RuleIntentDeleteRequestDetails struct {
+	// Any of "DELETE".
+	Method RuleIntentDeleteRequestDetailsMethod `json:"method" api:"required"`
+	URL    string                               `json:"url" api:"required"`
+	Body   RuleIntentDeleteRequestDetailsBody   `json:"body"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Method      respjson.Field
+		URL         respjson.Field
+		Body        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentDeleteRequestDetails) RawJSON() string { return r.JSON.raw }
+func (r *RuleIntentDeleteRequestDetails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type RuleIntentDeleteRequestDetailsMethod string
+
+const (
+	RuleIntentDeleteRequestDetailsMethodDelete RuleIntentDeleteRequestDetailsMethod = "DELETE"
+)
+
+type RuleIntentDeleteRequestDetailsBody struct {
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentDeleteRequestDetailsBody) RawJSON() string { return r.JSON.raw }
+func (r *RuleIntentDeleteRequestDetailsBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentRequestDetailsUnion contains all possible properties and values from
+// [RuleIntentCreateRequestDetails], [RuleIntentUpdateRequestDetails],
+// [RuleIntentDeleteRequestDetails].
+//
+// Use the [RuleIntentRequestDetailsUnion.AsAny] method to switch on the variant.
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type RuleIntentRequestDetailsUnion struct {
+	// This field is a union of [PolicyRuleRequestBodyResp],
+	// [RuleIntentDeleteRequestDetailsBody]
+	Body RuleIntentRequestDetailsUnionBody `json:"body"`
+	// Any of "POST", "PATCH", "DELETE".
+	Method string `json:"method"`
+	URL    string `json:"url"`
+	JSON   struct {
+		Body   respjson.Field
+		Method respjson.Field
+		URL    respjson.Field
+		raw    string
+	} `json:"-"`
+}
+
+// anyRuleIntentRequestDetails is implemented by each variant of
+// [RuleIntentRequestDetailsUnion] to add type safety for the return type of
+// [RuleIntentRequestDetailsUnion.AsAny]
+type anyRuleIntentRequestDetails interface {
+	implRuleIntentRequestDetailsUnion()
+}
+
+func (RuleIntentCreateRequestDetails) implRuleIntentRequestDetailsUnion() {}
+func (RuleIntentUpdateRequestDetails) implRuleIntentRequestDetailsUnion() {}
+func (RuleIntentDeleteRequestDetails) implRuleIntentRequestDetailsUnion() {}
+
+// Use the following switch statement to find the correct variant
+//
+//	switch variant := RuleIntentRequestDetailsUnion.AsAny().(type) {
+//	case privyclient.RuleIntentCreateRequestDetails:
+//	case privyclient.RuleIntentUpdateRequestDetails:
+//	case privyclient.RuleIntentDeleteRequestDetails:
+//	default:
+//	  fmt.Errorf("no variant present")
+//	}
+func (u RuleIntentRequestDetailsUnion) AsAny() anyRuleIntentRequestDetails {
+	switch u.Method {
+	case "POST":
+		return u.AsPost()
+	case "PATCH":
+		return u.AsPatch()
+	case "DELETE":
+		return u.AsDelete()
+	}
+	return nil
+}
+
+func (u RuleIntentRequestDetailsUnion) AsPost() (v RuleIntentCreateRequestDetails) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentRequestDetailsUnion) AsPatch() (v RuleIntentUpdateRequestDetails) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RuleIntentRequestDetailsUnion) AsDelete() (v RuleIntentDeleteRequestDetails) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RuleIntentRequestDetailsUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *RuleIntentRequestDetailsUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// RuleIntentRequestDetailsUnionBody is an implicit subunion of
+// [RuleIntentRequestDetailsUnion]. RuleIntentRequestDetailsUnionBody provides
+// convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [RuleIntentRequestDetailsUnion].
+type RuleIntentRequestDetailsUnionBody struct {
+	// This field is from variant [PolicyRuleRequestBodyResp].
+	Action PolicyAction `json:"action"`
+	// This field is from variant [PolicyRuleRequestBodyResp].
+	Conditions []PolicyConditionUnionResp `json:"conditions"`
+	// This field is from variant [PolicyRuleRequestBodyResp].
+	Method PolicyMethod `json:"method"`
+	// This field is from variant [PolicyRuleRequestBodyResp].
+	Name string `json:"name"`
+	JSON struct {
+		Action     respjson.Field
+		Conditions respjson.Field
+		Method     respjson.Field
+		Name       respjson.Field
+		raw        string
+	} `json:"-"`
+}
+
+func (r *RuleIntentRequestDetailsUnionBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response for a rule intent
+type RuleIntentResponse struct {
+	// Any of "RULE".
+	IntentType string `json:"intent_type" api:"required"`
+	// The original rule request. Method is POST (create), PATCH (update), or DELETE
+	// (delete)
+	RequestDetails RuleIntentRequestDetailsUnion `json:"request_details" api:"required"`
+	// Result of rule execution (only present if status is 'executed' or 'failed')
+	ActionResult BaseActionResult `json:"action_result"`
+	// A rule that defines the conditions and action to take if the conditions are
+	// true.
+	CurrentResourceData PolicyRuleResponse `json:"current_resource_data"`
+	// A policy for controlling wallet operations.
+	Policy Policy `json:"policy"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		CurrentResourceData respjson.Field
+		Policy              respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
+	} `json:"-"`
+	BaseIntentResponse
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentResponse) RawJSON() string { return r.JSON.raw }
+func (r *RuleIntentResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Request details for updating a rule via intent.
+type RuleIntentUpdateRequestDetails struct {
+	// The rules that apply to each method the policy covers.
+	Body PolicyRuleRequestBodyResp `json:"body" api:"required"`
+	// Any of "PATCH".
+	Method RuleIntentUpdateRequestDetailsMethod `json:"method" api:"required"`
+	URL    string                               `json:"url" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Body        respjson.Field
+		Method      respjson.Field
+		URL         respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentUpdateRequestDetails) RawJSON() string { return r.JSON.raw }
+func (r *RuleIntentUpdateRequestDetails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type RuleIntentUpdateRequestDetailsMethod string
+
+const (
+	RuleIntentUpdateRequestDetailsMethodPatch RuleIntentUpdateRequestDetailsMethod = "PATCH"
+)
+
+// Response for a transfer intent
+type TransferIntentResponse struct {
+	// Any of "TRANSFER".
+	IntentType string `json:"intent_type" api:"required"`
+	// The original transfer request that would be sent to the wallet transfer endpoint
+	RequestDetails TransferIntentResponseRequestDetails `json:"request_details" api:"required"`
+	// Result of transfer execution (only present if intent status is 'executed' or
+	// 'failed')
+	ActionResult BaseActionResult `json:"action_result"`
+	// A wallet managed by Privy's wallet infrastructure.
+	CurrentResourceData Wallet `json:"current_resource_data"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		CurrentResourceData respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
+	} `json:"-"`
+	BaseIntentResponse
+}
+
+// Returns the unmodified JSON received from the API
+func (r TransferIntentResponse) RawJSON() string { return r.JSON.raw }
+func (r *TransferIntentResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The original transfer request that would be sent to the wallet transfer endpoint
+type TransferIntentResponseRequestDetails struct {
+	// Request body for initiating a sponsored token transfer from an embedded wallet.
+	Body TransferRequestBodyResp `json:"body" api:"required"`
+	// Any of "POST".
+	Method string `json:"method" api:"required"`
+	URL    string `json:"url" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Body        respjson.Field
+		Method      respjson.Field
+		URL         respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TransferIntentResponseRequestDetails) RawJSON() string { return r.JSON.raw }
+func (r *TransferIntentResponseRequestDetails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response for a wallet intent
+type WalletIntentResponse struct {
+	// Any of "WALLET".
+	IntentType string `json:"intent_type" api:"required"`
+	// The original wallet update request that would be sent to the wallet endpoint
+	RequestDetails WalletIntentResponseRequestDetails `json:"request_details" api:"required"`
+	// Result of wallet update execution (only present if status is 'executed' or
+	// 'failed')
+	ActionResult BaseActionResult `json:"action_result"`
+	// A wallet managed by Privy's wallet infrastructure.
+	CurrentResourceData Wallet `json:"current_resource_data"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		CurrentResourceData respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
+	} `json:"-"`
+	BaseIntentResponse
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletIntentResponse) RawJSON() string { return r.JSON.raw }
+func (r *WalletIntentResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The original wallet update request that would be sent to the wallet endpoint
+type WalletIntentResponseRequestDetails struct {
+	Body WalletIntentResponseRequestDetailsBody `json:"body" api:"required"`
+	// Any of "PATCH".
+	Method string `json:"method" api:"required"`
+	URL    string `json:"url" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Body        respjson.Field
+		Method      respjson.Field
+		URL         respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletIntentResponseRequestDetails) RawJSON() string { return r.JSON.raw }
+func (r *WalletIntentResponseRequestDetails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type WalletIntentResponseRequestDetailsBody struct {
+	// Additional signers for the wallet.
+	AdditionalSigners      AdditionalSignerInputResp `json:"additional_signers"`
+	AuthorizationKeyIDs    []string                  `json:"authorization_key_ids"`
+	AuthorizationThreshold float64                   `json:"authorization_threshold"`
+	DisplayName            string                    `json:"display_name" api:"nullable"`
+	// The owner of the resource, specified as a Privy user ID, a P-256 public key, or
+	// null to remove the current owner.
+	Owner OwnerInputUnionResp `json:"owner" api:"nullable"`
+	// The key quorum ID to set as the owner of the resource. If you provide this, do
+	// not specify an owner.
+	OwnerID OwnerIDInput `json:"owner_id" api:"nullable" format:"cuid2"`
+	// An optional list of up to one policy ID to enforce on the wallet.
+	PolicyIDs PolicyInput `json:"policy_ids" format:"cuid2"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		AdditionalSigners      respjson.Field
+		AuthorizationKeyIDs    respjson.Field
+		AuthorizationThreshold respjson.Field
+		DisplayName            respjson.Field
+		Owner                  respjson.Field
+		OwnerID                respjson.Field
+		PolicyIDs              respjson.Field
+		ExtraFields            map[string]respjson.Field
+		raw                    string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletIntentResponseRequestDetailsBody) RawJSON() string { return r.JSON.raw }
+func (r *WalletIntentResponseRequestDetailsBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
