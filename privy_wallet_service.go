@@ -20,6 +20,7 @@ type PrivyWalletService struct {
 	baseURL                string                   // API base URL
 	appID                  string                   // App ID for headers
 	defaultRequestExpiryMs int64                    // Default expiry in ms
+	requestExpiryEnabled   bool                     // Whether to auto-set expiry header
 	logger                 logger
 
 	// Ethereum provides convenience methods for Ethereum wallet operations.
@@ -37,6 +38,7 @@ func newPrivyWalletService(
 	baseURL string,
 	appID string,
 	defaultRequestExpiryMs int64,
+	requestExpiryEnabled bool,
 	logger logger,
 ) *PrivyWalletService {
 	s := &PrivyWalletService{
@@ -45,6 +47,7 @@ func newPrivyWalletService(
 		baseURL:                baseURL,
 		appID:                  appID,
 		defaultRequestExpiryMs: defaultRequestExpiryMs,
+		requestExpiryEnabled:   requestExpiryEnabled,
 		logger:                 logger,
 	}
 	s.Ethereum = newPrivyEthereumWalletService(s)
@@ -72,7 +75,7 @@ func (s *PrivyWalletService) Rpc(
 	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
-	if requestExpiry == nil {
+	if requestExpiry == nil && s.requestExpiryEnabled {
 		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
@@ -122,7 +125,7 @@ func (s *PrivyWalletService) Update(
 	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
-	if requestExpiry == nil {
+	if requestExpiry == nil && s.requestExpiryEnabled {
 		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
@@ -168,7 +171,7 @@ func (s *PrivyWalletService) RawSign(
 	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
-	if requestExpiry == nil {
+	if requestExpiry == nil && s.requestExpiryEnabled {
 		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
@@ -367,7 +370,7 @@ func (s *PrivyWalletService) Export(
 	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
-	if requestExpiry == nil {
+	if requestExpiry == nil && s.requestExpiryEnabled {
 		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 

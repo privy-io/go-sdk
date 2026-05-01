@@ -36,6 +36,11 @@ type PrivyClientOptions struct {
 	// Can be overridden per-request, where applicable, using WithRequestExpiry.
 	DefaultRequestExpiryMs int64
 
+	// DisableRequestExpiry opts out of automatically setting the "privy-request-expiry"
+	// header on requests. When true, no expiry header will be sent unless explicitly
+	// provided per-request via WithRequestExpiry. Defaults to false.
+	DisableRequestExpiry bool
+
 	// HTTPClient sets the default *http.Client used across all requests (optional).
 	// If not provided, defaults to http.DefaultClient.
 	// Can be overridden per-request using WithHTTPClient.
@@ -138,22 +143,25 @@ func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
 		defaultRequestExpiryMs = 15 * 60 * 1000
 	}
 
+	// Resolve request expiry enabled (inverted from DisableRequestExpiry)
+	requestExpiryEnabled := !opts.DisableRequestExpiry
+
 	client := NewClient(requestOpts...)
 
 	// Create JWT exchange service (uses generated WalletService for AuthenticateWithJwt)
 	jwtExchange := newPrivyJwtExchangeService(&client.Wallets, logger)
 
 	// Create wallet service with jwtExchanger for authorization
-	wallets := newPrivyWalletService(client.Wallets, jwtExchange, baseURL, opts.AppID, defaultRequestExpiryMs, logger)
+	wallets := newPrivyWalletService(client.Wallets, jwtExchange, baseURL, opts.AppID, defaultRequestExpiryMs, requestExpiryEnabled, logger)
 
 	return &PrivyClient{
 		client:       client,
 		logger:       logger,
 		Wallets:      wallets,
 		Users:        newPrivyUserService(client.Users, logger),
-		Policies:     newPrivyPolicyService(client.Policies, jwtExchange, baseURL, opts.AppID, defaultRequestExpiryMs, logger),
+		Policies:     newPrivyPolicyService(client.Policies, jwtExchange, baseURL, opts.AppID, defaultRequestExpiryMs, requestExpiryEnabled, logger),
 		Transactions: newPrivyTransactionService(client.Transactions, logger),
-		KeyQuorums:   newPrivyKeyQuorumService(client.KeyQuorums, jwtExchange, baseURL, opts.AppID, defaultRequestExpiryMs, logger),
+		KeyQuorums:   newPrivyKeyQuorumService(client.KeyQuorums, jwtExchange, baseURL, opts.AppID, defaultRequestExpiryMs, requestExpiryEnabled, logger),
 		Intents:      newPrivyIntentService(client.Intents, logger),
 		Analytics:    newPrivyAnalyticsService(client.Analytics, logger),
 		Apps:         newPrivyAppService(client.Apps, logger),
