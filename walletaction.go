@@ -31,6 +31,17 @@ func NewWalletActionService(opts ...option.RequestOption) (r WalletActionService
 	return
 }
 
+// Type of wallet action
+type WalletActionType string
+
+const (
+	WalletActionTypeSwap               WalletActionType = "swap"
+	WalletActionTypeTransfer           WalletActionType = "transfer"
+	WalletActionTypeEarnDeposit        WalletActionType = "earn_deposit"
+	WalletActionTypeEarnWithdraw       WalletActionType = "earn_withdraw"
+	WalletActionTypeEarnIncentiveClaim WalletActionType = "earn_incentive_claim"
+)
+
 // Status of a wallet action.
 type WalletActionStatus string
 
