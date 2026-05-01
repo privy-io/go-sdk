@@ -41,6 +41,39 @@ func TestRequestExpiryDisabled(t *testing.T) {
 	}
 }
 
+func TestRequestExpiryDisabledSupersedesDefaultRequestExpiryMs(t *testing.T) {
+	var capturedReq *http.Request
+	customClient := &http.Client{
+		Transport: &closureTransport{
+			fn: func(req *http.Request) (*http.Response, error) {
+				capturedReq = req
+				return &http.Response{StatusCode: http.StatusOK}, nil
+			},
+		},
+	}
+
+	client := privyclient.NewPrivyClient(privyclient.PrivyClientOptions{
+		AppID:                  "test-app-id",
+		AppSecret:              "test-app-secret",
+		DefaultRequestExpiryMs: 30 * 60 * 1000,
+		DisableRequestExpiry:   true,
+		HTTPClient:             customClient,
+	})
+
+	_, _ = client.Wallets.Rpc(
+		context.Background(),
+		"wallet-id",
+		privyclient.WalletRpcParams{},
+	)
+
+	if capturedReq == nil {
+		t.Fatal("expected request to be captured")
+	}
+	if got := capturedReq.Header.Get("Privy-Request-Expiry"); got != "" {
+		t.Errorf("expected DisableRequestExpiry to supersede DefaultRequestExpiryMs, got header %q", got)
+	}
+}
+
 func TestRequestExpiryEnabledByDefault(t *testing.T) {
 	var capturedReq *http.Request
 	customClient := &http.Client{
