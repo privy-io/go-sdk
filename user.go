@@ -370,6 +370,43 @@ const (
 	LinkedAccountPhoneTypePhone LinkedAccountPhoneType = "phone"
 )
 
+// Base schema for wallet accounts linked to the user.
+type LinkedAccountBaseWallet struct {
+	Address string `json:"address" api:"required"`
+	// Any of "solana", "ethereum".
+	ChainType LinkedAccountBaseWalletChainType `json:"chain_type" api:"required"`
+	// Any of "wallet", "smart_wallet".
+	Type LinkedAccountBaseWalletType `json:"type" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Address     respjson.Field
+		ChainType   respjson.Field
+		Type        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r LinkedAccountBaseWallet) RawJSON() string { return r.JSON.raw }
+func (r *LinkedAccountBaseWallet) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type LinkedAccountBaseWalletChainType string
+
+const (
+	LinkedAccountBaseWalletChainTypeSolana   LinkedAccountBaseWalletChainType = "solana"
+	LinkedAccountBaseWalletChainTypeEthereum LinkedAccountBaseWalletChainType = "ethereum"
+)
+
+type LinkedAccountBaseWalletType string
+
+const (
+	LinkedAccountBaseWalletTypeWallet      LinkedAccountBaseWalletType = "wallet"
+	LinkedAccountBaseWalletTypeSmartWallet LinkedAccountBaseWalletType = "smart_wallet"
+)
+
 // An Ethereum wallet account linked to the user.
 type LinkedAccountEthereum struct {
 	Address string `json:"address" api:"required"`

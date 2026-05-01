@@ -30,6 +30,7 @@ type Client struct {
 	Intents    IntentService
 	// Operations related to app settings and allowlist management
 	Apps            AppService
+	Webhooks        WebhookService
 	ClientAuth      ClientAuthService
 	Shared          SharedService
 	EmbeddedWallets EmbeddedWalletService
@@ -40,7 +41,6 @@ type Client struct {
 	Funding         FundingService
 	CrossApp        CrossAppService
 	KrakenEmbed     KrakenEmbedService
-	Webhooks        WebhookService
 	Yield           YieldService
 	Accounts        AccountService
 	Swaps           SwapService
@@ -86,6 +86,7 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.KeyQuorums = NewKeyQuorumService(opts...)
 	r.Intents = NewIntentService(opts...)
 	r.Apps = NewAppService(opts...)
+	r.Webhooks = NewWebhookService(opts...)
 	r.ClientAuth = NewClientAuthService(opts...)
 	r.Shared = NewSharedService(opts...)
 	r.EmbeddedWallets = NewEmbeddedWalletService(opts...)
@@ -96,7 +97,6 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.Funding = NewFundingService(opts...)
 	r.CrossApp = NewCrossAppService(opts...)
 	r.KrakenEmbed = NewKrakenEmbedService(opts...)
-	r.Webhooks = NewWebhookService(opts...)
 	r.Yield = NewYieldService(opts...)
 	r.Accounts = NewAccountService(opts...)
 	r.Swaps = NewSwapService(opts...)
