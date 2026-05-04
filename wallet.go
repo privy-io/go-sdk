@@ -6239,6 +6239,118 @@ const (
 	WalletAuthenticateRequestBodyEncryptionTypeHpke WalletAuthenticateRequestBodyEncryptionType = "HPKE"
 )
 
+// WalletAuthenticateWithJwtResponseUnion contains all possible properties and
+// values from [WalletAuthenticateWithJwtResponseWithEncryption],
+// [WalletAuthenticateWithJwtResponseWithoutEncryption].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type WalletAuthenticateWithJwtResponseUnion struct {
+	// This field is from variant [WalletAuthenticateWithJwtResponseWithEncryption].
+	EncryptedAuthorizationKey WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey `json:"encrypted_authorization_key"`
+	ExpiresAt                 float64                                                                  `json:"expires_at"`
+	Wallets                   []Wallet                                                                 `json:"wallets"`
+	// This field is from variant [WalletAuthenticateWithJwtResponseWithoutEncryption].
+	AuthorizationKey string `json:"authorization_key"`
+	JSON             struct {
+		EncryptedAuthorizationKey respjson.Field
+		ExpiresAt                 respjson.Field
+		Wallets                   respjson.Field
+		AuthorizationKey          respjson.Field
+		raw                       string
+	} `json:"-"`
+}
+
+func (u WalletAuthenticateWithJwtResponseUnion) AsWithEncryption() (v WalletAuthenticateWithJwtResponseWithEncryption) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletAuthenticateWithJwtResponseUnion) AsWithoutEncryption() (v WalletAuthenticateWithJwtResponseWithoutEncryption) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u WalletAuthenticateWithJwtResponseUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *WalletAuthenticateWithJwtResponseUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type WalletAuthenticateWithJwtResponseWithEncryption struct {
+	// The encrypted authorization key data.
+	EncryptedAuthorizationKey WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey `json:"encrypted_authorization_key" api:"required"`
+	// The expiration time of the authorization key in milliseconds since the epoch.
+	ExpiresAt float64  `json:"expires_at" api:"required"`
+	Wallets   []Wallet `json:"wallets" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		EncryptedAuthorizationKey respjson.Field
+		ExpiresAt                 respjson.Field
+		Wallets                   respjson.Field
+		ExtraFields               map[string]respjson.Field
+		raw                       string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletAuthenticateWithJwtResponseWithEncryption) RawJSON() string { return r.JSON.raw }
+func (r *WalletAuthenticateWithJwtResponseWithEncryption) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The encrypted authorization key data.
+type WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey struct {
+	// The encrypted authorization key corresponding to the user's current
+	// authentication session.
+	Ciphertext string `json:"ciphertext" api:"required"`
+	// Base64-encoded ephemeral public key used in the HPKE encryption process.
+	// Required for decryption.
+	EncapsulatedKey string `json:"encapsulated_key" api:"required"`
+	// The encryption type used. Currently only supports HPKE.
+	//
+	// Any of "HPKE".
+	EncryptionType string `json:"encryption_type" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Ciphertext      respjson.Field
+		EncapsulatedKey respjson.Field
+		EncryptionType  respjson.Field
+		ExtraFields     map[string]respjson.Field
+		raw             string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey) RawJSON() string {
+	return r.JSON.raw
+}
+func (r *WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type WalletAuthenticateWithJwtResponseWithoutEncryption struct {
+	// The raw authorization key data.
+	AuthorizationKey string `json:"authorization_key" api:"required"`
+	// The expiration time of the authorization key in milliseconds since the epoch.
+	ExpiresAt float64  `json:"expires_at" api:"required"`
+	Wallets   []Wallet `json:"wallets" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		AuthorizationKey respjson.Field
+		ExpiresAt        respjson.Field
+		Wallets          respjson.Field
+		ExtraFields      map[string]respjson.Field
+		raw              string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletAuthenticateWithJwtResponseWithoutEncryption) RawJSON() string { return r.JSON.raw }
+func (r *WalletAuthenticateWithJwtResponseWithoutEncryption) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // The wallet chain types.
 type WalletChainType string
 
@@ -7527,118 +7639,6 @@ type WalletInitImportResponse struct {
 // Returns the unmodified JSON received from the API
 func (r WalletInitImportResponse) RawJSON() string { return r.JSON.raw }
 func (r *WalletInitImportResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// WalletAuthenticateWithJwtResponseUnion contains all possible properties and
-// values from [WalletAuthenticateWithJwtResponseWithEncryption],
-// [WalletAuthenticateWithJwtResponseWithoutEncryption].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-type WalletAuthenticateWithJwtResponseUnion struct {
-	// This field is from variant [WalletAuthenticateWithJwtResponseWithEncryption].
-	EncryptedAuthorizationKey WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey `json:"encrypted_authorization_key"`
-	ExpiresAt                 float64                                                                  `json:"expires_at"`
-	Wallets                   []Wallet                                                                 `json:"wallets"`
-	// This field is from variant [WalletAuthenticateWithJwtResponseWithoutEncryption].
-	AuthorizationKey string `json:"authorization_key"`
-	JSON             struct {
-		EncryptedAuthorizationKey respjson.Field
-		ExpiresAt                 respjson.Field
-		Wallets                   respjson.Field
-		AuthorizationKey          respjson.Field
-		raw                       string
-	} `json:"-"`
-}
-
-func (u WalletAuthenticateWithJwtResponseUnion) AsWithEncryption() (v WalletAuthenticateWithJwtResponseWithEncryption) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u WalletAuthenticateWithJwtResponseUnion) AsWithoutEncryption() (v WalletAuthenticateWithJwtResponseWithoutEncryption) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u WalletAuthenticateWithJwtResponseUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *WalletAuthenticateWithJwtResponseUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type WalletAuthenticateWithJwtResponseWithEncryption struct {
-	// The encrypted authorization key data.
-	EncryptedAuthorizationKey WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey `json:"encrypted_authorization_key" api:"required"`
-	// The expiration time of the authorization key in milliseconds since the epoch.
-	ExpiresAt float64  `json:"expires_at" api:"required"`
-	Wallets   []Wallet `json:"wallets" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		EncryptedAuthorizationKey respjson.Field
-		ExpiresAt                 respjson.Field
-		Wallets                   respjson.Field
-		ExtraFields               map[string]respjson.Field
-		raw                       string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r WalletAuthenticateWithJwtResponseWithEncryption) RawJSON() string { return r.JSON.raw }
-func (r *WalletAuthenticateWithJwtResponseWithEncryption) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The encrypted authorization key data.
-type WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey struct {
-	// The encrypted authorization key corresponding to the user's current
-	// authentication session.
-	Ciphertext string `json:"ciphertext" api:"required"`
-	// Base64-encoded ephemeral public key used in the HPKE encryption process.
-	// Required for decryption.
-	EncapsulatedKey string `json:"encapsulated_key" api:"required"`
-	// The encryption type used. Currently only supports HPKE.
-	//
-	// Any of "HPKE".
-	EncryptionType string `json:"encryption_type" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Ciphertext      respjson.Field
-		EncapsulatedKey respjson.Field
-		EncryptionType  respjson.Field
-		ExtraFields     map[string]respjson.Field
-		raw             string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey) RawJSON() string {
-	return r.JSON.raw
-}
-func (r *WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type WalletAuthenticateWithJwtResponseWithoutEncryption struct {
-	// The raw authorization key data.
-	AuthorizationKey string `json:"authorization_key" api:"required"`
-	// The expiration time of the authorization key in milliseconds since the epoch.
-	ExpiresAt float64  `json:"expires_at" api:"required"`
-	Wallets   []Wallet `json:"wallets" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		AuthorizationKey respjson.Field
-		ExpiresAt        respjson.Field
-		Wallets          respjson.Field
-		ExtraFields      map[string]respjson.Field
-		raw              string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r WalletAuthenticateWithJwtResponseWithoutEncryption) RawJSON() string { return r.JSON.raw }
-func (r *WalletAuthenticateWithJwtResponseWithoutEncryption) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
