@@ -248,6 +248,8 @@ func TestWalletTransferWithOptionalParams(t *testing.T) {
 				SlippageBps: privyclient.Int(100),
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
+			PrivyIdempotencyKey:         privyclient.String("privy-idempotency-key"),
+			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {
