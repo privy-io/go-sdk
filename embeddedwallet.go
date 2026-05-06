@@ -111,7 +111,7 @@ type SmartWalletConfigurationEnabled struct {
 	// The supported smart wallet providers.
 	//
 	// Any of "safe", "kernel", "light_account", "biconomy", "coinbase_smart_wallet",
-	// "thirdweb".
+	// "thirdweb", "nexus".
 	SmartWalletType    SmartWalletType `json:"smart_wallet_type" api:"required"`
 	SmartWalletVersion string          `json:"smart_wallet_version"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -169,6 +169,7 @@ const (
 	SmartWalletTypeBiconomy            SmartWalletType = "biconomy"
 	SmartWalletTypeCoinbaseSmartWallet SmartWalletType = "coinbase_smart_wallet"
 	SmartWalletTypeThirdweb            SmartWalletType = "thirdweb"
+	SmartWalletTypeNexus               SmartWalletType = "nexus"
 )
 
 // An additional signer configuration for a wallet.

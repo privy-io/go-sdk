@@ -131,9 +131,14 @@ type AppResponse struct {
 	CustomAPIURL               string                           `json:"custom_api_url" api:"required"`
 	CustomJwtAuth              bool                             `json:"custom_jwt_auth" api:"required"`
 	CustomOAuthProviders       []AppResponseCustomOAuthProvider `json:"custom_oauth_providers" api:"required"`
-	DisablePlusEmails          bool                             `json:"disable_plus_emails" api:"required"`
-	DiscordOAuth               bool                             `json:"discord_oauth" api:"required"`
-	EmailAuth                  bool                             `json:"email_auth" api:"required"`
+	// Indicates that this response contains only publicly accessible data, not a
+	// privileged resource
+	//
+	// Any of "public".
+	DataClassification AppResponseDataClassification `json:"data_classification" api:"required"`
+	DisablePlusEmails  bool                          `json:"disable_plus_emails" api:"required"`
+	DiscordOAuth       bool                          `json:"discord_oauth" api:"required"`
+	EmailAuth          bool                          `json:"email_auth" api:"required"`
 	// Configuration for embedded wallets including the mode.
 	EmbeddedWalletConfig EmbeddedWalletConfigSchema `json:"embedded_wallet_config" api:"required"`
 	// Any of "turnstile", "hcaptcha".
@@ -195,6 +200,7 @@ type AppResponse struct {
 		CustomAPIURL                respjson.Field
 		CustomJwtAuth               respjson.Field
 		CustomOAuthProviders        respjson.Field
+		DataClassification          respjson.Field
 		DisablePlusEmails           respjson.Field
 		DiscordOAuth                respjson.Field
 		EmailAuth                   respjson.Field
@@ -295,6 +301,14 @@ func (r AppResponseCustomOAuthProvider) RawJSON() string { return r.JSON.raw }
 func (r *AppResponseCustomOAuthProvider) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// Indicates that this response contains only publicly accessible data, not a
+// privileged resource
+type AppResponseDataClassification string
+
+const (
+	AppResponseDataClassificationPublic AppResponseDataClassification = "public"
+)
 
 type AppResponseEnabledCaptchaProvider string
 
