@@ -437,6 +437,51 @@ func (r *EarnWithdrawRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// A wallet action step representing a cross-chain/cross-asset fill by an external
+// provider.
+type ExternalTransactionWalletActionStep struct {
+	// Status of an external transaction step in a wallet action.
+	//
+	// Any of "preparing", "queued", "pending", "confirmed", "rejected", "failed".
+	Status ExternalTransactionWalletActionStepStatus `json:"status" api:"required"`
+	// Any of "external_transaction".
+	Type ExternalTransactionWalletActionStepType `json:"type" api:"required"`
+	// A description of why a wallet action (or a step within a wallet action) failed.
+	FailureReason FailureReason `json:"failure_reason"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Status        respjson.Field
+		Type          respjson.Field
+		FailureReason respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ExternalTransactionWalletActionStep) RawJSON() string { return r.JSON.raw }
+func (r *ExternalTransactionWalletActionStep) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type ExternalTransactionWalletActionStepType string
+
+const (
+	ExternalTransactionWalletActionStepTypeExternalTransaction ExternalTransactionWalletActionStepType = "external_transaction"
+)
+
+// Status of an external transaction step in a wallet action.
+type ExternalTransactionWalletActionStepStatus string
+
+const (
+	ExternalTransactionWalletActionStepStatusPreparing ExternalTransactionWalletActionStepStatus = "preparing"
+	ExternalTransactionWalletActionStepStatusQueued    ExternalTransactionWalletActionStepStatus = "queued"
+	ExternalTransactionWalletActionStepStatusPending   ExternalTransactionWalletActionStepStatus = "pending"
+	ExternalTransactionWalletActionStepStatusConfirmed ExternalTransactionWalletActionStepStatus = "confirmed"
+	ExternalTransactionWalletActionStepStatusRejected  ExternalTransactionWalletActionStepStatus = "rejected"
+	ExternalTransactionWalletActionStepStatusFailed    ExternalTransactionWalletActionStepStatus = "failed"
+)
+
 // A description of why a wallet action (or a step within a wallet action) failed.
 type FailureReason struct {
 	// Human-readable failure message.
@@ -599,7 +644,7 @@ const (
 
 // WalletActionStepUnion contains all possible properties and values from
 // [EvmTransactionWalletActionStep], [EvmUserOperationWalletActionStep],
-// [SvmTransactionWalletActionStep].
+// [SvmTransactionWalletActionStep], [ExternalTransactionWalletActionStep].
 //
 // Use the [WalletActionStepUnion.AsAny] method to switch on the variant.
 //
@@ -609,7 +654,8 @@ type WalletActionStepUnion struct {
 	Status string `json:"status"`
 	// This field is from variant [EvmTransactionWalletActionStep].
 	TransactionHash string `json:"transaction_hash"`
-	// Any of "evm_transaction", "evm_user_operation", "svm_transaction".
+	// Any of "evm_transaction", "evm_user_operation", "svm_transaction",
+	// "external_transaction".
 	Type string `json:"type"`
 	// This field is from variant [EvmTransactionWalletActionStep].
 	FailureReason FailureReason `json:"failure_reason"`
@@ -641,9 +687,10 @@ type anyWalletActionStep interface {
 	implWalletActionStepUnion()
 }
 
-func (EvmTransactionWalletActionStep) implWalletActionStepUnion()   {}
-func (EvmUserOperationWalletActionStep) implWalletActionStepUnion() {}
-func (SvmTransactionWalletActionStep) implWalletActionStepUnion()   {}
+func (EvmTransactionWalletActionStep) implWalletActionStepUnion()      {}
+func (EvmUserOperationWalletActionStep) implWalletActionStepUnion()    {}
+func (SvmTransactionWalletActionStep) implWalletActionStepUnion()      {}
+func (ExternalTransactionWalletActionStep) implWalletActionStepUnion() {}
 
 // Use the following switch statement to find the correct variant
 //
@@ -651,6 +698,7 @@ func (SvmTransactionWalletActionStep) implWalletActionStepUnion()   {}
 //	case privyclient.EvmTransactionWalletActionStep:
 //	case privyclient.EvmUserOperationWalletActionStep:
 //	case privyclient.SvmTransactionWalletActionStep:
+//	case privyclient.ExternalTransactionWalletActionStep:
 //	default:
 //	  fmt.Errorf("no variant present")
 //	}
@@ -662,6 +710,8 @@ func (u WalletActionStepUnion) AsAny() anyWalletActionStep {
 		return u.AsEvmUserOperation()
 	case "svm_transaction":
 		return u.AsSvmTransaction()
+	case "external_transaction":
+		return u.AsExternalTransaction()
 	}
 	return nil
 }
@@ -677,6 +727,11 @@ func (u WalletActionStepUnion) AsEvmUserOperation() (v EvmUserOperationWalletAct
 }
 
 func (u WalletActionStepUnion) AsSvmTransaction() (v SvmTransactionWalletActionStep) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletActionStepUnion) AsExternalTransaction() (v ExternalTransactionWalletActionStep) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }

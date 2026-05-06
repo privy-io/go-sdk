@@ -2065,7 +2065,7 @@ type LinkedAccountSmartWallet struct {
 	// The supported smart wallet providers.
 	//
 	// Any of "safe", "kernel", "light_account", "biconomy", "coinbase_smart_wallet",
-	// "thirdweb".
+	// "thirdweb", "nexus".
 	SmartWalletType SmartWalletType `json:"smart_wallet_type" api:"required"`
 	// Any of "smart_wallet".
 	Type               LinkedAccountSmartWalletType `json:"type" api:"required"`
