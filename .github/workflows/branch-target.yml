@@ -1,0 +1,70 @@
+name: Branch Target
+
+on:
+  pull_request:
+    types: [opened, reopened, edited, synchronize]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Validate base branch and manage sticky comment
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const MARKER = '<!-- privy-branch-target-check -->';
+            const EXEMPT_AUTHORS = new Set(['stainless-app[bot]']);
+
+            const pr = context.payload.pull_request;
+            const baseRef = pr.base.ref;
+            const author = pr.user.login;
+            const isExempt = EXEMPT_AUTHORS.has(author);
+            const targetsMain = baseRef === 'main';
+            const shouldFail = targetsMain && !isExempt;
+
+            const { owner, repo } = context.repo;
+            const issue_number = pr.number;
+
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              { owner, repo, issue_number, per_page: 100 },
+            );
+            const existing = comments.find(c => c.body && c.body.includes(MARKER));
+
+            if (shouldFail) {
+              const body = [
+                `:warning: **This PR targets \`${baseRef}\`.**`,
+                '',
+                'Feature branches in this SDK should target `next` — `main` is reserved for release PRs.',
+                'Please change the base branch to `next` (or another stacked feature branch). If you believe `main` really is the right target, let a maintainer know.',
+                '',
+                MARKER,
+              ].join('\n');
+
+              if (existing) {
+                if (existing.body !== body) {
+                  await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+                }
+              } else {
+                await github.rest.issues.createComment({ owner, repo, issue_number, body });
+              }
+
+              core.setFailed(`PR #${issue_number} targets \`${baseRef}\`. Retarget to \`next\`.`);
+              return;
+            }
+
+            if (existing) {
+              await github.rest.issues.deleteComment({ owner, repo, comment_id: existing.id });
+            }
+
+            core.info(
+              isExempt
+                ? `Author ${author} is exempt; skipping base-ref check.`
+                : `PR targets \`${baseRef}\`; no action needed.`,
+            );
