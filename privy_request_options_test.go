@@ -3,7 +3,9 @@ package privyclient_test
 import (
 	"context"
 	"net/http"
+	"strconv"
 	"testing"
+	"time"
 
 	privyclient "github.com/privy-io/go-sdk"
 	"github.com/privy-io/go-sdk/option"
@@ -102,6 +104,46 @@ func TestRequestExpiryEnabledByDefault(t *testing.T) {
 	}
 	if got := capturedReq.Header.Get("Privy-Request-Expiry"); got == "" {
 		t.Error("expected privy-request-expiry header to be set by default")
+	}
+}
+
+func TestRequestExpiryUsesDefaultMsFromNested(t *testing.T) {
+	var capturedReq *http.Request
+	customClient := &http.Client{
+		Transport: &closureTransport{
+			fn: func(req *http.Request) (*http.Response, error) {
+				capturedReq = req
+				return &http.Response{StatusCode: http.StatusOK, Body: http.NoBody}, nil
+			},
+		},
+	}
+
+	tenMinutes := int64(10 * 60 * 1000)
+	client := privyclient.NewPrivyClient(privyclient.PrivyClientOptions{
+		AppID:     "test-app-id",
+		AppSecret: "test-app-secret",
+		RequestExpiry: privyclient.PrivyRequestExpiryOptions{
+			DefaultMs: tenMinutes,
+		},
+		HTTPClient: customClient,
+	})
+
+	_, _ = client.Wallets.Rpc(context.Background(), "wallet-id", privyclient.WalletRpcParams{})
+
+	if capturedReq == nil {
+		t.Fatal("expected request to be captured")
+	}
+	raw := capturedReq.Header.Get("Privy-Request-Expiry")
+	if raw == "" {
+		t.Fatal("expected privy-request-expiry header to be set")
+	}
+	expiry, err := strconv.ParseInt(raw, 10, 64)
+	if err != nil {
+		t.Fatalf("invalid privy-request-expiry header %q: %v", raw, err)
+	}
+	now := time.Now().UnixMilli()
+	if expiry < now+tenMinutes-2000 || expiry > now+tenMinutes+2000 {
+		t.Errorf("expected expiry ≈ now+10min, got %d (now=%d)", expiry, now)
 	}
 }
 

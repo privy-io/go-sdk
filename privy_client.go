@@ -12,6 +12,34 @@ import (
 	"github.com/privy-io/go-sdk/option"
 )
 
+// PrivyRequestExpiryOptions groups the request-expiry configuration for a
+// PrivyClient. Prefer this over the deprecated top-level fields on
+// PrivyClientOptions.
+//
+// Resolution rules when both this struct and a deprecated top-level alias
+// are provided on PrivyClientOptions:
+//   - DefaultMs / DefaultIntentMs: non-zero nested value wins per-field.
+//     Zero means "unset"; the deprecated alias (for DefaultMs only) and
+//     then the hardcoded default are consulted in order.
+//   - Disabled: OR semantics. Expiry is disabled if either this field or
+//     the deprecated DisableRequestExpiry is true. Go cannot distinguish
+//     "unset" from "false" on a bool, so an explicit false in the nested
+//     struct cannot override a true in the deprecated alias.
+type PrivyRequestExpiryOptions struct {
+	// DefaultMs is the default request expiry duration in milliseconds
+	// for non-intents endpoints. If zero, defaults to 15 minutes.
+	DefaultMs int64
+
+	// DefaultIntentMs is the default request expiry duration in
+	// milliseconds for intents-endpoint calls. If zero, defaults to 72 hours.
+	DefaultIntentMs int64
+
+	// Disabled, when true, suppresses the `privy-request-expiry` header on
+	// all outgoing requests unless explicitly provided per-request.
+	// Defaults to false.
+	Disabled bool
+}
+
 // PrivyClientOptions contains configuration options for creating a PrivyClient.
 type PrivyClientOptions struct {
 	// AppID is your Privy application ID (required).
@@ -34,12 +62,20 @@ type PrivyClientOptions struct {
 	// This is used as the offset from the current time to compute the "privy-request-expiry" header.
 	// If not provided, defaults to 15 minutes (900000 ms).
 	// Can be overridden per-request, where applicable, using WithRequestExpiry.
+	//
+	// Deprecated: Use RequestExpiry.DefaultMs instead.
 	DefaultRequestExpiryMs int64
 
 	// DisableRequestExpiry opts out of automatically setting the "privy-request-expiry"
 	// header on requests. When true, no expiry header will be sent unless explicitly
 	// provided per-request via WithRequestExpiry. Defaults to false.
+	//
+	// Deprecated: Use RequestExpiry.Disabled instead.
 	DisableRequestExpiry bool
+
+	// RequestExpiry configures request-expiry behaviour. Recommended over
+	// the deprecated top-level DefaultRequestExpiryMs and DisableRequestExpiry.
+	RequestExpiry PrivyRequestExpiryOptions
 
 	// HTTPClient sets the default *http.Client used across all requests (optional).
 	// If not provided, defaults to http.DefaultClient.
@@ -137,14 +173,23 @@ func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
 		baseURL = "https://api.privy.io"
 	}
 
-	// Resolve default request expiry (fallback to 15 minutes)
-	defaultRequestExpiryMs := opts.DefaultRequestExpiryMs
+	// Resolve default general request expiry: nested wins per-field, zero = unset.
+	defaultRequestExpiryMs := opts.RequestExpiry.DefaultMs
+	if defaultRequestExpiryMs == 0 {
+		defaultRequestExpiryMs = opts.DefaultRequestExpiryMs
+	}
 	if defaultRequestExpiryMs == 0 {
 		defaultRequestExpiryMs = 15 * 60 * 1000
 	}
 
-	// Resolve request expiry enabled (inverted from DisableRequestExpiry)
-	requestExpiryEnabled := !opts.DisableRequestExpiry
+	// Resolve default intent request expiry: new field only, no deprecated alias.
+	defaultIntentRequestExpiryMs := opts.RequestExpiry.DefaultIntentMs
+	if defaultIntentRequestExpiryMs == 0 {
+		defaultIntentRequestExpiryMs = 72 * 60 * 60 * 1000
+	}
+
+	// Resolve "disabled": OR of nested and deprecated bool (see RequestExpiry doc).
+	requestExpiryEnabled := !(opts.RequestExpiry.Disabled || opts.DisableRequestExpiry)
 
 	client := NewClient(requestOpts...)
 
@@ -162,7 +207,7 @@ func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
 		Policies:     newPrivyPolicyService(client.Policies, jwtExchange, baseURL, opts.AppID, defaultRequestExpiryMs, requestExpiryEnabled, logger),
 		Transactions: newPrivyTransactionService(client.Transactions, logger),
 		KeyQuorums:   newPrivyKeyQuorumService(client.KeyQuorums, jwtExchange, baseURL, opts.AppID, defaultRequestExpiryMs, requestExpiryEnabled, logger),
-		Intents:      newPrivyIntentService(client.Intents, logger),
+		Intents:      newPrivyIntentService(client.Intents, defaultIntentRequestExpiryMs, requestExpiryEnabled, logger),
 		Analytics:    newPrivyAnalyticsService(client.Analytics, logger),
 		Apps:         newPrivyAppService(client.Apps, logger),
 		Aggregations: newPrivyAggregationService(client.Aggregations, logger),
