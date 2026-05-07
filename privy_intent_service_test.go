@@ -24,6 +24,22 @@ func captureIntentExpiryHeader(
 ) (headerValue string, beforeMs int64) {
 	t.Helper()
 
+	req, beforeMs := captureIntentRpcRequest(t, clientOpts, callOpts...)
+	return req.Header.Get("Privy-Request-Expiry"), beforeMs
+}
+
+// captureIntentRpcRequest runs client.Intents.Rpc with the provided call
+// options and returns the full outgoing *http.Request, along with the
+// timestamp (unix ms) recorded just before the call. The HTTP transport
+// short-circuits with a 200 response so no real network traffic leaves the
+// process.
+func captureIntentRpcRequest(
+	t *testing.T,
+	clientOpts privyclient.PrivyClientOptions,
+	callOpts ...privyclient.RequestOption,
+) (req *http.Request, beforeMs int64) {
+	t.Helper()
+
 	var capturedReq *http.Request
 	customClient := &http.Client{
 		Transport: &closureTransport{
@@ -51,7 +67,7 @@ func captureIntentExpiryHeader(
 	if capturedReq == nil {
 		t.Fatal("expected request to be captured")
 	}
-	return capturedReq.Header.Get("Privy-Request-Expiry"), beforeMs
+	return capturedReq, beforeMs
 }
 
 func assertExpiryWithin(t *testing.T, headerValue string, beforeMs, expectedOffsetMs int64) {
@@ -122,4 +138,13 @@ func TestIntentRequestExpiryIndependentFromDefaultRequestExpiryMs(t *testing.T) 
 		DefaultRequestExpiryMs: 30 * 60 * 1000, // 30 minutes — must be ignored for intents
 	})
 	assertExpiryWithin(t, header, before, 72*60*60*1000)
+}
+
+func TestIntentRequestExpiryHonorsDisableFlag(t *testing.T) {
+	req, _ := captureIntentRpcRequest(t, privyclient.PrivyClientOptions{
+		DisableRequestExpiry: true,
+	})
+	if got := req.Header.Get("Privy-Request-Expiry"); got != "" {
+		t.Errorf("expected no privy-request-expiry header when DisableRequestExpiry=true, got %q", got)
+	}
 }

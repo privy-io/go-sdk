@@ -175,7 +175,7 @@ func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
 		Policies:     newPrivyPolicyService(client.Policies, jwtExchange, baseURL, opts.AppID, defaultRequestExpiryMs, requestExpiryEnabled, logger),
 		Transactions: newPrivyTransactionService(client.Transactions, logger),
 		KeyQuorums:   newPrivyKeyQuorumService(client.KeyQuorums, jwtExchange, baseURL, opts.AppID, defaultRequestExpiryMs, requestExpiryEnabled, logger),
-		Intents:      newPrivyIntentService(client.Intents, defaultIntentRequestExpiryMs, logger),
+		Intents:      newPrivyIntentService(client.Intents, defaultIntentRequestExpiryMs, requestExpiryEnabled, logger),
 		Analytics:    newPrivyAnalyticsService(client.Analytics, logger),
 		Apps:         newPrivyAppService(client.Apps, logger),
 		Aggregations: newPrivyAggregationService(client.Aggregations, logger),
