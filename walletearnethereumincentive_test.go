@@ -35,6 +35,8 @@ func TestWalletEarnEthereumIncentiveClaimWithOptionalParams(t *testing.T) {
 				Chain: "base",
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
+			PrivyIdempotencyKey:         privyclient.String("privy-idempotency-key"),
+			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {

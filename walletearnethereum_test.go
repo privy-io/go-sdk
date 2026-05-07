@@ -37,6 +37,8 @@ func TestWalletEarnEthereumDepositWithOptionalParams(t *testing.T) {
 				RawAmount: privyclient.String("321669910225"),
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
+			PrivyIdempotencyKey:         privyclient.String("privy-idempotency-key"),
+			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {
@@ -72,6 +74,8 @@ func TestWalletEarnEthereumWithdrawWithOptionalParams(t *testing.T) {
 				RawAmount: privyclient.String("321669910225"),
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
+			PrivyIdempotencyKey:         privyclient.String("privy-idempotency-key"),
+			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {

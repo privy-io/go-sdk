@@ -31,52 +31,6 @@ func NewWalletActionService(opts ...option.RequestOption) (r WalletActionService
 	return
 }
 
-// Status of a wallet action.
-type WalletActionStatus string
-
-const (
-	WalletActionStatusPending   WalletActionStatus = "pending"
-	WalletActionStatusSucceeded WalletActionStatus = "succeeded"
-	WalletActionStatusRejected  WalletActionStatus = "rejected"
-	WalletActionStatusFailed    WalletActionStatus = "failed"
-)
-
-// Status of an EVM step in a wallet action.
-type EvmWalletActionStepStatus string
-
-const (
-	EvmWalletActionStepStatusPreparing EvmWalletActionStepStatus = "preparing"
-	EvmWalletActionStepStatusQueued    EvmWalletActionStepStatus = "queued"
-	EvmWalletActionStepStatusPending   EvmWalletActionStepStatus = "pending"
-	EvmWalletActionStepStatusRetrying  EvmWalletActionStepStatus = "retrying"
-	EvmWalletActionStepStatusConfirmed EvmWalletActionStepStatus = "confirmed"
-	EvmWalletActionStepStatusRejected  EvmWalletActionStepStatus = "rejected"
-	EvmWalletActionStepStatusReverted  EvmWalletActionStepStatus = "reverted"
-	EvmWalletActionStepStatusReplaced  EvmWalletActionStepStatus = "replaced"
-	EvmWalletActionStepStatusAbandoned EvmWalletActionStepStatus = "abandoned"
-)
-
-// A description of why a wallet action (or a step within a wallet action) failed.
-type FailureReason struct {
-	// Human-readable failure message.
-	Message string `json:"message" api:"required"`
-	// Additional error details, if available.
-	Details any `json:"details"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Message     respjson.Field
-		Details     respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r FailureReason) RawJSON() string { return r.JSON.raw }
-func (r *FailureReason) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // A wallet action step consisting of an EVM transaction.
 type EvmTransactionWalletActionStep struct {
 	// CAIP-2 chain identifier of the transaction, containing the chain ID.
@@ -176,232 +130,20 @@ const (
 	EvmUserOperationWalletActionStepTypeEvmUserOperation EvmUserOperationWalletActionStepType = "evm_user_operation"
 )
 
-// Status of an SVM step in a wallet action.
-type SvmWalletActionStepStatus string
+// Status of an EVM step in a wallet action.
+type EvmWalletActionStepStatus string
 
 const (
-	SvmWalletActionStepStatusPreparing SvmWalletActionStepStatus = "preparing"
-	SvmWalletActionStepStatusQueued    SvmWalletActionStepStatus = "queued"
-	SvmWalletActionStepStatusPending   SvmWalletActionStepStatus = "pending"
-	SvmWalletActionStepStatusConfirmed SvmWalletActionStepStatus = "confirmed"
-	SvmWalletActionStepStatusFinalized SvmWalletActionStepStatus = "finalized"
-	SvmWalletActionStepStatusRejected  SvmWalletActionStepStatus = "rejected"
-	SvmWalletActionStepStatusReverted  SvmWalletActionStepStatus = "reverted"
-	SvmWalletActionStepStatusFailed    SvmWalletActionStepStatus = "failed"
+	EvmWalletActionStepStatusPreparing EvmWalletActionStepStatus = "preparing"
+	EvmWalletActionStepStatusQueued    EvmWalletActionStepStatus = "queued"
+	EvmWalletActionStepStatusPending   EvmWalletActionStepStatus = "pending"
+	EvmWalletActionStepStatusRetrying  EvmWalletActionStepStatus = "retrying"
+	EvmWalletActionStepStatusConfirmed EvmWalletActionStepStatus = "confirmed"
+	EvmWalletActionStepStatusRejected  EvmWalletActionStepStatus = "rejected"
+	EvmWalletActionStepStatusReverted  EvmWalletActionStepStatus = "reverted"
+	EvmWalletActionStepStatusReplaced  EvmWalletActionStepStatus = "replaced"
+	EvmWalletActionStepStatusAbandoned EvmWalletActionStepStatus = "abandoned"
 )
-
-// A wallet action step consisting of an SVM (Solana) transaction.
-type SvmTransactionWalletActionStep struct {
-	// CAIP-2 chain identifier for the Solana network.
-	Caip2 string `json:"caip2" api:"required"`
-	// Status of an SVM step in a wallet action.
-	//
-	// Any of "preparing", "queued", "pending", "confirmed", "finalized", "rejected",
-	// "reverted", "failed".
-	Status SvmWalletActionStepStatus `json:"status" api:"required"`
-	// The Solana transaction signature (base58-encoded). Null until broadcast.
-	TransactionSignature string `json:"transaction_signature" api:"required"`
-	// Any of "svm_transaction".
-	Type SvmTransactionWalletActionStepType `json:"type" api:"required"`
-	// A description of why a wallet action (or a step within a wallet action) failed.
-	FailureReason FailureReason `json:"failure_reason"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Caip2                respjson.Field
-		Status               respjson.Field
-		TransactionSignature respjson.Field
-		Type                 respjson.Field
-		FailureReason        respjson.Field
-		ExtraFields          map[string]respjson.Field
-		raw                  string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r SvmTransactionWalletActionStep) RawJSON() string { return r.JSON.raw }
-func (r *SvmTransactionWalletActionStep) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type SvmTransactionWalletActionStepType string
-
-const (
-	SvmTransactionWalletActionStepTypeSvmTransaction SvmTransactionWalletActionStepType = "svm_transaction"
-)
-
-// WalletActionStepUnion contains all possible properties and values from
-// [EvmTransactionWalletActionStep], [EvmUserOperationWalletActionStep],
-// [SvmTransactionWalletActionStep].
-//
-// Use the [WalletActionStepUnion.AsAny] method to switch on the variant.
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-type WalletActionStepUnion struct {
-	Caip2  string `json:"caip2"`
-	Status string `json:"status"`
-	// This field is from variant [EvmTransactionWalletActionStep].
-	TransactionHash string `json:"transaction_hash"`
-	// Any of "evm_transaction", "evm_user_operation", "svm_transaction".
-	Type string `json:"type"`
-	// This field is from variant [EvmTransactionWalletActionStep].
-	FailureReason FailureReason `json:"failure_reason"`
-	// This field is from variant [EvmUserOperationWalletActionStep].
-	BundleTransactionHash string `json:"bundle_transaction_hash"`
-	// This field is from variant [EvmUserOperationWalletActionStep].
-	EntrypointVersion EvmUserOperationWalletActionStepEntrypointVersion `json:"entrypoint_version"`
-	// This field is from variant [EvmUserOperationWalletActionStep].
-	UserOperationHash string `json:"user_operation_hash"`
-	// This field is from variant [SvmTransactionWalletActionStep].
-	TransactionSignature string `json:"transaction_signature"`
-	JSON                 struct {
-		Caip2                 respjson.Field
-		Status                respjson.Field
-		TransactionHash       respjson.Field
-		Type                  respjson.Field
-		FailureReason         respjson.Field
-		BundleTransactionHash respjson.Field
-		EntrypointVersion     respjson.Field
-		UserOperationHash     respjson.Field
-		TransactionSignature  respjson.Field
-		raw                   string
-	} `json:"-"`
-}
-
-// anyWalletActionStep is implemented by each variant of [WalletActionStepUnion] to
-// add type safety for the return type of [WalletActionStepUnion.AsAny]
-type anyWalletActionStep interface {
-	implWalletActionStepUnion()
-}
-
-func (EvmTransactionWalletActionStep) implWalletActionStepUnion()   {}
-func (EvmUserOperationWalletActionStep) implWalletActionStepUnion() {}
-func (SvmTransactionWalletActionStep) implWalletActionStepUnion()   {}
-
-// Use the following switch statement to find the correct variant
-//
-//	switch variant := WalletActionStepUnion.AsAny().(type) {
-//	case privyclient.EvmTransactionWalletActionStep:
-//	case privyclient.EvmUserOperationWalletActionStep:
-//	case privyclient.SvmTransactionWalletActionStep:
-//	default:
-//	  fmt.Errorf("no variant present")
-//	}
-func (u WalletActionStepUnion) AsAny() anyWalletActionStep {
-	switch u.Type {
-	case "evm_transaction":
-		return u.AsEvmTransaction()
-	case "evm_user_operation":
-		return u.AsEvmUserOperation()
-	case "svm_transaction":
-		return u.AsSvmTransaction()
-	}
-	return nil
-}
-
-func (u WalletActionStepUnion) AsEvmTransaction() (v EvmTransactionWalletActionStep) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u WalletActionStepUnion) AsEvmUserOperation() (v EvmUserOperationWalletActionStep) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u WalletActionStepUnion) AsSvmTransaction() (v SvmTransactionWalletActionStep) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u WalletActionStepUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *WalletActionStepUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Response for a transfer action.
-type TransferActionResponse struct {
-	// The ID of the wallet action.
-	ID string `json:"id" api:"required"`
-	// ISO 8601 timestamp of when the wallet action was created.
-	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Recipient address.
-	DestinationAddress string `json:"destination_address" api:"required"`
-	// Decimal amount as the user provided (e.g. "1.5").
-	SourceAmount string `json:"source_amount" api:"required"`
-	// Asset identifier (e.g. "usdc", "eth").
-	SourceAsset string `json:"source_asset" api:"required"`
-	// Chain name (e.g. "base", "ethereum").
-	SourceChain string `json:"source_chain" api:"required"`
-	// Status of a wallet action.
-	//
-	// Any of "pending", "succeeded", "rejected", "failed".
-	Status WalletActionStatus `json:"status" api:"required"`
-	// Any of "transfer".
-	Type TransferActionResponseType `json:"type" api:"required"`
-	// The ID of the wallet involved in the action.
-	WalletID string `json:"wallet_id" api:"required"`
-	// A description of why a wallet action (or a step within a wallet action) failed.
-	FailureReason FailureReason `json:"failure_reason"`
-	// The steps of the wallet action. Only returned if `?include=steps` is provided.
-	Steps []WalletActionStepUnion `json:"steps"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID                 respjson.Field
-		CreatedAt          respjson.Field
-		DestinationAddress respjson.Field
-		SourceAmount       respjson.Field
-		SourceAsset        respjson.Field
-		SourceChain        respjson.Field
-		Status             respjson.Field
-		Type               respjson.Field
-		WalletID           respjson.Field
-		FailureReason      respjson.Field
-		Steps              respjson.Field
-		ExtraFields        map[string]respjson.Field
-		raw                string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r TransferActionResponse) RawJSON() string { return r.JSON.raw }
-func (r *TransferActionResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type TransferActionResponseType string
-
-const (
-	TransferActionResponseTypeTransfer TransferActionResponseType = "transfer"
-)
-
-// A specific reward token and amount associated with an earn incentive claim.
-type EarnIncetiveClaimRewardEntry struct {
-	// Claimable amount in base units.
-	Amount string `json:"amount" api:"required"`
-	// Address of the reward token.
-	TokenAddress string `json:"token_address" api:"required"`
-	// Symbol of the reward token (e.g. "MORPHO").
-	TokenSymbol string `json:"token_symbol" api:"required"`
-	// Number of decimal places for the reward token.
-	TokenDecimals int64 `json:"token_decimals"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Amount        respjson.Field
-		TokenAddress  respjson.Field
-		TokenSymbol   respjson.Field
-		TokenDecimals respjson.Field
-		ExtraFields   map[string]respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r EarnIncetiveClaimRewardEntry) RawJSON() string { return r.JSON.raw }
-func (r *EarnIncetiveClaimRewardEntry) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
 
 // Response for an earn deposit action.
 type EarnDepositActionResponse struct {
@@ -477,6 +219,126 @@ const (
 	EarnDepositActionResponseTypeEarnDeposit EarnDepositActionResponseType = "earn_deposit"
 )
 
+// Input for depositing assets into an ERC-4626 vault. Exactly one of `amount` or
+// `raw_amount` must be provided.
+//
+// The property VaultID is required.
+type EarnDepositRequestBody struct {
+	// The ID of the vault to deposit into.
+	VaultID string `json:"vault_id" api:"required"`
+	// Human-readable decimal amount to deposit (e.g. "1.5" for 1.5 USDC). Exactly one
+	// of `amount` or `raw_amount` must be provided.
+	Amount param.Opt[string] `json:"amount,omitzero"`
+	// Amount in smallest unit to deposit (e.g. "1500000" for 1.5 USDC with 6
+	// decimals). Exactly one of `amount` or `raw_amount` must be provided.
+	RawAmount param.Opt[string] `json:"raw_amount,omitzero"`
+	paramObj
+}
+
+func (r EarnDepositRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow EarnDepositRequestBody
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *EarnDepositRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response for an earn incentive claim action.
+type EarnIncentiveClaimActionResponse struct {
+	// The ID of the wallet action.
+	ID string `json:"id" api:"required"`
+	// EVM chain name (e.g. "base", "ethereum").
+	Chain string `json:"chain" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// Claimed reward tokens. Populated after the preparation step fetches from Merkl.
+	Rewards []EarnIncetiveClaimRewardEntry `json:"rewards" api:"required"`
+	// Status of a wallet action.
+	//
+	// Any of "pending", "succeeded", "rejected", "failed".
+	Status WalletActionStatus `json:"status" api:"required"`
+	// Any of "earn_incentive_claim".
+	Type EarnIncentiveClaimActionResponseType `json:"type" api:"required"`
+	// The ID of the wallet involved in the action.
+	WalletID string `json:"wallet_id" api:"required"`
+	// A description of why a wallet action (or a step within a wallet action) failed.
+	FailureReason FailureReason `json:"failure_reason"`
+	// The steps of the wallet action. Only returned if `?include=steps` is provided.
+	Steps []WalletActionStepUnion `json:"steps"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID            respjson.Field
+		Chain         respjson.Field
+		CreatedAt     respjson.Field
+		Rewards       respjson.Field
+		Status        respjson.Field
+		Type          respjson.Field
+		WalletID      respjson.Field
+		FailureReason respjson.Field
+		Steps         respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EarnIncentiveClaimActionResponse) RawJSON() string { return r.JSON.raw }
+func (r *EarnIncentiveClaimActionResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type EarnIncentiveClaimActionResponseType string
+
+const (
+	EarnIncentiveClaimActionResponseTypeEarnIncentiveClaim EarnIncentiveClaimActionResponseType = "earn_incentive_claim"
+)
+
+// Input for claiming incentive rewards.
+//
+// The property Chain is required.
+type EarnIncentiveClaimRequestBody struct {
+	// The blockchain network on which to perform the incentive claim. Supported chains
+	// include: 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and more, along
+	// with their respective testnets.
+	Chain string `json:"chain" api:"required"`
+	paramObj
+}
+
+func (r EarnIncentiveClaimRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow EarnIncentiveClaimRequestBody
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *EarnIncentiveClaimRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A specific reward token and amount associated with an earn incentive claim.
+type EarnIncetiveClaimRewardEntry struct {
+	// Claimable amount in base units.
+	Amount string `json:"amount" api:"required"`
+	// Address of the reward token.
+	TokenAddress string `json:"token_address" api:"required"`
+	// Symbol of the reward token (e.g. "MORPHO").
+	TokenSymbol string `json:"token_symbol" api:"required"`
+	// Number of decimal places for the reward token.
+	TokenDecimals int64 `json:"token_decimals"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Amount        respjson.Field
+		TokenAddress  respjson.Field
+		TokenSymbol   respjson.Field
+		TokenDecimals respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EarnIncetiveClaimRewardEntry) RawJSON() string { return r.JSON.raw }
+func (r *EarnIncetiveClaimRewardEntry) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Response for an earn withdraw action.
 type EarnWithdrawActionResponse struct {
 	// The ID of the wallet action.
@@ -551,80 +413,6 @@ const (
 	EarnWithdrawActionResponseTypeEarnWithdraw EarnWithdrawActionResponseType = "earn_withdraw"
 )
 
-// Response for an earn incentive claim action.
-type EarnIncentiveClaimActionResponse struct {
-	// The ID of the wallet action.
-	ID string `json:"id" api:"required"`
-	// EVM chain name (e.g. "base", "ethereum").
-	Chain string `json:"chain" api:"required"`
-	// ISO 8601 timestamp of when the wallet action was created.
-	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Claimed reward tokens. Populated after the preparation step fetches from Merkl.
-	Rewards []EarnIncetiveClaimRewardEntry `json:"rewards" api:"required"`
-	// Status of a wallet action.
-	//
-	// Any of "pending", "succeeded", "rejected", "failed".
-	Status WalletActionStatus `json:"status" api:"required"`
-	// Any of "earn_incentive_claim".
-	Type EarnIncentiveClaimActionResponseType `json:"type" api:"required"`
-	// The ID of the wallet involved in the action.
-	WalletID string `json:"wallet_id" api:"required"`
-	// A description of why a wallet action (or a step within a wallet action) failed.
-	FailureReason FailureReason `json:"failure_reason"`
-	// The steps of the wallet action. Only returned if `?include=steps` is provided.
-	Steps []WalletActionStepUnion `json:"steps"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID            respjson.Field
-		Chain         respjson.Field
-		CreatedAt     respjson.Field
-		Rewards       respjson.Field
-		Status        respjson.Field
-		Type          respjson.Field
-		WalletID      respjson.Field
-		FailureReason respjson.Field
-		Steps         respjson.Field
-		ExtraFields   map[string]respjson.Field
-		raw           string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r EarnIncentiveClaimActionResponse) RawJSON() string { return r.JSON.raw }
-func (r *EarnIncentiveClaimActionResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type EarnIncentiveClaimActionResponseType string
-
-const (
-	EarnIncentiveClaimActionResponseTypeEarnIncentiveClaim EarnIncentiveClaimActionResponseType = "earn_incentive_claim"
-)
-
-// Input for depositing assets into an ERC-4626 vault. Exactly one of `amount` or
-// `raw_amount` must be provided.
-//
-// The property VaultID is required.
-type EarnDepositRequestBody struct {
-	// The ID of the vault to deposit into.
-	VaultID string `json:"vault_id" api:"required"`
-	// Human-readable decimal amount to deposit (e.g. "1.5" for 1.5 USDC). Exactly one
-	// of `amount` or `raw_amount` must be provided.
-	Amount param.Opt[string] `json:"amount,omitzero"`
-	// Amount in smallest unit to deposit (e.g. "1500000" for 1.5 USDC with 6
-	// decimals). Exactly one of `amount` or `raw_amount` must be provided.
-	RawAmount param.Opt[string] `json:"raw_amount,omitzero"`
-	paramObj
-}
-
-func (r EarnDepositRequestBody) MarshalJSON() (data []byte, err error) {
-	type shadow EarnDepositRequestBody
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *EarnDepositRequestBody) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // Input for withdrawing assets from an ERC-4626 vault. Exactly one of `amount` or
 // `raw_amount` must be provided.
 //
@@ -649,21 +437,319 @@ func (r *EarnWithdrawRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Input for claiming incentive rewards.
-//
-// The property Chain is required.
-type EarnIncentiveClaimRequestBody struct {
-	// The blockchain network on which to perform the incentive claim. Supported chains
-	// include: 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and more, along
-	// with their respective testnets.
-	Chain string `json:"chain" api:"required"`
-	paramObj
+// A wallet action step representing a cross-chain/cross-asset fill by an external
+// provider.
+type ExternalTransactionWalletActionStep struct {
+	// Status of an external transaction step in a wallet action.
+	//
+	// Any of "preparing", "queued", "pending", "confirmed", "rejected", "failed".
+	Status ExternalTransactionWalletActionStepStatus `json:"status" api:"required"`
+	// Any of "external_transaction".
+	Type ExternalTransactionWalletActionStepType `json:"type" api:"required"`
+	// A description of why a wallet action (or a step within a wallet action) failed.
+	FailureReason FailureReason `json:"failure_reason"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Status        respjson.Field
+		Type          respjson.Field
+		FailureReason respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
 }
 
-func (r EarnIncentiveClaimRequestBody) MarshalJSON() (data []byte, err error) {
-	type shadow EarnIncentiveClaimRequestBody
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *EarnIncentiveClaimRequestBody) UnmarshalJSON(data []byte) error {
+// Returns the unmodified JSON received from the API
+func (r ExternalTransactionWalletActionStep) RawJSON() string { return r.JSON.raw }
+func (r *ExternalTransactionWalletActionStep) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+type ExternalTransactionWalletActionStepType string
+
+const (
+	ExternalTransactionWalletActionStepTypeExternalTransaction ExternalTransactionWalletActionStepType = "external_transaction"
+)
+
+// Status of an external transaction step in a wallet action.
+type ExternalTransactionWalletActionStepStatus string
+
+const (
+	ExternalTransactionWalletActionStepStatusPreparing ExternalTransactionWalletActionStepStatus = "preparing"
+	ExternalTransactionWalletActionStepStatusQueued    ExternalTransactionWalletActionStepStatus = "queued"
+	ExternalTransactionWalletActionStepStatusPending   ExternalTransactionWalletActionStepStatus = "pending"
+	ExternalTransactionWalletActionStepStatusConfirmed ExternalTransactionWalletActionStepStatus = "confirmed"
+	ExternalTransactionWalletActionStepStatusRejected  ExternalTransactionWalletActionStepStatus = "rejected"
+	ExternalTransactionWalletActionStepStatusFailed    ExternalTransactionWalletActionStepStatus = "failed"
+)
+
+// A description of why a wallet action (or a step within a wallet action) failed.
+type FailureReason struct {
+	// Human-readable failure message.
+	Message string `json:"message" api:"required"`
+	// Additional error details, if available.
+	Details any `json:"details"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Message     respjson.Field
+		Details     respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r FailureReason) RawJSON() string { return r.JSON.raw }
+func (r *FailureReason) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A wallet action step consisting of an SVM (Solana) transaction.
+type SvmTransactionWalletActionStep struct {
+	// CAIP-2 chain identifier for the Solana network.
+	Caip2 string `json:"caip2" api:"required"`
+	// Status of an SVM step in a wallet action.
+	//
+	// Any of "preparing", "queued", "pending", "confirmed", "finalized", "rejected",
+	// "reverted", "failed".
+	Status SvmWalletActionStepStatus `json:"status" api:"required"`
+	// The Solana transaction signature (base58-encoded). Null until broadcast.
+	TransactionSignature string `json:"transaction_signature" api:"required"`
+	// Any of "svm_transaction".
+	Type SvmTransactionWalletActionStepType `json:"type" api:"required"`
+	// A description of why a wallet action (or a step within a wallet action) failed.
+	FailureReason FailureReason `json:"failure_reason"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Caip2                respjson.Field
+		Status               respjson.Field
+		TransactionSignature respjson.Field
+		Type                 respjson.Field
+		FailureReason        respjson.Field
+		ExtraFields          map[string]respjson.Field
+		raw                  string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SvmTransactionWalletActionStep) RawJSON() string { return r.JSON.raw }
+func (r *SvmTransactionWalletActionStep) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type SvmTransactionWalletActionStepType string
+
+const (
+	SvmTransactionWalletActionStepTypeSvmTransaction SvmTransactionWalletActionStepType = "svm_transaction"
+)
+
+// Status of an SVM step in a wallet action.
+type SvmWalletActionStepStatus string
+
+const (
+	SvmWalletActionStepStatusPreparing SvmWalletActionStepStatus = "preparing"
+	SvmWalletActionStepStatusQueued    SvmWalletActionStepStatus = "queued"
+	SvmWalletActionStepStatusPending   SvmWalletActionStepStatus = "pending"
+	SvmWalletActionStepStatusConfirmed SvmWalletActionStepStatus = "confirmed"
+	SvmWalletActionStepStatusFinalized SvmWalletActionStepStatus = "finalized"
+	SvmWalletActionStepStatusRejected  SvmWalletActionStepStatus = "rejected"
+	SvmWalletActionStepStatusReverted  SvmWalletActionStepStatus = "reverted"
+	SvmWalletActionStepStatusFailed    SvmWalletActionStepStatus = "failed"
+)
+
+// Response for a transfer action.
+type TransferActionResponse struct {
+	// The ID of the wallet action.
+	ID string `json:"id" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// Recipient address.
+	DestinationAddress string `json:"destination_address" api:"required"`
+	// Chain name (e.g. "base", "ethereum").
+	SourceChain string `json:"source_chain" api:"required"`
+	// Status of a wallet action.
+	//
+	// Any of "pending", "succeeded", "rejected", "failed".
+	Status WalletActionStatus `json:"status" api:"required"`
+	// Any of "transfer".
+	Type TransferActionResponseType `json:"type" api:"required"`
+	// The ID of the wallet involved in the action.
+	WalletID string `json:"wallet_id" api:"required"`
+	// Amount received on the destination chain. Populated immediately for exact_output
+	// transfers, or after fill confirmation for exact_input transfers.
+	DestinationAmount string `json:"destination_amount"`
+	// Destination asset for cross-asset transfers. Omitted for same-asset transfers.
+	DestinationAsset string `json:"destination_asset"`
+	// Destination chain for cross-chain transfers. Omitted for same-chain transfers.
+	DestinationChain string `json:"destination_chain"`
+	// A description of why a wallet action (or a step within a wallet action) failed.
+	FailureReason FailureReason `json:"failure_reason"`
+	// Decimal amount sent on the source chain (e.g. "1.5"). Omitted for exact_output
+	// cross-chain transfers until the source amount is determined.
+	SourceAmount string `json:"source_amount"`
+	// Asset identifier (e.g. "usdc", "eth"). Present when the transfer was initiated
+	// with a named asset; omitted for custom-token transfers.
+	SourceAsset string `json:"source_asset"`
+	// Token contract address (EVM) or mint address (Solana). Present when the transfer
+	// was initiated with `asset_address`.
+	SourceAssetAddress string `json:"source_asset_address"`
+	// Number of decimals for the transferred token. Present when the transfer was
+	// initiated with `asset_address` and the decimals were resolved on-chain.
+	SourceAssetDecimals int64 `json:"source_asset_decimals"`
+	// The steps of the wallet action. Only returned if `?include=steps` is provided.
+	Steps []WalletActionStepUnion `json:"steps"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID                  respjson.Field
+		CreatedAt           respjson.Field
+		DestinationAddress  respjson.Field
+		SourceChain         respjson.Field
+		Status              respjson.Field
+		Type                respjson.Field
+		WalletID            respjson.Field
+		DestinationAmount   respjson.Field
+		DestinationAsset    respjson.Field
+		DestinationChain    respjson.Field
+		FailureReason       respjson.Field
+		SourceAmount        respjson.Field
+		SourceAsset         respjson.Field
+		SourceAssetAddress  respjson.Field
+		SourceAssetDecimals respjson.Field
+		Steps               respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TransferActionResponse) RawJSON() string { return r.JSON.raw }
+func (r *TransferActionResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type TransferActionResponseType string
+
+const (
+	TransferActionResponseTypeTransfer TransferActionResponseType = "transfer"
+)
+
+// Status of a wallet action.
+type WalletActionStatus string
+
+const (
+	WalletActionStatusPending   WalletActionStatus = "pending"
+	WalletActionStatusSucceeded WalletActionStatus = "succeeded"
+	WalletActionStatusRejected  WalletActionStatus = "rejected"
+	WalletActionStatusFailed    WalletActionStatus = "failed"
+)
+
+// WalletActionStepUnion contains all possible properties and values from
+// [EvmTransactionWalletActionStep], [EvmUserOperationWalletActionStep],
+// [SvmTransactionWalletActionStep], [ExternalTransactionWalletActionStep].
+//
+// Use the [WalletActionStepUnion.AsAny] method to switch on the variant.
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type WalletActionStepUnion struct {
+	Caip2  string `json:"caip2"`
+	Status string `json:"status"`
+	// This field is from variant [EvmTransactionWalletActionStep].
+	TransactionHash string `json:"transaction_hash"`
+	// Any of "evm_transaction", "evm_user_operation", "svm_transaction",
+	// "external_transaction".
+	Type string `json:"type"`
+	// This field is from variant [EvmTransactionWalletActionStep].
+	FailureReason FailureReason `json:"failure_reason"`
+	// This field is from variant [EvmUserOperationWalletActionStep].
+	BundleTransactionHash string `json:"bundle_transaction_hash"`
+	// This field is from variant [EvmUserOperationWalletActionStep].
+	EntrypointVersion EvmUserOperationWalletActionStepEntrypointVersion `json:"entrypoint_version"`
+	// This field is from variant [EvmUserOperationWalletActionStep].
+	UserOperationHash string `json:"user_operation_hash"`
+	// This field is from variant [SvmTransactionWalletActionStep].
+	TransactionSignature string `json:"transaction_signature"`
+	JSON                 struct {
+		Caip2                 respjson.Field
+		Status                respjson.Field
+		TransactionHash       respjson.Field
+		Type                  respjson.Field
+		FailureReason         respjson.Field
+		BundleTransactionHash respjson.Field
+		EntrypointVersion     respjson.Field
+		UserOperationHash     respjson.Field
+		TransactionSignature  respjson.Field
+		raw                   string
+	} `json:"-"`
+}
+
+// anyWalletActionStep is implemented by each variant of [WalletActionStepUnion] to
+// add type safety for the return type of [WalletActionStepUnion.AsAny]
+type anyWalletActionStep interface {
+	implWalletActionStepUnion()
+}
+
+func (EvmTransactionWalletActionStep) implWalletActionStepUnion()      {}
+func (EvmUserOperationWalletActionStep) implWalletActionStepUnion()    {}
+func (SvmTransactionWalletActionStep) implWalletActionStepUnion()      {}
+func (ExternalTransactionWalletActionStep) implWalletActionStepUnion() {}
+
+// Use the following switch statement to find the correct variant
+//
+//	switch variant := WalletActionStepUnion.AsAny().(type) {
+//	case privyclient.EvmTransactionWalletActionStep:
+//	case privyclient.EvmUserOperationWalletActionStep:
+//	case privyclient.SvmTransactionWalletActionStep:
+//	case privyclient.ExternalTransactionWalletActionStep:
+//	default:
+//	  fmt.Errorf("no variant present")
+//	}
+func (u WalletActionStepUnion) AsAny() anyWalletActionStep {
+	switch u.Type {
+	case "evm_transaction":
+		return u.AsEvmTransaction()
+	case "evm_user_operation":
+		return u.AsEvmUserOperation()
+	case "svm_transaction":
+		return u.AsSvmTransaction()
+	case "external_transaction":
+		return u.AsExternalTransaction()
+	}
+	return nil
+}
+
+func (u WalletActionStepUnion) AsEvmTransaction() (v EvmTransactionWalletActionStep) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletActionStepUnion) AsEvmUserOperation() (v EvmUserOperationWalletActionStep) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletActionStepUnion) AsSvmTransaction() (v SvmTransactionWalletActionStep) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletActionStepUnion) AsExternalTransaction() (v ExternalTransactionWalletActionStep) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u WalletActionStepUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *WalletActionStepUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Type of wallet action
+type WalletActionType string
+
+const (
+	WalletActionTypeSwap               WalletActionType = "swap"
+	WalletActionTypeTransfer           WalletActionType = "transfer"
+	WalletActionTypeEarnDeposit        WalletActionType = "earn_deposit"
+	WalletActionTypeEarnWithdraw       WalletActionType = "earn_withdraw"
+	WalletActionTypeEarnIncentiveClaim WalletActionType = "earn_incentive_claim"
+)

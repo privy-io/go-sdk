@@ -237,15 +237,19 @@ func TestWalletTransferWithOptionalParams(t *testing.T) {
 					Asset:   privyclient.String("usdc"),
 					Chain:   privyclient.String("base"),
 				},
-				Source: privyclient.TokenTransferSource{
-					Amount: "10.5",
-					Asset:  "usdc",
-					Chain:  "base",
+				Source: privyclient.TokenTransferSourceUnion{
+					OfNamedTokenTransferSource: &privyclient.NamedTokenTransferSource{
+						Amount: "10.5",
+						Asset:  "usdc",
+						Chain:  "base",
+					},
 				},
 				AmountType:  privyclient.AmountTypeExactInput,
 				SlippageBps: privyclient.Int(100),
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
+			PrivyIdempotencyKey:         privyclient.String("privy-idempotency-key"),
+			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {
@@ -395,8 +399,10 @@ func TestWalletRawSignWithOptionalParams(t *testing.T) {
 		privyclient.WalletRawSignParams{
 			RawSignInput: privyclient.RawSignInput{
 				Params: privyclient.RawSignInputParamsUnion{
-					OfRawSignHashs: &privyclient.RawSignHashParams{
-						Hash: "0x0775aeed9c9ce6e0fbc4db25c5e4e6368029651c905c286f813126a09025a21e",
+					OfRawSignBytess: &privyclient.RawSignBytesParams{
+						Bytes:        "0a0234ea220809701d7a17a77e04408093e981a6335a66080112620a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412310a15417009bf59e27d2031a23a61e1590289fc3d21b3cd121541132b98ed6fb80a2d45f177cdef091ae2d9dc115418e80770a0bee581a633",
+						Encoding:     privyclient.RawSignBytesEncodingHex,
+						HashFunction: privyclient.RawSignBytesHashFunctionSha256,
 					},
 				},
 			},
@@ -437,43 +443,45 @@ func TestWalletRpcWithOptionalParams(t *testing.T) {
 					Caip2:  "eip155:8453",
 					Method: privyclient.EthereumSendTransactionRpcInputMethodEthSendTransaction,
 					Params: privyclient.EthereumSendTransactionRpcInputParams{
-						Transaction: privyclient.UnsignedStandardEthereumTransaction{
-							AuthorizationList: []privyclient.EthereumSign7702Authorization{{
+						Transaction: privyclient.UnsignedEthereumTransactionUnion{
+							OfUnsignedStandardEthereumTransaction: &privyclient.UnsignedStandardEthereumTransaction{
+								AuthorizationList: []privyclient.EthereumSign7702Authorization{{
+									ChainID: privyclient.QuantityUnion{
+										OfString: privyclient.String("string"),
+									},
+									Contract: "contract",
+									Nonce: privyclient.QuantityUnion{
+										OfString: privyclient.String("string"),
+									},
+									R:       "string",
+									S:       "string",
+									YParity: 0,
+								}},
 								ChainID: privyclient.QuantityUnion{
 									OfString: privyclient.String("string"),
 								},
-								Contract: "contract",
+								Data: privyclient.String("string"),
+								From: privyclient.String("from"),
+								GasLimit: privyclient.QuantityUnion{
+									OfString: privyclient.String("string"),
+								},
+								GasPrice: privyclient.QuantityUnion{
+									OfString: privyclient.String("string"),
+								},
+								MaxFeePerGas: privyclient.QuantityUnion{
+									OfString: privyclient.String("string"),
+								},
+								MaxPriorityFeePerGas: privyclient.QuantityUnion{
+									OfString: privyclient.String("string"),
+								},
 								Nonce: privyclient.QuantityUnion{
 									OfString: privyclient.String("string"),
 								},
-								R:       "string",
-								S:       "string",
-								YParity: 0,
-							}},
-							ChainID: privyclient.QuantityUnion{
-								OfString: privyclient.String("string"),
-							},
-							Data: privyclient.String("string"),
-							From: privyclient.String("from"),
-							GasLimit: privyclient.QuantityUnion{
-								OfString: privyclient.String("string"),
-							},
-							GasPrice: privyclient.QuantityUnion{
-								OfString: privyclient.String("string"),
-							},
-							MaxFeePerGas: privyclient.QuantityUnion{
-								OfString: privyclient.String("string"),
-							},
-							MaxPriorityFeePerGas: privyclient.QuantityUnion{
-								OfString: privyclient.String("string"),
-							},
-							Nonce: privyclient.QuantityUnion{
-								OfString: privyclient.String("string"),
-							},
-							To:   privyclient.String("0x0000000000000000000000000000000000000000"),
-							Type: 0,
-							Value: privyclient.QuantityUnion{
-								OfInt: privyclient.Int(1),
+								To:   privyclient.String("0x0000000000000000000000000000000000000000"),
+								Type: 0,
+								Value: privyclient.QuantityUnion{
+									OfInt: privyclient.Int(1),
+								},
 							},
 						},
 					},

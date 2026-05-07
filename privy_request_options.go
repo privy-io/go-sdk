@@ -2,6 +2,7 @@ package privyclient
 
 import (
 	"github.com/privy-io/go-sdk/authorization"
+	"github.com/privy-io/go-sdk/option"
 )
 
 // RequestOption configures optional parameters for API requests.
@@ -25,6 +26,7 @@ type requestOptions struct {
 	AuthorizationContext *authorization.AuthorizationContext
 	IdempotencyKey       *string
 	RequestExpiry        *int64
+	RequestOptions       []option.RequestOption
 }
 
 type requestOptionFunc struct {
@@ -54,5 +56,14 @@ func WithIdempotencyKey(key string) RequestOption {
 func WithRequestExpiry(expiry int64) RequestOption {
 	return requestOptionFunc{fn: func(o *requestOptions) {
 		o.RequestExpiry = &expiry
+	}}
+}
+
+// WithRequestOptions passes through [option.RequestOption] values to the
+// underlying API call. This allows per-call overrides of transport-level
+// settings such as [option.WithHTTPClient] or [option.WithRequestTimeout].
+func WithRequestOptions(opts ...option.RequestOption) RequestOption {
+	return requestOptionFunc{fn: func(o *requestOptions) {
+		o.RequestOptions = append(o.RequestOptions, opts...)
 	}}
 }

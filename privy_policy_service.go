@@ -13,11 +13,12 @@ type PrivyPolicyService struct {
 	// Directly embed the generated PolicyService to expose all its methods through PrivyPolicyService
 	PolicyService
 
-	jwtExchanger          jwtexchange.JwtExchanger
-	baseURL               string
-	appID                 string
+	jwtExchanger           jwtexchange.JwtExchanger
+	baseURL                string
+	appID                  string
 	defaultRequestExpiryMs int64
-	logger                logger
+	requestExpiryEnabled   bool
+	logger                 logger
 }
 
 // newPrivyPolicyService creates a new wrapped policy service.
@@ -28,6 +29,7 @@ func newPrivyPolicyService(
 	baseURL string,
 	appID string,
 	defaultRequestExpiryMs int64,
+	requestExpiryEnabled bool,
 	logger logger,
 ) *PrivyPolicyService {
 	return &PrivyPolicyService{
@@ -36,6 +38,7 @@ func newPrivyPolicyService(
 		baseURL:                baseURL,
 		appID:                  appID,
 		defaultRequestExpiryMs: defaultRequestExpiryMs,
+		requestExpiryEnabled:   requestExpiryEnabled,
 		logger:                 logger,
 	}
 }
@@ -60,7 +63,7 @@ func (s *PrivyPolicyService) Update(
 	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
-	if requestExpiry == nil {
+	if requestExpiry == nil && s.requestExpiryEnabled {
 		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
@@ -82,7 +85,7 @@ func (s *PrivyPolicyService) Update(
 		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
 	}
 
-	return s.PolicyService.Update(ctx, policyID, params)
+	return s.PolicyService.Update(ctx, policyID, params, options.RequestOptions...)
 }
 
 // Delete removes a policy with automatic authorization signature generation.
@@ -105,7 +108,7 @@ func (s *PrivyPolicyService) Delete(
 	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
-	if requestExpiry == nil {
+	if requestExpiry == nil && s.requestExpiryEnabled {
 		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
@@ -127,7 +130,7 @@ func (s *PrivyPolicyService) Delete(
 		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
 	}
 
-	return s.PolicyService.Delete(ctx, policyID, params)
+	return s.PolicyService.Delete(ctx, policyID, params, options.RequestOptions...)
 }
 
 // NewRule creates a new rule on a policy with automatic authorization signature generation.
@@ -150,7 +153,7 @@ func (s *PrivyPolicyService) NewRule(
 	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
-	if requestExpiry == nil {
+	if requestExpiry == nil && s.requestExpiryEnabled {
 		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
@@ -172,7 +175,7 @@ func (s *PrivyPolicyService) NewRule(
 		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
 	}
 
-	return s.PolicyService.NewRule(ctx, policyID, params)
+	return s.PolicyService.NewRule(ctx, policyID, params, options.RequestOptions...)
 }
 
 // DeleteRule removes a rule from a policy with automatic authorization signature generation.
@@ -195,7 +198,7 @@ func (s *PrivyPolicyService) DeleteRule(
 	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
-	if requestExpiry == nil {
+	if requestExpiry == nil && s.requestExpiryEnabled {
 		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
@@ -217,7 +220,7 @@ func (s *PrivyPolicyService) DeleteRule(
 		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
 	}
 
-	return s.PolicyService.DeleteRule(ctx, ruleID, params)
+	return s.PolicyService.DeleteRule(ctx, ruleID, params, options.RequestOptions...)
 }
 
 // UpdateRule modifies a rule on a policy with automatic authorization signature generation.
@@ -240,7 +243,7 @@ func (s *PrivyPolicyService) UpdateRule(
 	options := applyRequestOptions(opts)
 
 	requestExpiry := options.RequestExpiry
-	if requestExpiry == nil {
+	if requestExpiry == nil && s.requestExpiryEnabled {
 		requestExpiry = int64Ptr(RequestExpiry(s.defaultRequestExpiryMs))
 	}
 
@@ -262,5 +265,5 @@ func (s *PrivyPolicyService) UpdateRule(
 		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
 	}
 
-	return s.PolicyService.UpdateRule(ctx, ruleID, params)
+	return s.PolicyService.UpdateRule(ctx, ruleID, params, options.RequestOptions...)
 }

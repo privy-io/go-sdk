@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"slices"
+	"strings"
 
 	"github.com/privy-io/go-sdk/internal/requestconfig"
 	"github.com/privy-io/go-sdk/option"
@@ -29,25 +30,26 @@ type Client struct {
 	Intents    IntentService
 	// Operations related to app settings and allowlist management
 	Apps            AppService
-	ClientAuth      ClientAuthService
-	Shared          SharedService
-	EmbeddedWallets EmbeddedWalletService
-	WalletActions   WalletActionService
-	Analytics       AnalyticsService
-	Funding         FundingService
-	Aggregations    AggregationService
 	Webhooks        WebhookService
 	Accounts        AccountService
-	Yield           YieldService
-	Swaps           SwapService
-	KrakenEmbed     KrakenEmbedService
+	Aggregations    AggregationService
+	EmbeddedWallets EmbeddedWalletService
+	Analytics       AnalyticsService
+	ClientAuth      ClientAuthService
+	Funding         FundingService
+	Organizations   OrganizationService
 	CrossApp        CrossAppService
+	Shared          SharedService
+	WalletActions   WalletActionService
+	Yield           YieldService
+	KrakenEmbed     KrakenEmbedService
+	Swaps           SwapService
 }
 
 // DefaultClientOptions read from the environment (PRIVY_APP_ID, PRIVY_APP_SECRET,
 // PRIVY_API_BASE_URL). This should be used to initialize new clients.
 func DefaultClientOptions() []option.RequestOption {
-	defaults := []option.RequestOption{option.WithEnvironmentProduction()}
+	defaults := []option.RequestOption{option.WithHTTPClient(defaultHTTPClient()), option.WithEnvironmentProduction()}
 	if o, ok := os.LookupEnv("PRIVY_API_BASE_URL"); ok {
 		defaults = append(defaults, option.WithBaseURL(o))
 	}
@@ -56,6 +58,14 @@ func DefaultClientOptions() []option.RequestOption {
 	}
 	if o, ok := os.LookupEnv("PRIVY_APP_SECRET"); ok {
 		defaults = append(defaults, option.WithAppSecret(o))
+	}
+	if o, ok := os.LookupEnv("PRIVY_API_CUSTOM_HEADERS"); ok {
+		for _, line := range strings.Split(o, "\n") {
+			colon := strings.Index(line, ":")
+			if colon >= 0 {
+				defaults = append(defaults, option.WithHeader(strings.TrimSpace(line[:colon]), strings.TrimSpace(line[colon+1:])))
+			}
+		}
 	}
 	return defaults
 }
@@ -76,19 +86,20 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.KeyQuorums = NewKeyQuorumService(opts...)
 	r.Intents = NewIntentService(opts...)
 	r.Apps = NewAppService(opts...)
-	r.ClientAuth = NewClientAuthService(opts...)
-	r.Shared = NewSharedService(opts...)
-	r.EmbeddedWallets = NewEmbeddedWalletService(opts...)
-	r.WalletActions = NewWalletActionService(opts...)
-	r.Analytics = NewAnalyticsService(opts...)
-	r.Funding = NewFundingService(opts...)
-	r.Aggregations = NewAggregationService(opts...)
 	r.Webhooks = NewWebhookService(opts...)
 	r.Accounts = NewAccountService(opts...)
-	r.Yield = NewYieldService(opts...)
-	r.Swaps = NewSwapService(opts...)
-	r.KrakenEmbed = NewKrakenEmbedService(opts...)
+	r.Aggregations = NewAggregationService(opts...)
+	r.EmbeddedWallets = NewEmbeddedWalletService(opts...)
+	r.Analytics = NewAnalyticsService(opts...)
+	r.ClientAuth = NewClientAuthService(opts...)
+	r.Funding = NewFundingService(opts...)
+	r.Organizations = NewOrganizationService(opts...)
 	r.CrossApp = NewCrossAppService(opts...)
+	r.Shared = NewSharedService(opts...)
+	r.WalletActions = NewWalletActionService(opts...)
+	r.Yield = NewYieldService(opts...)
+	r.KrakenEmbed = NewKrakenEmbedService(opts...)
+	r.Swaps = NewSwapService(opts...)
 
 	return
 }
