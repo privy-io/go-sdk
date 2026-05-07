@@ -100,7 +100,9 @@ func TestIntentRequestExpiryDefaults72h(t *testing.T) {
 func TestIntentRequestExpiryUsesDefaultIntentOption(t *testing.T) {
 	const customMs = 6 * 60 * 60 * 1000 // 6 hours
 	header, before := captureIntentExpiryHeader(t, privyclient.PrivyClientOptions{
-		DefaultIntentRequestExpiryMs: customMs,
+		RequestExpiry: privyclient.PrivyRequestExpiryOptions{
+			DefaultIntentMs: customMs,
+		},
 	})
 	assertExpiryWithin(t, header, before, customMs)
 }
@@ -108,13 +110,15 @@ func TestIntentRequestExpiryUsesDefaultIntentOption(t *testing.T) {
 func TestIntentRequestExpiryPerCallOverrides(t *testing.T) {
 	// Set an explicit absolute expiry timestamp via WithRequestExpiry. The
 	// per-call value should be written into the header verbatim, overriding
-	// both DefaultIntentRequestExpiryMs and the 72h fallback.
+	// both RequestExpiry.DefaultIntentMs and the 72h fallback.
 	const perCallOffsetMs int64 = 45 * 60 * 1000 // 45 minutes
 	expected := time.Now().UnixMilli() + perCallOffsetMs
 
 	header, _ := captureIntentExpiryHeader(t,
 		privyclient.PrivyClientOptions{
-			DefaultIntentRequestExpiryMs: 6 * 60 * 60 * 1000,
+			RequestExpiry: privyclient.PrivyRequestExpiryOptions{
+				DefaultIntentMs: 60 * 60 * 1000,
+			},
 		},
 		privyclient.WithRequestExpiry(expected),
 	)
@@ -132,19 +136,46 @@ func TestIntentRequestExpiryPerCallOverrides(t *testing.T) {
 }
 
 func TestIntentRequestExpiryIndependentFromDefaultRequestExpiryMs(t *testing.T) {
-	// Setting only DefaultRequestExpiryMs must NOT influence intent calls:
+	// Setting only RequestExpiry.DefaultMs must NOT influence intent calls:
 	// they should still resolve to the 72h fallback.
 	header, before := captureIntentExpiryHeader(t, privyclient.PrivyClientOptions{
-		DefaultRequestExpiryMs: 30 * 60 * 1000, // 30 minutes — must be ignored for intents
+		RequestExpiry: privyclient.PrivyRequestExpiryOptions{
+			DefaultMs: 15 * 60 * 1000, // must be ignored for intents
+		},
 	})
 	assertExpiryWithin(t, header, before, 72*60*60*1000)
 }
 
 func TestIntentRequestExpiryHonorsDisableFlag(t *testing.T) {
 	req, _ := captureIntentRpcRequest(t, privyclient.PrivyClientOptions{
+		RequestExpiry: privyclient.PrivyRequestExpiryOptions{
+			Disabled: true,
+		},
+	})
+	if got := req.Header.Get("Privy-Request-Expiry"); got != "" {
+		t.Errorf("expected no privy-request-expiry header when RequestExpiry.Disabled=true, got %q", got)
+	}
+}
+
+func TestIntentRequestExpiryHonorsDeprecatedDisableRequestExpiry(t *testing.T) {
+	// The deprecated top-level DisableRequestExpiry must still suppress intents.
+	req, _ := captureIntentRpcRequest(t, privyclient.PrivyClientOptions{
 		DisableRequestExpiry: true,
 	})
 	if got := req.Header.Get("Privy-Request-Expiry"); got != "" {
-		t.Errorf("expected no privy-request-expiry header when DisableRequestExpiry=true, got %q", got)
+		t.Errorf("expected no header when deprecated DisableRequestExpiry=true, got %q", got)
 	}
+}
+
+func TestIntentRequestExpiryNestedWinsOverDeprecatedDefaultRequestExpiryMs(t *testing.T) {
+	// DefaultMs only affects non-intents, but verify the nested / deprecated
+	// precedence still lands: setting both, intents stays at the 72h default
+	// because DefaultIntentMs was never released and has no deprecated alias.
+	header, before := captureIntentExpiryHeader(t, privyclient.PrivyClientOptions{
+		RequestExpiry: privyclient.PrivyRequestExpiryOptions{
+			DefaultMs: 5 * 60 * 1000, // shouldn't apply to intents either way
+		},
+		DefaultRequestExpiryMs: 10 * 60 * 1000,
+	})
+	assertExpiryWithin(t, header, before, 72*60*60*1000)
 }
