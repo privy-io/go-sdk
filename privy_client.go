@@ -41,6 +41,13 @@ type PrivyClientOptions struct {
 	// provided per-request via WithRequestExpiry. Defaults to false.
 	DisableRequestExpiry bool
 
+	// DefaultIntentRequestExpiryMs sets the default request expiry duration
+	// in milliseconds for intents-endpoint calls only (optional).
+	// If not provided, defaults to 72 hours (259200000 ms).
+	// Kept separate from DefaultRequestExpiryMs, which applies to non-intents
+	// endpoints. Can be overridden per-request using WithRequestExpiry.
+	DefaultIntentRequestExpiryMs int64
+
 	// HTTPClient sets the default *http.Client used across all requests (optional).
 	// If not provided, defaults to http.DefaultClient.
 	// Can be overridden per-request using WithHTTPClient.
@@ -143,6 +150,12 @@ func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
 		defaultRequestExpiryMs = 15 * 60 * 1000
 	}
 
+	// Resolve default intent request expiry (fallback to 72 hours)
+	defaultIntentRequestExpiryMs := opts.DefaultIntentRequestExpiryMs
+	if defaultIntentRequestExpiryMs == 0 {
+		defaultIntentRequestExpiryMs = 72 * 60 * 60 * 1000
+	}
+
 	// Resolve request expiry enabled (inverted from DisableRequestExpiry)
 	requestExpiryEnabled := !opts.DisableRequestExpiry
 
@@ -162,7 +175,7 @@ func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
 		Policies:     newPrivyPolicyService(client.Policies, jwtExchange, baseURL, opts.AppID, defaultRequestExpiryMs, requestExpiryEnabled, logger),
 		Transactions: newPrivyTransactionService(client.Transactions, logger),
 		KeyQuorums:   newPrivyKeyQuorumService(client.KeyQuorums, jwtExchange, baseURL, opts.AppID, defaultRequestExpiryMs, requestExpiryEnabled, logger),
-		Intents:      newPrivyIntentService(client.Intents, logger),
+		Intents:      newPrivyIntentService(client.Intents, defaultIntentRequestExpiryMs, logger),
 		Analytics:    newPrivyAnalyticsService(client.Analytics, logger),
 		Apps:         newPrivyAppService(client.Apps, logger),
 		Aggregations: newPrivyAggregationService(client.Aggregations, logger),
