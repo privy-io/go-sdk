@@ -1,6 +1,6 @@
 module github.com/privy-io/go-sdk
 
-go 1.23.0
+go 1.24.0
 
 require (
 	github.com/btcsuite/btcd/btcec/v2 v2.3.6
@@ -12,7 +12,7 @@ require (
 	github.com/svix/svix-webhooks v1.92.2
 	github.com/tidwall/gjson v1.18.0
 	github.com/tidwall/sjson v1.2.5
-	golang.org/x/crypto v0.41.0
+	golang.org/x/crypto v0.45.0
 )
 
 require (
@@ -20,5 +20,5 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
-	golang.org/x/sys v0.35.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
 )
