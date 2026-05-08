@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.1 (2026-05-08)
+
+Full Changelog: [v0.7.0...v0.7.1](https://github.com/privy-io/go-sdk/compare/v0.7.0...v0.7.1)
+
+### Chores
+
+* redact api-key headers in debug logs ([326e1c3](https://github.com/privy-io/go-sdk/commit/326e1c35dc71111d205b9afccc57e17760040d63))
+
 ## 0.7.0 (2026-05-07)
 
 Full Changelog: [v0.6.0...v0.7.0](https://github.com/privy-io/go-sdk/compare/v0.6.0...v0.7.0)
