@@ -2933,22 +2933,24 @@ type SolanaSignAndSendTransactionRpcInputResp struct {
 	Params  SolanaSignAndSendTransactionRpcInputParamsResp `json:"params" api:"required"`
 	Address string                                         `json:"address"`
 	// Any of "solana".
-	ChainType   SolanaSignAndSendTransactionRpcInputChainType `json:"chain_type"`
-	ReferenceID string                                        `json:"reference_id"`
-	Sponsor     bool                                          `json:"sponsor"`
-	WalletID    string                                        `json:"wallet_id"`
+	ChainType           SolanaSignAndSendTransactionRpcInputChainType `json:"chain_type"`
+	OptimisticBroadcast bool                                          `json:"optimistic_broadcast"`
+	ReferenceID         string                                        `json:"reference_id"`
+	Sponsor             bool                                          `json:"sponsor"`
+	WalletID            string                                        `json:"wallet_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		Caip2       respjson.Field
-		Method      respjson.Field
-		Params      respjson.Field
-		Address     respjson.Field
-		ChainType   respjson.Field
-		ReferenceID respjson.Field
-		Sponsor     respjson.Field
-		WalletID    respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
+		Caip2               respjson.Field
+		Method              respjson.Field
+		Params              respjson.Field
+		Address             respjson.Field
+		ChainType           respjson.Field
+		OptimisticBroadcast respjson.Field
+		ReferenceID         respjson.Field
+		Sponsor             respjson.Field
+		WalletID            respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
 	} `json:"-"`
 }
 
@@ -2990,11 +2992,12 @@ type SolanaSignAndSendTransactionRpcInput struct {
 	// Any of "signAndSendTransaction".
 	Method SolanaSignAndSendTransactionRpcInputMethod `json:"method,omitzero" api:"required"`
 	// Parameters for the SVM `signAndSendTransaction` RPC.
-	Params      SolanaSignAndSendTransactionRpcInputParams `json:"params,omitzero" api:"required"`
-	Address     param.Opt[string]                          `json:"address,omitzero"`
-	ReferenceID param.Opt[string]                          `json:"reference_id,omitzero"`
-	Sponsor     param.Opt[bool]                            `json:"sponsor,omitzero"`
-	WalletID    param.Opt[string]                          `json:"wallet_id,omitzero"`
+	Params              SolanaSignAndSendTransactionRpcInputParams `json:"params,omitzero" api:"required"`
+	Address             param.Opt[string]                          `json:"address,omitzero"`
+	OptimisticBroadcast param.Opt[bool]                            `json:"optimistic_broadcast,omitzero"`
+	ReferenceID         param.Opt[string]                          `json:"reference_id,omitzero"`
+	Sponsor             param.Opt[bool]                            `json:"sponsor,omitzero"`
+	WalletID            param.Opt[string]                          `json:"wallet_id,omitzero"`
 	// Any of "solana".
 	ChainType SolanaSignAndSendTransactionRpcInputChainType `json:"chain_type,omitzero"`
 	paramObj
@@ -3092,18 +3095,20 @@ const (
 // Data returned by the SVM `signAndSendTransaction` RPC.
 type SolanaSignAndSendTransactionRpcResponseData struct {
 	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
-	Caip2         Caip2  `json:"caip2" api:"required"`
-	Hash          string `json:"hash" api:"required"`
-	ReferenceID   string `json:"reference_id" api:"nullable"`
-	TransactionID string `json:"transaction_id"`
+	Caip2             Caip2  `json:"caip2" api:"required"`
+	Hash              string `json:"hash" api:"required"`
+	ReferenceID       string `json:"reference_id" api:"nullable"`
+	SignedTransaction string `json:"signed_transaction"`
+	TransactionID     string `json:"transaction_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		Caip2         respjson.Field
-		Hash          respjson.Field
-		ReferenceID   respjson.Field
-		TransactionID respjson.Field
-		ExtraFields   map[string]respjson.Field
-		raw           string
+		Caip2             respjson.Field
+		Hash              respjson.Field
+		ReferenceID       respjson.Field
+		SignedTransaction respjson.Field
+		TransactionID     respjson.Field
+		ExtraFields       map[string]respjson.Field
+		raw               string
 	} `json:"-"`
 }
 
@@ -6559,6 +6564,8 @@ type WalletRpcRequestBodyUnionResp struct {
 	ExperimentalDataSuffix Hex    `json:"experimental_data_suffix"`
 	ReferenceID            string `json:"reference_id"`
 	Sponsor                bool   `json:"sponsor"`
+	// This field is from variant [SolanaSignAndSendTransactionRpcInputResp].
+	OptimisticBroadcast bool `json:"optimistic_broadcast"`
 	// This field is from variant [SparkTransferRpcInputResp].
 	Network SparkNetwork `json:"network"`
 	JSON    struct {
@@ -6571,6 +6578,7 @@ type WalletRpcRequestBodyUnionResp struct {
 		ExperimentalDataSuffix respjson.Field
 		ReferenceID            respjson.Field
 		Sponsor                respjson.Field
+		OptimisticBroadcast    respjson.Field
 		Network                respjson.Field
 		raw                    string
 	} `json:"-"`
@@ -7645,7 +7653,8 @@ func (r *WalletRpcResponseUnionData) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Request body for updating a wallet.
+// Request body for updating a wallet. `owner` and `owner_id` are mutually
+// exclusive.
 type WalletUpdateRequestBody struct {
 	// A human-readable label for the wallet. Set to null to clear.
 	DisplayName param.Opt[string] `json:"display_name,omitzero"`
@@ -7731,7 +7740,8 @@ func (r *WalletNewParams) UnmarshalJSON(data []byte) error {
 }
 
 type WalletUpdateParams struct {
-	// Request body for updating a wallet.
+	// Request body for updating a wallet. `owner` and `owner_id` are mutually
+	// exclusive.
 	WalletUpdateRequestBody WalletUpdateRequestBody
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.

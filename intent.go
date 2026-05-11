@@ -775,6 +775,8 @@ type IntentResponseUnionRequestDetailsBody struct {
 	ReferenceID            string `json:"reference_id"`
 	Sponsor                bool   `json:"sponsor"`
 	// This field is from variant [WalletRpcRequestBodyUnionResp].
+	OptimisticBroadcast bool `json:"optimistic_broadcast"`
+	// This field is from variant [WalletRpcRequestBodyUnionResp].
 	Network SparkNetwork `json:"network"`
 	// This field is from variant [TransferRequestBodyResp].
 	Destination TokenTransferDestinationResp `json:"destination"`
@@ -819,6 +821,7 @@ type IntentResponseUnionRequestDetailsBody struct {
 		ExperimentalDataSuffix respjson.Field
 		ReferenceID            respjson.Field
 		Sponsor                respjson.Field
+		OptimisticBroadcast    respjson.Field
 		Network                respjson.Field
 		Destination            respjson.Field
 		Source                 respjson.Field
@@ -1176,7 +1179,8 @@ func (r *KeyQuorumIntentResponse) UnmarshalJSON(data []byte) error {
 // The original key quorum update request that would be sent to the key quorum
 // endpoint
 type KeyQuorumIntentResponseRequestDetails struct {
-	// Request input for updating an existing key quorum.
+	// Request input for updating an existing key quorum. At least one field must be
+	// provided.
 	Body KeyQuorumUpdateRequestBodyResp `json:"body" api:"required"`
 	// Any of "PATCH".
 	Method string `json:"method" api:"required"`
@@ -1802,7 +1806,8 @@ func (r *IntentTransferParams) UnmarshalJSON(data []byte) error {
 }
 
 type IntentUpdateKeyQuorumParams struct {
-	// Request input for updating an existing key quorum.
+	// Request input for updating an existing key quorum. At least one field must be
+	// provided.
 	KeyQuorumUpdateRequestBody KeyQuorumUpdateRequestBody
 	// Request expiry. Value is a Unix timestamp in milliseconds representing the
 	// deadline by which the request must be processed.
@@ -1860,7 +1865,8 @@ func (r *IntentUpdatePolicyRuleParams) UnmarshalJSON(data []byte) error {
 }
 
 type IntentUpdateWalletParams struct {
-	// Request body for updating a wallet.
+	// Request body for updating a wallet. `owner` and `owner_id` are mutually
+	// exclusive.
 	WalletUpdateRequestBody WalletUpdateRequestBody
 	// Request expiry. Value is a Unix timestamp in milliseconds representing the
 	// deadline by which the request must be processed.
