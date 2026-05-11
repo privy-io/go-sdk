@@ -171,6 +171,7 @@ type AppResponse struct {
 	SolanaWalletAuth            bool                          `json:"solana_wallet_auth" api:"required"`
 	SpotifyOAuth                bool                          `json:"spotify_oauth" api:"required"`
 	TelegramAuth                bool                          `json:"telegram_auth" api:"required"`
+	TelegramOAuth               bool                          `json:"telegram_oauth" api:"required"`
 	TermsAndConditionsURL       string                        `json:"terms_and_conditions_url" api:"required"`
 	Theme                       string                        `json:"theme" api:"required"`
 	TiktokOAuth                 bool                          `json:"tiktok_oauth" api:"required"`
@@ -232,6 +233,7 @@ type AppResponse struct {
 		SolanaWalletAuth            respjson.Field
 		SpotifyOAuth                respjson.Field
 		TelegramAuth                respjson.Field
+		TelegramOAuth               respjson.Field
 		TermsAndConditionsURL       respjson.Field
 		Theme                       respjson.Field
 		TiktokOAuth                 respjson.Field
