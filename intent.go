@@ -261,7 +261,8 @@ type BaseIntentResponse struct {
 	ResourceID string `json:"resource_id" api:"required"`
 	// Current status of an intent.
 	//
-	// Any of "pending", "executed", "failed", "expired", "rejected", "dismissed".
+	// Any of "pending", "processing", "executed", "failed", "expired", "rejected",
+	// "dismissed".
 	Status IntentStatus `json:"status" api:"required"`
 	// ID of the user who created the intent. If undefined, the intent was created
 	// using the app secret
@@ -1126,12 +1127,13 @@ func (r *IntentResponseUnionCurrentResourceData) UnmarshalJSON(data []byte) erro
 type IntentStatus string
 
 const (
-	IntentStatusPending   IntentStatus = "pending"
-	IntentStatusExecuted  IntentStatus = "executed"
-	IntentStatusFailed    IntentStatus = "failed"
-	IntentStatusExpired   IntentStatus = "expired"
-	IntentStatusRejected  IntentStatus = "rejected"
-	IntentStatusDismissed IntentStatus = "dismissed"
+	IntentStatusPending    IntentStatus = "pending"
+	IntentStatusProcessing IntentStatus = "processing"
+	IntentStatusExecuted   IntentStatus = "executed"
+	IntentStatusFailed     IntentStatus = "failed"
+	IntentStatusExpired    IntentStatus = "expired"
+	IntentStatusRejected   IntentStatus = "rejected"
+	IntentStatusDismissed  IntentStatus = "dismissed"
 )
 
 // Type of intent.
@@ -1720,7 +1722,8 @@ type IntentListParams struct {
 	SortBy IntentListParamsSortBy `query:"sort_by,omitzero" json:"-"`
 	// Current status of an intent.
 	//
-	// Any of "pending", "executed", "failed", "expired", "rejected", "dismissed".
+	// Any of "pending", "processing", "executed", "failed", "expired", "rejected",
+	// "dismissed".
 	Status IntentStatus `query:"status,omitzero" json:"-"`
 	paramObj
 }
