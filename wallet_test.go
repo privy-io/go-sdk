@@ -244,7 +244,11 @@ func TestWalletTransferWithOptionalParams(t *testing.T) {
 						Chain:  "base",
 					},
 				},
-				AmountType:  privyclient.AmountTypeExactInput,
+				AmountType: privyclient.AmountTypeExactInput,
+				FeeConfiguration: privyclient.FeeConfiguration{
+					Type:  privyclient.FeeConfigurationTypeTotalFeeBps,
+					Value: 50,
+				},
 				SlippageBps: privyclient.Int(100),
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
