@@ -786,6 +786,8 @@ type IntentResponseUnionRequestDetailsBody struct {
 	// This field is from variant [TransferRequestBodyResp].
 	AmountType AmountType `json:"amount_type"`
 	// This field is from variant [TransferRequestBodyResp].
+	FeeConfiguration FeeConfigurationResp `json:"fee_configuration"`
+	// This field is from variant [TransferRequestBodyResp].
 	SlippageBps int64 `json:"slippage_bps"`
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
 	AdditionalSigners AdditionalSignerInputResp `json:"additional_signers"`
@@ -827,6 +829,7 @@ type IntentResponseUnionRequestDetailsBody struct {
 		Destination            respjson.Field
 		Source                 respjson.Field
 		AmountType             respjson.Field
+		FeeConfiguration       respjson.Field
 		SlippageBps            respjson.Field
 		AdditionalSigners      respjson.Field
 		AuthorizationKeyIDs    respjson.Field

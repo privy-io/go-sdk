@@ -312,7 +312,7 @@ const (
 type CustomTokenTransferSourceResp struct {
 	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
 	// USDC, "0.01" for 0.01 ETH). Not in the smallest on-chain unit (wei, lamports,
-	// etc.).
+	// etc.). Maximum 100 characters.
 	Amount string `json:"amount" api:"required"`
 	// The token contract address (EVM) or mint address (Solana) of the asset to
 	// transfer.
@@ -354,7 +354,7 @@ func (r CustomTokenTransferSourceResp) ToParam() CustomTokenTransferSource {
 type CustomTokenTransferSource struct {
 	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
 	// USDC, "0.01" for 0.01 ETH). Not in the smallest on-chain unit (wei, lamports,
-	// etc.).
+	// etc.). Maximum 100 characters.
 	Amount string `json:"amount" api:"required"`
 	// The token contract address (EVM) or mint address (Solana) of the asset to
 	// transfer.
@@ -373,6 +373,35 @@ func (r CustomTokenTransferSource) MarshalJSON() (data []byte, err error) {
 func (r *CustomTokenTransferSource) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// Estimated fee paid to the developer.
+type DeveloperFee struct {
+	// Amount in USD (in decimals).
+	Amount string `json:"amount" api:"required"`
+	// Any of "developer".
+	Type      DeveloperFeeType `json:"type" api:"required"`
+	Recipient string           `json:"recipient"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Amount      respjson.Field
+		Type        respjson.Field
+		Recipient   respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r DeveloperFee) RawJSON() string { return r.JSON.raw }
+func (r *DeveloperFee) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type DeveloperFeeType string
+
+const (
+	DeveloperFeeTypeDeveloper DeveloperFeeType = "developer"
+)
 
 // Executes the EVM `personal_sign` RPC (EIP-191) to sign a message.
 type EthereumPersonalSignRpcInputResp struct {
@@ -2187,6 +2216,138 @@ const (
 	ExportTypeClient  ExportType = "client"
 )
 
+// Total fees assessed on a transfer, in BPS
+type FeeConfigurationResp struct {
+	// Discriminator: total fee specified in BPS.
+	//
+	// Any of "total_fee_bps".
+	Type FeeConfigurationType `json:"type" api:"required"`
+	// Total fee in basis points (1 bps = 0.01%).
+	Value int64 `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Type        respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r FeeConfigurationResp) RawJSON() string { return r.JSON.raw }
+func (r *FeeConfigurationResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this FeeConfigurationResp to a FeeConfiguration.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// FeeConfiguration.Overrides()
+func (r FeeConfigurationResp) ToParam() FeeConfiguration {
+	return param.Override[FeeConfiguration](json.RawMessage(r.RawJSON()))
+}
+
+// Discriminator: total fee specified in BPS.
+type FeeConfigurationType string
+
+const (
+	FeeConfigurationTypeTotalFeeBps FeeConfigurationType = "total_fee_bps"
+)
+
+// Total fees assessed on a transfer, in BPS
+//
+// The properties Type, Value are required.
+type FeeConfiguration struct {
+	// Discriminator: total fee specified in BPS.
+	//
+	// Any of "total_fee_bps".
+	Type FeeConfigurationType `json:"type,omitzero" api:"required"`
+	// Total fee in basis points (1 bps = 0.01%).
+	Value int64 `json:"value" api:"required"`
+	paramObj
+}
+
+func (r FeeConfiguration) MarshalJSON() (data []byte, err error) {
+	type shadow FeeConfiguration
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *FeeConfiguration) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// FeeLineItemUnion contains all possible properties and values from [RelayerFee],
+// [PrivyFee], [DeveloperFee].
+//
+// Use the [FeeLineItemUnion.AsAny] method to switch on the variant.
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type FeeLineItemUnion struct {
+	Amount string `json:"amount"`
+	// Any of "relayer", "privy", "developer".
+	Type      string `json:"type"`
+	Recipient string `json:"recipient"`
+	JSON      struct {
+		Amount    respjson.Field
+		Type      respjson.Field
+		Recipient respjson.Field
+		raw       string
+	} `json:"-"`
+}
+
+// anyFeeLineItem is implemented by each variant of [FeeLineItemUnion] to add type
+// safety for the return type of [FeeLineItemUnion.AsAny]
+type anyFeeLineItem interface {
+	implFeeLineItemUnion()
+}
+
+func (RelayerFee) implFeeLineItemUnion()   {}
+func (PrivyFee) implFeeLineItemUnion()     {}
+func (DeveloperFee) implFeeLineItemUnion() {}
+
+// Use the following switch statement to find the correct variant
+//
+//	switch variant := FeeLineItemUnion.AsAny().(type) {
+//	case privyclient.RelayerFee:
+//	case privyclient.PrivyFee:
+//	case privyclient.DeveloperFee:
+//	default:
+//	  fmt.Errorf("no variant present")
+//	}
+func (u FeeLineItemUnion) AsAny() anyFeeLineItem {
+	switch u.Type {
+	case "relayer":
+		return u.AsRelayer()
+	case "privy":
+		return u.AsPrivy()
+	case "developer":
+		return u.AsDeveloper()
+	}
+	return nil
+}
+
+func (u FeeLineItemUnion) AsRelayer() (v RelayerFee) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u FeeLineItemUnion) AsPrivy() (v PrivyFee) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u FeeLineItemUnion) AsDeveloper() (v DeveloperFee) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u FeeLineItemUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *FeeLineItemUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Request body for looking up a wallet by its blockchain address.
 //
 // The property Address is required.
@@ -2340,7 +2501,7 @@ type Hex = string
 type NamedTokenTransferSourceResp struct {
 	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
 	// USDC, "0.01" for 0.01 ETH). Not in the smallest on-chain unit (wei, lamports,
-	// etc.).
+	// etc.). Maximum 100 characters.
 	Amount string `json:"amount" api:"required"`
 	// The asset to transfer. Supported: 'usdc', 'usdb', 'usdt' (stablecoins), 'eth'
 	// (native Ethereum), 'sol' (native Solana).
@@ -2382,7 +2543,7 @@ func (r NamedTokenTransferSourceResp) ToParam() NamedTokenTransferSource {
 type NamedTokenTransferSource struct {
 	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
 	// USDC, "0.01" for 0.01 ETH). Not in the smallest on-chain unit (wei, lamports,
-	// etc.).
+	// etc.). Maximum 100 characters.
 	Amount string `json:"amount" api:"required"`
 	// The asset to transfer. Supported: 'usdc', 'usdb', 'usdt' (stablecoins), 'eth'
 	// (native Ethereum), 'sol' (native Solana).
@@ -2600,6 +2761,35 @@ type PrivateKeySubmitInputEntropyType string
 
 const (
 	PrivateKeySubmitInputEntropyTypePrivateKey PrivateKeySubmitInputEntropyType = "private-key"
+)
+
+// Estimated fee paid to Privy.
+type PrivyFee struct {
+	// Amount in USD (in decimals).
+	Amount string `json:"amount" api:"required"`
+	// Any of "privy".
+	Type      PrivyFeeType `json:"type" api:"required"`
+	Recipient string       `json:"recipient"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Amount      respjson.Field
+		Type        respjson.Field
+		Recipient   respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PrivyFee) RawJSON() string { return r.JSON.raw }
+func (r *PrivyFee) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type PrivyFeeType string
+
+const (
+	PrivyFeeTypePrivy PrivyFeeType = "privy"
 )
 
 // QuantityUnionResp contains all possible properties and values from [Hex],
@@ -2828,6 +3018,35 @@ const (
 )
 
 type RecipientPublicKey = string
+
+// Estimated fee paid to the relayer.
+type RelayerFee struct {
+	// Amount in USD (in decimals).
+	Amount string `json:"amount" api:"required"`
+	// Any of "relayer".
+	Type      RelayerFeeType `json:"type" api:"required"`
+	Recipient string         `json:"recipient"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Amount      respjson.Field
+		Type        respjson.Field
+		Recipient   respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RelayerFee) RawJSON() string { return r.JSON.raw }
+func (r *RelayerFee) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type RelayerFeeType string
+
+const (
+	RelayerFeeTypeRelayer RelayerFeeType = "relayer"
+)
 
 // Input for exporting a wallet (private key or seed phrase) with HPKE encryption.
 type SeedPhraseExportInputResp struct {
@@ -5543,16 +5762,19 @@ type TransferRequestBodyResp struct {
 	//
 	// Any of "exact_input", "exact_output".
 	AmountType AmountType `json:"amount_type"`
+	// Total fees assessed on a transfer, in BPS
+	FeeConfiguration FeeConfigurationResp `json:"fee_configuration"`
 	// Maximum allowed slippage in basis points (1 bps = 0.01%).
 	SlippageBps int64 `json:"slippage_bps"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		Destination respjson.Field
-		Source      respjson.Field
-		AmountType  respjson.Field
-		SlippageBps respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
+		Destination      respjson.Field
+		Source           respjson.Field
+		AmountType       respjson.Field
+		FeeConfiguration respjson.Field
+		SlippageBps      respjson.Field
+		ExtraFields      map[string]respjson.Field
+		raw              string
 	} `json:"-"`
 }
 
@@ -5587,6 +5809,8 @@ type TransferRequestBody struct {
 	//
 	// Any of "exact_input", "exact_output".
 	AmountType AmountType `json:"amount_type,omitzero"`
+	// Total fees assessed on a transfer, in BPS
+	FeeConfiguration FeeConfiguration `json:"fee_configuration,omitzero"`
 	paramObj
 }
 
