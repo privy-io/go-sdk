@@ -141,20 +141,24 @@ func (r *KeyQuorumAuthorizationKey) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Request input for creating a key quorum.
+// Request input for creating a key quorum. At least one of `user_ids`,
+// `public_keys`, or `key_quorum_ids` is required.
 type KeyQuorumCreateRequestBody struct {
 	// The number of keys that must sign for an action to be valid. Must be less than
 	// or equal to total number of key quorum members.
 	AuthorizationThreshold param.Opt[float64] `json:"authorization_threshold,omitzero"`
 	DisplayName            param.Opt[string]  `json:"display_name,omitzero"`
 	// List of key quorum IDs that should be members of this key quorum. Key quorums
-	// can only be nested 1 level deep.
+	// can only be nested 1 level deep. At least one of `user_ids`, `public_keys`, or
+	// `key_quorum_ids` is required.
 	KeyQuorumIDs []string `json:"key_quorum_ids,omitzero"`
 	// List of P-256 public keys of the keys that should be authorized to sign on the
-	// key quorum, in base64-encoded DER format.
+	// key quorum, in base64-encoded DER format. At least one of `user_ids`,
+	// `public_keys`, or `key_quorum_ids` is required.
 	PublicKeys []string `json:"public_keys,omitzero"`
 	// List of user IDs of the users that should be authorized to sign on the key
-	// quorum.
+	// quorum. At least one of `user_ids`, `public_keys`, or `key_quorum_ids` is
+	// required.
 	UserIDs []string `json:"user_ids,omitzero"`
 	paramObj
 }
@@ -167,7 +171,8 @@ func (r *KeyQuorumCreateRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Request input for updating an existing key quorum.
+// Request input for updating an existing key quorum. At least one field must be
+// provided.
 type KeyQuorumUpdateRequestBodyResp struct {
 	// The number of keys that must sign for an action to be valid. Must be less than
 	// or equal to total number of key quorum members.
@@ -210,7 +215,8 @@ func (r KeyQuorumUpdateRequestBodyResp) ToParam() KeyQuorumUpdateRequestBody {
 	return param.Override[KeyQuorumUpdateRequestBody](json.RawMessage(r.RawJSON()))
 }
 
-// Request input for updating an existing key quorum.
+// Request input for updating an existing key quorum. At least one field must be
+// provided.
 type KeyQuorumUpdateRequestBody struct {
 	// The number of keys that must sign for an action to be valid. Must be less than
 	// or equal to total number of key quorum members.
@@ -237,7 +243,8 @@ func (r *KeyQuorumUpdateRequestBody) UnmarshalJSON(data []byte) error {
 }
 
 type KeyQuorumNewParams struct {
-	// Request input for creating a key quorum.
+	// Request input for creating a key quorum. At least one of `user_ids`,
+	// `public_keys`, or `key_quorum_ids` is required.
 	KeyQuorumCreateRequestBody KeyQuorumCreateRequestBody
 	paramObj
 }
@@ -250,7 +257,8 @@ func (r *KeyQuorumNewParams) UnmarshalJSON(data []byte) error {
 }
 
 type KeyQuorumUpdateParams struct {
-	// Request input for updating an existing key quorum.
+	// Request input for updating an existing key quorum. At least one field must be
+	// provided.
 	KeyQuorumUpdateRequestBody KeyQuorumUpdateRequestBody
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.

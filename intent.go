@@ -261,7 +261,8 @@ type BaseIntentResponse struct {
 	ResourceID string `json:"resource_id" api:"required"`
 	// Current status of an intent.
 	//
-	// Any of "pending", "executed", "failed", "expired", "rejected", "dismissed".
+	// Any of "pending", "processing", "executed", "failed", "expired", "rejected",
+	// "dismissed".
 	Status IntentStatus `json:"status" api:"required"`
 	// ID of the user who created the intent. If undefined, the intent was created
 	// using the app secret
@@ -775,6 +776,8 @@ type IntentResponseUnionRequestDetailsBody struct {
 	ReferenceID            string `json:"reference_id"`
 	Sponsor                bool   `json:"sponsor"`
 	// This field is from variant [WalletRpcRequestBodyUnionResp].
+	OptimisticBroadcast bool `json:"optimistic_broadcast"`
+	// This field is from variant [WalletRpcRequestBodyUnionResp].
 	Network SparkNetwork `json:"network"`
 	// This field is from variant [TransferRequestBodyResp].
 	Destination TokenTransferDestinationResp `json:"destination"`
@@ -782,6 +785,8 @@ type IntentResponseUnionRequestDetailsBody struct {
 	Source TokenTransferSourceUnionResp `json:"source"`
 	// This field is from variant [TransferRequestBodyResp].
 	AmountType AmountType `json:"amount_type"`
+	// This field is from variant [TransferRequestBodyResp].
+	FeeConfiguration FeeConfigurationResp `json:"fee_configuration"`
 	// This field is from variant [TransferRequestBodyResp].
 	SlippageBps int64 `json:"slippage_bps"`
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
@@ -819,10 +824,12 @@ type IntentResponseUnionRequestDetailsBody struct {
 		ExperimentalDataSuffix respjson.Field
 		ReferenceID            respjson.Field
 		Sponsor                respjson.Field
+		OptimisticBroadcast    respjson.Field
 		Network                respjson.Field
 		Destination            respjson.Field
 		Source                 respjson.Field
 		AmountType             respjson.Field
+		FeeConfiguration       respjson.Field
 		SlippageBps            respjson.Field
 		AdditionalSigners      respjson.Field
 		AuthorizationKeyIDs    respjson.Field
@@ -1123,12 +1130,13 @@ func (r *IntentResponseUnionCurrentResourceData) UnmarshalJSON(data []byte) erro
 type IntentStatus string
 
 const (
-	IntentStatusPending   IntentStatus = "pending"
-	IntentStatusExecuted  IntentStatus = "executed"
-	IntentStatusFailed    IntentStatus = "failed"
-	IntentStatusExpired   IntentStatus = "expired"
-	IntentStatusRejected  IntentStatus = "rejected"
-	IntentStatusDismissed IntentStatus = "dismissed"
+	IntentStatusPending    IntentStatus = "pending"
+	IntentStatusProcessing IntentStatus = "processing"
+	IntentStatusExecuted   IntentStatus = "executed"
+	IntentStatusFailed     IntentStatus = "failed"
+	IntentStatusExpired    IntentStatus = "expired"
+	IntentStatusRejected   IntentStatus = "rejected"
+	IntentStatusDismissed  IntentStatus = "dismissed"
 )
 
 // Type of intent.
@@ -1176,7 +1184,8 @@ func (r *KeyQuorumIntentResponse) UnmarshalJSON(data []byte) error {
 // The original key quorum update request that would be sent to the key quorum
 // endpoint
 type KeyQuorumIntentResponseRequestDetails struct {
-	// Request input for updating an existing key quorum.
+	// Request input for updating an existing key quorum. At least one field must be
+	// provided.
 	Body KeyQuorumUpdateRequestBodyResp `json:"body" api:"required"`
 	// Any of "PATCH".
 	Method string `json:"method" api:"required"`
@@ -1716,7 +1725,8 @@ type IntentListParams struct {
 	SortBy IntentListParamsSortBy `query:"sort_by,omitzero" json:"-"`
 	// Current status of an intent.
 	//
-	// Any of "pending", "executed", "failed", "expired", "rejected", "dismissed".
+	// Any of "pending", "processing", "executed", "failed", "expired", "rejected",
+	// "dismissed".
 	Status IntentStatus `query:"status,omitzero" json:"-"`
 	paramObj
 }
@@ -1802,7 +1812,8 @@ func (r *IntentTransferParams) UnmarshalJSON(data []byte) error {
 }
 
 type IntentUpdateKeyQuorumParams struct {
-	// Request input for updating an existing key quorum.
+	// Request input for updating an existing key quorum. At least one field must be
+	// provided.
 	KeyQuorumUpdateRequestBody KeyQuorumUpdateRequestBody
 	// Request expiry. Value is a Unix timestamp in milliseconds representing the
 	// deadline by which the request must be processed.
@@ -1860,7 +1871,8 @@ func (r *IntentUpdatePolicyRuleParams) UnmarshalJSON(data []byte) error {
 }
 
 type IntentUpdateWalletParams struct {
-	// Request body for updating a wallet.
+	// Request body for updating a wallet. `owner` and `owner_id` are mutually
+	// exclusive.
 	WalletUpdateRequestBody WalletUpdateRequestBody
 	// Request expiry. Value is a Unix timestamp in milliseconds representing the
 	// deadline by which the request must be processed.

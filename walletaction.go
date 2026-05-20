@@ -583,6 +583,8 @@ type TransferActionResponse struct {
 	DestinationChain string `json:"destination_chain"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason"`
+	// Fees paid for the transfer.
+	Fees []FeeLineItemUnion `json:"fees"`
 	// Decimal amount sent on the source chain (e.g. "1.5"). Omitted for exact_output
 	// cross-chain transfers until the source amount is determined.
 	SourceAmount string `json:"source_amount"`
@@ -610,6 +612,7 @@ type TransferActionResponse struct {
 		DestinationAsset    respjson.Field
 		DestinationChain    respjson.Field
 		FailureReason       respjson.Field
+		Fees                respjson.Field
 		SourceAmount        respjson.Field
 		SourceAsset         respjson.Field
 		SourceAssetAddress  respjson.Field
