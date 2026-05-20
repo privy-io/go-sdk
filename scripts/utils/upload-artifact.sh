@@ -43,7 +43,7 @@ UPLOAD_RESPONSE=$(curl -v -X PUT \
 
 if echo "$UPLOAD_RESPONSE" | grep -q "HTTP/[0-9.]* 200"; then
   echo -e "\033[32mUploaded build to Stainless storage.\033[0m"
-  echo -e "\033[32mInstallation: Download and unzip: 'https://pkg.stainless.com/s/privy-api-client-go/$SHA'. Run 'go mod edit -replace github.com/privy-io/go-sdk=/path/to/unzipped_directory'.\033[0m"
+  echo -e "\033[32mInstallation: Download and unzip: 'https://pkg.stainless.com/s/go-sdk/$SHA'. Run 'go mod edit -replace github.com/privy-io/go-sdk=/path/to/unzipped_directory'.\033[0m"
 else
   echo -e "\033[31mFailed to upload artifact.\033[0m"
   exit 1
