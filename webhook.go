@@ -760,6 +760,59 @@ const (
 	IntentFailedWebhookPayloadTypeIntentFailed IntentFailedWebhookPayloadType = "intent.failed"
 )
 
+// Payload for the intent.rejected webhook event.
+type IntentRejectedWebhookPayload struct {
+	// Unix timestamp when the intent was created.
+	CreatedAt float64 `json:"created_at" api:"required"`
+	// Unix timestamp when the intent expires.
+	ExpiresAt float64 `json:"expires_at" api:"required"`
+	// The unique ID of the intent.
+	IntentID string `json:"intent_id" api:"required"`
+	// Type of intent.
+	//
+	// Any of "KEY_QUORUM", "POLICY", "RULE", "RPC", "TRANSFER", "WALLET".
+	IntentType IntentType `json:"intent_type" api:"required"`
+	// Unix timestamp when the intent was rejected.
+	RejectedAt float64 `json:"rejected_at" api:"required"`
+	// The current status of the intent.
+	Status string `json:"status" api:"required"`
+	// The type of webhook event.
+	//
+	// Any of "intent.rejected".
+	Type IntentRejectedWebhookPayloadType `json:"type" api:"required"`
+	// Display name of the user who created the intent.
+	CreatedByDisplayName string `json:"created_by_display_name"`
+	// The ID of the user who created the intent.
+	CreatedByID string `json:"created_by_id"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		CreatedAt            respjson.Field
+		ExpiresAt            respjson.Field
+		IntentID             respjson.Field
+		IntentType           respjson.Field
+		RejectedAt           respjson.Field
+		Status               respjson.Field
+		Type                 respjson.Field
+		CreatedByDisplayName respjson.Field
+		CreatedByID          respjson.Field
+		ExtraFields          map[string]respjson.Field
+		raw                  string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r IntentRejectedWebhookPayload) RawJSON() string { return r.JSON.raw }
+func (r *IntentRejectedWebhookPayload) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The type of webhook event.
+type IntentRejectedWebhookPayloadType string
+
+const (
+	IntentRejectedWebhookPayloadTypeIntentRejected IntentRejectedWebhookPayloadType = "intent.rejected"
+)
+
 // Payload for the mfa.disabled webhook event.
 type MfaDisabledWebhookPayload struct {
 	// The MFA method that was disabled.
@@ -3426,8 +3479,9 @@ const (
 // UnsafeUnwrapWebhookEventUnion contains all possible properties and values from
 // [IntentAuthorizedWebhookPayload], [IntentCreatedWebhookPayload],
 // [IntentExecutedWebhookPayload], [IntentFailedWebhookPayload],
-// [MfaDisabledWebhookPayload], [MfaEnabledWebhookPayload],
-// [TransactionBroadcastedWebhookPayload], [TransactionConfirmedWebhookPayload],
+// [IntentRejectedWebhookPayload], [MfaDisabledWebhookPayload],
+// [MfaEnabledWebhookPayload], [TransactionBroadcastedWebhookPayload],
+// [TransactionConfirmedWebhookPayload],
 // [TransactionExecutionRevertedWebhookPayload], [TransactionFailedWebhookPayload],
 // [TransactionProviderErrorWebhookPayload], [TransactionReplacedWebhookPayload],
 // [TransactionStillPendingWebhookPayload], [UserAuthenticatedWebhookPayload],
@@ -3474,8 +3528,9 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	Member IntentAuthorizationKeyQuorumMemberUnion `json:"member"`
 	Status string                                  `json:"status"`
 	// Any of "intent.authorized", "intent.created", "intent.executed",
-	// "intent.failed", "mfa.disabled", "mfa.enabled", "transaction.broadcasted",
-	// "transaction.confirmed", "transaction.execution_reverted", "transaction.failed",
+	// "intent.failed", "intent.rejected", "mfa.disabled", "mfa.enabled",
+	// "transaction.broadcasted", "transaction.confirmed",
+	// "transaction.execution_reverted", "transaction.failed",
 	// "transaction.provider_error", "transaction.replaced",
 	// "transaction.still_pending", "user.authenticated", "user.created",
 	// "user.linked_account", "user.transferred_account", "user.unlinked_account",
@@ -3501,14 +3556,16 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	// This field is from variant [IntentCreatedWebhookPayload].
 	AuthorizationDetails []IntentAuthorization `json:"authorization_details"`
 	// This field is from variant [IntentExecutedWebhookPayload].
-	ActionResult    BaseActionResult `json:"action_result"`
-	Method          string           `json:"method"`
-	UserID          string           `json:"user_id"`
-	Caip2           string           `json:"caip2"`
-	TransactionHash string           `json:"transaction_hash"`
-	TransactionID   string           `json:"transaction_id"`
-	WalletID        string           `json:"wallet_id"`
-	ReferenceID     string           `json:"reference_id"`
+	ActionResult BaseActionResult `json:"action_result"`
+	// This field is from variant [IntentRejectedWebhookPayload].
+	RejectedAt      float64 `json:"rejected_at"`
+	Method          string  `json:"method"`
+	UserID          string  `json:"user_id"`
+	Caip2           string  `json:"caip2"`
+	TransactionHash string  `json:"transaction_hash"`
+	TransactionID   string  `json:"transaction_id"`
+	WalletID        string  `json:"wallet_id"`
+	ReferenceID     string  `json:"reference_id"`
 	// This field is from variant [TransactionStillPendingWebhookPayload].
 	TransactionRequest UnsignedStandardEthereumTransactionResp `json:"transaction_request"`
 	// This field is from variant [UserAuthenticatedWebhookPayload].
@@ -3601,6 +3658,7 @@ type UnsafeUnwrapWebhookEventUnion struct {
 		CreatedByID          respjson.Field
 		AuthorizationDetails respjson.Field
 		ActionResult         respjson.Field
+		RejectedAt           respjson.Field
 		Method               respjson.Field
 		UserID               respjson.Field
 		Caip2                respjson.Field
@@ -3674,6 +3732,7 @@ func (IntentAuthorizedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()       
 func (IntentCreatedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                           {}
 func (IntentExecutedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                          {}
 func (IntentFailedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                            {}
+func (IntentRejectedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                          {}
 func (MfaDisabledWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                             {}
 func (MfaEnabledWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                              {}
 func (TransactionBroadcastedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                  {}
@@ -3727,6 +3786,7 @@ func (YieldWithdrawConfirmedWebhookPayload) implUnsafeUnwrapWebhookEventUnion() 
 //	case privyclient.IntentCreatedWebhookPayload:
 //	case privyclient.IntentExecutedWebhookPayload:
 //	case privyclient.IntentFailedWebhookPayload:
+//	case privyclient.IntentRejectedWebhookPayload:
 //	case privyclient.MfaDisabledWebhookPayload:
 //	case privyclient.MfaEnabledWebhookPayload:
 //	case privyclient.TransactionBroadcastedWebhookPayload:
@@ -3785,6 +3845,8 @@ func (u UnsafeUnwrapWebhookEventUnion) AsAny() anyUnsafeUnwrapWebhookEvent {
 		return u.AsIntentExecuted()
 	case "intent.failed":
 		return u.AsIntentFailed()
+	case "intent.rejected":
+		return u.AsIntentRejected()
 	case "mfa.disabled":
 		return u.AsMfaDisabled()
 	case "mfa.enabled":
@@ -3895,6 +3957,11 @@ func (u UnsafeUnwrapWebhookEventUnion) AsIntentExecuted() (v IntentExecutedWebho
 }
 
 func (u UnsafeUnwrapWebhookEventUnion) AsIntentFailed() (v IntentFailedWebhookPayload) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u UnsafeUnwrapWebhookEventUnion) AsIntentRejected() (v IntentRejectedWebhookPayload) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }

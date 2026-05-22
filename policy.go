@@ -998,7 +998,7 @@ const (
 // PolicyConditionUnionResp contains all possible properties and values from
 // [EthereumTransactionConditionResp], [EthereumCalldataConditionResp],
 // [EthereumTypedDataDomainConditionResp], [EthereumTypedDataMessageConditionResp],
-// [Ethereum7702AuthorizationConditionResp],
+// [Ethereum7702AuthorizationConditionResp], [TempoTransactionConditionResp],
 // [SolanaProgramInstructionConditionResp],
 // [SolanaSystemProgramInstructionConditionResp],
 // [SolanaTokenProgramInstructionConditionResp], [SystemConditionResp],
@@ -1013,11 +1013,11 @@ type PolicyConditionUnionResp struct {
 	Field string `json:"field"`
 	// Any of "ethereum_transaction", "ethereum_calldata",
 	// "ethereum_typed_data_domain", "ethereum_typed_data_message",
-	// "ethereum_7702_authorization", "solana_program_instruction",
-	// "solana_system_program_instruction", "solana_token_program_instruction",
-	// "system", "tron_transaction", "tron_trigger_smart_contract_data",
-	// "sui_transaction_command", "sui_transfer_objects_command",
-	// "action_request_body", "reference".
+	// "ethereum_7702_authorization", "tempo_transaction",
+	// "solana_program_instruction", "solana_system_program_instruction",
+	// "solana_token_program_instruction", "system", "tron_transaction",
+	// "tron_trigger_smart_contract_data", "sui_transaction_command",
+	// "sui_transfer_objects_command", "action_request_body", "reference".
 	FieldSource string `json:"field_source"`
 	Operator    string `json:"operator"`
 	// This field is a union of [ConditionValueUnionResp],
@@ -1050,6 +1050,7 @@ func (EthereumCalldataConditionResp) implPolicyConditionUnionResp()             
 func (EthereumTypedDataDomainConditionResp) implPolicyConditionUnionResp()        {}
 func (EthereumTypedDataMessageConditionResp) implPolicyConditionUnionResp()       {}
 func (Ethereum7702AuthorizationConditionResp) implPolicyConditionUnionResp()      {}
+func (TempoTransactionConditionResp) implPolicyConditionUnionResp()               {}
 func (SolanaProgramInstructionConditionResp) implPolicyConditionUnionResp()       {}
 func (SolanaSystemProgramInstructionConditionResp) implPolicyConditionUnionResp() {}
 func (SolanaTokenProgramInstructionConditionResp) implPolicyConditionUnionResp()  {}
@@ -1069,6 +1070,7 @@ func (AggregationConditionResp) implPolicyConditionUnionResp()                  
 //	case privyclient.EthereumTypedDataDomainConditionResp:
 //	case privyclient.EthereumTypedDataMessageConditionResp:
 //	case privyclient.Ethereum7702AuthorizationConditionResp:
+//	case privyclient.TempoTransactionConditionResp:
 //	case privyclient.SolanaProgramInstructionConditionResp:
 //	case privyclient.SolanaSystemProgramInstructionConditionResp:
 //	case privyclient.SolanaTokenProgramInstructionConditionResp:
@@ -1094,6 +1096,8 @@ func (u PolicyConditionUnionResp) AsAny() anyPolicyConditionResp {
 		return u.AsEthereumTypedDataMessage()
 	case "ethereum_7702_authorization":
 		return u.AsEthereum7702Authorization()
+	case "tempo_transaction":
+		return u.AsTempoTransaction()
 	case "solana_program_instruction":
 		return u.AsSolanaProgramInstruction()
 	case "solana_system_program_instruction":
@@ -1139,6 +1143,11 @@ func (u PolicyConditionUnionResp) AsEthereumTypedDataMessage() (v EthereumTypedD
 }
 
 func (u PolicyConditionUnionResp) AsEthereum7702Authorization() (v Ethereum7702AuthorizationConditionResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyConditionUnionResp) AsTempoTransaction() (v TempoTransactionConditionResp) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -1251,6 +1260,7 @@ type PolicyConditionUnion struct {
 	OfEthereumTypedDataDomain        *EthereumTypedDataDomainCondition        `json:",omitzero,inline"`
 	OfEthereumTypedDataMessage       *EthereumTypedDataMessageCondition       `json:",omitzero,inline"`
 	OfEthereum7702Authorization      *Ethereum7702AuthorizationCondition      `json:",omitzero,inline"`
+	OfTempoTransaction               *TempoTransactionCondition               `json:",omitzero,inline"`
 	OfSolanaProgramInstruction       *SolanaProgramInstructionCondition       `json:",omitzero,inline"`
 	OfSolanaSystemProgramInstruction *SolanaSystemProgramInstructionCondition `json:",omitzero,inline"`
 	OfSolanaTokenProgramInstruction  *SolanaTokenProgramInstructionCondition  `json:",omitzero,inline"`
@@ -1270,6 +1280,7 @@ func (u PolicyConditionUnion) MarshalJSON() ([]byte, error) {
 		u.OfEthereumTypedDataDomain,
 		u.OfEthereumTypedDataMessage,
 		u.OfEthereum7702Authorization,
+		u.OfTempoTransaction,
 		u.OfSolanaProgramInstruction,
 		u.OfSolanaSystemProgramInstruction,
 		u.OfSolanaTokenProgramInstruction,
@@ -1293,6 +1304,7 @@ func init() {
 		apijson.Discriminator[EthereumTypedDataDomainCondition]("ethereum_typed_data_domain"),
 		apijson.Discriminator[EthereumTypedDataMessageCondition]("ethereum_typed_data_message"),
 		apijson.Discriminator[Ethereum7702AuthorizationCondition]("ethereum_7702_authorization"),
+		apijson.Discriminator[TempoTransactionCondition]("tempo_transaction"),
 		apijson.Discriminator[SolanaProgramInstructionCondition]("solana_program_instruction"),
 		apijson.Discriminator[SolanaSystemProgramInstructionCondition]("solana_system_program_instruction"),
 		apijson.Discriminator[SolanaTokenProgramInstructionCondition]("solana_token_program_instruction"),
@@ -1314,6 +1326,7 @@ const (
 	PolicyMethodEthSignTransaction       PolicyMethod = "eth_signTransaction"
 	PolicyMethodEthSignUserOperation     PolicyMethod = "eth_signUserOperation"
 	PolicyMethodEthSignTypedDataV4       PolicyMethod = "eth_signTypedData_v4"
+	PolicyMethodPersonalSign             PolicyMethod = "personal_sign"
 	PolicyMethodEthSign7702Authorization PolicyMethod = "eth_sign7702Authorization"
 	PolicyMethodWalletSendCalls          PolicyMethod = "wallet_sendCalls"
 	PolicyMethodSignTransaction          PolicyMethod = "signTransaction"
@@ -1337,10 +1350,10 @@ type PolicyRuleRequestBodyResp struct {
 	// Method the rule applies to.
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
-	// "eth_signTypedData_v4", "eth_sign7702Authorization", "wallet_sendCalls",
-	// "signTransaction", "signAndSendTransaction", "exportPrivateKey",
-	// "exportSeedPhrase", "signTransactionBytes", "earn_deposit", "earn_withdraw",
-	// "transfer", "\*".
+	// "eth_signTypedData_v4", "personal_sign", "eth_sign7702Authorization",
+	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction",
+	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "earn_deposit",
+	// "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod `json:"method" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -1381,10 +1394,10 @@ type PolicyRuleRequestBody struct {
 	// Method the rule applies to.
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
-	// "eth_signTypedData_v4", "eth_sign7702Authorization", "wallet_sendCalls",
-	// "signTransaction", "signAndSendTransaction", "exportPrivateKey",
-	// "exportSeedPhrase", "signTransactionBytes", "earn_deposit", "earn_withdraw",
-	// "transfer", "\*".
+	// "eth_signTypedData_v4", "personal_sign", "eth_sign7702Authorization",
+	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction",
+	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "earn_deposit",
+	// "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod `json:"method,omitzero" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	paramObj
@@ -1410,10 +1423,10 @@ type PolicyRuleResponse struct {
 	// Method the rule applies to.
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
-	// "eth_signTypedData_v4", "eth_sign7702Authorization", "wallet_sendCalls",
-	// "signTransaction", "signAndSendTransaction", "exportPrivateKey",
-	// "exportSeedPhrase", "signTransactionBytes", "earn_deposit", "earn_withdraw",
-	// "transfer", "\*".
+	// "eth_signTypedData_v4", "personal_sign", "eth_sign7702Authorization",
+	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction",
+	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "earn_deposit",
+	// "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod `json:"method" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -2026,6 +2039,100 @@ func (r *SystemCondition) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// A Tempo (type 118) transaction-level field. Evaluated once per transaction (not
+// per call).
+type TempoTransactionConditionResp struct {
+	// Tempo (type 118) transaction-level fields that can be referenced in a policy
+	// condition.
+	//
+	// Any of "fee_token", "fee_payer_signature", "nonce_key", "valid_before",
+	// "valid_after".
+	Field TempoTransactionConditionField `json:"field" api:"required"`
+	// Any of "tempo_transaction".
+	FieldSource TempoTransactionConditionFieldSource `json:"field_source" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator ConditionOperator `json:"operator" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnionResp `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TempoTransactionConditionResp) RawJSON() string { return r.JSON.raw }
+func (r *TempoTransactionConditionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TempoTransactionConditionResp to a
+// TempoTransactionCondition.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TempoTransactionCondition.Overrides()
+func (r TempoTransactionConditionResp) ToParam() TempoTransactionCondition {
+	return param.Override[TempoTransactionCondition](json.RawMessage(r.RawJSON()))
+}
+
+type TempoTransactionConditionFieldSource string
+
+const (
+	TempoTransactionConditionFieldSourceTempoTransaction TempoTransactionConditionFieldSource = "tempo_transaction"
+)
+
+// A Tempo (type 118) transaction-level field. Evaluated once per transaction (not
+// per call).
+//
+// The properties Field, FieldSource, Operator, Value are required.
+type TempoTransactionCondition struct {
+	// Tempo (type 118) transaction-level fields that can be referenced in a policy
+	// condition.
+	//
+	// Any of "fee_token", "fee_payer_signature", "nonce_key", "valid_before",
+	// "valid_after".
+	Field TempoTransactionConditionField `json:"field,omitzero" api:"required"`
+	// Any of "tempo_transaction".
+	FieldSource TempoTransactionConditionFieldSource `json:"field_source,omitzero" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnion `json:"value,omitzero" api:"required"`
+	paramObj
+}
+
+func (r TempoTransactionCondition) MarshalJSON() (data []byte, err error) {
+	type shadow TempoTransactionCondition
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TempoTransactionCondition) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Tempo (type 118) transaction-level fields that can be referenced in a policy
+// condition.
+type TempoTransactionConditionField string
+
+const (
+	TempoTransactionConditionFieldFeeToken          TempoTransactionConditionField = "fee_token"
+	TempoTransactionConditionFieldFeePayerSignature TempoTransactionConditionField = "fee_payer_signature"
+	TempoTransactionConditionFieldNonceKey          TempoTransactionConditionField = "nonce_key"
+	TempoTransactionConditionFieldValidBefore       TempoTransactionConditionField = "valid_before"
+	TempoTransactionConditionFieldValidAfter        TempoTransactionConditionField = "valid_after"
+)
+
 // Decoded calldata from a TRON TriggerSmartContract interaction.
 type TronCalldataConditionResp struct {
 	// A Solidity ABI definition for decoding smart contract calldata.
@@ -2238,10 +2345,10 @@ type PolicyNewParamsRule struct {
 	// Method the rule applies to.
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
-	// "eth_signTypedData_v4", "eth_sign7702Authorization", "wallet_sendCalls",
-	// "signTransaction", "signAndSendTransaction", "exportPrivateKey",
-	// "exportSeedPhrase", "signTransactionBytes", "earn_deposit", "earn_withdraw",
-	// "transfer", "\*".
+	// "eth_signTypedData_v4", "personal_sign", "eth_sign7702Authorization",
+	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction",
+	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "earn_deposit",
+	// "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod      `json:"method,omitzero" api:"required"`
 	Name   string            `json:"name" api:"required"`
 	ID     param.Opt[string] `json:"id,omitzero"`

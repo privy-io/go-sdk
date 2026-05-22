@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.8.0 (2026-05-20)
+
+Full Changelog: [v0.7.0...v0.8.0](https://github.com/privy-io/go-sdk/compare/v0.7.0...v0.8.0)
+
+### Features
+
+* **api:** api update ([78cb1a4](https://github.com/privy-io/go-sdk/commit/78cb1a4eceb668f4a30a5587079ca9a9a43a9e1f))
+* **api:** api update ([b14069f](https://github.com/privy-io/go-sdk/commit/b14069fdd44ad718a0aee81b4a5e1a72ab12bef2))
+* **api:** api update ([af01f05](https://github.com/privy-io/go-sdk/commit/af01f0539658eb121d99dc5593a00066a61124e2))
+* **api:** api update ([6755889](https://github.com/privy-io/go-sdk/commit/6755889ec30e975d19f6dbf48a7034c4280bca8b))
+* **api:** api update ([5d4a379](https://github.com/privy-io/go-sdk/commit/5d4a37968281f65246feadc0caf165b950542e95))
+* **api:** api update ([006038d](https://github.com/privy-io/go-sdk/commit/006038db0a74dfaa84870d318bc0573aea43ca99))
+* **client:** optimize json encoder for internal types ([c7d76b3](https://github.com/privy-io/go-sdk/commit/c7d76b39b1f25a2d5e9b9dd3921c6ef30af8f20e))
+
+
+### Bug Fixes
+
+* **go:** avoid panic when http.DefaultTransport is wrapped ([36c1efc](https://github.com/privy-io/go-sdk/commit/36c1efc9a3b87eb2777bbffaf1fb53aa692c99b4))
+
+
+### Chores
+
+* redact api-key headers in debug logs ([326e1c3](https://github.com/privy-io/go-sdk/commit/326e1c35dc71111d205b9afccc57e17760040d63))
+
 ## 0.7.0 (2026-05-07)
 
 Full Changelog: [v0.6.0...v0.7.0](https://github.com/privy-io/go-sdk/compare/v0.6.0...v0.7.0)

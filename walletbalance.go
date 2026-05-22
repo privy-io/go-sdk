@@ -111,10 +111,18 @@ const (
 type WalletBalanceGetParams struct {
 	// The token contract address(es) to query in format "chain:address" (e.g.,
 	// "base:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" or
-	// "solana:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v").
+	// "solana:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"). Cannot be used together
+	// with `asset`/`chain` or with `include_currency`.
 	Token WalletBalanceGetParamsTokenUnion `query:"token,omitzero" json:"-"`
+	// Named asset(s) to query (e.g. `eth`, `usdc`). Use together with `chain` to scope
+	// the query. Cannot be used with `token`.
 	Asset WalletBalanceGetParamsAssetUnion `query:"asset,omitzero" json:"-"`
+	// Chain(s) to query named assets on (e.g. `base`, `ethereum`). Use together with
+	// `asset`. Cannot be used with `token`.
 	Chain WalletBalanceGetParamsChainUnion `query:"chain,omitzero" json:"-"`
+	// If set, balances are converted to the specified fiat currency. Not supported
+	// when `token` is provided.
+	//
 	// Any of "usd", "eur".
 	IncludeCurrency WalletBalanceGetParamsIncludeCurrency `query:"include_currency,omitzero" json:"-"`
 	paramObj
@@ -194,6 +202,8 @@ const (
 	WalletBalanceGetParamsChainStringSolanaTestnet   WalletBalanceGetParamsChainString = "solana_testnet"
 )
 
+// If set, balances are converted to the specified fiat currency. Not supported
+// when `token` is provided.
 type WalletBalanceGetParamsIncludeCurrency string
 
 const (
