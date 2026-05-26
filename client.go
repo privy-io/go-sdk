@@ -36,6 +36,7 @@ type Client struct {
 	EmbeddedWallets EmbeddedWalletService
 	Analytics       AnalyticsService
 	ClientAuth      ClientAuthService
+	Onramps         OnrampService
 	Funding         FundingService
 	Organizations   OrganizationService
 	CrossApp        CrossAppService
@@ -92,6 +93,7 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.EmbeddedWallets = NewEmbeddedWalletService(opts...)
 	r.Analytics = NewAnalyticsService(opts...)
 	r.ClientAuth = NewClientAuthService(opts...)
+	r.Onramps = NewOnrampService(opts...)
 	r.Funding = NewFundingService(opts...)
 	r.Organizations = NewOrganizationService(opts...)
 	r.CrossApp = NewCrossAppService(opts...)
