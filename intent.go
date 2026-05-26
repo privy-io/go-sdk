@@ -67,7 +67,7 @@ func (r *IntentService) ListAutoPaging(ctx context.Context, query IntentListPara
 
 // Create an intent to add a rule to a policy. The intent must be authorized by the
 // policy owner before it can be executed.
-func (r *IntentService) NewPolicyRule(ctx context.Context, policyID string, params IntentNewPolicyRuleParams, opts ...option.RequestOption) (res *RuleIntentResponse, err error) {
+func (r *IntentService) NewPolicyRule(ctx context.Context, policyID string, params IntentNewPolicyRuleParams, opts ...option.RequestOption) (res *RuleMutateIntentResponse, err error) {
 	if !param.IsOmitted(params.PrivyRequestExpiry) {
 		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
 	}
@@ -83,7 +83,7 @@ func (r *IntentService) NewPolicyRule(ctx context.Context, policyID string, para
 
 // Create an intent to delete a rule from a policy. The intent must be authorized
 // by the policy owner before it can be executed.
-func (r *IntentService) DeletePolicyRule(ctx context.Context, ruleID string, params IntentDeletePolicyRuleParams, opts ...option.RequestOption) (res *RuleIntentResponse, err error) {
+func (r *IntentService) DeletePolicyRule(ctx context.Context, ruleID string, params IntentDeletePolicyRuleParams, opts ...option.RequestOption) (res *RuleDeleteIntentResponse, err error) {
 	if !param.IsOmitted(params.PrivyRequestExpiry) {
 		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
 	}
@@ -180,7 +180,7 @@ func (r *IntentService) UpdatePolicy(ctx context.Context, policyID string, param
 
 // Create an intent to update a rule on a policy. The intent must be authorized by
 // the policy owner before it can be executed.
-func (r *IntentService) UpdatePolicyRule(ctx context.Context, ruleID string, params IntentUpdatePolicyRuleParams, opts ...option.RequestOption) (res *RuleIntentResponse, err error) {
+func (r *IntentService) UpdatePolicyRule(ctx context.Context, ruleID string, params IntentUpdatePolicyRuleParams, opts ...option.RequestOption) (res *RuleMutateIntentResponse, err error) {
 	if !param.IsOmitted(params.PrivyRequestExpiry) {
 		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
 	}
@@ -1335,6 +1335,38 @@ func (r *RpcIntentResponseRequestDetails) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Response for a delete rule intent
+type RuleDeleteIntentResponse struct {
+	// Any of "RULE".
+	IntentType string `json:"intent_type" api:"required"`
+	// Request details for deleting a rule via intent.
+	RequestDetails RuleIntentDeleteRequestDetails `json:"request_details" api:"required"`
+	// Result of rule execution (only present if status is 'executed' or 'failed')
+	ActionResult BaseActionResult `json:"action_result"`
+	// A rule that defines the conditions and action to take if the conditions are
+	// true.
+	CurrentResourceData PolicyRuleResponse `json:"current_resource_data"`
+	// A policy for controlling wallet operations.
+	Policy Policy `json:"policy"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		CurrentResourceData respjson.Field
+		Policy              respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
+	} `json:"-"`
+	BaseIntentResponse
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleDeleteIntentResponse) RawJSON() string { return r.JSON.raw }
+func (r *RuleDeleteIntentResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Request details for creating a rule via intent.
 type RuleIntentCreateRequestDetails struct {
 	// The rules that apply to each method the policy covers.
@@ -1571,6 +1603,39 @@ type RuleIntentUpdateRequestDetailsMethod string
 const (
 	RuleIntentUpdateRequestDetailsMethodPatch RuleIntentUpdateRequestDetailsMethod = "PATCH"
 )
+
+// Response for a create or update rule intent
+type RuleMutateIntentResponse struct {
+	// Any of "RULE".
+	IntentType string `json:"intent_type" api:"required"`
+	// The original rule request. Method is POST (create), PATCH (update), or DELETE
+	// (delete)
+	RequestDetails RuleIntentRequestDetailsUnion `json:"request_details" api:"required"`
+	// Result of rule execution (only present if status is 'executed' or 'failed')
+	ActionResult BaseActionResult `json:"action_result"`
+	// A rule that defines the conditions and action to take if the conditions are
+	// true.
+	CurrentResourceData PolicyRuleResponse `json:"current_resource_data"`
+	// A policy for controlling wallet operations.
+	Policy Policy `json:"policy"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		CurrentResourceData respjson.Field
+		Policy              respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
+	} `json:"-"`
+	BaseIntentResponse
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleMutateIntentResponse) RawJSON() string { return r.JSON.raw }
+func (r *RuleMutateIntentResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 // Response for a transfer intent
 type TransferIntentResponse struct {
