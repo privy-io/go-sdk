@@ -34,6 +34,8 @@ type WalletService struct {
 	Transactions WalletTransactionService
 	// Operations related to wallets
 	Balance WalletBalanceService
+	// Operations for swapping tokens within wallets
+	Swap WalletSwapService
 }
 
 // NewWalletService generates a new service that applies the given options to each
@@ -45,6 +47,7 @@ func NewWalletService(opts ...option.RequestOption) (r WalletService) {
 	r.Earn = NewWalletEarnService(opts...)
 	r.Transactions = NewWalletTransactionService(opts...)
 	r.Balance = NewWalletBalanceService(opts...)
+	r.Swap = NewWalletSwapService(opts...)
 	return
 }
 
@@ -137,7 +140,8 @@ func (r *WalletService) Transfer(ctx context.Context, walletID string, params Wa
 	return res, err
 }
 
-// Obtain a session key to enable wallet access.
+// Exchange a user JWT for a session key authorized to act on the user's wallets.
+// Returns the encrypted authorization key and the list of wallets it can access.
 func (r *WalletService) AuthenticateWithJwt(ctx context.Context, body WalletAuthenticateWithJwtParams, opts ...option.RequestOption) (res *WalletAuthenticateWithJwtResponseUnion, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/wallets/authenticate"

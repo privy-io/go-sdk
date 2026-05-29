@@ -556,6 +556,68 @@ const (
 	SvmWalletActionStepStatusFailed    SvmWalletActionStepStatus = "failed"
 )
 
+// Response for a swap action.
+type SwapActionResponse struct {
+	// The ID of the wallet action.
+	ID string `json:"id" api:"required"`
+	// CAIP-2 chain identifier for the swap.
+	Caip2 string `json:"caip2" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// Exact base-unit amount of input token. Populated after on-chain confirmation.
+	InputAmount string `json:"input_amount" api:"required"`
+	// Token address or "native" for the token being sold.
+	InputToken string `json:"input_token" api:"required"`
+	// Exact base-unit amount of output token. Populated after on-chain confirmation.
+	OutputAmount string `json:"output_amount" api:"required"`
+	// Token address or "native" for the token being bought.
+	OutputToken string `json:"output_token" api:"required"`
+	// Status of a wallet action.
+	//
+	// Any of "pending", "succeeded", "rejected", "failed".
+	Status WalletActionStatus `json:"status" api:"required"`
+	// Any of "swap".
+	Type SwapActionResponseType `json:"type" api:"required"`
+	// The ID of the wallet involved in the action.
+	WalletID string `json:"wallet_id" api:"required"`
+	// Destination chain CAIP-2 identifier. Present for cross-chain swaps.
+	DestinationCaip2 string `json:"destination_caip2"`
+	// A description of why a wallet action (or a step within a wallet action) failed.
+	FailureReason FailureReason `json:"failure_reason"`
+	// The steps of the wallet action. Only returned if `?include=steps` is provided.
+	Steps []WalletActionStepUnion `json:"steps"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID               respjson.Field
+		Caip2            respjson.Field
+		CreatedAt        respjson.Field
+		InputAmount      respjson.Field
+		InputToken       respjson.Field
+		OutputAmount     respjson.Field
+		OutputToken      respjson.Field
+		Status           respjson.Field
+		Type             respjson.Field
+		WalletID         respjson.Field
+		DestinationCaip2 respjson.Field
+		FailureReason    respjson.Field
+		Steps            respjson.Field
+		ExtraFields      map[string]respjson.Field
+		raw              string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SwapActionResponse) RawJSON() string { return r.JSON.raw }
+func (r *SwapActionResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type SwapActionResponseType string
+
+const (
+	SwapActionResponseTypeSwap SwapActionResponseType = "swap"
+)
+
 // Response for a transfer action.
 type TransferActionResponse struct {
 	// The ID of the wallet action.
