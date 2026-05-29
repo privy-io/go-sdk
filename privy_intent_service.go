@@ -98,7 +98,7 @@ func (s *PrivyIntentService) NewPolicyRule(
 	policyID string,
 	params IntentNewPolicyRuleParams,
 	opts ...RequestOption,
-) (*RuleIntentResponse, error) {
+) (*RuleMutateIntentResponse, error) {
 	options := applyRequestOptions(opts)
 	if s.requestExpiryEnabled && param.IsOmitted(params.PrivyRequestExpiry) {
 		expiry := options.RequestExpiry
@@ -116,7 +116,7 @@ func (s *PrivyIntentService) DeletePolicyRule(
 	ruleID string,
 	params IntentDeletePolicyRuleParams,
 	opts ...RequestOption,
-) (*RuleIntentResponse, error) {
+) (*RuleDeleteIntentResponse, error) {
 	options := applyRequestOptions(opts)
 	if s.requestExpiryEnabled && param.IsOmitted(params.PrivyRequestExpiry) {
 		expiry := options.RequestExpiry
@@ -152,7 +152,7 @@ func (s *PrivyIntentService) UpdatePolicyRule(
 	ruleID string,
 	params IntentUpdatePolicyRuleParams,
 	opts ...RequestOption,
-) (*RuleIntentResponse, error) {
+) (*RuleMutateIntentResponse, error) {
 	options := applyRequestOptions(opts)
 	if s.requestExpiryEnabled && param.IsOmitted(params.PrivyRequestExpiry) {
 		expiry := options.RequestExpiry
