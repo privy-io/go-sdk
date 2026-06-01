@@ -701,6 +701,8 @@ Response Types:
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#P256PublicKey">P256PublicKey</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SuccessResponse">SuccessResponse</a>
 
+# OAuth
+
 # WalletActions
 
 Params Types:
