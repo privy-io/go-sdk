@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.9.0 (2026-06-01)
+
+Full Changelog: [v0.8.0...v0.9.0](https://github.com/privy-io/go-sdk/compare/v0.8.0...v0.9.0)
+
+### Features
+
+* **api:** api update ([8484ded](https://github.com/privy-io/go-sdk/commit/8484ded7979cead5ddb2a6be5976d268b654bdd7))
+* **api:** api update ([586c7d5](https://github.com/privy-io/go-sdk/commit/586c7d5e93193a85fac1a93e760bfefa5d0d3926))
+* **api:** api update ([18464f3](https://github.com/privy-io/go-sdk/commit/18464f35a21cd7d345081dd17cf461c1f3b47ba0))
+
+
+### Bug Fixes
+
+* update return types in PrivyIntentService policy rule methods ([#95](https://github.com/privy-io/go-sdk/issues/95)) ([ff3c6da](https://github.com/privy-io/go-sdk/commit/ff3c6da90fd8cfb2d79252a12b478f3631fb6179))
+
 ## 0.8.0 (2026-05-20)
 
 Full Changelog: [v0.7.0...v0.8.0](https://github.com/privy-io/go-sdk/compare/v0.7.0...v0.8.0)
