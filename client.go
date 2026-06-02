@@ -27,7 +27,8 @@ type Client struct {
 	Transactions TransactionService
 	// Operations related to key quorums
 	KeyQuorums KeyQuorumService
-	Intents    IntentService
+	// Operations related to authorization intents for wallet actions
+	Intents IntentService
 	// Operations related to app settings and allowlist management
 	Apps            AppService
 	Webhooks        WebhookService
