@@ -582,8 +582,18 @@ type SwapActionResponse struct {
 	WalletID string `json:"wallet_id" api:"required"`
 	// Destination chain CAIP-2 identifier. Present for cross-chain swaps.
 	DestinationCaip2 string `json:"destination_caip2"`
+	// Estimated fee breakdown from the provider quote.
+	EstimatedFees []FeeLineItemUnion `json:"estimated_fees"`
+	// Gas cost for a blockchain action. Includes both raw base-unit amount and a
+	// human-readable decimal string, plus the gas token symbol.
+	EstimatedGas Gas `json:"estimated_gas"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason"`
+	// Actual fees paid for the swap. Populated after on-chain confirmation.
+	Fees []FeeLineItemUnion `json:"fees"`
+	// Gas cost for a blockchain action. Includes both raw base-unit amount and a
+	// human-readable decimal string, plus the gas token symbol.
+	Gas Gas `json:"gas"`
 	// The steps of the wallet action. Only returned if `?include=steps` is provided.
 	Steps []WalletActionStepUnion `json:"steps"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -599,7 +609,11 @@ type SwapActionResponse struct {
 		Type             respjson.Field
 		WalletID         respjson.Field
 		DestinationCaip2 respjson.Field
+		EstimatedFees    respjson.Field
+		EstimatedGas     respjson.Field
 		FailureReason    respjson.Field
+		Fees             respjson.Field
+		Gas              respjson.Field
 		Steps            respjson.Field
 		ExtraFields      map[string]respjson.Field
 		raw              string
@@ -643,10 +657,18 @@ type TransferActionResponse struct {
 	DestinationAsset string `json:"destination_asset"`
 	// Destination chain for cross-chain transfers. Omitted for same-chain transfers.
 	DestinationChain string `json:"destination_chain"`
+	// Estimated fee breakdown from the provider quote.
+	EstimatedFees []FeeLineItemUnion `json:"estimated_fees"`
+	// Gas cost for a blockchain action. Includes both raw base-unit amount and a
+	// human-readable decimal string, plus the gas token symbol.
+	EstimatedGas Gas `json:"estimated_gas"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason"`
-	// Fees paid for the transfer.
+	// Actual fees paid for the transfer. Populated after on-chain confirmation.
 	Fees []FeeLineItemUnion `json:"fees"`
+	// Gas cost for a blockchain action. Includes both raw base-unit amount and a
+	// human-readable decimal string, plus the gas token symbol.
+	Gas Gas `json:"gas"`
 	// Decimal amount sent on the source chain (e.g. "1.5"). Omitted for exact_output
 	// cross-chain transfers until the source amount is determined.
 	SourceAmount string `json:"source_amount"`
@@ -673,8 +695,11 @@ type TransferActionResponse struct {
 		DestinationAmount   respjson.Field
 		DestinationAsset    respjson.Field
 		DestinationChain    respjson.Field
+		EstimatedFees       respjson.Field
+		EstimatedGas        respjson.Field
 		FailureReason       respjson.Field
 		Fees                respjson.Field
+		Gas                 respjson.Field
 		SourceAmount        respjson.Field
 		SourceAsset         respjson.Field
 		SourceAssetAddress  respjson.Field

@@ -37,11 +37,11 @@ type Client struct {
 	EmbeddedWallets EmbeddedWalletService
 	Analytics       AnalyticsService
 	ClientAuth      ClientAuthService
+	Shared          SharedService
 	Onramps         OnrampService
 	Funding         FundingService
 	Organizations   OrganizationService
 	CrossApp        CrossAppService
-	Shared          SharedService
 	OAuth           OAuthService
 	WalletActions   WalletActionService
 	Yield           YieldService
@@ -95,11 +95,11 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.EmbeddedWallets = NewEmbeddedWalletService(opts...)
 	r.Analytics = NewAnalyticsService(opts...)
 	r.ClientAuth = NewClientAuthService(opts...)
+	r.Shared = NewSharedService(opts...)
 	r.Onramps = NewOnrampService(opts...)
 	r.Funding = NewFundingService(opts...)
 	r.Organizations = NewOrganizationService(opts...)
 	r.CrossApp = NewCrossAppService(opts...)
-	r.Shared = NewSharedService(opts...)
 	r.OAuth = NewOAuthService(opts...)
 	r.WalletActions = NewWalletActionService(opts...)
 	r.Yield = NewYieldService(opts...)

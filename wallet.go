@@ -2362,6 +2362,31 @@ func (r *FeeLineItemUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Gas cost for a blockchain action. Includes both raw base-unit amount and a
+// human-readable decimal string, plus the gas token symbol.
+type Gas struct {
+	// Gas cost in the gas token as a human-readable decimal string (e.g. "0.0001").
+	Amount string `json:"amount" api:"required"`
+	// Gas cost in the gas token's base units (e.g. wei).
+	BaseAmount string `json:"base_amount" api:"required"`
+	// Gas token symbol (e.g. "ETH", "USDC").
+	GasAsset string `json:"gas_asset" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Amount      respjson.Field
+		BaseAmount  respjson.Field
+		GasAsset    respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r Gas) RawJSON() string { return r.JSON.raw }
+func (r *Gas) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Request body for looking up a wallet by its blockchain address.
 //
 // The property Address is required.
@@ -5627,7 +5652,7 @@ func (r *TokenOutput) UnmarshalJSON(data []byte) error {
 // The destination address for a token transfer. Optionally specify a different
 // asset or chain for cross-asset or cross-chain transfers.
 type TokenTransferDestinationResp struct {
-	// Recipient address (hex for EVM, base58 for Solana)
+	// Recipient address (hex for EVM, base58 for Solana, base58check for Tron)
 	Address string `json:"address" api:"required"`
 	// The destination asset. Required for cross-asset transfers (e.g., source 'usdt'
 	// to destination 'usdc').
@@ -5666,7 +5691,7 @@ func (r TokenTransferDestinationResp) ToParam() TokenTransferDestination {
 //
 // The property Address is required.
 type TokenTransferDestination struct {
-	// Recipient address (hex for EVM, base58 for Solana)
+	// Recipient address (hex for EVM, base58 for Solana, base58check for Tron)
 	Address string `json:"address" api:"required"`
 	// The destination asset. Required for cross-asset transfers (e.g., source 'usdt'
 	// to destination 'usdc').
