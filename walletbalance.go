@@ -69,10 +69,10 @@ func (r *WalletBalanceGetResponse) UnmarshalJSON(data []byte) error {
 
 type WalletBalanceGetResponseBalance struct {
 	Asset WalletBalanceGetResponseBalanceAsset `json:"asset" api:"required"`
-	// Any of "ethereum", "arbitrum", "base", "tempo", "linea", "optimism", "polygon",
-	// "solana", "zksync_era", "sepolia", "arbitrum_sepolia", "base_sepolia",
-	// "linea_testnet", "optimism_sepolia", "polygon_amoy", "solana_devnet",
-	// "solana_testnet".
+	// Any of "ethereum", "arbitrum", "avalanche", "base", "tempo", "linea",
+	// "optimism", "polygon", "solana", "zksync_era", "sepolia", "arbitrum_sepolia",
+	// "avalanche_fuji", "base_sepolia", "linea_testnet", "optimism_sepolia",
+	// "polygon_amoy", "solana_devnet", "solana_testnet".
 	Chain            string            `json:"chain" api:"required"`
 	DisplayValues    map[string]string `json:"display_values" api:"required"`
 	RawValue         string            `json:"raw_value" api:"required"`
@@ -101,6 +101,7 @@ const (
 	WalletBalanceGetResponseBalanceAssetUsdc  WalletBalanceGetResponseBalanceAsset = "usdc"
 	WalletBalanceGetResponseBalanceAssetUsdcE WalletBalanceGetResponseBalanceAsset = "usdc.e"
 	WalletBalanceGetResponseBalanceAssetEth   WalletBalanceGetResponseBalanceAsset = "eth"
+	WalletBalanceGetResponseBalanceAssetAvax  WalletBalanceGetResponseBalanceAsset = "avax"
 	WalletBalanceGetResponseBalanceAssetPol   WalletBalanceGetResponseBalanceAsset = "pol"
 	WalletBalanceGetResponseBalanceAssetUsdt  WalletBalanceGetResponseBalanceAsset = "usdt"
 	WalletBalanceGetResponseBalanceAssetEurc  WalletBalanceGetResponseBalanceAsset = "eurc"
@@ -162,6 +163,7 @@ const (
 	WalletBalanceGetParamsAssetStringUsdc  WalletBalanceGetParamsAssetString = "usdc"
 	WalletBalanceGetParamsAssetStringUsdcE WalletBalanceGetParamsAssetString = "usdc.e"
 	WalletBalanceGetParamsAssetStringEth   WalletBalanceGetParamsAssetString = "eth"
+	WalletBalanceGetParamsAssetStringAvax  WalletBalanceGetParamsAssetString = "avax"
 	WalletBalanceGetParamsAssetStringPol   WalletBalanceGetParamsAssetString = "pol"
 	WalletBalanceGetParamsAssetStringUsdt  WalletBalanceGetParamsAssetString = "usdt"
 	WalletBalanceGetParamsAssetStringEurc  WalletBalanceGetParamsAssetString = "eurc"
@@ -185,6 +187,7 @@ type WalletBalanceGetParamsChainString string
 const (
 	WalletBalanceGetParamsChainStringEthereum        WalletBalanceGetParamsChainString = "ethereum"
 	WalletBalanceGetParamsChainStringArbitrum        WalletBalanceGetParamsChainString = "arbitrum"
+	WalletBalanceGetParamsChainStringAvalanche       WalletBalanceGetParamsChainString = "avalanche"
 	WalletBalanceGetParamsChainStringBase            WalletBalanceGetParamsChainString = "base"
 	WalletBalanceGetParamsChainStringTempo           WalletBalanceGetParamsChainString = "tempo"
 	WalletBalanceGetParamsChainStringLinea           WalletBalanceGetParamsChainString = "linea"
@@ -194,6 +197,7 @@ const (
 	WalletBalanceGetParamsChainStringZksyncEra       WalletBalanceGetParamsChainString = "zksync_era"
 	WalletBalanceGetParamsChainStringSepolia         WalletBalanceGetParamsChainString = "sepolia"
 	WalletBalanceGetParamsChainStringArbitrumSepolia WalletBalanceGetParamsChainString = "arbitrum_sepolia"
+	WalletBalanceGetParamsChainStringAvalancheFuji   WalletBalanceGetParamsChainString = "avalanche_fuji"
 	WalletBalanceGetParamsChainStringBaseSepolia     WalletBalanceGetParamsChainString = "base_sepolia"
 	WalletBalanceGetParamsChainStringLineaTestnet    WalletBalanceGetParamsChainString = "linea_testnet"
 	WalletBalanceGetParamsChainStringOptimismSepolia WalletBalanceGetParamsChainString = "optimism_sepolia"
