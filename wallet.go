@@ -5803,7 +5803,8 @@ type TransferRequestBodyResp struct {
 	AmountType AmountType `json:"amount_type"`
 	// Total fees assessed on a transfer, in BPS
 	FeeConfiguration FeeConfigurationResp `json:"fee_configuration"`
-	// Maximum allowed slippage in basis points (1 bps = 0.01%).
+	// Maximum allowed slippage in basis points (1 bps = 0.01%). Only applicable for
+	// cross-chain or cross-asset transfers; omit to use the provider default.
 	SlippageBps int64 `json:"slippage_bps"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -5842,7 +5843,8 @@ type TransferRequestBody struct {
 	// The source asset, amount, and chain for a token transfer. Specify either `asset`
 	// (named) or `asset_address` (custom), not both.
 	Source TokenTransferSourceUnion `json:"source,omitzero" api:"required"`
-	// Maximum allowed slippage in basis points (1 bps = 0.01%).
+	// Maximum allowed slippage in basis points (1 bps = 0.01%). Only applicable for
+	// cross-chain or cross-asset transfers; omit to use the provider default.
 	SlippageBps param.Opt[int64] `json:"slippage_bps,omitzero"`
 	// Whether the amount refers to the input token or output token.
 	//
@@ -6518,6 +6520,7 @@ const (
 	WalletAssetUsdc  WalletAsset = "usdc"
 	WalletAssetUsdcE WalletAsset = "usdc.e"
 	WalletAssetEth   WalletAsset = "eth"
+	WalletAssetAvax  WalletAsset = "avax"
 	WalletAssetPol   WalletAsset = "pol"
 	WalletAssetUsdt  WalletAsset = "usdt"
 	WalletAssetEurc  WalletAsset = "eurc"

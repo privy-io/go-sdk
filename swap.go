@@ -88,7 +88,7 @@ type SwapQuoteRequestBody struct {
 	Source SwapSource `json:"source,omitzero" api:"required"`
 	// Maximum slippage tolerance in basis points (e.g., 50 for 0.5%). If omitted,
 	// auto-slippage is used.
-	SlippageBps param.Opt[float64] `json:"slippage_bps,omitzero"`
+	SlippageBps param.Opt[int64] `json:"slippage_bps,omitzero"`
 	// Whether the amount refers to the input token or output token.
 	//
 	// Any of "exact_input", "exact_output".
@@ -167,7 +167,7 @@ type SwapRequestBody struct {
 	// The input side of a swap request, including token and chain.
 	Source SwapSource `json:"source,omitzero" api:"required"`
 	// Maximum slippage tolerance in basis points (e.g., 50 for 0.5%).
-	SlippageBps param.Opt[float64] `json:"slippage_bps,omitzero"`
+	SlippageBps param.Opt[int64] `json:"slippage_bps,omitzero"`
 	// Whether the amount refers to the input token or output token.
 	//
 	// Any of "exact_input", "exact_output".
