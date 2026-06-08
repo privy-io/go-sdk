@@ -123,14 +123,15 @@ type SwapQuoteResponse struct {
 	MinimumOutputAmount string `json:"minimum_output_amount" api:"required"`
 	// Token address being bought.
 	OutputToken string `json:"output_token" api:"required"`
-	// Destination chain CAIP-2 identifier for cross-chain swaps.
+	// Destination chain CAIP-2 identifier for cross-chain swaps. Only present for
+	// cross-chain swaps.
 	DestinationCaip2 string `json:"destination_caip2"`
 	// Estimated fees for the swap. Only present for cross-chain swaps.
 	EstimatedFees []FeeLineItemUnion `json:"estimated_fees"`
 	// Gas cost for a blockchain action. Includes both raw base-unit amount and a
 	// human-readable decimal string, plus the gas token symbol.
 	EstimatedGas Gas `json:"estimated_gas"`
-	// Quote expiry as Unix timestamp (seconds). Present for cross-chain quotes.
+	// Quote expiry as Unix timestamp (seconds). Only present for cross-chain quotes.
 	ExpiresAt float64 `json:"expires_at"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
