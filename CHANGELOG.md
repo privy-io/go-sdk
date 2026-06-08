@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.10.0 (2026-06-05)
+
+Full Changelog: [v0.9.0...v0.10.0](https://github.com/privy-io/go-sdk/compare/v0.9.0...v0.10.0)
+
+### Features
+
+* **api:** api update ([84dfb51](https://github.com/privy-io/go-sdk/commit/84dfb5182abec692fb1f4b53cb4f8ad35f88df4f))
+* **api:** api update ([06f80f1](https://github.com/privy-io/go-sdk/commit/06f80f1795b4ca40d2bc6aafec015e7323662930))
+* **api:** api update ([8a9c704](https://github.com/privy-io/go-sdk/commit/8a9c704e411c78b4f3f5b6ee375739fd4924d8f3))
+* **api:** api update ([c2e5909](https://github.com/privy-io/go-sdk/commit/c2e59094ac792b8ffb2b91f900195d4b6789a7e0))
+
 ## 0.9.0 (2026-06-01)
 
 Full Changelog: [v0.8.0...v0.9.0](https://github.com/privy-io/go-sdk/compare/v0.8.0...v0.9.0)

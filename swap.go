@@ -88,7 +88,7 @@ type SwapQuoteRequestBody struct {
 	Source SwapSource `json:"source,omitzero" api:"required"`
 	// Maximum slippage tolerance in basis points (e.g., 50 for 0.5%). If omitted,
 	// auto-slippage is used.
-	SlippageBps param.Opt[float64] `json:"slippage_bps,omitzero"`
+	SlippageBps param.Opt[int64] `json:"slippage_bps,omitzero"`
 	// Whether the amount refers to the input token or output token.
 	//
 	// Any of "exact_input", "exact_output".
@@ -112,7 +112,8 @@ type SwapQuoteResponse struct {
 	Caip2 string `json:"caip2" api:"required"`
 	// Estimated amount of output token in base units.
 	EstOutputAmount string `json:"est_output_amount" api:"required"`
-	// Estimated gas cost in base units of the native token.
+	// Estimated gas cost in base units of the native token. @deprecated For
+	// cross-chain swaps, use estimated_gas instead.
 	GasEstimate string `json:"gas_estimate" api:"required"`
 	// Amount of input token in base units.
 	InputAmount string `json:"input_amount" api:"required"`
@@ -124,8 +125,11 @@ type SwapQuoteResponse struct {
 	OutputToken string `json:"output_token" api:"required"`
 	// Destination chain CAIP-2 identifier for cross-chain swaps.
 	DestinationCaip2 string `json:"destination_caip2"`
-	// Estimated fees in USD.
+	// Estimated fees for the swap. Only present for cross-chain swaps.
 	EstimatedFees []FeeLineItemUnion `json:"estimated_fees"`
+	// Gas cost for a blockchain action. Includes both raw base-unit amount and a
+	// human-readable decimal string, plus the gas token symbol.
+	EstimatedGas Gas `json:"estimated_gas"`
 	// Quote expiry as Unix timestamp (seconds). Present for cross-chain quotes.
 	ExpiresAt float64 `json:"expires_at"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -139,6 +143,7 @@ type SwapQuoteResponse struct {
 		OutputToken         respjson.Field
 		DestinationCaip2    respjson.Field
 		EstimatedFees       respjson.Field
+		EstimatedGas        respjson.Field
 		ExpiresAt           respjson.Field
 		ExtraFields         map[string]respjson.Field
 		raw                 string
@@ -162,7 +167,7 @@ type SwapRequestBody struct {
 	// The input side of a swap request, including token and chain.
 	Source SwapSource `json:"source,omitzero" api:"required"`
 	// Maximum slippage tolerance in basis points (e.g., 50 for 0.5%).
-	SlippageBps param.Opt[float64] `json:"slippage_bps,omitzero"`
+	SlippageBps param.Opt[int64] `json:"slippage_bps,omitzero"`
 	// Whether the amount refers to the input token or output token.
 	//
 	// Any of "exact_input", "exact_output".

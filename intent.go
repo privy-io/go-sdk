@@ -21,6 +21,8 @@ import (
 	"github.com/privy-io/go-sdk/packages/respjson"
 )
 
+// Operations related to authorization intents for wallet actions
+//
 // IntentService contains methods and other services that help with interacting
 // with the Privy API API.
 //
