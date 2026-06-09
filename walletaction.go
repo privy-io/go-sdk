@@ -94,6 +94,8 @@ type EvmUserOperationWalletActionStep struct {
 	UserOperationHash string `json:"user_operation_hash" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason"`
+	// Amount charged in USD for gas sponsorship on this step.
+	GasCreditsChargedUsd string `json:"gas_credits_charged_usd"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		BundleTransactionHash respjson.Field
@@ -103,6 +105,7 @@ type EvmUserOperationWalletActionStep struct {
 		Type                  respjson.Field
 		UserOperationHash     respjson.Field
 		FailureReason         respjson.Field
+		GasCreditsChargedUsd  respjson.Field
 		ExtraFields           map[string]respjson.Field
 		raw                   string
 	} `json:"-"`
@@ -518,6 +521,8 @@ type SvmTransactionWalletActionStep struct {
 	Type SvmTransactionWalletActionStepType `json:"type" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason"`
+	// Amount charged in USD for gas sponsorship on this step.
+	GasCreditsChargedUsd string `json:"gas_credits_charged_usd"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2                respjson.Field
@@ -525,6 +530,7 @@ type SvmTransactionWalletActionStep struct {
 		TransactionSignature respjson.Field
 		Type                 respjson.Field
 		FailureReason        respjson.Field
+		GasCreditsChargedUsd respjson.Field
 		ExtraFields          map[string]respjson.Field
 		raw                  string
 	} `json:"-"`
@@ -587,7 +593,7 @@ type SwapActionResponse struct {
 	EstimatedFees []FeeLineItemUnion `json:"estimated_fees" api:"nullable"`
 	// Gas cost for a blockchain action. Includes both raw base-unit amount and a
 	// human-readable decimal string, plus the gas token symbol.
-	EstimatedGas SwapActionResponseEstimatedGas `json:"estimated_gas"`
+	EstimatedGas Gas `json:"estimated_gas" api:"nullable"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason"`
 	// Actual fees paid for the swap. Populated after on-chain confirmation. Only
@@ -595,7 +601,7 @@ type SwapActionResponse struct {
 	Fees []FeeLineItemUnion `json:"fees" api:"nullable"`
 	// Gas cost for a blockchain action. Includes both raw base-unit amount and a
 	// human-readable decimal string, plus the gas token symbol.
-	Gas SwapActionResponseGas `json:"gas"`
+	Gas Gas `json:"gas" api:"nullable"`
 	// The steps of the wallet action. Only returned if `?include=steps` is provided.
 	Steps []WalletActionStepUnion `json:"steps"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -634,40 +640,6 @@ const (
 	SwapActionResponseTypeSwap SwapActionResponseType = "swap"
 )
 
-// Gas cost for a blockchain action. Includes both raw base-unit amount and a
-// human-readable decimal string, plus the gas token symbol.
-type SwapActionResponseEstimatedGas struct {
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-	Gas
-}
-
-// Returns the unmodified JSON received from the API
-func (r SwapActionResponseEstimatedGas) RawJSON() string { return r.JSON.raw }
-func (r *SwapActionResponseEstimatedGas) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Gas cost for a blockchain action. Includes both raw base-unit amount and a
-// human-readable decimal string, plus the gas token symbol.
-type SwapActionResponseGas struct {
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-	Gas
-}
-
-// Returns the unmodified JSON received from the API
-func (r SwapActionResponseGas) RawJSON() string { return r.JSON.raw }
-func (r *SwapActionResponseGas) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // Response for a transfer action.
 type TransferActionResponse struct {
 	// The ID of the wallet action.
@@ -699,7 +671,7 @@ type TransferActionResponse struct {
 	EstimatedFees []FeeLineItemUnion `json:"estimated_fees" api:"nullable"`
 	// Gas cost for a blockchain action. Includes both raw base-unit amount and a
 	// human-readable decimal string, plus the gas token symbol.
-	EstimatedGas TransferActionResponseEstimatedGas `json:"estimated_gas"`
+	EstimatedGas Gas `json:"estimated_gas" api:"nullable"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason"`
 	// Actual fees paid for the transfer. Populated after on-chain confirmation. Only
@@ -707,7 +679,7 @@ type TransferActionResponse struct {
 	Fees []FeeLineItemUnion `json:"fees" api:"nullable"`
 	// Gas cost for a blockchain action. Includes both raw base-unit amount and a
 	// human-readable decimal string, plus the gas token symbol.
-	Gas TransferActionResponseGas `json:"gas"`
+	Gas Gas `json:"gas" api:"nullable"`
 	// Decimal amount sent on the source chain (e.g. "1.5"). Omitted for exact_output
 	// cross-chain transfers until the source amount is determined.
 	SourceAmount string `json:"source_amount"`
@@ -761,40 +733,6 @@ const (
 	TransferActionResponseTypeTransfer TransferActionResponseType = "transfer"
 )
 
-// Gas cost for a blockchain action. Includes both raw base-unit amount and a
-// human-readable decimal string, plus the gas token symbol.
-type TransferActionResponseEstimatedGas struct {
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-	Gas
-}
-
-// Returns the unmodified JSON received from the API
-func (r TransferActionResponseEstimatedGas) RawJSON() string { return r.JSON.raw }
-func (r *TransferActionResponseEstimatedGas) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Gas cost for a blockchain action. Includes both raw base-unit amount and a
-// human-readable decimal string, plus the gas token symbol.
-type TransferActionResponseGas struct {
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-	Gas
-}
-
-// Returns the unmodified JSON received from the API
-func (r TransferActionResponseGas) RawJSON() string { return r.JSON.raw }
-func (r *TransferActionResponseGas) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // Status of a wallet action.
 type WalletActionStatus string
 
@@ -827,7 +765,8 @@ type WalletActionStepUnion struct {
 	// This field is from variant [EvmUserOperationWalletActionStep].
 	EntrypointVersion EvmUserOperationWalletActionStepEntrypointVersion `json:"entrypoint_version"`
 	// This field is from variant [EvmUserOperationWalletActionStep].
-	UserOperationHash string `json:"user_operation_hash"`
+	UserOperationHash    string `json:"user_operation_hash"`
+	GasCreditsChargedUsd string `json:"gas_credits_charged_usd"`
 	// This field is from variant [SvmTransactionWalletActionStep].
 	TransactionSignature string `json:"transaction_signature"`
 	JSON                 struct {
@@ -839,6 +778,7 @@ type WalletActionStepUnion struct {
 		BundleTransactionHash respjson.Field
 		EntrypointVersion     respjson.Field
 		UserOperationHash     respjson.Field
+		GasCreditsChargedUsd  respjson.Field
 		TransactionSignature  respjson.Field
 		raw                   string
 	} `json:"-"`
