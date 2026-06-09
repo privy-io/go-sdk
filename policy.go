@@ -953,8 +953,8 @@ type Policy struct {
 	CreatedAt float64 `json:"created_at" api:"required"`
 	// Name to assign to policy.
 	Name string `json:"name" api:"required"`
-	// The key quorum ID of the owner of the policy.
-	OwnerID string               `json:"owner_id" api:"required"`
+	// A unique identifier for a key quorum.
+	OwnerID KeyQuorumID          `json:"owner_id" api:"required" format:"cuid2"`
 	Rules   []PolicyRuleResponse `json:"rules" api:"required"`
 	// Version of the policy. Currently, 1.0 is the only version.
 	//
