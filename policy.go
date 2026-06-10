@@ -837,8 +837,10 @@ type EthereumTypedDataMessageConditionResp struct {
 	// Operator to use for policy conditions.
 	//
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator  ConditionOperator                              `json:"operator" api:"required"`
-	TypedData EthereumTypedDataMessageConditionTypedDataResp `json:"typed_data" api:"required"`
+	Operator ConditionOperator `json:"operator" api:"required"`
+	// The typed data structure containing EIP-712 types and the primary type for typed
+	// data message policy conditions.
+	TypedData TypedDataInputResp `json:"typed_data" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
 	Value ConditionValueUnionResp `json:"value" api:"required"`
@@ -876,25 +878,6 @@ const (
 	EthereumTypedDataMessageConditionFieldSourceEthereumTypedDataMessage EthereumTypedDataMessageConditionFieldSource = "ethereum_typed_data_message"
 )
 
-type EthereumTypedDataMessageConditionTypedDataResp struct {
-	PrimaryType string `json:"primary_type" api:"required"`
-	// The type definitions for EIP-712 typed data signing.
-	Types TypedDataTypesInputParamsResp `json:"types" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		PrimaryType respjson.Field
-		Types       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r EthereumTypedDataMessageConditionTypedDataResp) RawJSON() string { return r.JSON.raw }
-func (r *EthereumTypedDataMessageConditionTypedDataResp) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // 'types' and 'primary_type' attributes of the TypedData JSON object defined in
 // EIP-712.
 //
@@ -906,8 +889,10 @@ type EthereumTypedDataMessageCondition struct {
 	// Operator to use for policy conditions.
 	//
 	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator  ConditionOperator                          `json:"operator,omitzero" api:"required"`
-	TypedData EthereumTypedDataMessageConditionTypedData `json:"typed_data,omitzero" api:"required"`
+	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
+	// The typed data structure containing EIP-712 types and the primary type for typed
+	// data message policy conditions.
+	TypedData TypedDataInput `json:"typed_data,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
 	Value ConditionValueUnion `json:"value,omitzero" api:"required"`
@@ -919,22 +904,6 @@ func (r EthereumTypedDataMessageCondition) MarshalJSON() (data []byte, err error
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *EthereumTypedDataMessageCondition) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The properties PrimaryType, Types are required.
-type EthereumTypedDataMessageConditionTypedData struct {
-	PrimaryType string `json:"primary_type" api:"required"`
-	// The type definitions for EIP-712 typed data signing.
-	Types TypedDataTypesInputParams `json:"types,omitzero" api:"required"`
-	paramObj
-}
-
-func (r EthereumTypedDataMessageConditionTypedData) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumTypedDataMessageConditionTypedData
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *EthereumTypedDataMessageConditionTypedData) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -1026,7 +995,7 @@ type PolicyConditionUnionResp struct {
 	// This field is from variant [EthereumCalldataConditionResp].
 	Abi AbiSchemaResp `json:"abi"`
 	// This field is from variant [EthereumTypedDataMessageConditionResp].
-	TypedData EthereumTypedDataMessageConditionTypedDataResp `json:"typed_data"`
+	TypedData TypedDataInputResp `json:"typed_data"`
 	JSON      struct {
 		Field       respjson.Field
 		FieldSource respjson.Field
@@ -2298,6 +2267,55 @@ func (r TronTransactionCondition) MarshalJSON() (data []byte, err error) {
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *TronTransactionCondition) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The typed data structure containing EIP-712 types and the primary type for typed
+// data message policy conditions.
+type TypedDataInputResp struct {
+	PrimaryType string `json:"primary_type" api:"required"`
+	// The type definitions for EIP-712 typed data signing.
+	Types TypedDataTypesInputParamsResp `json:"types" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		PrimaryType respjson.Field
+		Types       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TypedDataInputResp) RawJSON() string { return r.JSON.raw }
+func (r *TypedDataInputResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TypedDataInputResp to a TypedDataInput.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TypedDataInput.Overrides()
+func (r TypedDataInputResp) ToParam() TypedDataInput {
+	return param.Override[TypedDataInput](json.RawMessage(r.RawJSON()))
+}
+
+// The typed data structure containing EIP-712 types and the primary type for typed
+// data message policy conditions.
+//
+// The properties PrimaryType, Types are required.
+type TypedDataInput struct {
+	PrimaryType string `json:"primary_type" api:"required"`
+	// The type definitions for EIP-712 typed data signing.
+	Types TypedDataTypesInputParams `json:"types,omitzero" api:"required"`
+	paramObj
+}
+
+func (r TypedDataInput) MarshalJSON() (data []byte, err error) {
+	type shadow TypedDataInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TypedDataInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

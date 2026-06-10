@@ -38,6 +38,27 @@ func (r *WebhookService) UnsafeUnwrap(payload []byte, opts ...option.RequestOpti
 	return res, nil
 }
 
+// Block metadata for a wallet transfer event.
+type BlockInfo struct {
+	// The block number.
+	Number float64 `json:"number" api:"required"`
+	// The block timestamp.
+	Timestamp float64 `json:"timestamp" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Number      respjson.Field
+		Timestamp   respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r BlockInfo) RawJSON() string { return r.JSON.raw }
+func (r *BlockInfo) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Bridge metadata for a crypto deposit via liquidation address.
 type BridgeCryptoDepositMetadata struct {
 	DrainID string `json:"drain_id" api:"required"`
@@ -395,8 +416,9 @@ type FundsDepositedWebhookPayload struct {
 	// The amount transferred, as a stringified bigint.
 	Amount string `json:"amount" api:"required"`
 	// An asset involved in a wallet transfer.
-	Asset WalletFundsAssetUnion             `json:"asset" api:"required"`
-	Block FundsDepositedWebhookPayloadBlock `json:"block" api:"required"`
+	Asset WalletFundsAssetUnion `json:"asset" api:"required"`
+	// Block metadata for a wallet transfer event.
+	Block BlockInfo `json:"block" api:"required"`
 	// The CAIP-2 chain identifier.
 	Caip2 string `json:"caip2" api:"required"`
 	// A unique key for this event.
@@ -442,26 +464,6 @@ func (r *FundsDepositedWebhookPayload) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type FundsDepositedWebhookPayloadBlock struct {
-	// The block number.
-	Number float64 `json:"number" api:"required"`
-	// The block timestamp.
-	Timestamp float64 `json:"timestamp" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Number      respjson.Field
-		Timestamp   respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r FundsDepositedWebhookPayloadBlock) RawJSON() string { return r.JSON.raw }
-func (r *FundsDepositedWebhookPayloadBlock) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // The type of webhook event.
 type FundsDepositedWebhookPayloadType string
 
@@ -474,8 +476,9 @@ type FundsWithdrawnWebhookPayload struct {
 	// The amount transferred, as a stringified bigint.
 	Amount string `json:"amount" api:"required"`
 	// An asset involved in a wallet transfer.
-	Asset WalletFundsAssetUnion             `json:"asset" api:"required"`
-	Block FundsWithdrawnWebhookPayloadBlock `json:"block" api:"required"`
+	Asset WalletFundsAssetUnion `json:"asset" api:"required"`
+	// Block metadata for a wallet transfer event.
+	Block BlockInfo `json:"block" api:"required"`
 	// The CAIP-2 chain identifier.
 	Caip2 string `json:"caip2" api:"required"`
 	// A unique key for this event.
@@ -515,26 +518,6 @@ type FundsWithdrawnWebhookPayload struct {
 // Returns the unmodified JSON received from the API
 func (r FundsWithdrawnWebhookPayload) RawJSON() string { return r.JSON.raw }
 func (r *FundsWithdrawnWebhookPayload) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type FundsWithdrawnWebhookPayloadBlock struct {
-	// The block number.
-	Number float64 `json:"number" api:"required"`
-	// The block timestamp.
-	Timestamp float64 `json:"timestamp" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Number      respjson.Field
-		Timestamp   respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r FundsWithdrawnWebhookPayloadBlock) RawJSON() string { return r.JSON.raw }
-func (r *FundsWithdrawnWebhookPayloadBlock) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -3601,11 +3584,10 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	// This field is a union of [WalletFundsAssetUnion], [string], [string], [string],
 	// [string], [string], [string], [string], [string]
 	Asset UnsafeUnwrapWebhookEventUnionAsset `json:"asset"`
-	// This field is a union of [FundsDepositedWebhookPayloadBlock],
-	// [FundsWithdrawnWebhookPayloadBlock]
-	Block          UnsafeUnwrapWebhookEventUnionBlock `json:"block"`
-	IdempotencyKey string                             `json:"idempotency_key"`
-	Recipient      string                             `json:"recipient"`
+	// This field is from variant [FundsDepositedWebhookPayload].
+	Block          BlockInfo `json:"block"`
+	IdempotencyKey string    `json:"idempotency_key"`
+	Recipient      string    `json:"recipient"`
 	// This field is from variant [FundsDepositedWebhookPayload].
 	BridgeMetadata BridgeMetadataUnion `json:"bridge_metadata"`
 	TransactionFee string              `json:"transaction_fee"`
@@ -4250,26 +4232,6 @@ type UnsafeUnwrapWebhookEventUnionAssetAddress struct {
 }
 
 func (r *UnsafeUnwrapWebhookEventUnionAssetAddress) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// UnsafeUnwrapWebhookEventUnionBlock is an implicit subunion of
-// [UnsafeUnwrapWebhookEventUnion]. UnsafeUnwrapWebhookEventUnionBlock provides
-// convenient access to the sub-properties of the union.
-//
-// For type safety it is recommended to directly use a variant of the
-// [UnsafeUnwrapWebhookEventUnion].
-type UnsafeUnwrapWebhookEventUnionBlock struct {
-	Number    float64 `json:"number"`
-	Timestamp float64 `json:"timestamp"`
-	JSON      struct {
-		Number    respjson.Field
-		Timestamp respjson.Field
-		raw       string
-	} `json:"-"`
-}
-
-func (r *UnsafeUnwrapWebhookEventUnionBlock) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

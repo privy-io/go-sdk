@@ -424,18 +424,25 @@ type EthereumPersonalSignRpcInputResp struct {
 	// Parameters for the EVM `personal_sign` RPC.
 	Params  EthereumPersonalSignRpcInputParamsResp `json:"params" api:"required"`
 	Address string                                 `json:"address"`
+	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	Caip2 Caip2 `json:"caip2"`
 	// Any of "ethereum".
 	ChainType EthereumPersonalSignRpcInputChainType `json:"chain_type"`
-	WalletID  string                                `json:"wallet_id"`
+	// Options controlling signature production for personal_sign and
+	// eth_signTypedData_v4.
+	SignatureOptions SignatureOptionsResp `json:"signature_options"`
+	WalletID         string               `json:"wallet_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		Method      respjson.Field
-		Params      respjson.Field
-		Address     respjson.Field
-		ChainType   respjson.Field
-		WalletID    respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
+		Method           respjson.Field
+		Params           respjson.Field
+		Address          respjson.Field
+		Caip2            respjson.Field
+		ChainType        respjson.Field
+		SignatureOptions respjson.Field
+		WalletID         respjson.Field
+		ExtraFields      map[string]respjson.Field
+		raw              string
 	} `json:"-"`
 }
 
@@ -474,11 +481,16 @@ type EthereumPersonalSignRpcInput struct {
 	// Any of "personal_sign".
 	Method EthereumPersonalSignRpcInputMethod `json:"method,omitzero" api:"required"`
 	// Parameters for the EVM `personal_sign` RPC.
-	Params   EthereumPersonalSignRpcInputParams `json:"params,omitzero" api:"required"`
-	Address  param.Opt[string]                  `json:"address,omitzero"`
-	WalletID param.Opt[string]                  `json:"wallet_id,omitzero"`
+	Params  EthereumPersonalSignRpcInputParams `json:"params,omitzero" api:"required"`
+	Address param.Opt[string]                  `json:"address,omitzero"`
+	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	Caip2    param.Opt[Caip2]  `json:"caip2,omitzero"`
+	WalletID param.Opt[string] `json:"wallet_id,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumPersonalSignRpcInputChainType `json:"chain_type,omitzero"`
+	// Options controlling signature production for personal_sign and
+	// eth_signTypedData_v4.
+	SignatureOptions SignatureOptions `json:"signature_options,omitzero"`
 	paramObj
 }
 
@@ -1648,18 +1660,25 @@ type EthereumSignTypedDataRpcInputResp struct {
 	// Parameters for the EVM `eth_signTypedData_v4` RPC.
 	Params  EthereumSignTypedDataRpcInputParamsResp `json:"params" api:"required"`
 	Address string                                  `json:"address"`
+	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	Caip2 Caip2 `json:"caip2"`
 	// Any of "ethereum".
 	ChainType EthereumSignTypedDataRpcInputChainType `json:"chain_type"`
-	WalletID  string                                 `json:"wallet_id"`
+	// Options controlling signature production for personal_sign and
+	// eth_signTypedData_v4.
+	SignatureOptions SignatureOptionsResp `json:"signature_options"`
+	WalletID         string               `json:"wallet_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		Method      respjson.Field
-		Params      respjson.Field
-		Address     respjson.Field
-		ChainType   respjson.Field
-		WalletID    respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
+		Method           respjson.Field
+		Params           respjson.Field
+		Address          respjson.Field
+		Caip2            respjson.Field
+		ChainType        respjson.Field
+		SignatureOptions respjson.Field
+		WalletID         respjson.Field
+		ExtraFields      map[string]respjson.Field
+		raw              string
 	} `json:"-"`
 }
 
@@ -1699,11 +1718,16 @@ type EthereumSignTypedDataRpcInput struct {
 	// Any of "eth_signTypedData_v4".
 	Method EthereumSignTypedDataRpcInputMethod `json:"method,omitzero" api:"required"`
 	// Parameters for the EVM `eth_signTypedData_v4` RPC.
-	Params   EthereumSignTypedDataRpcInputParams `json:"params,omitzero" api:"required"`
-	Address  param.Opt[string]                   `json:"address,omitzero"`
-	WalletID param.Opt[string]                   `json:"wallet_id,omitzero"`
+	Params  EthereumSignTypedDataRpcInputParams `json:"params,omitzero" api:"required"`
+	Address param.Opt[string]                   `json:"address,omitzero"`
+	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	Caip2    param.Opt[Caip2]  `json:"caip2,omitzero"`
+	WalletID param.Opt[string] `json:"wallet_id,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumSignTypedDataRpcInputChainType `json:"chain_type,omitzero"`
+	// Options controlling signature production for personal_sign and
+	// eth_signTypedData_v4.
+	SignatureOptions SignatureOptions `json:"signature_options,omitzero"`
 	paramObj
 }
 
@@ -3179,6 +3203,70 @@ func (r SeedPhraseExportResponse) RawJSON() string { return r.JSON.raw }
 func (r *SeedPhraseExportResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// Options controlling signature production for personal_sign and
+// eth_signTypedData_v4.
+type SignatureOptionsResp struct {
+	// The type of cryptographic signature to produce. Use "ecdsa" for standard ECDSA
+	// signatures, or "erc1271" for ERC-1271 compliant signatures for smart account
+	// wallets.
+	//
+	// Any of "ecdsa", "erc1271".
+	Type SignatureType `json:"type" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Type        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SignatureOptionsResp) RawJSON() string { return r.JSON.raw }
+func (r *SignatureOptionsResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this SignatureOptionsResp to a SignatureOptions.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// SignatureOptions.Overrides()
+func (r SignatureOptionsResp) ToParam() SignatureOptions {
+	return param.Override[SignatureOptions](json.RawMessage(r.RawJSON()))
+}
+
+// Options controlling signature production for personal_sign and
+// eth_signTypedData_v4.
+//
+// The property Type is required.
+type SignatureOptions struct {
+	// The type of cryptographic signature to produce. Use "ecdsa" for standard ECDSA
+	// signatures, or "erc1271" for ERC-1271 compliant signatures for smart account
+	// wallets.
+	//
+	// Any of "ecdsa", "erc1271".
+	Type SignatureType `json:"type,omitzero" api:"required"`
+	paramObj
+}
+
+func (r SignatureOptions) MarshalJSON() (data []byte, err error) {
+	type shadow SignatureOptions
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *SignatureOptions) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The type of cryptographic signature to produce. Use "ecdsa" for standard ECDSA
+// signatures, or "erc1271" for ERC-1271 compliant signatures for smart account
+// wallets.
+type SignatureType string
+
+const (
+	SignatureTypeEcdsa   SignatureType = "ecdsa"
+	SignatureTypeErc1271 SignatureType = "erc1271"
+)
 
 // Executes the SVM `signAndSendTransaction` RPC to sign and broadcast a
 // transaction.
@@ -6996,6 +7084,8 @@ type WalletRpcRequestBodyUnionResp struct {
 	ExperimentalDataSuffix Hex    `json:"experimental_data_suffix"`
 	ReferenceID            string `json:"reference_id"`
 	Sponsor                bool   `json:"sponsor"`
+	// This field is from variant [EthereumPersonalSignRpcInputResp].
+	SignatureOptions SignatureOptionsResp `json:"signature_options"`
 	// This field is from variant [SolanaSignAndSendTransactionRpcInputResp].
 	OptimisticBroadcast bool `json:"optimistic_broadcast"`
 	// This field is from variant [SparkTransferRpcInputResp].
@@ -7010,6 +7100,7 @@ type WalletRpcRequestBodyUnionResp struct {
 		ExperimentalDataSuffix respjson.Field
 		ReferenceID            respjson.Field
 		Sponsor                respjson.Field
+		SignatureOptions       respjson.Field
 		OptimisticBroadcast    respjson.Field
 		Network                respjson.Field
 		raw                    string

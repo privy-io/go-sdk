@@ -778,6 +778,8 @@ type IntentResponseUnionRequestDetailsBody struct {
 	ReferenceID            string `json:"reference_id"`
 	Sponsor                bool   `json:"sponsor"`
 	// This field is from variant [WalletRpcRequestBodyUnionResp].
+	SignatureOptions SignatureOptionsResp `json:"signature_options"`
+	// This field is from variant [WalletRpcRequestBodyUnionResp].
 	OptimisticBroadcast bool `json:"optimistic_broadcast"`
 	// This field is from variant [WalletRpcRequestBodyUnionResp].
 	Network SparkNetwork `json:"network"`
@@ -826,6 +828,7 @@ type IntentResponseUnionRequestDetailsBody struct {
 		ExperimentalDataSuffix respjson.Field
 		ReferenceID            respjson.Field
 		Sponsor                respjson.Field
+		SignatureOptions       respjson.Field
 		OptimisticBroadcast    respjson.Field
 		Network                respjson.Field
 		Destination            respjson.Field
@@ -1091,7 +1094,7 @@ type IntentResponseUnionCurrentResourceData struct {
 	// This field is from variant [PolicyRuleResponse].
 	Method PolicyMethod `json:"method"`
 	// This field is from variant [KeyQuorum].
-	AuthorizationKeys []KeyQuorumAuthorizationKey `json:"authorization_keys"`
+	AuthorizationKeys []AuthorizationKey `json:"authorization_keys"`
 	// This field is from variant [KeyQuorum].
 	UserIDs []string `json:"user_ids"`
 	// This field is from variant [KeyQuorum].
