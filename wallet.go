@@ -143,6 +143,20 @@ func (r *WalletService) Transfer(ctx context.Context, walletID string, params Wa
 	return res, err
 }
 
+// Archives a wallet, preventing it from being used in any write or signing
+// operations. Archived wallets are hidden from list endpoints by default. Returns
+// 404 if the wallet does not exist or is already archived.
+func (r *WalletService) Archive(ctx context.Context, walletID string, opts ...option.RequestOption) (res *Wallet, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if walletID == "" {
+		err = errors.New("missing required wallet_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/wallets/%s/archive", url.PathEscape(walletID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, nil, &res, opts...)
+	return res, err
+}
+
 // Exchange a user JWT for a session key authorized to act on the user's wallets.
 // Returns the encrypted authorization key and the list of wallets it can access.
 func (r *WalletService) AuthenticateWithJwt(ctx context.Context, body WalletAuthenticateWithJwtParams, opts ...option.RequestOption) (res *WalletAuthenticateWithJwtResponseUnion, err error) {
@@ -181,14 +195,14 @@ func (r *WalletService) Export(ctx context.Context, walletID string, params Wall
 }
 
 // Get a wallet by wallet ID.
-func (r *WalletService) Get(ctx context.Context, walletID string, opts ...option.RequestOption) (res *Wallet, err error) {
+func (r *WalletService) Get(ctx context.Context, walletID string, query WalletGetParams, opts ...option.RequestOption) (res *Wallet, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if walletID == "" {
 		err = errors.New("missing required wallet_id parameter")
 		return nil, err
 	}
 	path := fmt.Sprintf("v1/wallets/%s", url.PathEscape(walletID))
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return res, err
 }
 
@@ -2524,6 +2538,9 @@ func (r *Gas) UnmarshalJSON(data []byte) error {
 type GetByWalletAddressRequestBody struct {
 	// A blockchain wallet address (Ethereum or Solana).
 	Address Address `json:"address" api:"required"`
+	// Include archived wallets in lookup. Defaults to false (archived wallets return
+	// 404).
+	IncludeArchived param.Opt[bool] `json:"include_archived,omitzero"`
 	paramObj
 }
 
@@ -6637,6 +6654,9 @@ type Wallet struct {
 	OwnerID string `json:"owner_id" api:"required" format:"cuid2"`
 	// List of policy IDs for policies that are enforced on the wallet.
 	PolicyIDs []string `json:"policy_ids" api:"required"`
+	// Unix timestamp of when the wallet was archived in milliseconds, or null if the
+	// wallet is active.
+	ArchivedAt float64 `json:"archived_at" api:"nullable"`
 	// The number of keys that must sign for an action to be valid.
 	AuthorizationThreshold float64 `json:"authorization_threshold"`
 	// Information about the custodian managing this wallet.
@@ -6660,6 +6680,7 @@ type Wallet struct {
 		ImportedAt             respjson.Field
 		OwnerID                respjson.Field
 		PolicyIDs              respjson.Field
+		ArchivedAt             respjson.Field
 		AuthorizationThreshold respjson.Field
 		Custody                respjson.Field
 		DisplayName            respjson.Field
@@ -8315,6 +8336,8 @@ type WalletListParams struct {
 	Cursor           param.Opt[string] `query:"cursor,omitzero" json:"-"`
 	// Filter wallets by external ID.
 	ExternalID param.Opt[string] `query:"external_id,omitzero" json:"-"`
+	// Include archived wallets in lookup. Defaults to false.
+	IncludeArchived param.Opt[bool] `query:"include_archived,omitzero" json:"-"`
 	// Filter wallets by user ID. Cannot be used together with authorization_key.
 	UserID param.Opt[string] `query:"user_id,omitzero" json:"-"`
 	// The wallet chain types.
@@ -8476,6 +8499,20 @@ func (r WalletExportParams) MarshalJSON() (data []byte, err error) {
 }
 func (r *WalletExportParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+type WalletGetParams struct {
+	// Include archived wallets in lookup. Defaults to false.
+	IncludeArchived param.Opt[bool] `query:"include_archived,omitzero" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [WalletGetParams]'s query parameters as `url.Values`.
+func (r WalletGetParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }
 
 type WalletGetWalletByAddressParams struct {

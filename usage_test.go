@@ -26,7 +26,11 @@ func TestUsage(t *testing.T) {
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	wallet, err := client.Wallets.Get(context.TODO(), "wallet_id")
+	wallet, err := client.Wallets.Get(
+		context.TODO(),
+		"wallet_id",
+		privyclient.WalletGetParams{},
+	)
 	if err != nil {
 		t.Fatalf("err should be nil: %s", err.Error())
 	}
