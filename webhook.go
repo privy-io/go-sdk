@@ -1380,13 +1380,31 @@ const (
 	UserOperationCompletedWebhookPayloadTypeUserOperationCompleted UserOperationCompletedWebhookPayloadType = "user_operation.completed"
 )
 
+// A reference to a user by their unique identifier.
+type UserReference struct {
+	ID string `json:"id" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID          respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r UserReference) RawJSON() string { return r.JSON.raw }
+func (r *UserReference) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Payload for the user.transferred_account webhook event.
 type UserTransferredAccountWebhookPayload struct {
 	// A linked account for the user.
 	Account LinkedAccountUnion `json:"account" api:"required"`
 	// Any of true.
-	DeletedUser bool                                         `json:"deletedUser" api:"required"`
-	FromUser    UserTransferredAccountWebhookPayloadFromUser `json:"fromUser" api:"required"`
+	DeletedUser bool `json:"deletedUser" api:"required"`
+	// A reference to a user by their unique identifier.
+	FromUser UserReference `json:"fromUser" api:"required"`
 	// A Privy user object.
 	ToUser User `json:"toUser" api:"required"`
 	// The type of webhook event.
@@ -1408,22 +1426,6 @@ type UserTransferredAccountWebhookPayload struct {
 // Returns the unmodified JSON received from the API
 func (r UserTransferredAccountWebhookPayload) RawJSON() string { return r.JSON.raw }
 func (r *UserTransferredAccountWebhookPayload) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type UserTransferredAccountWebhookPayloadFromUser struct {
-	ID string `json:"id" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID          respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r UserTransferredAccountWebhookPayloadFromUser) RawJSON() string { return r.JSON.raw }
-func (r *UserTransferredAccountWebhookPayloadFromUser) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -3326,9 +3328,9 @@ const (
 
 // Payload for the yield.claim.confirmed webhook event.
 type YieldClaimConfirmedWebhookPayload struct {
-	Caip2         string                                    `json:"caip2" api:"required"`
-	Rewards       []YieldClaimConfirmedWebhookPayloadReward `json:"rewards" api:"required"`
-	TransactionID string                                    `json:"transaction_id" api:"required"`
+	Caip2         string             `json:"caip2" api:"required"`
+	Rewards       []YieldClaimReward `json:"rewards" api:"required"`
+	TransactionID string             `json:"transaction_id" api:"required"`
 	// The type of webhook event.
 	//
 	// Any of "yield.claim.confirmed".
@@ -3352,7 +3354,15 @@ func (r *YieldClaimConfirmedWebhookPayload) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type YieldClaimConfirmedWebhookPayloadReward struct {
+// The type of webhook event.
+type YieldClaimConfirmedWebhookPayloadType string
+
+const (
+	YieldClaimConfirmedWebhookPayloadTypeYieldClaimConfirmed YieldClaimConfirmedWebhookPayloadType = "yield.claim.confirmed"
+)
+
+// A single reward token claimed from a yield vault.
+type YieldClaimReward struct {
 	Amount       string `json:"amount" api:"required"`
 	TokenAddress string `json:"token_address" api:"required"`
 	TokenSymbol  string `json:"token_symbol" api:"required"`
@@ -3367,17 +3377,10 @@ type YieldClaimConfirmedWebhookPayloadReward struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r YieldClaimConfirmedWebhookPayloadReward) RawJSON() string { return r.JSON.raw }
-func (r *YieldClaimConfirmedWebhookPayloadReward) UnmarshalJSON(data []byte) error {
+func (r YieldClaimReward) RawJSON() string { return r.JSON.raw }
+func (r *YieldClaimReward) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-// The type of webhook event.
-type YieldClaimConfirmedWebhookPayloadType string
-
-const (
-	YieldClaimConfirmedWebhookPayloadTypeYieldClaimConfirmed YieldClaimConfirmedWebhookPayloadType = "yield.claim.confirmed"
-)
 
 // Payload for the yield.deposit.confirmed webhook event.
 type YieldDepositConfirmedWebhookPayload struct {
@@ -3558,7 +3561,7 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	// This field is from variant [UserTransferredAccountWebhookPayload].
 	DeletedUser bool `json:"deletedUser"`
 	// This field is from variant [UserTransferredAccountWebhookPayload].
-	FromUser UserTransferredAccountWebhookPayloadFromUser `json:"fromUser"`
+	FromUser UserReference `json:"fromUser"`
 	// This field is from variant [UserTransferredAccountWebhookPayload].
 	ToUser User `json:"toUser"`
 	// This field is from variant [UserWalletCreatedWebhookPayload].
@@ -3609,7 +3612,7 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	Chain         string                  `json:"chain"`
 	// This field is a union of [[]EarnIncetiveClaimRewardEntry],
 	// [[]EarnIncetiveClaimRewardEntry], [[]EarnIncetiveClaimRewardEntry],
-	// [[]EarnIncetiveClaimRewardEntry], [[]YieldClaimConfirmedWebhookPayloadReward]
+	// [[]EarnIncetiveClaimRewardEntry], [[]YieldClaimReward]
 	Rewards     UnsafeUnwrapWebhookEventUnionRewards `json:"rewards"`
 	InputAmount string                               `json:"input_amount"`
 	InputToken  string                               `json:"input_token"`
@@ -4243,19 +4246,18 @@ func (r *UnsafeUnwrapWebhookEventUnionAssetAddress) UnmarshalJSON(data []byte) e
 // [UnsafeUnwrapWebhookEventUnion].
 //
 // If the underlying value is not a json object, one of the following properties
-// will be valid: OfEarnIncetiveClaimRewardEntryArray
-// OfYieldClaimConfirmedWebhookPayloadRewards]
+// will be valid: OfEarnIncetiveClaimRewardEntryArray OfYieldClaimRewardArray]
 type UnsafeUnwrapWebhookEventUnionRewards struct {
 	// This field will be present if the value is a [[]EarnIncetiveClaimRewardEntry]
 	// instead of an object.
 	OfEarnIncetiveClaimRewardEntryArray []EarnIncetiveClaimRewardEntry `json:",inline"`
-	// This field will be present if the value is a
-	// [[]YieldClaimConfirmedWebhookPayloadReward] instead of an object.
-	OfYieldClaimConfirmedWebhookPayloadRewards []YieldClaimConfirmedWebhookPayloadReward `json:",inline"`
-	JSON                                       struct {
-		OfEarnIncetiveClaimRewardEntryArray        respjson.Field
-		OfYieldClaimConfirmedWebhookPayloadRewards respjson.Field
-		raw                                        string
+	// This field will be present if the value is a [[]YieldClaimReward] instead of an
+	// object.
+	OfYieldClaimRewardArray []YieldClaimReward `json:",inline"`
+	JSON                    struct {
+		OfEarnIncetiveClaimRewardEntryArray respjson.Field
+		OfYieldClaimRewardArray             respjson.Field
+		raw                                 string
 	} `json:"-"`
 }
 
