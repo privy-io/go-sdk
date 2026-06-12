@@ -110,6 +110,8 @@ const (
 )
 
 type WalletBalanceGetParams struct {
+	// Include archived wallets in lookup. Defaults to false.
+	IncludeArchived param.Opt[bool] `query:"include_archived,omitzero" json:"-"`
 	// The token contract address(es) to query in format "chain:address" (e.g.,
 	// "base:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" or
 	// "solana:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"). Cannot be used together
