@@ -206,6 +206,7 @@ type AppResponse struct {
 	LinkedinOAuth               bool                              `json:"linkedin_oauth" api:"required"`
 	LogoURL                     string                            `json:"logo_url" api:"required"`
 	MaxLinkedWalletsPerUser     float64                           `json:"max_linked_wallets_per_user" api:"required"`
+	MergeAccountsByEmail        bool                              `json:"merge_accounts_by_email" api:"required"`
 	// Any of "sms", "totp", "passkey".
 	MfaMethods               []string `json:"mfa_methods" api:"required"`
 	Name                     string   `json:"name" api:"required"`
@@ -270,6 +271,7 @@ type AppResponse struct {
 		LinkedinOAuth               respjson.Field
 		LogoURL                     respjson.Field
 		MaxLinkedWalletsPerUser     respjson.Field
+		MergeAccountsByEmail        respjson.Field
 		MfaMethods                  respjson.Field
 		Name                        respjson.Field
 		PasskeyAuth                 respjson.Field

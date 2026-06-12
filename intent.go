@@ -324,74 +324,14 @@ func (r *IntentAuthorization) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// IntentAuthorizationKeyQuorumMemberUnion contains all possible properties and
-// values from [IntentAuthorizationKeyQuorumMemberUserMember],
-// [IntentAuthorizationKeyQuorumMemberKeyMember].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-type IntentAuthorizationKeyQuorumMemberUnion struct {
-	SignedAt float64 `json:"signed_at"`
-	Type     string  `json:"type"`
-	// This field is from variant [IntentAuthorizationKeyQuorumMemberUserMember].
-	UserID string `json:"user_id"`
-	// This field is from variant [IntentAuthorizationKeyQuorumMemberKeyMember].
-	PublicKey string `json:"public_key"`
-	JSON      struct {
-		SignedAt  respjson.Field
-		Type      respjson.Field
-		UserID    respjson.Field
-		PublicKey respjson.Field
-		raw       string
-	} `json:"-"`
-}
-
-func (u IntentAuthorizationKeyQuorumMemberUnion) AsUserMember() (v IntentAuthorizationKeyQuorumMemberUserMember) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u IntentAuthorizationKeyQuorumMemberUnion) AsKeyMember() (v IntentAuthorizationKeyQuorumMemberKeyMember) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u IntentAuthorizationKeyQuorumMemberUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *IntentAuthorizationKeyQuorumMemberUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type IntentAuthorizationKeyQuorumMemberUserMember struct {
-	// Unix timestamp when this member signed, or null if not yet signed.
-	SignedAt float64 `json:"signed_at" api:"required"`
-	// Any of "user".
-	Type string `json:"type" api:"required"`
-	// User ID of the key quorum member
-	UserID string `json:"user_id" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		SignedAt    respjson.Field
-		Type        respjson.Field
-		UserID      respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r IntentAuthorizationKeyQuorumMemberUserMember) RawJSON() string { return r.JSON.raw }
-func (r *IntentAuthorizationKeyQuorumMemberUserMember) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type IntentAuthorizationKeyQuorumMemberKeyMember struct {
+// A key member of an intent authorization quorum.
+type IntentAuthorizationKeyMember struct {
 	// Public key of the key quorum member
 	PublicKey string `json:"public_key" api:"required"`
 	// Unix timestamp when this member signed, or null if not yet signed.
 	SignedAt float64 `json:"signed_at" api:"required"`
 	// Any of "key".
-	Type string `json:"type" api:"required"`
+	Type IntentAuthorizationKeyMemberType `json:"type" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		PublicKey   respjson.Field
@@ -403,116 +343,19 @@ type IntentAuthorizationKeyQuorumMemberKeyMember struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r IntentAuthorizationKeyQuorumMemberKeyMember) RawJSON() string { return r.JSON.raw }
-func (r *IntentAuthorizationKeyQuorumMemberKeyMember) UnmarshalJSON(data []byte) error {
+func (r IntentAuthorizationKeyMember) RawJSON() string { return r.JSON.raw }
+func (r *IntentAuthorizationKeyMember) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// IntentAuthorizationMemberUnion contains all possible properties and values from
-// [IntentAuthorizationMemberUserMember], [IntentAuthorizationMemberKeyMember],
-// [IntentAuthorizationMemberKeyQuorumMember].
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-type IntentAuthorizationMemberUnion struct {
-	SignedAt float64 `json:"signed_at"`
-	Type     string  `json:"type"`
-	// This field is from variant [IntentAuthorizationMemberUserMember].
-	UserID string `json:"user_id"`
-	// This field is from variant [IntentAuthorizationMemberKeyMember].
-	PublicKey string `json:"public_key"`
-	// This field is from variant [IntentAuthorizationMemberKeyQuorumMember].
-	KeyQuorumID string `json:"key_quorum_id"`
-	// This field is from variant [IntentAuthorizationMemberKeyQuorumMember].
-	Members []IntentAuthorizationKeyQuorumMemberUnion `json:"members"`
-	// This field is from variant [IntentAuthorizationMemberKeyQuorumMember].
-	Threshold float64 `json:"threshold"`
-	// This field is from variant [IntentAuthorizationMemberKeyQuorumMember].
-	ThresholdMet bool `json:"threshold_met"`
-	// This field is from variant [IntentAuthorizationMemberKeyQuorumMember].
-	DisplayName string `json:"display_name"`
-	JSON        struct {
-		SignedAt     respjson.Field
-		Type         respjson.Field
-		UserID       respjson.Field
-		PublicKey    respjson.Field
-		KeyQuorumID  respjson.Field
-		Members      respjson.Field
-		Threshold    respjson.Field
-		ThresholdMet respjson.Field
-		DisplayName  respjson.Field
-		raw          string
-	} `json:"-"`
-}
+type IntentAuthorizationKeyMemberType string
 
-func (u IntentAuthorizationMemberUnion) AsUserMember() (v IntentAuthorizationMemberUserMember) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
+const (
+	IntentAuthorizationKeyMemberTypeKey IntentAuthorizationKeyMemberType = "key"
+)
 
-func (u IntentAuthorizationMemberUnion) AsKeyMember() (v IntentAuthorizationMemberKeyMember) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u IntentAuthorizationMemberUnion) AsKeyQuorumMember() (v IntentAuthorizationMemberKeyQuorumMember) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u IntentAuthorizationMemberUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *IntentAuthorizationMemberUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type IntentAuthorizationMemberUserMember struct {
-	// Unix timestamp when this member signed, or null if not yet signed.
-	SignedAt float64 `json:"signed_at" api:"required"`
-	// Any of "user".
-	Type string `json:"type" api:"required"`
-	// User ID of the key quorum member
-	UserID string `json:"user_id" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		SignedAt    respjson.Field
-		Type        respjson.Field
-		UserID      respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r IntentAuthorizationMemberUserMember) RawJSON() string { return r.JSON.raw }
-func (r *IntentAuthorizationMemberUserMember) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type IntentAuthorizationMemberKeyMember struct {
-	// Public key of the key quorum member
-	PublicKey string `json:"public_key" api:"required"`
-	// Unix timestamp when this member signed, or null if not yet signed.
-	SignedAt float64 `json:"signed_at" api:"required"`
-	// Any of "key".
-	Type string `json:"type" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		PublicKey   respjson.Field
-		SignedAt    respjson.Field
-		Type        respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r IntentAuthorizationMemberKeyMember) RawJSON() string { return r.JSON.raw }
-func (r *IntentAuthorizationMemberKeyMember) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type IntentAuthorizationMemberKeyQuorumMember struct {
+// A nested key quorum member of an intent authorization quorum.
+type IntentAuthorizationKeyQuorum struct {
 	// ID of the child key quorum member
 	KeyQuorumID string `json:"key_quorum_id" api:"required"`
 	// Members of this child quorum
@@ -522,7 +365,7 @@ type IntentAuthorizationMemberKeyQuorumMember struct {
 	// Whether this child key quorum has met its signature threshold
 	ThresholdMet bool `json:"threshold_met" api:"required"`
 	// Any of "key_quorum".
-	Type string `json:"type" api:"required"`
+	Type IntentAuthorizationKeyQuorumType `json:"type" api:"required"`
 	// Display name for the child key quorum (if any)
 	DisplayName string `json:"display_name"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -539,10 +382,208 @@ type IntentAuthorizationMemberKeyQuorumMember struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r IntentAuthorizationMemberKeyQuorumMember) RawJSON() string { return r.JSON.raw }
-func (r *IntentAuthorizationMemberKeyQuorumMember) UnmarshalJSON(data []byte) error {
+func (r IntentAuthorizationKeyQuorum) RawJSON() string { return r.JSON.raw }
+func (r *IntentAuthorizationKeyQuorum) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+type IntentAuthorizationKeyQuorumType string
+
+const (
+	IntentAuthorizationKeyQuorumTypeKeyQuorum IntentAuthorizationKeyQuorumType = "key_quorum"
+)
+
+// IntentAuthorizationKeyQuorumMemberUnion contains all possible properties and
+// values from [IntentAuthorizationUserMember], [IntentAuthorizationKeyMember].
+//
+// Use the [IntentAuthorizationKeyQuorumMemberUnion.AsAny] method to switch on the
+// variant.
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type IntentAuthorizationKeyQuorumMemberUnion struct {
+	SignedAt float64 `json:"signed_at"`
+	// Any of "user", "key".
+	Type string `json:"type"`
+	// This field is from variant [IntentAuthorizationUserMember].
+	UserID string `json:"user_id"`
+	// This field is from variant [IntentAuthorizationKeyMember].
+	PublicKey string `json:"public_key"`
+	JSON      struct {
+		SignedAt  respjson.Field
+		Type      respjson.Field
+		UserID    respjson.Field
+		PublicKey respjson.Field
+		raw       string
+	} `json:"-"`
+}
+
+// anyIntentAuthorizationKeyQuorumMember is implemented by each variant of
+// [IntentAuthorizationKeyQuorumMemberUnion] to add type safety for the return type
+// of [IntentAuthorizationKeyQuorumMemberUnion.AsAny]
+type anyIntentAuthorizationKeyQuorumMember interface {
+	implIntentAuthorizationKeyQuorumMemberUnion()
+}
+
+func (IntentAuthorizationUserMember) implIntentAuthorizationKeyQuorumMemberUnion() {}
+func (IntentAuthorizationKeyMember) implIntentAuthorizationKeyQuorumMemberUnion()  {}
+
+// Use the following switch statement to find the correct variant
+//
+//	switch variant := IntentAuthorizationKeyQuorumMemberUnion.AsAny().(type) {
+//	case privyclient.IntentAuthorizationUserMember:
+//	case privyclient.IntentAuthorizationKeyMember:
+//	default:
+//	  fmt.Errorf("no variant present")
+//	}
+func (u IntentAuthorizationKeyQuorumMemberUnion) AsAny() anyIntentAuthorizationKeyQuorumMember {
+	switch u.Type {
+	case "user":
+		return u.AsUser()
+	case "key":
+		return u.AsKey()
+	}
+	return nil
+}
+
+func (u IntentAuthorizationKeyQuorumMemberUnion) AsUser() (v IntentAuthorizationUserMember) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u IntentAuthorizationKeyQuorumMemberUnion) AsKey() (v IntentAuthorizationKeyMember) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u IntentAuthorizationKeyQuorumMemberUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *IntentAuthorizationKeyQuorumMemberUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// IntentAuthorizationMemberUnion contains all possible properties and values from
+// [IntentAuthorizationUserMember], [IntentAuthorizationKeyMember],
+// [IntentAuthorizationKeyQuorum].
+//
+// Use the [IntentAuthorizationMemberUnion.AsAny] method to switch on the variant.
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type IntentAuthorizationMemberUnion struct {
+	SignedAt float64 `json:"signed_at"`
+	// Any of "user", "key", "key_quorum".
+	Type string `json:"type"`
+	// This field is from variant [IntentAuthorizationUserMember].
+	UserID string `json:"user_id"`
+	// This field is from variant [IntentAuthorizationKeyMember].
+	PublicKey string `json:"public_key"`
+	// This field is from variant [IntentAuthorizationKeyQuorum].
+	KeyQuorumID string `json:"key_quorum_id"`
+	// This field is from variant [IntentAuthorizationKeyQuorum].
+	Members []IntentAuthorizationKeyQuorumMemberUnion `json:"members"`
+	// This field is from variant [IntentAuthorizationKeyQuorum].
+	Threshold float64 `json:"threshold"`
+	// This field is from variant [IntentAuthorizationKeyQuorum].
+	ThresholdMet bool `json:"threshold_met"`
+	// This field is from variant [IntentAuthorizationKeyQuorum].
+	DisplayName string `json:"display_name"`
+	JSON        struct {
+		SignedAt     respjson.Field
+		Type         respjson.Field
+		UserID       respjson.Field
+		PublicKey    respjson.Field
+		KeyQuorumID  respjson.Field
+		Members      respjson.Field
+		Threshold    respjson.Field
+		ThresholdMet respjson.Field
+		DisplayName  respjson.Field
+		raw          string
+	} `json:"-"`
+}
+
+// anyIntentAuthorizationMember is implemented by each variant of
+// [IntentAuthorizationMemberUnion] to add type safety for the return type of
+// [IntentAuthorizationMemberUnion.AsAny]
+type anyIntentAuthorizationMember interface {
+	implIntentAuthorizationMemberUnion()
+}
+
+func (IntentAuthorizationUserMember) implIntentAuthorizationMemberUnion() {}
+func (IntentAuthorizationKeyMember) implIntentAuthorizationMemberUnion()  {}
+func (IntentAuthorizationKeyQuorum) implIntentAuthorizationMemberUnion()  {}
+
+// Use the following switch statement to find the correct variant
+//
+//	switch variant := IntentAuthorizationMemberUnion.AsAny().(type) {
+//	case privyclient.IntentAuthorizationUserMember:
+//	case privyclient.IntentAuthorizationKeyMember:
+//	case privyclient.IntentAuthorizationKeyQuorum:
+//	default:
+//	  fmt.Errorf("no variant present")
+//	}
+func (u IntentAuthorizationMemberUnion) AsAny() anyIntentAuthorizationMember {
+	switch u.Type {
+	case "user":
+		return u.AsUser()
+	case "key":
+		return u.AsKey()
+	case "key_quorum":
+		return u.AsKeyQuorum()
+	}
+	return nil
+}
+
+func (u IntentAuthorizationMemberUnion) AsUser() (v IntentAuthorizationUserMember) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u IntentAuthorizationMemberUnion) AsKey() (v IntentAuthorizationKeyMember) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u IntentAuthorizationMemberUnion) AsKeyQuorum() (v IntentAuthorizationKeyQuorum) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u IntentAuthorizationMemberUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *IntentAuthorizationMemberUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A user member of an intent authorization quorum.
+type IntentAuthorizationUserMember struct {
+	// Unix timestamp when this member signed, or null if not yet signed.
+	SignedAt float64 `json:"signed_at" api:"required"`
+	// Any of "user".
+	Type IntentAuthorizationUserMemberType `json:"type" api:"required"`
+	// User ID of the key quorum member
+	UserID string `json:"user_id" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		SignedAt    respjson.Field
+		Type        respjson.Field
+		UserID      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r IntentAuthorizationUserMember) RawJSON() string { return r.JSON.raw }
+func (r *IntentAuthorizationUserMember) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type IntentAuthorizationUserMemberType string
+
+const (
+	IntentAuthorizationUserMemberTypeUser IntentAuthorizationUserMemberType = "user"
+)
 
 // IntentResponseUnion contains all possible properties and values from
 // [RpcIntentResponse], [TransferIntentResponse], [WalletIntentResponse],
@@ -725,7 +766,7 @@ type IntentResponseUnionRequestDetails struct {
 	// This field is a union of [WalletRpcRequestBodyUnionResp],
 	// [TransferRequestBodyResp], [WalletIntentResponseRequestDetailsBody],
 	// [PolicyIntentResponseRequestDetailsBody], [PolicyRuleRequestBodyResp],
-	// [RuleIntentDeleteRequestDetailsBody], [KeyQuorumUpdateRequestBodyResp]
+	// [RuleIntentDeleteRequestBody], [KeyQuorumUpdateRequestBodyResp]
 	Body   IntentResponseUnionRequestDetailsBody `json:"body"`
 	Method string                                `json:"method"`
 	URL    string                                `json:"url"`
@@ -1011,7 +1052,7 @@ type IntentResponseUnionRequestDetailsBodyParamsTransaction struct {
 	// This field is from variant [UnsignedEthereumTransactionUnionResp].
 	AaAuthorizationList []TempoAaAuthorizationResp `json:"aa_authorization_list"`
 	// This field is from variant [UnsignedEthereumTransactionUnionResp].
-	AccessList []UnsignedTempoTransactionAccessListResp `json:"access_list"`
+	AccessList []AccessListEntryResp `json:"access_list"`
 	// This field is from variant [UnsignedEthereumTransactionUnionResp].
 	FeePayerSignature TempoFeePayerSignatureResp `json:"fee_payer_signature"`
 	// This field is from variant [UnsignedEthereumTransactionUnionResp].
@@ -1401,12 +1442,28 @@ const (
 	RuleIntentCreateRequestDetailsMethodPost RuleIntentCreateRequestDetailsMethod = "POST"
 )
 
+// Empty request body for a rule delete intent.
+type RuleIntentDeleteRequestBody struct {
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RuleIntentDeleteRequestBody) RawJSON() string { return r.JSON.raw }
+func (r *RuleIntentDeleteRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Request details for deleting a rule via intent.
 type RuleIntentDeleteRequestDetails struct {
 	// Any of "DELETE".
 	Method RuleIntentDeleteRequestDetailsMethod `json:"method" api:"required"`
 	URL    string                               `json:"url" api:"required"`
-	Body   RuleIntentDeleteRequestDetailsBody   `json:"body"`
+	// Empty request body for a rule delete intent.
+	Body RuleIntentDeleteRequestBody `json:"body"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Method      respjson.Field
@@ -1429,20 +1486,6 @@ const (
 	RuleIntentDeleteRequestDetailsMethodDelete RuleIntentDeleteRequestDetailsMethod = "DELETE"
 )
 
-type RuleIntentDeleteRequestDetailsBody struct {
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r RuleIntentDeleteRequestDetailsBody) RawJSON() string { return r.JSON.raw }
-func (r *RuleIntentDeleteRequestDetailsBody) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // RuleIntentRequestDetailsUnion contains all possible properties and values from
 // [RuleIntentCreateRequestDetails], [RuleIntentUpdateRequestDetails],
 // [RuleIntentDeleteRequestDetails].
@@ -1452,7 +1495,7 @@ func (r *RuleIntentDeleteRequestDetailsBody) UnmarshalJSON(data []byte) error {
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 type RuleIntentRequestDetailsUnion struct {
 	// This field is a union of [PolicyRuleRequestBodyResp],
-	// [RuleIntentDeleteRequestDetailsBody]
+	// [RuleIntentDeleteRequestBody]
 	Body RuleIntentRequestDetailsUnionBody `json:"body"`
 	// Any of "POST", "PATCH", "DELETE".
 	Method string `json:"method"`

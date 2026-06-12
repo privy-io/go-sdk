@@ -29,6 +29,8 @@ import (
 // the [NewWalletService] method instead.
 type WalletService struct {
 	Options []option.RequestOption
+	// Operations related to wallet actions
+	Actions WalletActionService
 	Earn    WalletEarnService
 	// Operations related to wallets
 	Transactions WalletTransactionService
@@ -44,6 +46,7 @@ type WalletService struct {
 func NewWalletService(opts ...option.RequestOption) (r WalletService) {
 	r = WalletService{}
 	r.Options = opts
+	r.Actions = NewWalletActionService(opts...)
 	r.Earn = NewWalletEarnService(opts...)
 	r.Transactions = NewWalletTransactionService(opts...)
 	r.Balance = NewWalletBalanceService(opts...)
@@ -239,6 +242,51 @@ func (r *WalletService) Rpc(ctx context.Context, walletID string, params WalletR
 	return res, err
 }
 
+// An entry in an EIP-2930 access list, specifying an address and its storage keys.
+type AccessListEntryResp struct {
+	Address     string `json:"address" api:"required"`
+	StorageKeys []Hex  `json:"storage_keys" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Address     respjson.Field
+		StorageKeys respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AccessListEntryResp) RawJSON() string { return r.JSON.raw }
+func (r *AccessListEntryResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this AccessListEntryResp to a AccessListEntry.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// AccessListEntry.Overrides()
+func (r AccessListEntryResp) ToParam() AccessListEntry {
+	return param.Override[AccessListEntry](json.RawMessage(r.RawJSON()))
+}
+
+// An entry in an EIP-2930 access list, specifying an address and its storage keys.
+//
+// The properties Address, StorageKeys are required.
+type AccessListEntry struct {
+	Address     string `json:"address" api:"required"`
+	StorageKeys []Hex  `json:"storage_keys,omitzero" api:"required"`
+	paramObj
+}
+
+func (r AccessListEntry) MarshalJSON() (data []byte, err error) {
+	type shadow AccessListEntry
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *AccessListEntry) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 type AdditionalSignerInputResp []AdditionalSignerItemInputResp
 
 type AdditionalSignerInput []AdditionalSignerItemInput
@@ -416,6 +464,65 @@ type DeveloperFeeType string
 const (
 	DeveloperFeeTypeDeveloper DeveloperFeeType = "developer"
 )
+
+// HPKE-encrypted authorization key with encapsulated key and ciphertext.
+type EncryptedAuthorizationKey struct {
+	// The encrypted authorization key corresponding to the user's current
+	// authentication session.
+	Ciphertext string `json:"ciphertext" api:"required"`
+	// Base64-encoded ephemeral public key used in the HPKE encryption process.
+	// Required for decryption.
+	EncapsulatedKey string `json:"encapsulated_key" api:"required"`
+	// The encryption type used. Currently only supports HPKE.
+	//
+	// Any of "HPKE".
+	EncryptionType EncryptedAuthorizationKeyEncryptionType `json:"encryption_type" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Ciphertext      respjson.Field
+		EncapsulatedKey respjson.Field
+		EncryptionType  respjson.Field
+		ExtraFields     map[string]respjson.Field
+		raw             string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EncryptedAuthorizationKey) RawJSON() string { return r.JSON.raw }
+func (r *EncryptedAuthorizationKey) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The encryption type used. Currently only supports HPKE.
+type EncryptedAuthorizationKeyEncryptionType string
+
+const (
+	EncryptedAuthorizationKeyEncryptionTypeHpke EncryptedAuthorizationKeyEncryptionType = "HPKE"
+)
+
+// The response from authenticating a wallet with HPKE encryption, containing an
+// encrypted authorization key and wallet data.
+type EncryptedWalletAuthenticateResponse struct {
+	// HPKE-encrypted authorization key with encapsulated key and ciphertext.
+	EncryptedAuthorizationKey EncryptedAuthorizationKey `json:"encrypted_authorization_key" api:"required"`
+	// The expiration time of the authorization key in milliseconds since the epoch.
+	ExpiresAt float64  `json:"expires_at" api:"required"`
+	Wallets   []Wallet `json:"wallets" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		EncryptedAuthorizationKey respjson.Field
+		ExpiresAt                 respjson.Field
+		Wallets                   respjson.Field
+		ExtraFields               map[string]respjson.Field
+		raw                       string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EncryptedWalletAuthenticateResponse) RawJSON() string { return r.JSON.raw }
+func (r *EncryptedWalletAuthenticateResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 // Executes the EVM `personal_sign` RPC (EIP-191) to sign a message.
 type EthereumPersonalSignRpcInputResp struct {
@@ -3079,6 +3186,30 @@ type RawSignResponseDataEncoding string
 const (
 	RawSignResponseDataEncodingHex RawSignResponseDataEncoding = "hex"
 )
+
+// The response from authenticating a wallet without encryption, containing a raw
+// authorization key and wallet data.
+type RawWalletAuthenticateResponse struct {
+	// The raw authorization key data.
+	AuthorizationKey string `json:"authorization_key" api:"required"`
+	// The expiration time of the authorization key in milliseconds since the epoch.
+	ExpiresAt float64  `json:"expires_at" api:"required"`
+	Wallets   []Wallet `json:"wallets" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		AuthorizationKey respjson.Field
+		ExpiresAt        respjson.Field
+		Wallets          respjson.Field
+		ExtraFields      map[string]respjson.Field
+		raw              string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RawWalletAuthenticateResponse) RawJSON() string { return r.JSON.raw }
+func (r *RawWalletAuthenticateResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 type RecipientPublicKey = string
 
@@ -6034,7 +6165,7 @@ type UnsignedEthereumTransactionUnionResp struct {
 	// This field is from variant [UnsignedTempoTransactionResp].
 	AaAuthorizationList []TempoAaAuthorizationResp `json:"aa_authorization_list"`
 	// This field is from variant [UnsignedTempoTransactionResp].
-	AccessList []UnsignedTempoTransactionAccessListResp `json:"access_list"`
+	AccessList []AccessListEntryResp `json:"access_list"`
 	// This field is from variant [UnsignedTempoTransactionResp].
 	FeePayerSignature TempoFeePayerSignatureResp `json:"fee_payer_signature"`
 	// This field is from variant [UnsignedTempoTransactionResp].
@@ -6240,9 +6371,9 @@ func init() {
 type UnsignedTempoTransactionResp struct {
 	Calls []TempoCallResp `json:"calls" api:"required"`
 	// Any of 118.
-	Type                float64                                  `json:"type" api:"required"`
-	AaAuthorizationList []TempoAaAuthorizationResp               `json:"aa_authorization_list"`
-	AccessList          []UnsignedTempoTransactionAccessListResp `json:"access_list"`
+	Type                float64                    `json:"type" api:"required"`
+	AaAuthorizationList []TempoAaAuthorizationResp `json:"aa_authorization_list"`
+	AccessList          []AccessListEntryResp      `json:"access_list"`
 	// A quantity value that can be either a hex string starting with '0x' or a
 	// non-negative integer.
 	ChainID QuantityUnionResp `json:"chain_id"`
@@ -6309,35 +6440,17 @@ func (r UnsignedTempoTransactionResp) ToParam() UnsignedTempoTransaction {
 	return param.Override[UnsignedTempoTransaction](json.RawMessage(r.RawJSON()))
 }
 
-type UnsignedTempoTransactionAccessListResp struct {
-	Address     string `json:"address" api:"required"`
-	StorageKeys []Hex  `json:"storage_keys" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Address     respjson.Field
-		StorageKeys respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r UnsignedTempoTransactionAccessListResp) RawJSON() string { return r.JSON.raw }
-func (r *UnsignedTempoTransactionAccessListResp) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // An unsigned Tempo transaction (type 118) with batched calls.
 //
 // The properties Calls, Type are required.
 type UnsignedTempoTransaction struct {
 	Calls []TempoCall `json:"calls,omitzero" api:"required"`
 	// Any of 118.
-	Type                float64                              `json:"type,omitzero" api:"required"`
-	FeeToken            param.Opt[string]                    `json:"fee_token,omitzero"`
-	From                param.Opt[string]                    `json:"from,omitzero"`
-	AaAuthorizationList []TempoAaAuthorization               `json:"aa_authorization_list,omitzero"`
-	AccessList          []UnsignedTempoTransactionAccessList `json:"access_list,omitzero"`
+	Type                float64                `json:"type,omitzero" api:"required"`
+	FeeToken            param.Opt[string]      `json:"fee_token,omitzero"`
+	From                param.Opt[string]      `json:"from,omitzero"`
+	AaAuthorizationList []TempoAaAuthorization `json:"aa_authorization_list,omitzero"`
+	AccessList          []AccessListEntry      `json:"access_list,omitzero"`
 	// A quantity value that can be either a hex string starting with '0x' or a
 	// non-negative integer.
 	ChainID QuantityUnion `json:"chain_id,omitzero"`
@@ -6379,21 +6492,6 @@ func init() {
 	apijson.RegisterFieldValidator[UnsignedTempoTransaction](
 		"type", 118,
 	)
-}
-
-// The properties Address, StorageKeys are required.
-type UnsignedTempoTransactionAccessList struct {
-	Address     string `json:"address" api:"required"`
-	StorageKeys []Hex  `json:"storage_keys,omitzero" api:"required"`
-	paramObj
-}
-
-func (r UnsignedTempoTransactionAccessList) MarshalJSON() (data []byte, err error) {
-	type shadow UnsignedTempoTransactionAccessList
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *UnsignedTempoTransactionAccessList) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
 }
 
 // An ERC-4337 user operation.
@@ -6650,16 +6748,16 @@ const (
 )
 
 // WalletAuthenticateWithJwtResponseUnion contains all possible properties and
-// values from [WalletAuthenticateWithJwtResponseWithEncryption],
-// [WalletAuthenticateWithJwtResponseWithoutEncryption].
+// values from [EncryptedWalletAuthenticateResponse],
+// [RawWalletAuthenticateResponse].
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 type WalletAuthenticateWithJwtResponseUnion struct {
-	// This field is from variant [WalletAuthenticateWithJwtResponseWithEncryption].
-	EncryptedAuthorizationKey WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey `json:"encrypted_authorization_key"`
-	ExpiresAt                 float64                                                                  `json:"expires_at"`
-	Wallets                   []Wallet                                                                 `json:"wallets"`
-	// This field is from variant [WalletAuthenticateWithJwtResponseWithoutEncryption].
+	// This field is from variant [EncryptedWalletAuthenticateResponse].
+	EncryptedAuthorizationKey EncryptedAuthorizationKey `json:"encrypted_authorization_key"`
+	ExpiresAt                 float64                   `json:"expires_at"`
+	Wallets                   []Wallet                  `json:"wallets"`
+	// This field is from variant [RawWalletAuthenticateResponse].
 	AuthorizationKey string `json:"authorization_key"`
 	JSON             struct {
 		EncryptedAuthorizationKey respjson.Field
@@ -6670,12 +6768,12 @@ type WalletAuthenticateWithJwtResponseUnion struct {
 	} `json:"-"`
 }
 
-func (u WalletAuthenticateWithJwtResponseUnion) AsWithEncryption() (v WalletAuthenticateWithJwtResponseWithEncryption) {
+func (u WalletAuthenticateWithJwtResponseUnion) AsEncryptedWalletAuthenticateResponse() (v EncryptedWalletAuthenticateResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u WalletAuthenticateWithJwtResponseUnion) AsWithoutEncryption() (v WalletAuthenticateWithJwtResponseWithoutEncryption) {
+func (u WalletAuthenticateWithJwtResponseUnion) AsRawWalletAuthenticateResponse() (v RawWalletAuthenticateResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -6684,80 +6782,6 @@ func (u WalletAuthenticateWithJwtResponseUnion) AsWithoutEncryption() (v WalletA
 func (u WalletAuthenticateWithJwtResponseUnion) RawJSON() string { return u.JSON.raw }
 
 func (r *WalletAuthenticateWithJwtResponseUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type WalletAuthenticateWithJwtResponseWithEncryption struct {
-	// The encrypted authorization key data.
-	EncryptedAuthorizationKey WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey `json:"encrypted_authorization_key" api:"required"`
-	// The expiration time of the authorization key in milliseconds since the epoch.
-	ExpiresAt float64  `json:"expires_at" api:"required"`
-	Wallets   []Wallet `json:"wallets" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		EncryptedAuthorizationKey respjson.Field
-		ExpiresAt                 respjson.Field
-		Wallets                   respjson.Field
-		ExtraFields               map[string]respjson.Field
-		raw                       string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r WalletAuthenticateWithJwtResponseWithEncryption) RawJSON() string { return r.JSON.raw }
-func (r *WalletAuthenticateWithJwtResponseWithEncryption) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The encrypted authorization key data.
-type WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey struct {
-	// The encrypted authorization key corresponding to the user's current
-	// authentication session.
-	Ciphertext string `json:"ciphertext" api:"required"`
-	// Base64-encoded ephemeral public key used in the HPKE encryption process.
-	// Required for decryption.
-	EncapsulatedKey string `json:"encapsulated_key" api:"required"`
-	// The encryption type used. Currently only supports HPKE.
-	//
-	// Any of "HPKE".
-	EncryptionType string `json:"encryption_type" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Ciphertext      respjson.Field
-		EncapsulatedKey respjson.Field
-		EncryptionType  respjson.Field
-		ExtraFields     map[string]respjson.Field
-		raw             string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey) RawJSON() string {
-	return r.JSON.raw
-}
-func (r *WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type WalletAuthenticateWithJwtResponseWithoutEncryption struct {
-	// The raw authorization key data.
-	AuthorizationKey string `json:"authorization_key" api:"required"`
-	// The expiration time of the authorization key in milliseconds since the epoch.
-	ExpiresAt float64  `json:"expires_at" api:"required"`
-	Wallets   []Wallet `json:"wallets" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		AuthorizationKey respjson.Field
-		ExpiresAt        respjson.Field
-		Wallets          respjson.Field
-		ExtraFields      map[string]respjson.Field
-		raw              string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r WalletAuthenticateWithJwtResponseWithoutEncryption) RawJSON() string { return r.JSON.raw }
-func (r *WalletAuthenticateWithJwtResponseWithoutEncryption) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -7485,7 +7509,7 @@ type WalletRpcRequestBodyUnionRespParamsTransaction struct {
 	// This field is from variant [UnsignedEthereumTransactionUnionResp].
 	AaAuthorizationList []TempoAaAuthorizationResp `json:"aa_authorization_list"`
 	// This field is from variant [UnsignedEthereumTransactionUnionResp].
-	AccessList []UnsignedTempoTransactionAccessListResp `json:"access_list"`
+	AccessList []AccessListEntryResp `json:"access_list"`
 	// This field is from variant [UnsignedEthereumTransactionUnionResp].
 	FeePayerSignature TempoFeePayerSignatureResp `json:"fee_payer_signature"`
 	// This field is from variant [UnsignedEthereumTransactionUnionResp].
