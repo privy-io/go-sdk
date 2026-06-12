@@ -117,20 +117,69 @@ func (r *AllowlistEntry) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Configuration for the allowlist error page shown to users not on the allowlist.
+type AppAllowlistConfig struct {
+	CtaLink     string `json:"cta_link" api:"required"`
+	CtaText     string `json:"cta_text" api:"required"`
+	ErrorDetail string `json:"error_detail" api:"required"`
+	ErrorTitle  string `json:"error_title" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		CtaLink     respjson.Field
+		CtaText     respjson.Field
+		ErrorDetail respjson.Field
+		ErrorTitle  respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AppAllowlistConfig) RawJSON() string { return r.JSON.raw }
+func (r *AppAllowlistConfig) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A custom OAuth provider configured for an app.
+type AppCustomOAuthProvider struct {
+	Enabled bool `json:"enabled" api:"required"`
+	// The ID of a custom OAuth provider, set up for this app. Must start with
+	// "custom:".
+	Provider            CustomOAuthProviderID `json:"provider" api:"required"`
+	ProviderDisplayName string                `json:"provider_display_name" api:"required"`
+	ProviderIconURL     string                `json:"provider_icon_url" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Enabled             respjson.Field
+		Provider            respjson.Field
+		ProviderDisplayName respjson.Field
+		ProviderIconURL     respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AppCustomOAuthProvider) RawJSON() string { return r.JSON.raw }
+func (r *AppCustomOAuthProvider) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // The response for getting an app.
 type AppResponse struct {
-	ID                         string                           `json:"id" api:"required"`
-	AccentColor                string                           `json:"accent_color" api:"required"`
-	AllowedDomains             []string                         `json:"allowed_domains" api:"required"`
-	AllowedNativeAppIDs        []string                         `json:"allowed_native_app_ids" api:"required"`
-	AllowedNativeAppURLSchemes []string                         `json:"allowed_native_app_url_schemes" api:"required"`
-	AllowlistConfig            AppResponseAllowlistConfig       `json:"allowlist_config" api:"required"`
-	AllowlistEnabled           bool                             `json:"allowlist_enabled" api:"required"`
-	AppleOAuth                 bool                             `json:"apple_oauth" api:"required"`
-	CaptchaEnabled             bool                             `json:"captcha_enabled" api:"required"`
-	CustomAPIURL               string                           `json:"custom_api_url" api:"required"`
-	CustomJwtAuth              bool                             `json:"custom_jwt_auth" api:"required"`
-	CustomOAuthProviders       []AppResponseCustomOAuthProvider `json:"custom_oauth_providers" api:"required"`
+	ID                         string   `json:"id" api:"required"`
+	AccentColor                string   `json:"accent_color" api:"required"`
+	AllowedDomains             []string `json:"allowed_domains" api:"required"`
+	AllowedNativeAppIDs        []string `json:"allowed_native_app_ids" api:"required"`
+	AllowedNativeAppURLSchemes []string `json:"allowed_native_app_url_schemes" api:"required"`
+	// Configuration for the allowlist error page shown to users not on the allowlist.
+	AllowlistConfig      AppAllowlistConfig       `json:"allowlist_config" api:"required"`
+	AllowlistEnabled     bool                     `json:"allowlist_enabled" api:"required"`
+	AppleOAuth           bool                     `json:"apple_oauth" api:"required"`
+	CaptchaEnabled       bool                     `json:"captcha_enabled" api:"required"`
+	CustomAPIURL         string                   `json:"custom_api_url" api:"required"`
+	CustomJwtAuth        bool                     `json:"custom_jwt_auth" api:"required"`
+	CustomOAuthProviders []AppCustomOAuthProvider `json:"custom_oauth_providers" api:"required"`
 	// Indicates that this response contains only publicly accessible data, not a
 	// privileged resource
 	//
@@ -142,21 +191,23 @@ type AppResponse struct {
 	// Configuration for embedded wallets including the mode.
 	EmbeddedWalletConfig EmbeddedWalletConfigSchema `json:"embedded_wallet_config" api:"required"`
 	// Any of "turnstile", "hcaptcha".
-	EnabledCaptchaProvider      AppResponseEnabledCaptchaProvider `json:"enabled_captcha_provider" api:"required"`
-	EnforceWalletUis            bool                              `json:"enforce_wallet_uis" api:"required"`
-	FarcasterAuth               bool                              `json:"farcaster_auth" api:"required"`
-	FarcasterLinkWalletsEnabled bool                              `json:"farcaster_link_wallets_enabled" api:"required"`
-	FiatOnRampEnabled           bool                              `json:"fiat_on_ramp_enabled" api:"required"`
-	GitHubOAuth                 bool                              `json:"github_oauth" api:"required"`
-	GoogleOAuth                 bool                              `json:"google_oauth" api:"required"`
-	GuestAuth                   bool                              `json:"guest_auth" api:"required"`
-	IconURL                     string                            `json:"icon_url" api:"required"`
-	InstagramOAuth              bool                              `json:"instagram_oauth" api:"required"`
-	LegacyWalletUiConfig        bool                              `json:"legacy_wallet_ui_config" api:"required"`
-	LineOAuth                   bool                              `json:"line_oauth" api:"required"`
-	LinkedinOAuth               bool                              `json:"linkedin_oauth" api:"required"`
-	LogoURL                     string                            `json:"logo_url" api:"required"`
-	MaxLinkedWalletsPerUser     float64                           `json:"max_linked_wallets_per_user" api:"required"`
+	EnabledCaptchaProvider          AppResponseEnabledCaptchaProvider `json:"enabled_captcha_provider" api:"required"`
+	EnforceWalletUis                bool                              `json:"enforce_wallet_uis" api:"required"`
+	ExternalWalletsForSignupEnabled bool                              `json:"external_wallets_for_signup_enabled" api:"required"`
+	FarcasterAuth                   bool                              `json:"farcaster_auth" api:"required"`
+	FarcasterLinkWalletsEnabled     bool                              `json:"farcaster_link_wallets_enabled" api:"required"`
+	FiatOnRampEnabled               bool                              `json:"fiat_on_ramp_enabled" api:"required"`
+	GitHubOAuth                     bool                              `json:"github_oauth" api:"required"`
+	GoogleOAuth                     bool                              `json:"google_oauth" api:"required"`
+	GuestAuth                       bool                              `json:"guest_auth" api:"required"`
+	IconURL                         string                            `json:"icon_url" api:"required"`
+	InstagramOAuth                  bool                              `json:"instagram_oauth" api:"required"`
+	LegacyWalletUiConfig            bool                              `json:"legacy_wallet_ui_config" api:"required"`
+	LineOAuth                       bool                              `json:"line_oauth" api:"required"`
+	LinkedinOAuth                   bool                              `json:"linkedin_oauth" api:"required"`
+	LogoURL                         string                            `json:"logo_url" api:"required"`
+	MaxLinkedWalletsPerUser         float64                           `json:"max_linked_wallets_per_user" api:"required"`
+	MergeAccountsByEmail            bool                              `json:"merge_accounts_by_email" api:"required"`
 	// Any of "sms", "totp", "passkey".
 	MfaMethods               []string `json:"mfa_methods" api:"required"`
 	Name                     string   `json:"name" api:"required"`
@@ -189,118 +240,74 @@ type AppResponse struct {
 	TelegramAuthConfig TelegramAuthConfigSchema `json:"telegram_auth_config"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		ID                          respjson.Field
-		AccentColor                 respjson.Field
-		AllowedDomains              respjson.Field
-		AllowedNativeAppIDs         respjson.Field
-		AllowedNativeAppURLSchemes  respjson.Field
-		AllowlistConfig             respjson.Field
-		AllowlistEnabled            respjson.Field
-		AppleOAuth                  respjson.Field
-		CaptchaEnabled              respjson.Field
-		CustomAPIURL                respjson.Field
-		CustomJwtAuth               respjson.Field
-		CustomOAuthProviders        respjson.Field
-		DataClassification          respjson.Field
-		DisablePlusEmails           respjson.Field
-		DiscordOAuth                respjson.Field
-		EmailAuth                   respjson.Field
-		EmbeddedWalletConfig        respjson.Field
-		EnabledCaptchaProvider      respjson.Field
-		EnforceWalletUis            respjson.Field
-		FarcasterAuth               respjson.Field
-		FarcasterLinkWalletsEnabled respjson.Field
-		FiatOnRampEnabled           respjson.Field
-		GitHubOAuth                 respjson.Field
-		GoogleOAuth                 respjson.Field
-		GuestAuth                   respjson.Field
-		IconURL                     respjson.Field
-		InstagramOAuth              respjson.Field
-		LegacyWalletUiConfig        respjson.Field
-		LineOAuth                   respjson.Field
-		LinkedinOAuth               respjson.Field
-		LogoURL                     respjson.Field
-		MaxLinkedWalletsPerUser     respjson.Field
-		MfaMethods                  respjson.Field
-		Name                        respjson.Field
-		PasskeyAuth                 respjson.Field
-		PasskeysForSignupEnabled    respjson.Field
-		PrivacyPolicyURL            respjson.Field
-		RequireUsersAcceptTerms     respjson.Field
-		ShowWalletLoginFirst        respjson.Field
-		SmartWalletConfig           respjson.Field
-		SMSAuth                     respjson.Field
-		SolanaWalletAuth            respjson.Field
-		SpotifyOAuth                respjson.Field
-		TelegramAuth                respjson.Field
-		TelegramOAuth               respjson.Field
-		TermsAndConditionsURL       respjson.Field
-		Theme                       respjson.Field
-		TiktokOAuth                 respjson.Field
-		TwitchOAuth                 respjson.Field
-		TwitterOAuth                respjson.Field
-		TwitterOAuthOnMobileEnabled respjson.Field
-		VerificationKey             respjson.Field
-		WalletAuth                  respjson.Field
-		WalletConnectCloudProjectID respjson.Field
-		WhatsappEnabled             respjson.Field
-		CaptchaSiteKey              respjson.Field
-		FundingConfig               respjson.Field
-		TelegramAuthConfig          respjson.Field
-		ExtraFields                 map[string]respjson.Field
-		raw                         string
+		ID                              respjson.Field
+		AccentColor                     respjson.Field
+		AllowedDomains                  respjson.Field
+		AllowedNativeAppIDs             respjson.Field
+		AllowedNativeAppURLSchemes      respjson.Field
+		AllowlistConfig                 respjson.Field
+		AllowlistEnabled                respjson.Field
+		AppleOAuth                      respjson.Field
+		CaptchaEnabled                  respjson.Field
+		CustomAPIURL                    respjson.Field
+		CustomJwtAuth                   respjson.Field
+		CustomOAuthProviders            respjson.Field
+		DataClassification              respjson.Field
+		DisablePlusEmails               respjson.Field
+		DiscordOAuth                    respjson.Field
+		EmailAuth                       respjson.Field
+		EmbeddedWalletConfig            respjson.Field
+		EnabledCaptchaProvider          respjson.Field
+		EnforceWalletUis                respjson.Field
+		ExternalWalletsForSignupEnabled respjson.Field
+		FarcasterAuth                   respjson.Field
+		FarcasterLinkWalletsEnabled     respjson.Field
+		FiatOnRampEnabled               respjson.Field
+		GitHubOAuth                     respjson.Field
+		GoogleOAuth                     respjson.Field
+		GuestAuth                       respjson.Field
+		IconURL                         respjson.Field
+		InstagramOAuth                  respjson.Field
+		LegacyWalletUiConfig            respjson.Field
+		LineOAuth                       respjson.Field
+		LinkedinOAuth                   respjson.Field
+		LogoURL                         respjson.Field
+		MaxLinkedWalletsPerUser         respjson.Field
+		MergeAccountsByEmail            respjson.Field
+		MfaMethods                      respjson.Field
+		Name                            respjson.Field
+		PasskeyAuth                     respjson.Field
+		PasskeysForSignupEnabled        respjson.Field
+		PrivacyPolicyURL                respjson.Field
+		RequireUsersAcceptTerms         respjson.Field
+		ShowWalletLoginFirst            respjson.Field
+		SmartWalletConfig               respjson.Field
+		SMSAuth                         respjson.Field
+		SolanaWalletAuth                respjson.Field
+		SpotifyOAuth                    respjson.Field
+		TelegramAuth                    respjson.Field
+		TelegramOAuth                   respjson.Field
+		TermsAndConditionsURL           respjson.Field
+		Theme                           respjson.Field
+		TiktokOAuth                     respjson.Field
+		TwitchOAuth                     respjson.Field
+		TwitterOAuth                    respjson.Field
+		TwitterOAuthOnMobileEnabled     respjson.Field
+		VerificationKey                 respjson.Field
+		WalletAuth                      respjson.Field
+		WalletConnectCloudProjectID     respjson.Field
+		WhatsappEnabled                 respjson.Field
+		CaptchaSiteKey                  respjson.Field
+		FundingConfig                   respjson.Field
+		TelegramAuthConfig              respjson.Field
+		ExtraFields                     map[string]respjson.Field
+		raw                             string
 	} `json:"-"`
 }
 
 // Returns the unmodified JSON received from the API
 func (r AppResponse) RawJSON() string { return r.JSON.raw }
 func (r *AppResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type AppResponseAllowlistConfig struct {
-	CtaLink     string `json:"cta_link" api:"required"`
-	CtaText     string `json:"cta_text" api:"required"`
-	ErrorDetail string `json:"error_detail" api:"required"`
-	ErrorTitle  string `json:"error_title" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		CtaLink     respjson.Field
-		CtaText     respjson.Field
-		ErrorDetail respjson.Field
-		ErrorTitle  respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AppResponseAllowlistConfig) RawJSON() string { return r.JSON.raw }
-func (r *AppResponseAllowlistConfig) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type AppResponseCustomOAuthProvider struct {
-	Enabled bool `json:"enabled" api:"required"`
-	// The ID of a custom OAuth provider, set up for this app. Must start with
-	// "custom:".
-	Provider            CustomOAuthProviderID `json:"provider" api:"required"`
-	ProviderDisplayName string                `json:"provider_display_name" api:"required"`
-	ProviderIconURL     string                `json:"provider_icon_url" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Enabled             respjson.Field
-		Provider            respjson.Field
-		ProviderDisplayName respjson.Field
-		ProviderIconURL     respjson.Field
-		ExtraFields         map[string]respjson.Field
-		raw                 string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AppResponseCustomOAuthProvider) RawJSON() string { return r.JSON.raw }
-func (r *AppResponseCustomOAuthProvider) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

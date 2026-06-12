@@ -38,6 +38,27 @@ func (r *WebhookService) UnsafeUnwrap(payload []byte, opts ...option.RequestOpti
 	return res, nil
 }
 
+// Block metadata for a wallet transfer event.
+type BlockInfo struct {
+	// The block number.
+	Number float64 `json:"number" api:"required"`
+	// The block timestamp.
+	Timestamp float64 `json:"timestamp" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Number      respjson.Field
+		Timestamp   respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r BlockInfo) RawJSON() string { return r.JSON.raw }
+func (r *BlockInfo) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Bridge metadata for a crypto deposit via liquidation address.
 type BridgeCryptoDepositMetadata struct {
 	DrainID string `json:"drain_id" api:"required"`
@@ -395,8 +416,9 @@ type FundsDepositedWebhookPayload struct {
 	// The amount transferred, as a stringified bigint.
 	Amount string `json:"amount" api:"required"`
 	// An asset involved in a wallet transfer.
-	Asset WalletFundsAssetUnion             `json:"asset" api:"required"`
-	Block FundsDepositedWebhookPayloadBlock `json:"block" api:"required"`
+	Asset WalletFundsAssetUnion `json:"asset" api:"required"`
+	// Block metadata for a wallet transfer event.
+	Block BlockInfo `json:"block" api:"required"`
 	// The CAIP-2 chain identifier.
 	Caip2 string `json:"caip2" api:"required"`
 	// A unique key for this event.
@@ -442,26 +464,6 @@ func (r *FundsDepositedWebhookPayload) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type FundsDepositedWebhookPayloadBlock struct {
-	// The block number.
-	Number float64 `json:"number" api:"required"`
-	// The block timestamp.
-	Timestamp float64 `json:"timestamp" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Number      respjson.Field
-		Timestamp   respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r FundsDepositedWebhookPayloadBlock) RawJSON() string { return r.JSON.raw }
-func (r *FundsDepositedWebhookPayloadBlock) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // The type of webhook event.
 type FundsDepositedWebhookPayloadType string
 
@@ -474,8 +476,9 @@ type FundsWithdrawnWebhookPayload struct {
 	// The amount transferred, as a stringified bigint.
 	Amount string `json:"amount" api:"required"`
 	// An asset involved in a wallet transfer.
-	Asset WalletFundsAssetUnion             `json:"asset" api:"required"`
-	Block FundsWithdrawnWebhookPayloadBlock `json:"block" api:"required"`
+	Asset WalletFundsAssetUnion `json:"asset" api:"required"`
+	// Block metadata for a wallet transfer event.
+	Block BlockInfo `json:"block" api:"required"`
 	// The CAIP-2 chain identifier.
 	Caip2 string `json:"caip2" api:"required"`
 	// A unique key for this event.
@@ -515,26 +518,6 @@ type FundsWithdrawnWebhookPayload struct {
 // Returns the unmodified JSON received from the API
 func (r FundsWithdrawnWebhookPayload) RawJSON() string { return r.JSON.raw }
 func (r *FundsWithdrawnWebhookPayload) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type FundsWithdrawnWebhookPayloadBlock struct {
-	// The block number.
-	Number float64 `json:"number" api:"required"`
-	// The block timestamp.
-	Timestamp float64 `json:"timestamp" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Number      respjson.Field
-		Timestamp   respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r FundsWithdrawnWebhookPayloadBlock) RawJSON() string { return r.JSON.raw }
-func (r *FundsWithdrawnWebhookPayloadBlock) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -1397,13 +1380,31 @@ const (
 	UserOperationCompletedWebhookPayloadTypeUserOperationCompleted UserOperationCompletedWebhookPayloadType = "user_operation.completed"
 )
 
+// A reference to a user by their unique identifier.
+type UserReference struct {
+	ID string `json:"id" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID          respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r UserReference) RawJSON() string { return r.JSON.raw }
+func (r *UserReference) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Payload for the user.transferred_account webhook event.
 type UserTransferredAccountWebhookPayload struct {
 	// A linked account for the user.
 	Account LinkedAccountUnion `json:"account" api:"required"`
 	// Any of true.
-	DeletedUser bool                                         `json:"deletedUser" api:"required"`
-	FromUser    UserTransferredAccountWebhookPayloadFromUser `json:"fromUser" api:"required"`
+	DeletedUser bool `json:"deletedUser" api:"required"`
+	// A reference to a user by their unique identifier.
+	FromUser UserReference `json:"fromUser" api:"required"`
 	// A Privy user object.
 	ToUser User `json:"toUser" api:"required"`
 	// The type of webhook event.
@@ -1425,22 +1426,6 @@ type UserTransferredAccountWebhookPayload struct {
 // Returns the unmodified JSON received from the API
 func (r UserTransferredAccountWebhookPayload) RawJSON() string { return r.JSON.raw }
 func (r *UserTransferredAccountWebhookPayload) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type UserTransferredAccountWebhookPayloadFromUser struct {
-	ID string `json:"id" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID          respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r UserTransferredAccountWebhookPayloadFromUser) RawJSON() string { return r.JSON.raw }
-func (r *UserTransferredAccountWebhookPayloadFromUser) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -3036,6 +3021,45 @@ const (
 	WalletActionTransferSucceededWebhookPayloadTypeWalletActionTransferSucceeded WalletActionTransferSucceededWebhookPayloadType = "wallet_action.transfer.succeeded"
 )
 
+// Payload for the wallet.archived webhook event.
+type WalletArchivedWebhookPayload struct {
+	// Unix timestamp of when the wallet was archived.
+	ArchivedAt float64 `json:"archived_at" api:"required"`
+	// The chain type of the archived wallet.
+	ChainType string `json:"chain_type" api:"required"`
+	// The type of webhook event.
+	//
+	// Any of "wallet.archived".
+	Type WalletArchivedWebhookPayloadType `json:"type" api:"required"`
+	// The address of the archived wallet.
+	WalletAddress string `json:"wallet_address" api:"required"`
+	// The ID of the archived wallet.
+	WalletID string `json:"wallet_id" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ArchivedAt    respjson.Field
+		ChainType     respjson.Field
+		Type          respjson.Field
+		WalletAddress respjson.Field
+		WalletID      respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletArchivedWebhookPayload) RawJSON() string { return r.JSON.raw }
+func (r *WalletArchivedWebhookPayload) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The type of webhook event.
+type WalletArchivedWebhookPayloadType string
+
+const (
+	WalletArchivedWebhookPayloadTypeWalletArchived WalletArchivedWebhookPayloadType = "wallet.archived"
+)
+
 // WalletFundsAssetUnion contains all possible properties and values from
 // [WalletFundsNativeTokenAsset], [WalletFundsErc20Asset], [WalletFundsSplAsset],
 // [WalletFundsSacAsset].
@@ -3343,9 +3367,9 @@ const (
 
 // Payload for the yield.claim.confirmed webhook event.
 type YieldClaimConfirmedWebhookPayload struct {
-	Caip2         string                                    `json:"caip2" api:"required"`
-	Rewards       []YieldClaimConfirmedWebhookPayloadReward `json:"rewards" api:"required"`
-	TransactionID string                                    `json:"transaction_id" api:"required"`
+	Caip2         string             `json:"caip2" api:"required"`
+	Rewards       []YieldClaimReward `json:"rewards" api:"required"`
+	TransactionID string             `json:"transaction_id" api:"required"`
 	// The type of webhook event.
 	//
 	// Any of "yield.claim.confirmed".
@@ -3369,7 +3393,15 @@ func (r *YieldClaimConfirmedWebhookPayload) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type YieldClaimConfirmedWebhookPayloadReward struct {
+// The type of webhook event.
+type YieldClaimConfirmedWebhookPayloadType string
+
+const (
+	YieldClaimConfirmedWebhookPayloadTypeYieldClaimConfirmed YieldClaimConfirmedWebhookPayloadType = "yield.claim.confirmed"
+)
+
+// A single reward token claimed from a yield vault.
+type YieldClaimReward struct {
 	Amount       string `json:"amount" api:"required"`
 	TokenAddress string `json:"token_address" api:"required"`
 	TokenSymbol  string `json:"token_symbol" api:"required"`
@@ -3384,17 +3416,10 @@ type YieldClaimConfirmedWebhookPayloadReward struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r YieldClaimConfirmedWebhookPayloadReward) RawJSON() string { return r.JSON.raw }
-func (r *YieldClaimConfirmedWebhookPayloadReward) UnmarshalJSON(data []byte) error {
+func (r YieldClaimReward) RawJSON() string { return r.JSON.raw }
+func (r *YieldClaimReward) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-// The type of webhook event.
-type YieldClaimConfirmedWebhookPayloadType string
-
-const (
-	YieldClaimConfirmedWebhookPayloadTypeYieldClaimConfirmed YieldClaimConfirmedWebhookPayloadType = "yield.claim.confirmed"
-)
 
 // Payload for the yield.deposit.confirmed webhook event.
 type YieldDepositConfirmedWebhookPayload struct {
@@ -3488,9 +3513,10 @@ const (
 // [UserCreatedWebhookPayload], [UserLinkedAccountWebhookPayload],
 // [UserTransferredAccountWebhookPayload], [UserUnlinkedAccountWebhookPayload],
 // [UserUpdatedAccountWebhookPayload], [UserWalletCreatedWebhookPayload],
-// [UserOperationCompletedWebhookPayload], [FundsDepositedWebhookPayload],
-// [FundsWithdrawnWebhookPayload], [PrivateKeyExportWebhookPayload],
-// [WalletRecoveredWebhookPayload], [WalletRecoverySetupWebhookPayload],
+// [UserOperationCompletedWebhookPayload], [WalletArchivedWebhookPayload],
+// [FundsDepositedWebhookPayload], [FundsWithdrawnWebhookPayload],
+// [PrivateKeyExportWebhookPayload], [WalletRecoveredWebhookPayload],
+// [WalletRecoverySetupWebhookPayload],
 // [WalletActionEarnDepositCreatedWebhookPayload],
 // [WalletActionEarnDepositFailedWebhookPayload],
 // [WalletActionEarnDepositRejectedWebhookPayload],
@@ -3535,8 +3561,8 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	// "transaction.still_pending", "user.authenticated", "user.created",
 	// "user.linked_account", "user.transferred_account", "user.unlinked_account",
 	// "user.updated_account", "user.wallet_created", "user_operation.completed",
-	// "wallet.funds_deposited", "wallet.funds_withdrawn", "wallet.private_key_export",
-	// "wallet.recovered", "wallet.recovery_setup",
+	// "wallet.archived", "wallet.funds_deposited", "wallet.funds_withdrawn",
+	// "wallet.private_key_export", "wallet.recovered", "wallet.recovery_setup",
 	// "wallet_action.earn_deposit.created", "wallet_action.earn_deposit.failed",
 	// "wallet_action.earn_deposit.rejected", "wallet_action.earn_deposit.succeeded",
 	// "wallet_action.earn_incentive_claim.created",
@@ -3575,7 +3601,7 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	// This field is from variant [UserTransferredAccountWebhookPayload].
 	DeletedUser bool `json:"deletedUser"`
 	// This field is from variant [UserTransferredAccountWebhookPayload].
-	FromUser UserTransferredAccountWebhookPayloadFromUser `json:"fromUser"`
+	FromUser UserReference `json:"fromUser"`
 	// This field is from variant [UserTransferredAccountWebhookPayload].
 	ToUser User `json:"toUser"`
 	// This field is from variant [UserWalletCreatedWebhookPayload].
@@ -3597,19 +3623,22 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	Success bool `json:"success"`
 	// This field is from variant [UserOperationCompletedWebhookPayload].
 	UserOpHash string `json:"user_op_hash"`
-	Amount     string `json:"amount"`
+	// This field is from variant [WalletArchivedWebhookPayload].
+	ArchivedAt float64 `json:"archived_at"`
+	// This field is from variant [WalletArchivedWebhookPayload].
+	ChainType     string `json:"chain_type"`
+	WalletAddress string `json:"wallet_address"`
+	Amount        string `json:"amount"`
 	// This field is a union of [WalletFundsAssetUnion], [string], [string], [string],
 	// [string], [string], [string], [string], [string]
 	Asset UnsafeUnwrapWebhookEventUnionAsset `json:"asset"`
-	// This field is a union of [FundsDepositedWebhookPayloadBlock],
-	// [FundsWithdrawnWebhookPayloadBlock]
-	Block          UnsafeUnwrapWebhookEventUnionBlock `json:"block"`
-	IdempotencyKey string                             `json:"idempotency_key"`
-	Recipient      string                             `json:"recipient"`
+	// This field is from variant [FundsDepositedWebhookPayload].
+	Block          BlockInfo `json:"block"`
+	IdempotencyKey string    `json:"idempotency_key"`
+	Recipient      string    `json:"recipient"`
 	// This field is from variant [FundsDepositedWebhookPayload].
 	BridgeMetadata BridgeMetadataUnion `json:"bridge_metadata"`
 	TransactionFee string              `json:"transaction_fee"`
-	WalletAddress  string              `json:"wallet_address"`
 	// This field is from variant [PrivateKeyExportWebhookPayload].
 	ExportSource PrivateKeyExportWebhookPayloadExportSource `json:"export_source"`
 	// This field is from variant [WalletActionEarnDepositCreatedWebhookPayload].
@@ -3627,7 +3656,7 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	Chain         string                  `json:"chain"`
 	// This field is a union of [[]EarnIncetiveClaimRewardEntry],
 	// [[]EarnIncetiveClaimRewardEntry], [[]EarnIncetiveClaimRewardEntry],
-	// [[]EarnIncetiveClaimRewardEntry], [[]YieldClaimConfirmedWebhookPayloadReward]
+	// [[]EarnIncetiveClaimRewardEntry], [[]YieldClaimReward]
 	Rewards     UnsafeUnwrapWebhookEventUnionRewards `json:"rewards"`
 	InputAmount string                               `json:"input_amount"`
 	InputToken  string                               `json:"input_token"`
@@ -3682,6 +3711,9 @@ type UnsafeUnwrapWebhookEventUnion struct {
 		Sender               respjson.Field
 		Success              respjson.Field
 		UserOpHash           respjson.Field
+		ArchivedAt           respjson.Field
+		ChainType            respjson.Field
+		WalletAddress        respjson.Field
 		Amount               respjson.Field
 		Asset                respjson.Field
 		Block                respjson.Field
@@ -3689,7 +3721,6 @@ type UnsafeUnwrapWebhookEventUnion struct {
 		Recipient            respjson.Field
 		BridgeMetadata       respjson.Field
 		TransactionFee       respjson.Field
-		WalletAddress        respjson.Field
 		ExportSource         respjson.Field
 		ActionType           respjson.Field
 		AssetAddress         respjson.Field
@@ -3750,6 +3781,7 @@ func (UserUnlinkedAccountWebhookPayload) implUnsafeUnwrapWebhookEventUnion()    
 func (UserUpdatedAccountWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                      {}
 func (UserWalletCreatedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                       {}
 func (UserOperationCompletedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                  {}
+func (WalletArchivedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                          {}
 func (FundsDepositedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                          {}
 func (FundsWithdrawnWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                          {}
 func (PrivateKeyExportWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                        {}
@@ -3804,6 +3836,7 @@ func (YieldWithdrawConfirmedWebhookPayload) implUnsafeUnwrapWebhookEventUnion() 
 //	case privyclient.UserUpdatedAccountWebhookPayload:
 //	case privyclient.UserWalletCreatedWebhookPayload:
 //	case privyclient.UserOperationCompletedWebhookPayload:
+//	case privyclient.WalletArchivedWebhookPayload:
 //	case privyclient.FundsDepositedWebhookPayload:
 //	case privyclient.FundsWithdrawnWebhookPayload:
 //	case privyclient.PrivateKeyExportWebhookPayload:
@@ -3881,6 +3914,8 @@ func (u UnsafeUnwrapWebhookEventUnion) AsAny() anyUnsafeUnwrapWebhookEvent {
 		return u.AsUserWalletCreated()
 	case "user_operation.completed":
 		return u.AsUserOperationCompleted()
+	case "wallet.archived":
+		return u.AsWalletArchived()
 	case "wallet.funds_deposited":
 		return u.AsWalletFundsDeposited()
 	case "wallet.funds_withdrawn":
@@ -4047,6 +4082,11 @@ func (u UnsafeUnwrapWebhookEventUnion) AsUserWalletCreated() (v UserWalletCreate
 }
 
 func (u UnsafeUnwrapWebhookEventUnion) AsUserOperationCompleted() (v UserOperationCompletedWebhookPayload) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u UnsafeUnwrapWebhookEventUnion) AsWalletArchived() (v WalletArchivedWebhookPayload) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -4253,26 +4293,6 @@ func (r *UnsafeUnwrapWebhookEventUnionAssetAddress) UnmarshalJSON(data []byte) e
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// UnsafeUnwrapWebhookEventUnionBlock is an implicit subunion of
-// [UnsafeUnwrapWebhookEventUnion]. UnsafeUnwrapWebhookEventUnionBlock provides
-// convenient access to the sub-properties of the union.
-//
-// For type safety it is recommended to directly use a variant of the
-// [UnsafeUnwrapWebhookEventUnion].
-type UnsafeUnwrapWebhookEventUnionBlock struct {
-	Number    float64 `json:"number"`
-	Timestamp float64 `json:"timestamp"`
-	JSON      struct {
-		Number    respjson.Field
-		Timestamp respjson.Field
-		raw       string
-	} `json:"-"`
-}
-
-func (r *UnsafeUnwrapWebhookEventUnionBlock) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // UnsafeUnwrapWebhookEventUnionRewards is an implicit subunion of
 // [UnsafeUnwrapWebhookEventUnion]. UnsafeUnwrapWebhookEventUnionRewards provides
 // convenient access to the sub-properties of the union.
@@ -4281,19 +4301,18 @@ func (r *UnsafeUnwrapWebhookEventUnionBlock) UnmarshalJSON(data []byte) error {
 // [UnsafeUnwrapWebhookEventUnion].
 //
 // If the underlying value is not a json object, one of the following properties
-// will be valid: OfEarnIncetiveClaimRewardEntryArray
-// OfYieldClaimConfirmedWebhookPayloadRewards]
+// will be valid: OfEarnIncetiveClaimRewardEntryArray OfYieldClaimRewardArray]
 type UnsafeUnwrapWebhookEventUnionRewards struct {
 	// This field will be present if the value is a [[]EarnIncetiveClaimRewardEntry]
 	// instead of an object.
 	OfEarnIncetiveClaimRewardEntryArray []EarnIncetiveClaimRewardEntry `json:",inline"`
-	// This field will be present if the value is a
-	// [[]YieldClaimConfirmedWebhookPayloadReward] instead of an object.
-	OfYieldClaimConfirmedWebhookPayloadRewards []YieldClaimConfirmedWebhookPayloadReward `json:",inline"`
-	JSON                                       struct {
-		OfEarnIncetiveClaimRewardEntryArray        respjson.Field
-		OfYieldClaimConfirmedWebhookPayloadRewards respjson.Field
-		raw                                        string
+	// This field will be present if the value is a [[]YieldClaimReward] instead of an
+	// object.
+	OfYieldClaimRewardArray []YieldClaimReward `json:",inline"`
+	JSON                    struct {
+		OfEarnIncetiveClaimRewardEntryArray respjson.Field
+		OfYieldClaimRewardArray             respjson.Field
+		raw                                 string
 	} `json:"-"`
 }
 

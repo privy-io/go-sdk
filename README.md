@@ -28,7 +28,7 @@ Or to pin the version:
 <!-- x-release-please-start-version -->
 
 ```sh
-go get -u 'github.com/privy-io/go-sdk@v0.10.0'
+go get -u 'github.com/privy-io/go-sdk@v0.11.0'
 ```
 
 <!-- x-release-please-end -->
@@ -68,7 +68,11 @@ func main() {
   // APIUrl:   "https://api.staging.privy.io", // optional, defaults to production
   // LogLevel: privy.LogLevelInfo,               // optional: LogLevelNone, LogLevelError, LogLevelInfo, LogLevelDebug, LogLevelVerbose
  })
- wallet, err := client.Wallets.Get(context.TODO(), "wallet_id")
+ wallet, err := client.Wallets.Get(
+ 	context.TODO(),
+ 	"wallet_id",
+ 	privyclient.WalletGetParams{},
+ )
  if err != nil {
   panic(err.Error())
  }
@@ -519,7 +523,11 @@ When the API returns a non-success status code, we return an error with type
 To handle errors, we recommend that you use the `errors.As` pattern:
 
 ```go
-_, err := client.Wallets.Get(context.TODO(), "wallet_id")
+_, err := client.Wallets.Get(
+	context.TODO(),
+	"wallet_id",
+	privyclient.WalletGetParams{},
+)
 if err != nil {
  var apierr *privyclient.Error
  if errors.As(err, &apierr) {
@@ -547,6 +555,7 @@ defer cancel()
 client.Wallets.Get(
  ctx,
  "wallet_id",
+	privyclient.WalletGetParams{},
  // This sets the per-retry timeout
  option.WithRequestTimeout(20*time.Second),
 )
@@ -583,6 +592,7 @@ client := privyclient.NewClient(
 client.Wallets.Get(
  context.TODO(),
  "wallet_id",
+	privyclient.WalletGetParams{},
  option.WithMaxRetries(5),
 )
 ```
@@ -598,6 +608,7 @@ var response *http.Response
 wallet, err := client.Wallets.Get(
  context.TODO(),
  "wallet_id",
+	privyclient.WalletGetParams{},
  option.WithResponseInto(&response),
 )
 if err != nil {

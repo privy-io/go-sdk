@@ -4,6 +4,7 @@ package privyclient_test
 
 import (
 	"context"
+	"errors"
 	"os"
 	"testing"
 
@@ -12,7 +13,7 @@ import (
 	"github.com/privy-io/go-sdk/option"
 )
 
-func TestUsage(t *testing.T) {
+func TestWalletActionGetWithOptionalParams(t *testing.T) {
 	t.Skip("Mock server tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -26,13 +27,20 @@ func TestUsage(t *testing.T) {
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	wallet, err := client.Wallets.Get(
+	_, err := client.Wallets.Actions.Get(
 		context.TODO(),
-		"wallet_id",
-		privyclient.WalletGetParams{},
+		"182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+		privyclient.WalletActionGetParams{
+			WalletID:                    "wallet_id",
+			Include:                     privyclient.WalletActionIncludeSteps,
+			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
+		},
 	)
 	if err != nil {
+		var apierr *privyclient.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
 		t.Fatalf("err should be nil: %s", err.Error())
 	}
-	t.Logf("%+v\n", wallet.ID)
 }

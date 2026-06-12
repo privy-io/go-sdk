@@ -95,13 +95,32 @@ func (r *KeyQuorumService) Get(ctx context.Context, keyQuorumID KeyQuorumID, opt
 	return res, err
 }
 
+// A public key authorized to sign on a key quorum.
+type AuthorizationKey struct {
+	DisplayName string `json:"display_name" api:"required"`
+	PublicKey   string `json:"public_key" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		DisplayName respjson.Field
+		PublicKey   respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AuthorizationKey) RawJSON() string { return r.JSON.raw }
+func (r *AuthorizationKey) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // A key quorum for authorizing wallet operations.
 type KeyQuorum struct {
-	ID                     string                      `json:"id" api:"required" format:"cuid2"`
-	AuthorizationKeys      []KeyQuorumAuthorizationKey `json:"authorization_keys" api:"required"`
-	AuthorizationThreshold float64                     `json:"authorization_threshold" api:"required"`
-	DisplayName            string                      `json:"display_name" api:"required"`
-	UserIDs                []string                    `json:"user_ids" api:"required"`
+	ID                     string             `json:"id" api:"required" format:"cuid2"`
+	AuthorizationKeys      []AuthorizationKey `json:"authorization_keys" api:"required"`
+	AuthorizationThreshold float64            `json:"authorization_threshold" api:"required"`
+	DisplayName            string             `json:"display_name" api:"required"`
+	UserIDs                []string           `json:"user_ids" api:"required"`
 	// List of nested key quorum IDs that are members of this key quorum.
 	KeyQuorumIDs []string `json:"key_quorum_ids"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -120,24 +139,6 @@ type KeyQuorum struct {
 // Returns the unmodified JSON received from the API
 func (r KeyQuorum) RawJSON() string { return r.JSON.raw }
 func (r *KeyQuorum) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type KeyQuorumAuthorizationKey struct {
-	DisplayName string `json:"display_name" api:"required"`
-	PublicKey   string `json:"public_key" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		DisplayName respjson.Field
-		PublicKey   respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r KeyQuorumAuthorizationKey) RawJSON() string { return r.JSON.raw }
-func (r *KeyQuorumAuthorizationKey) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

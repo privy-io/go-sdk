@@ -42,8 +42,8 @@ type Client struct {
 	Funding         FundingService
 	Organizations   OrganizationService
 	CrossApp        CrossAppService
-	OAuth           OAuthService
 	WalletActions   WalletActionService
+	OAuth           OAuthService
 	Yield           YieldService
 	KrakenEmbed     KrakenEmbedService
 	Swaps           SwapService
@@ -100,8 +100,8 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.Funding = NewFundingService(opts...)
 	r.Organizations = NewOrganizationService(opts...)
 	r.CrossApp = NewCrossAppService(opts...)
-	r.OAuth = NewOAuthService(opts...)
 	r.WalletActions = NewWalletActionService(opts...)
+	r.OAuth = NewOAuthService(opts...)
 	r.Yield = NewYieldService(opts...)
 	r.KrakenEmbed = NewKrakenEmbedService(opts...)
 	r.Swaps = NewSwapService(opts...)
