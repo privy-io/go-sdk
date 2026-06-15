@@ -6099,6 +6099,707 @@ func (r *TransferRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// TronContractUnionResp contains all possible properties and values from
+// [TronTransferContractResp], [TronTriggerSmartContractResp].
+//
+// Use the [TronContractUnionResp.AsAny] method to switch on the variant.
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type TronContractUnionResp struct {
+	// This field is from variant [TronTransferContractResp].
+	Amount int64 `json:"amount"`
+	// This field is from variant [TronTransferContractResp].
+	OwnerAddress TronHexAddress `json:"owner_address"`
+	// This field is from variant [TronTransferContractResp].
+	ToAddress TronHexAddress `json:"to_address"`
+	// Any of "TransferContract", "TriggerSmartContract".
+	Type string `json:"type"`
+	// This field is from variant [TronTriggerSmartContractResp].
+	ContractAddress TronHexAddress `json:"contract_address"`
+	// This field is from variant [TronTriggerSmartContractResp].
+	CallTokenValue int64 `json:"call_token_value"`
+	// This field is from variant [TronTriggerSmartContractResp].
+	TokenID int64 `json:"token_id"`
+	JSON    struct {
+		Amount          respjson.Field
+		OwnerAddress    respjson.Field
+		ToAddress       respjson.Field
+		Type            respjson.Field
+		ContractAddress respjson.Field
+		CallTokenValue  respjson.Field
+		TokenID         respjson.Field
+		raw             string
+	} `json:"-"`
+}
+
+// anyTronContractResp is implemented by each variant of [TronContractUnionResp] to
+// add type safety for the return type of [TronContractUnionResp.AsAny]
+type anyTronContractResp interface {
+	implTronContractUnionResp()
+}
+
+func (TronTransferContractResp) implTronContractUnionResp()     {}
+func (TronTriggerSmartContractResp) implTronContractUnionResp() {}
+
+// Use the following switch statement to find the correct variant
+//
+//	switch variant := TronContractUnionResp.AsAny().(type) {
+//	case privyclient.TronTransferContractResp:
+//	case privyclient.TronTriggerSmartContractResp:
+//	default:
+//	  fmt.Errorf("no variant present")
+//	}
+func (u TronContractUnionResp) AsAny() anyTronContractResp {
+	switch u.Type {
+	case "TransferContract":
+		return u.AsTransferContract()
+	case "TriggerSmartContract":
+		return u.AsTriggerSmartContract()
+	}
+	return nil
+}
+
+func (u TronContractUnionResp) AsTransferContract() (v TronTransferContractResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u TronContractUnionResp) AsTriggerSmartContract() (v TronTriggerSmartContractResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u TronContractUnionResp) RawJSON() string { return u.JSON.raw }
+
+func (r *TronContractUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TronContractUnionResp to a TronContractUnion.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TronContractUnion.Overrides()
+func (r TronContractUnionResp) ToParam() TronContractUnion {
+	return param.Override[TronContractUnion](json.RawMessage(r.RawJSON()))
+}
+
+func TronContractOfTriggerSmartContract(contractAddress TronHexAddress, ownerAddress TronHexAddress, type_ TronTriggerSmartContractType) TronContractUnion {
+	var triggerSmartContract TronTriggerSmartContract
+	triggerSmartContract.ContractAddress = contractAddress
+	triggerSmartContract.OwnerAddress = ownerAddress
+	triggerSmartContract.Type = type_
+	return TronContractUnion{OfTriggerSmartContract: &triggerSmartContract}
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type TronContractUnion struct {
+	OfTransferContract     *TronTransferContract     `json:",omitzero,inline"`
+	OfTriggerSmartContract *TronTriggerSmartContract `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u TronContractUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfTransferContract, u.OfTriggerSmartContract)
+}
+func (u *TronContractUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+func init() {
+	apijson.RegisterUnion[TronContractUnion](
+		"type",
+		apijson.Discriminator[TronTransferContract]("TransferContract"),
+		apijson.Discriminator[TronTriggerSmartContract]("TriggerSmartContract"),
+	)
+}
+
+// Tron raw_data for tron_sendTransaction. Block reference fields are optional;
+// Privy fetches fresh values if omitted.
+type TronRawDataForSendResp struct {
+	Contract      []TronContractUnionResp `json:"contract" api:"required"`
+	CallValue     int64                   `json:"call_value"`
+	Data          string                  `json:"data"`
+	Expiration    int64                   `json:"expiration"`
+	FeeLimit      int64                   `json:"fee_limit"`
+	RefBlockBytes string                  `json:"ref_block_bytes"`
+	RefBlockHash  string                  `json:"ref_block_hash"`
+	Timestamp     int64                   `json:"timestamp"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Contract      respjson.Field
+		CallValue     respjson.Field
+		Data          respjson.Field
+		Expiration    respjson.Field
+		FeeLimit      respjson.Field
+		RefBlockBytes respjson.Field
+		RefBlockHash  respjson.Field
+		Timestamp     respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronRawDataForSendResp) RawJSON() string { return r.JSON.raw }
+func (r *TronRawDataForSendResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TronRawDataForSendResp to a TronRawDataForSend.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TronRawDataForSend.Overrides()
+func (r TronRawDataForSendResp) ToParam() TronRawDataForSend {
+	return param.Override[TronRawDataForSend](json.RawMessage(r.RawJSON()))
+}
+
+// Tron raw_data for tron_sendTransaction. Block reference fields are optional;
+// Privy fetches fresh values if omitted.
+//
+// The property Contract is required.
+type TronRawDataForSend struct {
+	Contract      []TronContractUnion `json:"contract,omitzero" api:"required"`
+	CallValue     param.Opt[int64]    `json:"call_value,omitzero"`
+	Data          param.Opt[string]   `json:"data,omitzero"`
+	Expiration    param.Opt[int64]    `json:"expiration,omitzero"`
+	FeeLimit      param.Opt[int64]    `json:"fee_limit,omitzero"`
+	RefBlockBytes param.Opt[string]   `json:"ref_block_bytes,omitzero"`
+	RefBlockHash  param.Opt[string]   `json:"ref_block_hash,omitzero"`
+	Timestamp     param.Opt[int64]    `json:"timestamp,omitzero"`
+	paramObj
+}
+
+func (r TronRawDataForSend) MarshalJSON() (data []byte, err error) {
+	type shadow TronRawDataForSend
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TronRawDataForSend) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Tron raw_data for tron_signTransaction. Block reference fields are required;
+// caller is responsible for fetching them.
+type TronRawDataForSignResp struct {
+	Contract      []TronContractUnionResp `json:"contract" api:"required"`
+	Expiration    int64                   `json:"expiration" api:"required"`
+	RefBlockBytes string                  `json:"ref_block_bytes" api:"required"`
+	RefBlockHash  string                  `json:"ref_block_hash" api:"required"`
+	CallValue     int64                   `json:"call_value"`
+	Data          string                  `json:"data"`
+	FeeLimit      int64                   `json:"fee_limit"`
+	Timestamp     int64                   `json:"timestamp"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Contract      respjson.Field
+		Expiration    respjson.Field
+		RefBlockBytes respjson.Field
+		RefBlockHash  respjson.Field
+		CallValue     respjson.Field
+		Data          respjson.Field
+		FeeLimit      respjson.Field
+		Timestamp     respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronRawDataForSignResp) RawJSON() string { return r.JSON.raw }
+func (r *TronRawDataForSignResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TronRawDataForSignResp to a TronRawDataForSign.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TronRawDataForSign.Overrides()
+func (r TronRawDataForSignResp) ToParam() TronRawDataForSign {
+	return param.Override[TronRawDataForSign](json.RawMessage(r.RawJSON()))
+}
+
+// Tron raw_data for tron_signTransaction. Block reference fields are required;
+// caller is responsible for fetching them.
+//
+// The properties Contract, Expiration, RefBlockBytes, RefBlockHash are required.
+type TronRawDataForSign struct {
+	Contract      []TronContractUnion `json:"contract,omitzero" api:"required"`
+	Expiration    int64               `json:"expiration" api:"required"`
+	RefBlockBytes string              `json:"ref_block_bytes" api:"required"`
+	RefBlockHash  string              `json:"ref_block_hash" api:"required"`
+	CallValue     param.Opt[int64]    `json:"call_value,omitzero"`
+	Data          param.Opt[string]   `json:"data,omitzero"`
+	FeeLimit      param.Opt[int64]    `json:"fee_limit,omitzero"`
+	Timestamp     param.Opt[int64]    `json:"timestamp,omitzero"`
+	paramObj
+}
+
+func (r TronRawDataForSign) MarshalJSON() (data []byte, err error) {
+	type shadow TronRawDataForSign
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TronRawDataForSign) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Executes the Tron `tron_sendTransaction` RPC to sign and broadcast a
+// transaction.
+type TronSendTransactionRpcInputResp struct {
+	// Any of "tron_sendTransaction".
+	Method TronSendTransactionRpcInputMethod `json:"method" api:"required"`
+	// Parameters for the Tron `tron_sendTransaction` RPC.
+	Params TronSendTransactionRpcInputParamsResp `json:"params" api:"required"`
+	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	Caip2 Caip2 `json:"caip2"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Method      respjson.Field
+		Params      respjson.Field
+		Caip2       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronSendTransactionRpcInputResp) RawJSON() string { return r.JSON.raw }
+func (r *TronSendTransactionRpcInputResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TronSendTransactionRpcInputResp to a
+// TronSendTransactionRpcInput.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TronSendTransactionRpcInput.Overrides()
+func (r TronSendTransactionRpcInputResp) ToParam() TronSendTransactionRpcInput {
+	return param.Override[TronSendTransactionRpcInput](json.RawMessage(r.RawJSON()))
+}
+
+type TronSendTransactionRpcInputMethod string
+
+const (
+	TronSendTransactionRpcInputMethodTronSendTransaction TronSendTransactionRpcInputMethod = "tron_sendTransaction"
+)
+
+// Executes the Tron `tron_sendTransaction` RPC to sign and broadcast a
+// transaction.
+//
+// The properties Method, Params are required.
+type TronSendTransactionRpcInput struct {
+	// Any of "tron_sendTransaction".
+	Method TronSendTransactionRpcInputMethod `json:"method,omitzero" api:"required"`
+	// Parameters for the Tron `tron_sendTransaction` RPC.
+	Params TronSendTransactionRpcInputParams `json:"params,omitzero" api:"required"`
+	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	Caip2 param.Opt[Caip2] `json:"caip2,omitzero"`
+	paramObj
+}
+
+func (r TronSendTransactionRpcInput) MarshalJSON() (data []byte, err error) {
+	type shadow TronSendTransactionRpcInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TronSendTransactionRpcInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Parameters for the Tron `tron_sendTransaction` RPC.
+type TronSendTransactionRpcInputParamsResp struct {
+	// Tron raw_data for tron_sendTransaction. Block reference fields are optional;
+	// Privy fetches fresh values if omitted.
+	RawData TronRawDataForSendResp `json:"raw_data" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		RawData     respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronSendTransactionRpcInputParamsResp) RawJSON() string { return r.JSON.raw }
+func (r *TronSendTransactionRpcInputParamsResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TronSendTransactionRpcInputParamsResp to a
+// TronSendTransactionRpcInputParams.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TronSendTransactionRpcInputParams.Overrides()
+func (r TronSendTransactionRpcInputParamsResp) ToParam() TronSendTransactionRpcInputParams {
+	return param.Override[TronSendTransactionRpcInputParams](json.RawMessage(r.RawJSON()))
+}
+
+// Parameters for the Tron `tron_sendTransaction` RPC.
+//
+// The property RawData is required.
+type TronSendTransactionRpcInputParams struct {
+	// Tron raw_data for tron_sendTransaction. Block reference fields are optional;
+	// Privy fetches fresh values if omitted.
+	RawData TronRawDataForSend `json:"raw_data,omitzero" api:"required"`
+	paramObj
+}
+
+func (r TronSendTransactionRpcInputParams) MarshalJSON() (data []byte, err error) {
+	type shadow TronSendTransactionRpcInputParams
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TronSendTransactionRpcInputParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response to the Tron `tron_sendTransaction` RPC.
+type TronSendTransactionRpcResponse struct {
+	// Data returned by the Tron `tron_sendTransaction` RPC.
+	Data TronSendTransactionRpcResponseData `json:"data" api:"required"`
+	// Any of "tron_sendTransaction".
+	Method TronSendTransactionRpcResponseMethod `json:"method" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		Method      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronSendTransactionRpcResponse) RawJSON() string { return r.JSON.raw }
+func (r *TronSendTransactionRpcResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type TronSendTransactionRpcResponseMethod string
+
+const (
+	TronSendTransactionRpcResponseMethodTronSendTransaction TronSendTransactionRpcResponseMethod = "tron_sendTransaction"
+)
+
+// Data returned by the Tron `tron_sendTransaction` RPC.
+type TronSendTransactionRpcResponseData struct {
+	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	Caip2         Caip2  `json:"caip2" api:"required"`
+	TransactionID string `json:"transaction_id" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Caip2         respjson.Field
+		TransactionID respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronSendTransactionRpcResponseData) RawJSON() string { return r.JSON.raw }
+func (r *TronSendTransactionRpcResponseData) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Executes the Tron `tron_signTransaction` RPC to sign a transaction. The caller
+// is responsible for broadcasting.
+type TronSignTransactionRpcInputResp struct {
+	// Any of "tron_signTransaction".
+	Method TronSignTransactionRpcInputMethod `json:"method" api:"required"`
+	// Parameters for the Tron `tron_signTransaction` RPC.
+	Params TronSignTransactionRpcInputParamsResp `json:"params" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Method      respjson.Field
+		Params      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronSignTransactionRpcInputResp) RawJSON() string { return r.JSON.raw }
+func (r *TronSignTransactionRpcInputResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TronSignTransactionRpcInputResp to a
+// TronSignTransactionRpcInput.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TronSignTransactionRpcInput.Overrides()
+func (r TronSignTransactionRpcInputResp) ToParam() TronSignTransactionRpcInput {
+	return param.Override[TronSignTransactionRpcInput](json.RawMessage(r.RawJSON()))
+}
+
+type TronSignTransactionRpcInputMethod string
+
+const (
+	TronSignTransactionRpcInputMethodTronSignTransaction TronSignTransactionRpcInputMethod = "tron_signTransaction"
+)
+
+// Executes the Tron `tron_signTransaction` RPC to sign a transaction. The caller
+// is responsible for broadcasting.
+//
+// The properties Method, Params are required.
+type TronSignTransactionRpcInput struct {
+	// Any of "tron_signTransaction".
+	Method TronSignTransactionRpcInputMethod `json:"method,omitzero" api:"required"`
+	// Parameters for the Tron `tron_signTransaction` RPC.
+	Params TronSignTransactionRpcInputParams `json:"params,omitzero" api:"required"`
+	paramObj
+}
+
+func (r TronSignTransactionRpcInput) MarshalJSON() (data []byte, err error) {
+	type shadow TronSignTransactionRpcInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TronSignTransactionRpcInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Parameters for the Tron `tron_signTransaction` RPC.
+type TronSignTransactionRpcInputParamsResp struct {
+	// Tron raw_data for tron_signTransaction. Block reference fields are required;
+	// caller is responsible for fetching them.
+	RawData TronRawDataForSignResp `json:"raw_data" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		RawData     respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronSignTransactionRpcInputParamsResp) RawJSON() string { return r.JSON.raw }
+func (r *TronSignTransactionRpcInputParamsResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TronSignTransactionRpcInputParamsResp to a
+// TronSignTransactionRpcInputParams.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TronSignTransactionRpcInputParams.Overrides()
+func (r TronSignTransactionRpcInputParamsResp) ToParam() TronSignTransactionRpcInputParams {
+	return param.Override[TronSignTransactionRpcInputParams](json.RawMessage(r.RawJSON()))
+}
+
+// Parameters for the Tron `tron_signTransaction` RPC.
+//
+// The property RawData is required.
+type TronSignTransactionRpcInputParams struct {
+	// Tron raw_data for tron_signTransaction. Block reference fields are required;
+	// caller is responsible for fetching them.
+	RawData TronRawDataForSign `json:"raw_data,omitzero" api:"required"`
+	paramObj
+}
+
+func (r TronSignTransactionRpcInputParams) MarshalJSON() (data []byte, err error) {
+	type shadow TronSignTransactionRpcInputParams
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TronSignTransactionRpcInputParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response to the Tron `tron_signTransaction` RPC.
+type TronSignTransactionRpcResponse struct {
+	// Data returned by the Tron `tron_signTransaction` RPC.
+	Data TronSignTransactionRpcResponseData `json:"data" api:"required"`
+	// Any of "tron_signTransaction".
+	Method TronSignTransactionRpcResponseMethod `json:"method" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		Method      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronSignTransactionRpcResponse) RawJSON() string { return r.JSON.raw }
+func (r *TronSignTransactionRpcResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type TronSignTransactionRpcResponseMethod string
+
+const (
+	TronSignTransactionRpcResponseMethodTronSignTransaction TronSignTransactionRpcResponseMethod = "tron_signTransaction"
+)
+
+// Data returned by the Tron `tron_signTransaction` RPC.
+type TronSignTransactionRpcResponseData struct {
+	// Any of "hex".
+	Encoding          TronSignTransactionRpcResponseDataEncoding `json:"encoding" api:"required"`
+	SignedTransaction string                                     `json:"signed_transaction" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Encoding          respjson.Field
+		SignedTransaction respjson.Field
+		ExtraFields       map[string]respjson.Field
+		raw               string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronSignTransactionRpcResponseData) RawJSON() string { return r.JSON.raw }
+func (r *TronSignTransactionRpcResponseData) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type TronSignTransactionRpcResponseDataEncoding string
+
+const (
+	TronSignTransactionRpcResponseDataEncodingHex TronSignTransactionRpcResponseDataEncoding = "hex"
+)
+
+// Tron native TRX transfer contract.
+type TronTransferContractResp struct {
+	Amount int64 `json:"amount" api:"required"`
+	// Tron address in hex format: 41-prefixed, 42 hex characters (21 bytes), no 0x
+	// prefix.
+	OwnerAddress TronHexAddress `json:"owner_address" api:"required"`
+	// Tron address in hex format: 41-prefixed, 42 hex characters (21 bytes), no 0x
+	// prefix.
+	ToAddress TronHexAddress `json:"to_address" api:"required"`
+	// Any of "TransferContract".
+	Type TronTransferContractType `json:"type" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Amount       respjson.Field
+		OwnerAddress respjson.Field
+		ToAddress    respjson.Field
+		Type         respjson.Field
+		ExtraFields  map[string]respjson.Field
+		raw          string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronTransferContractResp) RawJSON() string { return r.JSON.raw }
+func (r *TronTransferContractResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TronTransferContractResp to a TronTransferContract.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TronTransferContract.Overrides()
+func (r TronTransferContractResp) ToParam() TronTransferContract {
+	return param.Override[TronTransferContract](json.RawMessage(r.RawJSON()))
+}
+
+type TronTransferContractType string
+
+const (
+	TronTransferContractTypeTransferContract TronTransferContractType = "TransferContract"
+)
+
+// Tron native TRX transfer contract.
+//
+// The properties Amount, OwnerAddress, ToAddress, Type are required.
+type TronTransferContract struct {
+	Amount int64 `json:"amount" api:"required"`
+	// Tron address in hex format: 41-prefixed, 42 hex characters (21 bytes), no 0x
+	// prefix.
+	OwnerAddress TronHexAddress `json:"owner_address" api:"required"`
+	// Tron address in hex format: 41-prefixed, 42 hex characters (21 bytes), no 0x
+	// prefix.
+	ToAddress TronHexAddress `json:"to_address" api:"required"`
+	// Any of "TransferContract".
+	Type TronTransferContractType `json:"type,omitzero" api:"required"`
+	paramObj
+}
+
+func (r TronTransferContract) MarshalJSON() (data []byte, err error) {
+	type shadow TronTransferContract
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TronTransferContract) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Tron smart contract call (TRC-20 transfers and general contract interactions).
+type TronTriggerSmartContractResp struct {
+	// Tron address in hex format: 41-prefixed, 42 hex characters (21 bytes), no 0x
+	// prefix.
+	ContractAddress TronHexAddress `json:"contract_address" api:"required"`
+	// Tron address in hex format: 41-prefixed, 42 hex characters (21 bytes), no 0x
+	// prefix.
+	OwnerAddress TronHexAddress `json:"owner_address" api:"required"`
+	// Any of "TriggerSmartContract".
+	Type           TronTriggerSmartContractType `json:"type" api:"required"`
+	CallTokenValue int64                        `json:"call_token_value"`
+	TokenID        int64                        `json:"token_id"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ContractAddress respjson.Field
+		OwnerAddress    respjson.Field
+		Type            respjson.Field
+		CallTokenValue  respjson.Field
+		TokenID         respjson.Field
+		ExtraFields     map[string]respjson.Field
+		raw             string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronTriggerSmartContractResp) RawJSON() string { return r.JSON.raw }
+func (r *TronTriggerSmartContractResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TronTriggerSmartContractResp to a
+// TronTriggerSmartContract.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TronTriggerSmartContract.Overrides()
+func (r TronTriggerSmartContractResp) ToParam() TronTriggerSmartContract {
+	return param.Override[TronTriggerSmartContract](json.RawMessage(r.RawJSON()))
+}
+
+type TronTriggerSmartContractType string
+
+const (
+	TronTriggerSmartContractTypeTriggerSmartContract TronTriggerSmartContractType = "TriggerSmartContract"
+)
+
+// Tron smart contract call (TRC-20 transfers and general contract interactions).
+//
+// The properties ContractAddress, OwnerAddress, Type are required.
+type TronTriggerSmartContract struct {
+	// Tron address in hex format: 41-prefixed, 42 hex characters (21 bytes), no 0x
+	// prefix.
+	ContractAddress TronHexAddress `json:"contract_address" api:"required"`
+	// Tron address in hex format: 41-prefixed, 42 hex characters (21 bytes), no 0x
+	// prefix.
+	OwnerAddress TronHexAddress `json:"owner_address" api:"required"`
+	// Any of "TriggerSmartContract".
+	Type           TronTriggerSmartContractType `json:"type,omitzero" api:"required"`
+	CallTokenValue param.Opt[int64]             `json:"call_token_value,omitzero"`
+	TokenID        param.Opt[int64]             `json:"token_id,omitzero"`
+	paramObj
+}
+
+func (r TronTriggerSmartContract) MarshalJSON() (data []byte, err error) {
+	type shadow TronTriggerSmartContract
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TronTriggerSmartContract) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 type TypedDataDomainInputParams map[string]any
 
 // A single field definition in an EIP-712 typed data type.
@@ -7086,8 +7787,9 @@ const (
 // [SparkClaimStaticDepositRpcInputResp],
 // [SparkCreateLightningInvoiceRpcInputResp],
 // [SparkPayLightningInvoiceRpcInputResp],
-// [SparkSignMessageWithIdentityKeyRpcInputResp], [ExportPrivateKeyRpcInputResp],
-// [ExportSeedPhraseRpcInputResp].
+// [SparkSignMessageWithIdentityKeyRpcInputResp],
+// [TronSignTransactionRpcInputResp], [TronSendTransactionRpcInputResp],
+// [ExportPrivateKeyRpcInputResp], [ExportSeedPhraseRpcInputResp].
 //
 // Use the [WalletRpcRequestBodyUnionResp.AsAny] method to switch on the variant.
 //
@@ -7099,7 +7801,8 @@ type WalletRpcRequestBodyUnionResp struct {
 	// "signAndSendTransaction", "signMessage", "transfer", "getBalance",
 	// "transferTokens", "getStaticDepositAddress", "getClaimStaticDepositQuote",
 	// "claimStaticDeposit", "createLightningInvoice", "payLightningInvoice",
-	// "signMessageWithIdentityKey", "exportPrivateKey", "exportSeedPhrase".
+	// "signMessageWithIdentityKey", "tron_signTransaction", "tron_sendTransaction",
+	// "exportPrivateKey", "exportSeedPhrase".
 	Method string `json:"method"`
 	// This field is a union of [EthereumSignTransactionRpcInputParamsResp],
 	// [EthereumSendTransactionRpcInputParamsResp],
@@ -7118,7 +7821,9 @@ type WalletRpcRequestBodyUnionResp struct {
 	// [SparkCreateLightningInvoiceRpcInputParamsResp],
 	// [SparkPayLightningInvoiceRpcInputParamsResp],
 	// [SparkSignMessageWithIdentityKeyRpcInputParamsResp],
-	// [PrivateKeyExportInputResp], [SeedPhraseExportInputResp]
+	// [TronSignTransactionRpcInputParamsResp],
+	// [TronSendTransactionRpcInputParamsResp], [PrivateKeyExportInputResp],
+	// [SeedPhraseExportInputResp]
 	Params    WalletRpcRequestBodyUnionRespParams `json:"params"`
 	Address   string                              `json:"address"`
 	ChainType string                              `json:"chain_type"`
@@ -7179,6 +7884,8 @@ func (SparkClaimStaticDepositRpcInputResp) implWalletRpcRequestBodyUnionResp()  
 func (SparkCreateLightningInvoiceRpcInputResp) implWalletRpcRequestBodyUnionResp()     {}
 func (SparkPayLightningInvoiceRpcInputResp) implWalletRpcRequestBodyUnionResp()        {}
 func (SparkSignMessageWithIdentityKeyRpcInputResp) implWalletRpcRequestBodyUnionResp() {}
+func (TronSignTransactionRpcInputResp) implWalletRpcRequestBodyUnionResp()             {}
+func (TronSendTransactionRpcInputResp) implWalletRpcRequestBodyUnionResp()             {}
 func (ExportPrivateKeyRpcInputResp) implWalletRpcRequestBodyUnionResp()                {}
 func (ExportSeedPhraseRpcInputResp) implWalletRpcRequestBodyUnionResp()                {}
 
@@ -7205,6 +7912,8 @@ func (ExportSeedPhraseRpcInputResp) implWalletRpcRequestBodyUnionResp()         
 //	case privyclient.SparkCreateLightningInvoiceRpcInputResp:
 //	case privyclient.SparkPayLightningInvoiceRpcInputResp:
 //	case privyclient.SparkSignMessageWithIdentityKeyRpcInputResp:
+//	case privyclient.TronSignTransactionRpcInputResp:
+//	case privyclient.TronSendTransactionRpcInputResp:
 //	case privyclient.ExportPrivateKeyRpcInputResp:
 //	case privyclient.ExportSeedPhraseRpcInputResp:
 //	default:
@@ -7252,6 +7961,10 @@ func (u WalletRpcRequestBodyUnionResp) AsAny() anyWalletRpcRequestBodyResp {
 		return u.AsPayLightningInvoice()
 	case "signMessageWithIdentityKey":
 		return u.AsSignMessageWithIdentityKey()
+	case "tron_signTransaction":
+		return u.AsTronSignTransaction()
+	case "tron_sendTransaction":
+		return u.AsTronSendTransaction()
 	case "exportPrivateKey":
 		return u.AsExportPrivateKey()
 	case "exportSeedPhrase":
@@ -7360,6 +8073,16 @@ func (u WalletRpcRequestBodyUnionResp) AsSignMessageWithIdentityKey() (v SparkSi
 	return
 }
 
+func (u WalletRpcRequestBodyUnionResp) AsTronSignTransaction() (v TronSignTransactionRpcInputResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletRpcRequestBodyUnionResp) AsTronSendTransaction() (v TronSendTransactionRpcInputResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
 func (u WalletRpcRequestBodyUnionResp) AsExportPrivateKey() (v ExportPrivateKeyRpcInputResp) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
@@ -7440,6 +8163,8 @@ type WalletRpcRequestBodyUnionRespParams struct {
 	PreferSpark bool `json:"prefer_spark"`
 	// This field is from variant [SparkSignMessageWithIdentityKeyRpcInputParamsResp].
 	Compact bool `json:"compact"`
+	// This field is a union of [TronRawDataForSignResp], [TronRawDataForSendResp]
+	RawData WalletRpcRequestBodyUnionRespParamsRawData `json:"raw_data"`
 	// This field is from variant [PrivateKeyExportInputResp].
 	EncryptionType HpkeEncryption `json:"encryption_type"`
 	// This field is from variant [PrivateKeyExportInputResp].
@@ -7479,6 +8204,7 @@ type WalletRpcRequestBodyUnionRespParams struct {
 		AmountSatsToSend        respjson.Field
 		PreferSpark             respjson.Field
 		Compact                 respjson.Field
+		RawData                 respjson.Field
 		EncryptionType          respjson.Field
 		RecipientPublicKey      respjson.Field
 		ExportSeedPhrase        respjson.Field
@@ -7568,6 +8294,38 @@ type WalletRpcRequestBodyUnionRespParamsTransaction struct {
 }
 
 func (r *WalletRpcRequestBodyUnionRespParamsTransaction) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// WalletRpcRequestBodyUnionRespParamsRawData is an implicit subunion of
+// [WalletRpcRequestBodyUnionResp]. WalletRpcRequestBodyUnionRespParamsRawData
+// provides convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [WalletRpcRequestBodyUnionResp].
+type WalletRpcRequestBodyUnionRespParamsRawData struct {
+	Contract      []TronContractUnionResp `json:"contract"`
+	Expiration    int64                   `json:"expiration"`
+	RefBlockBytes string                  `json:"ref_block_bytes"`
+	RefBlockHash  string                  `json:"ref_block_hash"`
+	CallValue     int64                   `json:"call_value"`
+	Data          string                  `json:"data"`
+	FeeLimit      int64                   `json:"fee_limit"`
+	Timestamp     int64                   `json:"timestamp"`
+	JSON          struct {
+		Contract      respjson.Field
+		Expiration    respjson.Field
+		RefBlockBytes respjson.Field
+		RefBlockHash  respjson.Field
+		CallValue     respjson.Field
+		Data          respjson.Field
+		FeeLimit      respjson.Field
+		Timestamp     respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (r *WalletRpcRequestBodyUnionRespParamsRawData) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -7707,6 +8465,18 @@ func WalletRpcRequestBodyOfSignMessageWithIdentityKey(params SparkSignMessageWit
 	return WalletRpcRequestBodyUnion{OfSignMessageWithIdentityKey: &signMessageWithIdentityKey}
 }
 
+func WalletRpcRequestBodyOfTronSignTransaction(params TronSignTransactionRpcInputParams) WalletRpcRequestBodyUnion {
+	var tronSignTransaction TronSignTransactionRpcInput
+	tronSignTransaction.Params = params
+	return WalletRpcRequestBodyUnion{OfTronSignTransaction: &tronSignTransaction}
+}
+
+func WalletRpcRequestBodyOfTronSendTransaction(params TronSendTransactionRpcInputParams) WalletRpcRequestBodyUnion {
+	var tronSendTransaction TronSendTransactionRpcInput
+	tronSendTransaction.Params = params
+	return WalletRpcRequestBodyUnion{OfTronSendTransaction: &tronSendTransaction}
+}
+
 func WalletRpcRequestBodyOfExportPrivateKey(address string, method ExportPrivateKeyRpcInputMethod, params PrivateKeyExportInput) WalletRpcRequestBodyUnion {
 	var exportPrivateKey ExportPrivateKeyRpcInput
 	exportPrivateKey.Address = address
@@ -7747,6 +8517,8 @@ type WalletRpcRequestBodyUnion struct {
 	OfCreateLightningInvoice     *SparkCreateLightningInvoiceRpcInput     `json:",omitzero,inline"`
 	OfPayLightningInvoice        *SparkPayLightningInvoiceRpcInput        `json:",omitzero,inline"`
 	OfSignMessageWithIdentityKey *SparkSignMessageWithIdentityKeyRpcInput `json:",omitzero,inline"`
+	OfTronSignTransaction        *TronSignTransactionRpcInput             `json:",omitzero,inline"`
+	OfTronSendTransaction        *TronSendTransactionRpcInput             `json:",omitzero,inline"`
 	OfExportPrivateKey           *ExportPrivateKeyRpcInput                `json:",omitzero,inline"`
 	OfExportSeedPhrase           *ExportSeedPhraseRpcInput                `json:",omitzero,inline"`
 	paramUnion
@@ -7773,6 +8545,8 @@ func (u WalletRpcRequestBodyUnion) MarshalJSON() ([]byte, error) {
 		u.OfCreateLightningInvoice,
 		u.OfPayLightningInvoice,
 		u.OfSignMessageWithIdentityKey,
+		u.OfTronSignTransaction,
+		u.OfTronSendTransaction,
 		u.OfExportPrivateKey,
 		u.OfExportSeedPhrase)
 }
@@ -7803,6 +8577,8 @@ func init() {
 		apijson.Discriminator[SparkCreateLightningInvoiceRpcInput]("createLightningInvoice"),
 		apijson.Discriminator[SparkPayLightningInvoiceRpcInput]("payLightningInvoice"),
 		apijson.Discriminator[SparkSignMessageWithIdentityKeyRpcInput]("signMessageWithIdentityKey"),
+		apijson.Discriminator[TronSignTransactionRpcInput]("tron_signTransaction"),
+		apijson.Discriminator[TronSendTransactionRpcInput]("tron_sendTransaction"),
 		apijson.Discriminator[ExportPrivateKeyRpcInput]("exportPrivateKey"),
 		apijson.Discriminator[ExportSeedPhraseRpcInput]("exportSeedPhrase"),
 	)
@@ -7820,7 +8596,8 @@ func init() {
 // [SparkGetClaimStaticDepositQuoteRpcResponse],
 // [SparkClaimStaticDepositRpcResponse], [SparkCreateLightningInvoiceRpcResponse],
 // [SparkPayLightningInvoiceRpcResponse],
-// [SparkSignMessageWithIdentityKeyRpcResponse], [ExportPrivateKeyRpcResponse],
+// [SparkSignMessageWithIdentityKeyRpcResponse], [TronSignTransactionRpcResponse],
+// [TronSendTransactionRpcResponse], [ExportPrivateKeyRpcResponse],
 // [ExportSeedPhraseRpcResponse].
 //
 // Use the [WalletRpcResponseUnion.AsAny] method to switch on the variant.
@@ -7841,8 +8618,9 @@ type WalletRpcResponseUnion struct {
 	// [SparkGetClaimStaticDepositQuoteRpcResponseData],
 	// [SparkClaimStaticDepositRpcResponseData], [SparkLightningReceiveRequest],
 	// [SparkPayLightningInvoiceRpcResponseDataUnion],
-	// [SparkSignMessageWithIdentityKeyRpcResponseData], [PrivateKeyExportInputResp],
-	// [SeedPhraseExportResponse]
+	// [SparkSignMessageWithIdentityKeyRpcResponseData],
+	// [TronSignTransactionRpcResponseData], [TronSendTransactionRpcResponseData],
+	// [PrivateKeyExportInputResp], [SeedPhraseExportResponse]
 	Data WalletRpcResponseUnionData `json:"data"`
 	// Any of "personal_sign", "eth_signTypedData_v4", "eth_signTransaction",
 	// "eth_sendTransaction", "eth_signUserOperation", "eth_sign7702Authorization",
@@ -7850,7 +8628,8 @@ type WalletRpcResponseUnion struct {
 	// "signAndSendTransaction", "transfer", "getBalance", "transferTokens",
 	// "getStaticDepositAddress", "getClaimStaticDepositQuote", "claimStaticDeposit",
 	// "createLightningInvoice", "payLightningInvoice", "signMessageWithIdentityKey",
-	// "exportPrivateKey", "exportSeedPhrase".
+	// "tron_signTransaction", "tron_sendTransaction", "exportPrivateKey",
+	// "exportSeedPhrase".
 	Method string `json:"method"`
 	JSON   struct {
 		Data   respjson.Field
@@ -7885,6 +8664,8 @@ func (SparkClaimStaticDepositRpcResponse) implWalletRpcResponseUnion()         {
 func (SparkCreateLightningInvoiceRpcResponse) implWalletRpcResponseUnion()     {}
 func (SparkPayLightningInvoiceRpcResponse) implWalletRpcResponseUnion()        {}
 func (SparkSignMessageWithIdentityKeyRpcResponse) implWalletRpcResponseUnion() {}
+func (TronSignTransactionRpcResponse) implWalletRpcResponseUnion()             {}
+func (TronSendTransactionRpcResponse) implWalletRpcResponseUnion()             {}
 func (ExportPrivateKeyRpcResponse) implWalletRpcResponseUnion()                {}
 func (ExportSeedPhraseRpcResponse) implWalletRpcResponseUnion()                {}
 
@@ -7911,6 +8692,8 @@ func (ExportSeedPhraseRpcResponse) implWalletRpcResponseUnion()                {
 //	case privyclient.SparkCreateLightningInvoiceRpcResponse:
 //	case privyclient.SparkPayLightningInvoiceRpcResponse:
 //	case privyclient.SparkSignMessageWithIdentityKeyRpcResponse:
+//	case privyclient.TronSignTransactionRpcResponse:
+//	case privyclient.TronSendTransactionRpcResponse:
 //	case privyclient.ExportPrivateKeyRpcResponse:
 //	case privyclient.ExportSeedPhraseRpcResponse:
 //	default:
@@ -7958,6 +8741,10 @@ func (u WalletRpcResponseUnion) AsAny() anyWalletRpcResponse {
 		return u.AsPayLightningInvoice()
 	case "signMessageWithIdentityKey":
 		return u.AsSignMessageWithIdentityKey()
+	case "tron_signTransaction":
+		return u.AsTronSignTransaction()
+	case "tron_sendTransaction":
+		return u.AsTronSendTransaction()
 	case "exportPrivateKey":
 		return u.AsExportPrivateKey()
 	case "exportSeedPhrase":
@@ -8062,6 +8849,16 @@ func (u WalletRpcResponseUnion) AsPayLightningInvoice() (v SparkPayLightningInvo
 }
 
 func (u WalletRpcResponseUnion) AsSignMessageWithIdentityKey() (v SparkSignMessageWithIdentityKeyRpcResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletRpcResponseUnion) AsTronSignTransaction() (v TronSignTransactionRpcResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletRpcResponseUnion) AsTronSendTransaction() (v TronSendTransactionRpcResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }

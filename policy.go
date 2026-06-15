@@ -300,7 +300,8 @@ type ActionRequestBodyConditionResp struct {
 	FieldSource ActionRequestBodyConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -347,7 +348,8 @@ type ActionRequestBodyCondition struct {
 	FieldSource ActionRequestBodyConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -371,7 +373,8 @@ type AggregationConditionResp struct {
 	FieldSource AggregationConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -418,7 +421,8 @@ type AggregationCondition struct {
 	FieldSource AggregationConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -445,6 +449,9 @@ const (
 	ConditionOperatorLte            ConditionOperator = "lte"
 	ConditionOperatorIn             ConditionOperator = "in"
 	ConditionOperatorInConditionSet ConditionOperator = "in_condition_set"
+	ConditionOperatorContains       ConditionOperator = "contains"
+	ConditionOperatorStartsWith     ConditionOperator = "starts_with"
+	ConditionOperatorEndsWith       ConditionOperator = "ends_with"
 )
 
 // ConditionValueUnionResp contains all possible properties and values from
@@ -516,7 +523,8 @@ type Ethereum7702AuthorizationConditionResp struct {
 	FieldSource Ethereum7702AuthorizationConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -570,7 +578,8 @@ type Ethereum7702AuthorizationCondition struct {
 	FieldSource Ethereum7702AuthorizationConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -597,7 +606,8 @@ type EthereumCalldataConditionResp struct {
 	FieldSource EthereumCalldataConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -649,7 +659,8 @@ type EthereumCalldataCondition struct {
 	FieldSource EthereumCalldataConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -674,7 +685,8 @@ type EthereumTransactionConditionResp struct {
 	FieldSource EthereumTransactionConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -731,7 +743,8 @@ type EthereumTransactionCondition struct {
 	FieldSource EthereumTransactionConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -755,7 +768,8 @@ type EthereumTypedDataDomainConditionResp struct {
 	FieldSource EthereumTypedDataDomainConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -812,7 +826,8 @@ type EthereumTypedDataDomainCondition struct {
 	FieldSource EthereumTypedDataDomainConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -836,7 +851,8 @@ type EthereumTypedDataMessageConditionResp struct {
 	FieldSource EthereumTypedDataMessageConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// The typed data structure containing EIP-712 types and the primary type for typed
 	// data message policy conditions.
@@ -888,7 +904,8 @@ type EthereumTypedDataMessageCondition struct {
 	FieldSource EthereumTypedDataMessageConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// The typed data structure containing EIP-712 types and the primary type for typed
 	// data message policy conditions.
@@ -906,6 +923,91 @@ func (r EthereumTypedDataMessageCondition) MarshalJSON() (data []byte, err error
 func (r *EthereumTypedDataMessageCondition) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// Condition on the message being signed (e.g. in personal_sign).
+type MessageSigningConditionResp struct {
+	// Supported fields for message signing conditions.
+	//
+	// Any of "content", "byte_length".
+	Field MessageSigningField `json:"field" api:"required"`
+	// Any of "message".
+	FieldSource MessageSigningConditionFieldSource `json:"field_source" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
+	Operator ConditionOperator `json:"operator" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnionResp `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r MessageSigningConditionResp) RawJSON() string { return r.JSON.raw }
+func (r *MessageSigningConditionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this MessageSigningConditionResp to a MessageSigningCondition.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// MessageSigningCondition.Overrides()
+func (r MessageSigningConditionResp) ToParam() MessageSigningCondition {
+	return param.Override[MessageSigningCondition](json.RawMessage(r.RawJSON()))
+}
+
+type MessageSigningConditionFieldSource string
+
+const (
+	MessageSigningConditionFieldSourceMessage MessageSigningConditionFieldSource = "message"
+)
+
+// Condition on the message being signed (e.g. in personal_sign).
+//
+// The properties Field, FieldSource, Operator, Value are required.
+type MessageSigningCondition struct {
+	// Supported fields for message signing conditions.
+	//
+	// Any of "content", "byte_length".
+	Field MessageSigningField `json:"field,omitzero" api:"required"`
+	// Any of "message".
+	FieldSource MessageSigningConditionFieldSource `json:"field_source,omitzero" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
+	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnion `json:"value,omitzero" api:"required"`
+	paramObj
+}
+
+func (r MessageSigningCondition) MarshalJSON() (data []byte, err error) {
+	type shadow MessageSigningCondition
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *MessageSigningCondition) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Supported fields for message signing conditions.
+type MessageSigningField string
+
+const (
+	MessageSigningFieldContent    MessageSigningField = "content"
+	MessageSigningFieldByteLength MessageSigningField = "byte_length"
+)
 
 // A policy for controlling wallet operations.
 type Policy struct {
@@ -973,7 +1075,8 @@ const (
 // [SolanaTokenProgramInstructionConditionResp], [SystemConditionResp],
 // [TronTransactionConditionResp], [TronCalldataConditionResp],
 // [SuiTransactionCommandConditionResp], [SuiTransferObjectsCommandConditionResp],
-// [ActionRequestBodyConditionResp], [AggregationConditionResp].
+// [ActionRequestBodyConditionResp], [AggregationConditionResp],
+// [MessageSigningConditionResp].
 //
 // Use the [PolicyConditionUnionResp.AsAny] method to switch on the variant.
 //
@@ -986,7 +1089,7 @@ type PolicyConditionUnionResp struct {
 	// "solana_program_instruction", "solana_system_program_instruction",
 	// "solana_token_program_instruction", "system", "tron_transaction",
 	// "tron_trigger_smart_contract_data", "sui_transaction_command",
-	// "sui_transfer_objects_command", "action_request_body", "reference".
+	// "sui_transfer_objects_command", "action_request_body", "reference", "message".
 	FieldSource string `json:"field_source"`
 	Operator    string `json:"operator"`
 	// This field is a union of [ConditionValueUnionResp],
@@ -1030,6 +1133,7 @@ func (SuiTransactionCommandConditionResp) implPolicyConditionUnionResp()        
 func (SuiTransferObjectsCommandConditionResp) implPolicyConditionUnionResp()      {}
 func (ActionRequestBodyConditionResp) implPolicyConditionUnionResp()              {}
 func (AggregationConditionResp) implPolicyConditionUnionResp()                    {}
+func (MessageSigningConditionResp) implPolicyConditionUnionResp()                 {}
 
 // Use the following switch statement to find the correct variant
 //
@@ -1050,6 +1154,7 @@ func (AggregationConditionResp) implPolicyConditionUnionResp()                  
 //	case privyclient.SuiTransferObjectsCommandConditionResp:
 //	case privyclient.ActionRequestBodyConditionResp:
 //	case privyclient.AggregationConditionResp:
+//	case privyclient.MessageSigningConditionResp:
 //	default:
 //	  fmt.Errorf("no variant present")
 //	}
@@ -1087,6 +1192,8 @@ func (u PolicyConditionUnionResp) AsAny() anyPolicyConditionResp {
 		return u.AsActionRequestBody()
 	case "reference":
 		return u.AsReference()
+	case "message":
+		return u.AsMessage()
 	}
 	return nil
 }
@@ -1171,6 +1278,11 @@ func (u PolicyConditionUnionResp) AsReference() (v AggregationConditionResp) {
 	return
 }
 
+func (u PolicyConditionUnionResp) AsMessage() (v MessageSigningConditionResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
 // Returns the unmodified JSON received from the API
 func (u PolicyConditionUnionResp) RawJSON() string { return u.JSON.raw }
 
@@ -1240,6 +1352,7 @@ type PolicyConditionUnion struct {
 	OfSuiTransferObjectsCommand      *SuiTransferObjectsCommandCondition      `json:",omitzero,inline"`
 	OfActionRequestBody              *ActionRequestBodyCondition              `json:",omitzero,inline"`
 	OfReference                      *AggregationCondition                    `json:",omitzero,inline"`
+	OfMessage                        *MessageSigningCondition                 `json:",omitzero,inline"`
 	paramUnion
 }
 
@@ -1259,7 +1372,8 @@ func (u PolicyConditionUnion) MarshalJSON() ([]byte, error) {
 		u.OfSuiTransactionCommand,
 		u.OfSuiTransferObjectsCommand,
 		u.OfActionRequestBody,
-		u.OfReference)
+		u.OfReference,
+		u.OfMessage)
 }
 func (u *PolicyConditionUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
@@ -1284,6 +1398,7 @@ func init() {
 		apijson.Discriminator[SuiTransferObjectsCommandCondition]("sui_transfer_objects_command"),
 		apijson.Discriminator[ActionRequestBodyCondition]("action_request_body"),
 		apijson.Discriminator[AggregationCondition]("reference"),
+		apijson.Discriminator[MessageSigningCondition]("message"),
 	)
 }
 
@@ -1303,6 +1418,7 @@ const (
 	PolicyMethodExportPrivateKey         PolicyMethod = "exportPrivateKey"
 	PolicyMethodExportSeedPhrase         PolicyMethod = "exportSeedPhrase"
 	PolicyMethodSignTransactionBytes     PolicyMethod = "signTransactionBytes"
+	PolicyMethodRawSign                  PolicyMethod = "raw_sign"
 	PolicyMethodEarnDeposit              PolicyMethod = "earn_deposit"
 	PolicyMethodEarnWithdraw             PolicyMethod = "earn_withdraw"
 	PolicyMethodTransfer                 PolicyMethod = "transfer"
@@ -1321,8 +1437,8 @@ type PolicyRuleRequestBodyResp struct {
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "personal_sign", "eth_sign7702Authorization",
 	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction",
-	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "earn_deposit",
-	// "earn_withdraw", "transfer", "\*".
+	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "raw_sign",
+	// "earn_deposit", "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod `json:"method" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -1365,8 +1481,8 @@ type PolicyRuleRequestBody struct {
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "personal_sign", "eth_sign7702Authorization",
 	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction",
-	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "earn_deposit",
-	// "earn_withdraw", "transfer", "\*".
+	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "raw_sign",
+	// "earn_deposit", "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod `json:"method,omitzero" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	paramObj
@@ -1394,8 +1510,8 @@ type PolicyRuleResponse struct {
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "personal_sign", "eth_sign7702Authorization",
 	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction",
-	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "earn_deposit",
-	// "earn_withdraw", "transfer", "\*".
+	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "raw_sign",
+	// "earn_deposit", "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod `json:"method" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -1424,7 +1540,8 @@ type SolanaProgramInstructionConditionResp struct {
 	FieldSource SolanaProgramInstructionConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -1478,7 +1595,8 @@ type SolanaProgramInstructionCondition struct {
 	FieldSource SolanaProgramInstructionConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -1503,7 +1621,8 @@ type SolanaSystemProgramInstructionConditionResp struct {
 	FieldSource SolanaSystemProgramInstructionConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -1561,7 +1680,8 @@ type SolanaSystemProgramInstructionCondition struct {
 	FieldSource SolanaSystemProgramInstructionConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -1594,7 +1714,8 @@ type SolanaTokenProgramInstructionConditionResp struct {
 	FieldSource SolanaTokenProgramInstructionConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -1680,7 +1801,8 @@ type SolanaTokenProgramInstructionCondition struct {
 	FieldSource SolanaTokenProgramInstructionConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -1855,7 +1977,8 @@ type SuiTransferObjectsCommandConditionResp struct {
 	FieldSource SuiTransferObjectsCommandConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -1906,7 +2029,8 @@ type SuiTransferObjectsCommandCondition struct {
 	FieldSource SuiTransferObjectsCommandConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -1939,7 +2063,8 @@ type SystemConditionResp struct {
 	FieldSource SystemConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -1992,7 +2117,8 @@ type SystemCondition struct {
 	FieldSource SystemConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -2021,7 +2147,8 @@ type TempoTransactionConditionResp struct {
 	FieldSource TempoTransactionConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -2074,7 +2201,8 @@ type TempoTransactionCondition struct {
 	FieldSource TempoTransactionConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -2111,7 +2239,8 @@ type TronCalldataConditionResp struct {
 	FieldSource TronCalldataConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -2160,7 +2289,8 @@ type TronCalldataCondition struct {
 	FieldSource TronCalldataConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -2189,7 +2319,8 @@ type TronTransactionConditionResp struct {
 	FieldSource TronTransactionConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -2254,7 +2385,8 @@ type TronTransactionCondition struct {
 	FieldSource TronTransactionConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -2365,8 +2497,8 @@ type PolicyNewParamsRule struct {
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "personal_sign", "eth_sign7702Authorization",
 	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction",
-	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "earn_deposit",
-	// "earn_withdraw", "transfer", "\*".
+	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "raw_sign",
+	// "earn_deposit", "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod      `json:"method,omitzero" api:"required"`
 	Name   string            `json:"name" api:"required"`
 	ID     param.Opt[string] `json:"id,omitzero"`

@@ -807,7 +807,9 @@ type IntentResponseUnionRequestDetailsBody struct {
 	// [SparkCreateLightningInvoiceRpcInputParamsResp],
 	// [SparkPayLightningInvoiceRpcInputParamsResp],
 	// [SparkSignMessageWithIdentityKeyRpcInputParamsResp],
-	// [PrivateKeyExportInputResp], [SeedPhraseExportInputResp]
+	// [TronSignTransactionRpcInputParamsResp],
+	// [TronSendTransactionRpcInputParamsResp], [PrivateKeyExportInputResp],
+	// [SeedPhraseExportInputResp]
 	Params    IntentResponseUnionRequestDetailsBodyParams `json:"params"`
 	Address   string                                      `json:"address"`
 	ChainType string                                      `json:"chain_type"`
@@ -962,6 +964,8 @@ type IntentResponseUnionRequestDetailsBodyParams struct {
 	PreferSpark bool `json:"prefer_spark"`
 	// This field is from variant [SparkSignMessageWithIdentityKeyRpcInputParamsResp].
 	Compact bool `json:"compact"`
+	// This field is a union of [TronRawDataForSignResp], [TronRawDataForSendResp]
+	RawData IntentResponseUnionRequestDetailsBodyParamsRawData `json:"raw_data"`
 	// This field is from variant [PrivateKeyExportInputResp].
 	EncryptionType HpkeEncryption `json:"encryption_type"`
 	// This field is from variant [PrivateKeyExportInputResp].
@@ -1001,6 +1005,7 @@ type IntentResponseUnionRequestDetailsBodyParams struct {
 		AmountSatsToSend        respjson.Field
 		PreferSpark             respjson.Field
 		Compact                 respjson.Field
+		RawData                 respjson.Field
 		EncryptionType          respjson.Field
 		RecipientPublicKey      respjson.Field
 		ExportSeedPhrase        respjson.Field
@@ -1090,6 +1095,38 @@ type IntentResponseUnionRequestDetailsBodyParamsTransaction struct {
 }
 
 func (r *IntentResponseUnionRequestDetailsBodyParamsTransaction) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// IntentResponseUnionRequestDetailsBodyParamsRawData is an implicit subunion of
+// [IntentResponseUnion]. IntentResponseUnionRequestDetailsBodyParamsRawData
+// provides convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [IntentResponseUnion].
+type IntentResponseUnionRequestDetailsBodyParamsRawData struct {
+	Contract      []TronContractUnionResp `json:"contract"`
+	Expiration    int64                   `json:"expiration"`
+	RefBlockBytes string                  `json:"ref_block_bytes"`
+	RefBlockHash  string                  `json:"ref_block_hash"`
+	CallValue     int64                   `json:"call_value"`
+	Data          string                  `json:"data"`
+	FeeLimit      int64                   `json:"fee_limit"`
+	Timestamp     int64                   `json:"timestamp"`
+	JSON          struct {
+		Contract      respjson.Field
+		Expiration    respjson.Field
+		RefBlockBytes respjson.Field
+		RefBlockHash  respjson.Field
+		CallValue     respjson.Field
+		Data          respjson.Field
+		FeeLimit      respjson.Field
+		Timestamp     respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (r *IntentResponseUnionRequestDetailsBodyParamsRawData) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
