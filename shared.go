@@ -208,3 +208,5 @@ func (r SuccessResponse) RawJSON() string { return r.JSON.raw }
 func (r *SuccessResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+type TronHexAddress = string
