@@ -6493,11 +6493,13 @@ type TronSendTransactionRpcResponseData struct {
 	Caip2         Caip2  `json:"caip2" api:"required"`
 	Hash          string `json:"hash" api:"required"`
 	TransactionID string `json:"transaction_id" api:"required"`
+	ReferenceID   string `json:"reference_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2         respjson.Field
 		Hash          respjson.Field
 		TransactionID respjson.Field
+		ReferenceID   respjson.Field
 		ExtraFields   map[string]respjson.Field
 		raw           string
 	} `json:"-"`
