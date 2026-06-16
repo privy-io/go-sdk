@@ -1415,6 +1415,7 @@ const (
 	PolicyMethodWalletSendCalls          PolicyMethod = "wallet_sendCalls"
 	PolicyMethodSignTransaction          PolicyMethod = "signTransaction"
 	PolicyMethodSignAndSendTransaction   PolicyMethod = "signAndSendTransaction"
+	PolicyMethodSignMessage              PolicyMethod = "signMessage"
 	PolicyMethodExportPrivateKey         PolicyMethod = "exportPrivateKey"
 	PolicyMethodExportSeedPhrase         PolicyMethod = "exportSeedPhrase"
 	PolicyMethodSignTransactionBytes     PolicyMethod = "signTransactionBytes"
@@ -1436,7 +1437,7 @@ type PolicyRuleRequestBodyResp struct {
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "personal_sign", "eth_sign7702Authorization",
-	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction",
+	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
 	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "raw_sign",
 	// "earn_deposit", "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod `json:"method" api:"required"`
@@ -1480,7 +1481,7 @@ type PolicyRuleRequestBody struct {
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "personal_sign", "eth_sign7702Authorization",
-	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction",
+	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
 	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "raw_sign",
 	// "earn_deposit", "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod `json:"method,omitzero" api:"required"`
@@ -1509,7 +1510,7 @@ type PolicyRuleResponse struct {
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "personal_sign", "eth_sign7702Authorization",
-	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction",
+	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
 	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "raw_sign",
 	// "earn_deposit", "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod `json:"method" api:"required"`
@@ -2496,7 +2497,7 @@ type PolicyNewParamsRule struct {
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "personal_sign", "eth_sign7702Authorization",
-	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction",
+	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
 	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "raw_sign",
 	// "earn_deposit", "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod      `json:"method,omitzero" api:"required"`
