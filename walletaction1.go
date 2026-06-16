@@ -647,6 +647,10 @@ type SwapActionResponse struct {
 	Type SwapActionResponseType `json:"type" api:"required"`
 	// The ID of the wallet involved in the action.
 	WalletID string `json:"wallet_id" api:"required"`
+	// Recipient address on the destination chain. Present for cross-chain swaps. May
+	// differ from the source wallet address when swapping between chain types (e.g.
+	// EVM to Solana).
+	DestinationAddress string `json:"destination_address"`
 	// Destination chain CAIP-2 identifier. Present for cross-chain swaps.
 	DestinationCaip2 string `json:"destination_caip2"`
 	// Estimated fee breakdown from the provider quote. Only present for cross-chain
@@ -667,25 +671,26 @@ type SwapActionResponse struct {
 	Steps []WalletActionStepUnion `json:"steps"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		ID               respjson.Field
-		Caip2            respjson.Field
-		CreatedAt        respjson.Field
-		InputAmount      respjson.Field
-		InputToken       respjson.Field
-		OutputAmount     respjson.Field
-		OutputToken      respjson.Field
-		Status           respjson.Field
-		Type             respjson.Field
-		WalletID         respjson.Field
-		DestinationCaip2 respjson.Field
-		EstimatedFees    respjson.Field
-		EstimatedGas     respjson.Field
-		FailureReason    respjson.Field
-		Fees             respjson.Field
-		Gas              respjson.Field
-		Steps            respjson.Field
-		ExtraFields      map[string]respjson.Field
-		raw              string
+		ID                 respjson.Field
+		Caip2              respjson.Field
+		CreatedAt          respjson.Field
+		InputAmount        respjson.Field
+		InputToken         respjson.Field
+		OutputAmount       respjson.Field
+		OutputToken        respjson.Field
+		Status             respjson.Field
+		Type               respjson.Field
+		WalletID           respjson.Field
+		DestinationAddress respjson.Field
+		DestinationCaip2   respjson.Field
+		EstimatedFees      respjson.Field
+		EstimatedGas       respjson.Field
+		FailureReason      respjson.Field
+		Fees               respjson.Field
+		Gas                respjson.Field
+		Steps              respjson.Field
+		ExtraFields        map[string]respjson.Field
+		raw                string
 	} `json:"-"`
 }
 
@@ -824,8 +829,9 @@ type WalletActionResponseUnion struct {
 	Status WalletActionStatus `json:"status"`
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
 	// "earn_incentive_claim".
-	Type     string `json:"type"`
-	WalletID string `json:"wallet_id"`
+	Type               string `json:"type"`
+	WalletID           string `json:"wallet_id"`
+	DestinationAddress string `json:"destination_address"`
 	// This field is from variant [SwapActionResponse].
 	DestinationCaip2 string             `json:"destination_caip2"`
 	EstimatedFees    []FeeLineItemUnion `json:"estimated_fees"`
@@ -837,8 +843,6 @@ type WalletActionResponseUnion struct {
 	// This field is from variant [SwapActionResponse].
 	Gas   Gas                     `json:"gas"`
 	Steps []WalletActionStepUnion `json:"steps"`
-	// This field is from variant [TransferActionResponse].
-	DestinationAddress string `json:"destination_address"`
 	// This field is from variant [TransferActionResponse].
 	DestinationAmount string `json:"destination_amount"`
 	// This field is from variant [TransferActionResponse].
@@ -878,6 +882,7 @@ type WalletActionResponseUnion struct {
 		Status              respjson.Field
 		Type                respjson.Field
 		WalletID            respjson.Field
+		DestinationAddress  respjson.Field
 		DestinationCaip2    respjson.Field
 		EstimatedFees       respjson.Field
 		EstimatedGas        respjson.Field
@@ -885,7 +890,6 @@ type WalletActionResponseUnion struct {
 		Fees                respjson.Field
 		Gas                 respjson.Field
 		Steps               respjson.Field
-		DestinationAddress  respjson.Field
 		DestinationAmount   respjson.Field
 		SourceChain         respjson.Field
 		DestinationAsset    respjson.Field

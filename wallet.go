@@ -6414,10 +6414,12 @@ func (r *TronSendTransactionRpcInput) UnmarshalJSON(data []byte) error {
 type TronSendTransactionRpcInputParamsResp struct {
 	// Tron raw_data for tron_sendTransaction. Block reference fields are optional;
 	// Privy fetches fresh values if omitted.
-	RawData TronRawDataForSendResp `json:"raw_data" api:"required"`
+	RawData     TronRawDataForSendResp `json:"raw_data" api:"required"`
+	ReferenceID string                 `json:"reference_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		RawData     respjson.Field
+		ReferenceID respjson.Field
 		ExtraFields map[string]respjson.Field
 		raw         string
 	} `json:"-"`
@@ -6445,7 +6447,8 @@ func (r TronSendTransactionRpcInputParamsResp) ToParam() TronSendTransactionRpcI
 type TronSendTransactionRpcInputParams struct {
 	// Tron raw_data for tron_sendTransaction. Block reference fields are optional;
 	// Privy fetches fresh values if omitted.
-	RawData TronRawDataForSend `json:"raw_data,omitzero" api:"required"`
+	RawData     TronRawDataForSend `json:"raw_data,omitzero" api:"required"`
+	ReferenceID param.Opt[string]  `json:"reference_id,omitzero"`
 	paramObj
 }
 
@@ -6488,10 +6491,12 @@ const (
 type TronSendTransactionRpcResponseData struct {
 	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
 	Caip2         Caip2  `json:"caip2" api:"required"`
+	Hash          string `json:"hash" api:"required"`
 	TransactionID string `json:"transaction_id" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2         respjson.Field
+		Hash          respjson.Field
 		TransactionID respjson.Field
 		ExtraFields   map[string]respjson.Field
 		raw           string
@@ -8165,6 +8170,8 @@ type WalletRpcRequestBodyUnionRespParams struct {
 	Compact bool `json:"compact"`
 	// This field is a union of [TronRawDataForSignResp], [TronRawDataForSendResp]
 	RawData WalletRpcRequestBodyUnionRespParamsRawData `json:"raw_data"`
+	// This field is from variant [TronSendTransactionRpcInputParamsResp].
+	ReferenceID string `json:"reference_id"`
 	// This field is from variant [PrivateKeyExportInputResp].
 	EncryptionType HpkeEncryption `json:"encryption_type"`
 	// This field is from variant [PrivateKeyExportInputResp].
@@ -8205,6 +8212,7 @@ type WalletRpcRequestBodyUnionRespParams struct {
 		PreferSpark             respjson.Field
 		Compact                 respjson.Field
 		RawData                 respjson.Field
+		ReferenceID             respjson.Field
 		EncryptionType          respjson.Field
 		RecipientPublicKey      respjson.Field
 		ExportSeedPhrase        respjson.Field

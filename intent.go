@@ -966,6 +966,8 @@ type IntentResponseUnionRequestDetailsBodyParams struct {
 	Compact bool `json:"compact"`
 	// This field is a union of [TronRawDataForSignResp], [TronRawDataForSendResp]
 	RawData IntentResponseUnionRequestDetailsBodyParamsRawData `json:"raw_data"`
+	// This field is from variant [TronSendTransactionRpcInputParamsResp].
+	ReferenceID string `json:"reference_id"`
 	// This field is from variant [PrivateKeyExportInputResp].
 	EncryptionType HpkeEncryption `json:"encryption_type"`
 	// This field is from variant [PrivateKeyExportInputResp].
@@ -1006,6 +1008,7 @@ type IntentResponseUnionRequestDetailsBodyParams struct {
 		PreferSpark             respjson.Field
 		Compact                 respjson.Field
 		RawData                 respjson.Field
+		ReferenceID             respjson.Field
 		EncryptionType          respjson.Field
 		RecipientPublicKey      respjson.Field
 		ExportSeedPhrase        respjson.Field
