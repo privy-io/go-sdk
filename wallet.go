@@ -2563,10 +2563,10 @@ func (r *GetByWalletAddressRequestBody) UnmarshalJSON(data []byte) error {
 type HDInitInput struct {
 	// The address of the wallet to import.
 	Address string `json:"address" api:"required"`
-	// The chain type of the wallet to import. Currently supports `ethereum` and
-	// `solana`.
+	// The chain type of the wallet to import. Supports `ethereum`, `solana`,
+	// `stellar`, `tron`, `sui`, and `aptos`.
 	//
-	// Any of "ethereum", "solana".
+	// Any of "ethereum", "solana", "stellar", "tron", "sui", "aptos".
 	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
 	//
@@ -2603,10 +2603,10 @@ const (
 type HDSubmitInput struct {
 	// The address of the wallet to import.
 	Address string `json:"address" api:"required"`
-	// The chain type of the wallet to import. Currently supports `ethereum` and
-	// `solana`.
+	// The chain type of the wallet to import. Supports `ethereum`, `solana`,
+	// `stellar`, `tron`, `sui`, and `aptos`.
 	//
-	// Any of "ethereum", "solana".
+	// Any of "ethereum", "solana", "stellar", "tron", "sui", "aptos".
 	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
 	// The encrypted entropy of the wallet to import.
 	Ciphertext string `json:"ciphertext" api:"required"`
@@ -2886,10 +2886,10 @@ func (r *PrivateKeyExportInput) UnmarshalJSON(data []byte) error {
 type PrivateKeyInitInput struct {
 	// The address of the wallet to import.
 	Address string `json:"address" api:"required"`
-	// The chain type of the wallet to import. Currently supports `ethereum` and
-	// `solana`.
+	// The chain type of the wallet to import. Supports `ethereum`, `solana`,
+	// `stellar`, `tron`, `sui`, and `aptos`.
 	//
-	// Any of "ethereum", "solana".
+	// Any of "ethereum", "solana", "stellar", "tron", "sui", "aptos".
 	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
 	//
@@ -2921,10 +2921,10 @@ const (
 type PrivateKeySubmitInput struct {
 	// The address of the wallet to import.
 	Address string `json:"address" api:"required"`
-	// The chain type of the wallet to import. Currently supports `ethereum` and
-	// `solana`.
+	// The chain type of the wallet to import. Supports `ethereum`, `solana`,
+	// `stellar`, `tron`, `sui`, and `aptos`.
 	//
-	// Any of "ethereum", "solana".
+	// Any of "ethereum", "solana", "stellar", "tron", "sui", "aptos".
 	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
 	// The encrypted entropy of the wallet to import.
 	Ciphertext string `json:"ciphertext" api:"required"`
@@ -7794,13 +7794,17 @@ func (r *WalletExportResponseBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// The chain type of the wallet to import. Currently supports `ethereum` and
-// `solana`.
+// The chain type of the wallet to import. Supports `ethereum`, `solana`,
+// `stellar`, `tron`, `sui`, and `aptos`.
 type WalletImportSupportedChains string
 
 const (
 	WalletImportSupportedChainsEthereum WalletImportSupportedChains = "ethereum"
 	WalletImportSupportedChainsSolana   WalletImportSupportedChains = "solana"
+	WalletImportSupportedChainsStellar  WalletImportSupportedChains = "stellar"
+	WalletImportSupportedChainsTron     WalletImportSupportedChains = "tron"
+	WalletImportSupportedChainsSui      WalletImportSupportedChains = "sui"
+	WalletImportSupportedChainsAptos    WalletImportSupportedChains = "aptos"
 )
 
 // WalletRpcRequestBodyUnionResp contains all possible properties and values from
