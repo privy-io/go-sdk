@@ -831,6 +831,8 @@ type IntentResponseUnionRequestDetailsBody struct {
 	// This field is from variant [TransferRequestBodyResp].
 	Source TokenTransferSourceUnionResp `json:"source"`
 	// This field is from variant [TransferRequestBodyResp].
+	Amount string `json:"amount"`
+	// This field is from variant [TransferRequestBodyResp].
 	AmountType AmountType `json:"amount_type"`
 	// This field is from variant [TransferRequestBodyResp].
 	FeeConfiguration FeeConfigurationResp `json:"fee_configuration"`
@@ -876,6 +878,7 @@ type IntentResponseUnionRequestDetailsBody struct {
 		Network                respjson.Field
 		Destination            respjson.Field
 		Source                 respjson.Field
+		Amount                 respjson.Field
 		AmountType             respjson.Field
 		FeeConfiguration       respjson.Field
 		SlippageBps            respjson.Field
@@ -1112,7 +1115,6 @@ type IntentResponseUnionRequestDetailsBodyParamsRawData struct {
 	Expiration    int64                   `json:"expiration"`
 	RefBlockBytes string                  `json:"ref_block_bytes"`
 	RefBlockHash  string                  `json:"ref_block_hash"`
-	CallValue     int64                   `json:"call_value"`
 	Data          string                  `json:"data"`
 	FeeLimit      int64                   `json:"fee_limit"`
 	Timestamp     int64                   `json:"timestamp"`
@@ -1121,7 +1123,6 @@ type IntentResponseUnionRequestDetailsBodyParamsRawData struct {
 		Expiration    respjson.Field
 		RefBlockBytes respjson.Field
 		RefBlockHash  respjson.Field
-		CallValue     respjson.Field
 		Data          respjson.Field
 		FeeLimit      respjson.Field
 		Timestamp     respjson.Field

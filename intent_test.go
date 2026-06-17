@@ -259,6 +259,7 @@ func TestIntentTransferWithOptionalParams(t *testing.T) {
 						Chain:  "base",
 					},
 				},
+				Amount:     privyclient.String("10.5"),
 				AmountType: privyclient.AmountTypeExactInput,
 				FeeConfiguration: privyclient.FeeConfiguration{
 					Type:  privyclient.FeeConfigurationTypeTotalFeeBps,

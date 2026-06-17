@@ -714,9 +714,9 @@ type TransferActionResponse struct {
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Recipient address.
 	DestinationAddress string `json:"destination_address" api:"required"`
-	// Amount received on the destination chain. Set at creation for same-chain
-	// transfers. Null until fill confirmation for cross-chain or cross-asset
-	// transfers.
+	// Amount received on the destination chain. For exact_output cross-chain
+	// transfers, set at creation (the guaranteed exact amount). For exact_input
+	// cross-chain transfers, null until fill confirmation.
 	DestinationAmount string `json:"destination_amount" api:"required"`
 	// Chain name (e.g. "base", "ethereum").
 	SourceChain string `json:"source_chain" api:"required"`
@@ -728,6 +728,10 @@ type TransferActionResponse struct {
 	Type TransferActionResponseType `json:"type" api:"required"`
 	// The ID of the wallet involved in the action.
 	WalletID string `json:"wallet_id" api:"required"`
+	// Whether the amount refers to the input token or output token.
+	//
+	// Any of "exact_input", "exact_output".
+	AmountType AmountType `json:"amount_type"`
 	// Destination asset for cross-asset transfers. Omitted for same-asset transfers.
 	DestinationAsset string `json:"destination_asset"`
 	// Destination chain for cross-chain transfers. Omitted for same-chain transfers.
@@ -746,8 +750,8 @@ type TransferActionResponse struct {
 	// Gas cost for a blockchain action. Includes both raw base-unit amount and a
 	// human-readable decimal string, plus the gas token symbol.
 	Gas Gas `json:"gas" api:"nullable"`
-	// Decimal amount sent on the source chain (e.g. "1.5"). Omitted for exact_output
-	// cross-chain transfers until the source amount is determined.
+	// Decimal amount sent on the source chain (e.g. "1.5"). For exact_output
+	// cross-chain transfers, null until fill confirmation.
 	SourceAmount string `json:"source_amount"`
 	// Asset identifier (e.g. "usdc", "eth"). Present when the transfer was initiated
 	// with a named asset; omitted for custom-token transfers.
@@ -770,6 +774,7 @@ type TransferActionResponse struct {
 		Status              respjson.Field
 		Type                respjson.Field
 		WalletID            respjson.Field
+		AmountType          respjson.Field
 		DestinationAsset    respjson.Field
 		DestinationChain    respjson.Field
 		EstimatedFees       respjson.Field
@@ -848,6 +853,8 @@ type WalletActionResponseUnion struct {
 	// This field is from variant [TransferActionResponse].
 	SourceChain string `json:"source_chain"`
 	// This field is from variant [TransferActionResponse].
+	AmountType AmountType `json:"amount_type"`
+	// This field is from variant [TransferActionResponse].
 	DestinationAsset string `json:"destination_asset"`
 	// This field is from variant [TransferActionResponse].
 	DestinationChain string `json:"destination_chain"`
@@ -892,6 +899,7 @@ type WalletActionResponseUnion struct {
 		Steps               respjson.Field
 		DestinationAmount   respjson.Field
 		SourceChain         respjson.Field
+		AmountType          respjson.Field
 		DestinationAsset    respjson.Field
 		DestinationChain    respjson.Field
 		SourceAmount        respjson.Field
