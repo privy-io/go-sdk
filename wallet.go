@@ -387,8 +387,10 @@ const (
 // address (Solana). Use this variant for tokens that are not first-class assets.
 type CustomTokenTransferSourceResp struct {
 	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
-	// USDC, "0.01" for 0.01 ETH). Not in the smallest on-chain unit (wei, lamports,
-	// etc.). Maximum 100 characters.
+	// USDC, "0.01" for 0.01 ETH). For exact_input, specifies the amount to send. Not
+	// in the smallest on-chain unit (wei, lamports, etc.). Maximum 100 characters.
+	//
+	// Deprecated: deprecated
 	Amount string `json:"amount" api:"required"`
 	// The token contract address (EVM) or mint address (Solana) of the asset to
 	// transfer.
@@ -429,8 +431,10 @@ func (r CustomTokenTransferSourceResp) ToParam() CustomTokenTransferSource {
 // The properties Amount, AssetAddress, Chain are required.
 type CustomTokenTransferSource struct {
 	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
-	// USDC, "0.01" for 0.01 ETH). Not in the smallest on-chain unit (wei, lamports,
-	// etc.). Maximum 100 characters.
+	// USDC, "0.01" for 0.01 ETH). For exact_input, specifies the amount to send. Not
+	// in the smallest on-chain unit (wei, lamports, etc.). Maximum 100 characters.
+	//
+	// Deprecated: deprecated
 	Amount string `json:"amount" api:"required"`
 	// The token contract address (EVM) or mint address (Solana) of the asset to
 	// transfer.
@@ -2687,8 +2691,10 @@ type Hex = string
 // variant for first-class assets maintained by Privy.
 type NamedTokenTransferSourceResp struct {
 	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
-	// USDC, "0.01" for 0.01 ETH). Not in the smallest on-chain unit (wei, lamports,
-	// etc.). Maximum 100 characters.
+	// USDC, "0.01" for 0.01 ETH). For exact_input, specifies the amount to send. Not
+	// in the smallest on-chain unit (wei, lamports, etc.). Maximum 100 characters.
+	//
+	// Deprecated: deprecated
 	Amount string `json:"amount" api:"required"`
 	// The asset to transfer. Supported: 'usdc', 'usdb', 'usdt' (stablecoins), 'eth'
 	// (native Ethereum), 'sol' (native Solana).
@@ -2729,8 +2735,10 @@ func (r NamedTokenTransferSourceResp) ToParam() NamedTokenTransferSource {
 // The properties Amount, Asset, Chain are required.
 type NamedTokenTransferSource struct {
 	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
-	// USDC, "0.01" for 0.01 ETH). Not in the smallest on-chain unit (wei, lamports,
-	// etc.). Maximum 100 characters.
+	// USDC, "0.01" for 0.01 ETH). For exact_input, specifies the amount to send. Not
+	// in the smallest on-chain unit (wei, lamports, etc.). Maximum 100 characters.
+	//
+	// Deprecated: deprecated
 	Amount string `json:"amount" api:"required"`
 	// The asset to transfer. Supported: 'usdc', 'usdb', 'usdt' (stablecoins), 'eth'
 	// (native Ethereum), 'sol' (native Solana).
@@ -6033,6 +6041,10 @@ type TransferRequestBodyResp struct {
 	// The source asset, amount, and chain for a token transfer. Specify either `asset`
 	// (named) or `asset_address` (custom), not both.
 	Source TokenTransferSourceUnionResp `json:"source" api:"required"`
+	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
+	// USDC). For exact_input, the amount to send. For exact_output, the exact amount
+	// to receive. Takes precedence over source.amount when both are provided.
+	Amount string `json:"amount"`
 	// Whether the amount refers to the input token or output token.
 	//
 	// Any of "exact_input", "exact_output".
@@ -6046,6 +6058,7 @@ type TransferRequestBodyResp struct {
 	JSON struct {
 		Destination      respjson.Field
 		Source           respjson.Field
+		Amount           respjson.Field
 		AmountType       respjson.Field
 		FeeConfiguration respjson.Field
 		SlippageBps      respjson.Field
@@ -6079,6 +6092,10 @@ type TransferRequestBody struct {
 	// The source asset, amount, and chain for a token transfer. Specify either `asset`
 	// (named) or `asset_address` (custom), not both.
 	Source TokenTransferSourceUnion `json:"source,omitzero" api:"required"`
+	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
+	// USDC). For exact_input, the amount to send. For exact_output, the exact amount
+	// to receive. Takes precedence over source.amount when both are provided.
+	Amount param.Opt[string] `json:"amount,omitzero"`
 	// Maximum allowed slippage in basis points (1 bps = 0.01%). Only applicable for
 	// cross-chain or cross-asset transfers; omit to use the provider default.
 	SlippageBps param.Opt[int64] `json:"slippage_bps,omitzero"`
@@ -6119,6 +6136,10 @@ type TronContractUnionResp struct {
 	// This field is from variant [TronTriggerSmartContractResp].
 	CallTokenValue int64 `json:"call_token_value"`
 	// This field is from variant [TronTriggerSmartContractResp].
+	CallValue int64 `json:"call_value"`
+	// This field is from variant [TronTriggerSmartContractResp].
+	Data string `json:"data"`
+	// This field is from variant [TronTriggerSmartContractResp].
 	TokenID int64 `json:"token_id"`
 	JSON    struct {
 		Amount          respjson.Field
@@ -6127,6 +6148,8 @@ type TronContractUnionResp struct {
 		Type            respjson.Field
 		ContractAddress respjson.Field
 		CallTokenValue  respjson.Field
+		CallValue       respjson.Field
+		Data            respjson.Field
 		TokenID         respjson.Field
 		raw             string
 	} `json:"-"`
@@ -6221,7 +6244,6 @@ func init() {
 // Privy fetches fresh values if omitted.
 type TronRawDataForSendResp struct {
 	Contract      []TronContractUnionResp `json:"contract" api:"required"`
-	CallValue     int64                   `json:"call_value"`
 	Data          string                  `json:"data"`
 	Expiration    int64                   `json:"expiration"`
 	FeeLimit      int64                   `json:"fee_limit"`
@@ -6231,7 +6253,6 @@ type TronRawDataForSendResp struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Contract      respjson.Field
-		CallValue     respjson.Field
 		Data          respjson.Field
 		Expiration    respjson.Field
 		FeeLimit      respjson.Field
@@ -6264,7 +6285,6 @@ func (r TronRawDataForSendResp) ToParam() TronRawDataForSend {
 // The property Contract is required.
 type TronRawDataForSend struct {
 	Contract      []TronContractUnion `json:"contract,omitzero" api:"required"`
-	CallValue     param.Opt[int64]    `json:"call_value,omitzero"`
 	Data          param.Opt[string]   `json:"data,omitzero"`
 	Expiration    param.Opt[int64]    `json:"expiration,omitzero"`
 	FeeLimit      param.Opt[int64]    `json:"fee_limit,omitzero"`
@@ -6289,7 +6309,6 @@ type TronRawDataForSignResp struct {
 	Expiration    int64                   `json:"expiration" api:"required"`
 	RefBlockBytes string                  `json:"ref_block_bytes" api:"required"`
 	RefBlockHash  string                  `json:"ref_block_hash" api:"required"`
-	CallValue     int64                   `json:"call_value"`
 	Data          string                  `json:"data"`
 	FeeLimit      int64                   `json:"fee_limit"`
 	Timestamp     int64                   `json:"timestamp"`
@@ -6299,7 +6318,6 @@ type TronRawDataForSignResp struct {
 		Expiration    respjson.Field
 		RefBlockBytes respjson.Field
 		RefBlockHash  respjson.Field
-		CallValue     respjson.Field
 		Data          respjson.Field
 		FeeLimit      respjson.Field
 		Timestamp     respjson.Field
@@ -6332,7 +6350,6 @@ type TronRawDataForSign struct {
 	Expiration    int64               `json:"expiration" api:"required"`
 	RefBlockBytes string              `json:"ref_block_bytes" api:"required"`
 	RefBlockHash  string              `json:"ref_block_hash" api:"required"`
-	CallValue     param.Opt[int64]    `json:"call_value,omitzero"`
 	Data          param.Opt[string]   `json:"data,omitzero"`
 	FeeLimit      param.Opt[int64]    `json:"fee_limit,omitzero"`
 	Timestamp     param.Opt[int64]    `json:"timestamp,omitzero"`
@@ -6747,6 +6764,8 @@ type TronTriggerSmartContractResp struct {
 	// Any of "TriggerSmartContract".
 	Type           TronTriggerSmartContractType `json:"type" api:"required"`
 	CallTokenValue int64                        `json:"call_token_value"`
+	CallValue      int64                        `json:"call_value"`
+	Data           string                       `json:"data"`
 	TokenID        int64                        `json:"token_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -6754,6 +6773,8 @@ type TronTriggerSmartContractResp struct {
 		OwnerAddress    respjson.Field
 		Type            respjson.Field
 		CallTokenValue  respjson.Field
+		CallValue       respjson.Field
+		Data            respjson.Field
 		TokenID         respjson.Field
 		ExtraFields     map[string]respjson.Field
 		raw             string
@@ -6795,6 +6816,8 @@ type TronTriggerSmartContract struct {
 	// Any of "TriggerSmartContract".
 	Type           TronTriggerSmartContractType `json:"type,omitzero" api:"required"`
 	CallTokenValue param.Opt[int64]             `json:"call_token_value,omitzero"`
+	CallValue      param.Opt[int64]             `json:"call_value,omitzero"`
+	Data           param.Opt[string]            `json:"data,omitzero"`
 	TokenID        param.Opt[int64]             `json:"token_id,omitzero"`
 	paramObj
 }
@@ -8318,7 +8341,6 @@ type WalletRpcRequestBodyUnionRespParamsRawData struct {
 	Expiration    int64                   `json:"expiration"`
 	RefBlockBytes string                  `json:"ref_block_bytes"`
 	RefBlockHash  string                  `json:"ref_block_hash"`
-	CallValue     int64                   `json:"call_value"`
 	Data          string                  `json:"data"`
 	FeeLimit      int64                   `json:"fee_limit"`
 	Timestamp     int64                   `json:"timestamp"`
@@ -8327,7 +8349,6 @@ type WalletRpcRequestBodyUnionRespParamsRawData struct {
 		Expiration    respjson.Field
 		RefBlockBytes respjson.Field
 		RefBlockHash  respjson.Field
-		CallValue     respjson.Field
 		Data          respjson.Field
 		FeeLimit      respjson.Field
 		Timestamp     respjson.Field
