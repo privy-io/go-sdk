@@ -641,6 +641,7 @@ type TestAccount struct {
 	OtpCode     string `json:"otp_code" api:"required"`
 	PhoneNumber string `json:"phone_number" api:"required"`
 	UpdatedAt   string `json:"updated_at" api:"required"`
+	Name        string `json:"name" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID          respjson.Field
@@ -649,6 +650,7 @@ type TestAccount struct {
 		OtpCode     respjson.Field
 		PhoneNumber respjson.Field
 		UpdatedAt   respjson.Field
+		Name        respjson.Field
 		ExtraFields map[string]respjson.Field
 		raw         string
 	} `json:"-"`
