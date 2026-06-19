@@ -3470,6 +3470,42 @@ const (
 	WalletRecoverySetupWebhookPayloadTypeWalletRecoverySetup WalletRecoverySetupWebhookPayloadType = "wallet.recovery_setup"
 )
 
+// Payload for the wallet.restored webhook event.
+type WalletRestoredWebhookPayload struct {
+	// The chain type of the restored wallet.
+	ChainType string `json:"chain_type" api:"required"`
+	// The type of webhook event.
+	//
+	// Any of "wallet.restored".
+	Type WalletRestoredWebhookPayloadType `json:"type" api:"required"`
+	// The address of the restored wallet.
+	WalletAddress string `json:"wallet_address" api:"required"`
+	// The ID of the restored wallet.
+	WalletID string `json:"wallet_id" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ChainType     respjson.Field
+		Type          respjson.Field
+		WalletAddress respjson.Field
+		WalletID      respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletRestoredWebhookPayload) RawJSON() string { return r.JSON.raw }
+func (r *WalletRestoredWebhookPayload) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The type of webhook event.
+type WalletRestoredWebhookPayloadType string
+
+const (
+	WalletRestoredWebhookPayloadTypeWalletRestored WalletRestoredWebhookPayloadType = "wallet.restored"
+)
+
 // Payload for the yield.claim.confirmed webhook event.
 type YieldClaimConfirmedWebhookPayload struct {
 	Caip2         string             `json:"caip2" api:"required"`
@@ -3621,7 +3657,7 @@ const (
 // [UserOperationCompletedWebhookPayload], [WalletArchivedWebhookPayload],
 // [FundsDepositedWebhookPayload], [FundsWithdrawnWebhookPayload],
 // [PrivateKeyExportWebhookPayload], [WalletRecoveredWebhookPayload],
-// [WalletRecoverySetupWebhookPayload],
+// [WalletRecoverySetupWebhookPayload], [WalletRestoredWebhookPayload],
 // [WalletActionEarnDepositCreatedWebhookPayload],
 // [WalletActionEarnDepositFailedWebhookPayload],
 // [WalletActionEarnDepositRejectedWebhookPayload],
@@ -3672,8 +3708,9 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	// "user.updated_account", "user.wallet_created", "user_operation.completed",
 	// "wallet.archived", "wallet.funds_deposited", "wallet.funds_withdrawn",
 	// "wallet.private_key_export", "wallet.recovered", "wallet.recovery_setup",
-	// "wallet_action.earn_deposit.created", "wallet_action.earn_deposit.failed",
-	// "wallet_action.earn_deposit.rejected", "wallet_action.earn_deposit.succeeded",
+	// "wallet.restored", "wallet_action.earn_deposit.created",
+	// "wallet_action.earn_deposit.failed", "wallet_action.earn_deposit.rejected",
+	// "wallet_action.earn_deposit.succeeded",
 	// "wallet_action.earn_incentive_claim.created",
 	// "wallet_action.earn_incentive_claim.failed",
 	// "wallet_action.earn_incentive_claim.rejected",
@@ -3734,11 +3771,10 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	// This field is from variant [UserOperationCompletedWebhookPayload].
 	UserOpHash string `json:"user_op_hash"`
 	// This field is from variant [WalletArchivedWebhookPayload].
-	ArchivedAt float64 `json:"archived_at"`
-	// This field is from variant [WalletArchivedWebhookPayload].
-	ChainType     string `json:"chain_type"`
-	WalletAddress string `json:"wallet_address"`
-	Amount        string `json:"amount"`
+	ArchivedAt    float64 `json:"archived_at"`
+	ChainType     string  `json:"chain_type"`
+	WalletAddress string  `json:"wallet_address"`
+	Amount        string  `json:"amount"`
 	// This field is a union of [WalletFundsAssetUnion], [string], [string], [string],
 	// [string], [string], [string], [string], [string]
 	Asset UnsafeUnwrapWebhookEventUnionAsset `json:"asset"`
@@ -3901,6 +3937,7 @@ func (FundsWithdrawnWebhookPayload) implUnsafeUnwrapWebhookEventUnion()         
 func (PrivateKeyExportWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                        {}
 func (WalletRecoveredWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                         {}
 func (WalletRecoverySetupWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                     {}
+func (WalletRestoredWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                          {}
 func (WalletActionEarnDepositCreatedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()          {}
 func (WalletActionEarnDepositFailedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()           {}
 func (WalletActionEarnDepositRejectedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()         {}
@@ -3956,6 +3993,7 @@ func (YieldWithdrawConfirmedWebhookPayload) implUnsafeUnwrapWebhookEventUnion() 
 //	case privyclient.PrivateKeyExportWebhookPayload:
 //	case privyclient.WalletRecoveredWebhookPayload:
 //	case privyclient.WalletRecoverySetupWebhookPayload:
+//	case privyclient.WalletRestoredWebhookPayload:
 //	case privyclient.WalletActionEarnDepositCreatedWebhookPayload:
 //	case privyclient.WalletActionEarnDepositFailedWebhookPayload:
 //	case privyclient.WalletActionEarnDepositRejectedWebhookPayload:
@@ -4040,6 +4078,8 @@ func (u UnsafeUnwrapWebhookEventUnion) AsAny() anyUnsafeUnwrapWebhookEvent {
 		return u.AsWalletRecovered()
 	case "wallet.recovery_setup":
 		return u.AsWalletRecoverySetup()
+	case "wallet.restored":
+		return u.AsWalletRestored()
 	case "wallet_action.earn_deposit.created":
 		return u.AsWalletActionEarnDepositCreated()
 	case "wallet_action.earn_deposit.failed":
@@ -4226,6 +4266,11 @@ func (u UnsafeUnwrapWebhookEventUnion) AsWalletRecovered() (v WalletRecoveredWeb
 }
 
 func (u UnsafeUnwrapWebhookEventUnion) AsWalletRecoverySetup() (v WalletRecoverySetupWebhookPayload) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u UnsafeUnwrapWebhookEventUnion) AsWalletRestored() (v WalletRestoredWebhookPayload) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
