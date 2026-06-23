@@ -7,29 +7,9 @@ import (
 	"time"
 
 	"github.com/privy-io/go-sdk/internal/apijson"
-	"github.com/privy-io/go-sdk/option"
 	"github.com/privy-io/go-sdk/packages/param"
 	"github.com/privy-io/go-sdk/packages/respjson"
 )
-
-// WalletActionService contains methods and other services that help with
-// interacting with the Privy API API.
-//
-// Note, unlike clients, this service does not read variables from the environment
-// automatically. You should not instantiate this service directly, and instead use
-// the [NewWalletActionService] method instead.
-type WalletActionService struct {
-	Options []option.RequestOption
-}
-
-// NewWalletActionService generates a new service that applies the given options to
-// each request. These options are applied after the parent client's options (if
-// there is one), and before any request-specific options.
-func NewWalletActionService(opts ...option.RequestOption) (r WalletActionService) {
-	r = WalletActionService{}
-	r.Options = opts
-	return
-}
 
 // A wallet action step representing a transaction executed by a custodian (e.g.
 // Bridge).
