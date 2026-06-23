@@ -190,32 +190,33 @@ type AppResponse struct {
 	EmailAuth          bool                          `json:"email_auth" api:"required"`
 	// Configuration for embedded wallets including the mode.
 	EmbeddedWalletConfig EmbeddedWalletConfigSchema `json:"embedded_wallet_config" api:"required"`
+	// The captcha provider enabled for an app.
+	//
 	// Any of "turnstile", "hcaptcha".
-	EnabledCaptchaProvider          AppResponseEnabledCaptchaProvider `json:"enabled_captcha_provider" api:"required"`
-	EnforceWalletUis                bool                              `json:"enforce_wallet_uis" api:"required"`
-	ExternalWalletsForSignupEnabled bool                              `json:"external_wallets_for_signup_enabled" api:"required"`
-	FarcasterAuth                   bool                              `json:"farcaster_auth" api:"required"`
-	FarcasterLinkWalletsEnabled     bool                              `json:"farcaster_link_wallets_enabled" api:"required"`
-	FiatOnRampEnabled               bool                              `json:"fiat_on_ramp_enabled" api:"required"`
-	GitHubOAuth                     bool                              `json:"github_oauth" api:"required"`
-	GoogleOAuth                     bool                              `json:"google_oauth" api:"required"`
-	GuestAuth                       bool                              `json:"guest_auth" api:"required"`
-	IconURL                         string                            `json:"icon_url" api:"required"`
-	InstagramOAuth                  bool                              `json:"instagram_oauth" api:"required"`
-	LegacyWalletUiConfig            bool                              `json:"legacy_wallet_ui_config" api:"required"`
-	LineOAuth                       bool                              `json:"line_oauth" api:"required"`
-	LinkedinOAuth                   bool                              `json:"linkedin_oauth" api:"required"`
-	LogoURL                         string                            `json:"logo_url" api:"required"`
-	MaxLinkedWalletsPerUser         float64                           `json:"max_linked_wallets_per_user" api:"required"`
-	MergeAccountsByEmail            bool                              `json:"merge_accounts_by_email" api:"required"`
-	// Any of "sms", "totp", "passkey".
-	MfaMethods               []string `json:"mfa_methods" api:"required"`
-	Name                     string   `json:"name" api:"required"`
-	PasskeyAuth              bool     `json:"passkey_auth" api:"required"`
-	PasskeysForSignupEnabled bool     `json:"passkeys_for_signup_enabled" api:"required"`
-	PrivacyPolicyURL         string   `json:"privacy_policy_url" api:"required"`
-	RequireUsersAcceptTerms  bool     `json:"require_users_accept_terms" api:"required"`
-	ShowWalletLoginFirst     bool     `json:"show_wallet_login_first" api:"required"`
+	EnabledCaptchaProvider          CaptchaProvider `json:"enabled_captcha_provider" api:"required"`
+	EnforceWalletUis                bool            `json:"enforce_wallet_uis" api:"required"`
+	ExternalWalletsForSignupEnabled bool            `json:"external_wallets_for_signup_enabled" api:"required"`
+	FarcasterAuth                   bool            `json:"farcaster_auth" api:"required"`
+	FarcasterLinkWalletsEnabled     bool            `json:"farcaster_link_wallets_enabled" api:"required"`
+	FiatOnRampEnabled               bool            `json:"fiat_on_ramp_enabled" api:"required"`
+	GitHubOAuth                     bool            `json:"github_oauth" api:"required"`
+	GoogleOAuth                     bool            `json:"google_oauth" api:"required"`
+	GuestAuth                       bool            `json:"guest_auth" api:"required"`
+	IconURL                         string          `json:"icon_url" api:"required"`
+	InstagramOAuth                  bool            `json:"instagram_oauth" api:"required"`
+	LegacyWalletUiConfig            bool            `json:"legacy_wallet_ui_config" api:"required"`
+	LineOAuth                       bool            `json:"line_oauth" api:"required"`
+	LinkedinOAuth                   bool            `json:"linkedin_oauth" api:"required"`
+	LogoURL                         string          `json:"logo_url" api:"required"`
+	MaxLinkedWalletsPerUser         float64         `json:"max_linked_wallets_per_user" api:"required"`
+	MergeAccountsByEmail            bool            `json:"merge_accounts_by_email" api:"required"`
+	MfaMethods                      []MfaMethod     `json:"mfa_methods" api:"required"`
+	Name                            string          `json:"name" api:"required"`
+	PasskeyAuth                     bool            `json:"passkey_auth" api:"required"`
+	PasskeysForSignupEnabled        bool            `json:"passkeys_for_signup_enabled" api:"required"`
+	PrivacyPolicyURL                string          `json:"privacy_policy_url" api:"required"`
+	RequireUsersAcceptTerms         bool            `json:"require_users_accept_terms" api:"required"`
+	ShowWalletLoginFirst            bool            `json:"show_wallet_login_first" api:"required"`
 	// The configuration object for smart wallets.
 	SmartWalletConfig           SmartWalletConfigurationUnion `json:"smart_wallet_config" api:"required"`
 	SMSAuth                     bool                          `json:"sms_auth" api:"required"`
@@ -319,14 +320,15 @@ const (
 	AppResponseDataClassificationPublic AppResponseDataClassification = "public"
 )
 
-type AppResponseEnabledCaptchaProvider string
+type Caip2 = string
+
+// The captcha provider enabled for an app.
+type CaptchaProvider string
 
 const (
-	AppResponseEnabledCaptchaProviderTurnstile AppResponseEnabledCaptchaProvider = "turnstile"
-	AppResponseEnabledCaptchaProviderHcaptcha  AppResponseEnabledCaptchaProvider = "hcaptcha"
+	CaptchaProviderTurnstile CaptchaProvider = "turnstile"
+	CaptchaProviderHcaptcha  CaptchaProvider = "hcaptcha"
 )
-
-type Caip2 = string
 
 // A crypto currency identified by a CAIP-2 chain ID and optional asset.
 type Currency struct {
@@ -585,6 +587,15 @@ func (r GasSpendResponseBody) RawJSON() string { return r.JSON.raw }
 func (r *GasSpendResponseBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// A multi-factor authentication method supported by the app.
+type MfaMethod string
+
+const (
+	MfaMethodSMS     MfaMethod = "sms"
+	MfaMethodTotp    MfaMethod = "totp"
+	MfaMethodPasskey MfaMethod = "passkey"
+)
 
 // Allowlist invite input for a phone number.
 //

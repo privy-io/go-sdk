@@ -706,6 +706,58 @@ const (
 	SwapActionResponseTypeSwap SwapActionResponseType = "swap"
 )
 
+// A wallet action step consisting of a TVM (Tron) transaction.
+type TvmTransactionWalletActionStep struct {
+	// CAIP-2 chain identifier for the Tron network.
+	Caip2 string `json:"caip2" api:"required"`
+	// Status of a TVM (Tron) step in a wallet action.
+	//
+	// Any of "preparing", "queued", "pending", "confirmed", "rejected", "reverted",
+	// "failed".
+	Status TvmWalletActionStepStatus `json:"status" api:"required"`
+	// The Tron transaction ID. Null until broadcast.
+	TransactionID string `json:"transaction_id" api:"required"`
+	// Any of "tvm_transaction".
+	Type TvmTransactionWalletActionStepType `json:"type" api:"required"`
+	// A description of why a wallet action (or a step within a wallet action) failed.
+	FailureReason FailureReason `json:"failure_reason"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Caip2         respjson.Field
+		Status        respjson.Field
+		TransactionID respjson.Field
+		Type          respjson.Field
+		FailureReason respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TvmTransactionWalletActionStep) RawJSON() string { return r.JSON.raw }
+func (r *TvmTransactionWalletActionStep) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type TvmTransactionWalletActionStepType string
+
+const (
+	TvmTransactionWalletActionStepTypeTvmTransaction TvmTransactionWalletActionStepType = "tvm_transaction"
+)
+
+// Status of a TVM (Tron) step in a wallet action.
+type TvmWalletActionStepStatus string
+
+const (
+	TvmWalletActionStepStatusPreparing TvmWalletActionStepStatus = "preparing"
+	TvmWalletActionStepStatusQueued    TvmWalletActionStepStatus = "queued"
+	TvmWalletActionStepStatusPending   TvmWalletActionStepStatus = "pending"
+	TvmWalletActionStepStatusConfirmed TvmWalletActionStepStatus = "confirmed"
+	TvmWalletActionStepStatusRejected  TvmWalletActionStepStatus = "rejected"
+	TvmWalletActionStepStatusReverted  TvmWalletActionStepStatus = "reverted"
+	TvmWalletActionStepStatusFailed    TvmWalletActionStepStatus = "failed"
+)
+
 // Response for a transfer action.
 type TransferActionResponse struct {
 	// The ID of the wallet action.
@@ -1004,8 +1056,8 @@ const (
 
 // WalletActionStepUnion contains all possible properties and values from
 // [EvmTransactionWalletActionStep], [EvmUserOperationWalletActionStep],
-// [SvmTransactionWalletActionStep], [ExternalTransactionWalletActionStep],
-// [CustodianTransactionWalletActionStep].
+// [SvmTransactionWalletActionStep], [TvmTransactionWalletActionStep],
+// [ExternalTransactionWalletActionStep], [CustodianTransactionWalletActionStep].
 //
 // Use the [WalletActionStepUnion.AsAny] method to switch on the variant.
 //
@@ -1016,7 +1068,7 @@ type WalletActionStepUnion struct {
 	// This field is from variant [EvmTransactionWalletActionStep].
 	TransactionHash string `json:"transaction_hash"`
 	// Any of "evm_transaction", "evm_user_operation", "svm_transaction",
-	// "external_transaction", "custodian_transaction".
+	// "tvm_transaction", "external_transaction", "custodian_transaction".
 	Type string `json:"type"`
 	// This field is from variant [EvmTransactionWalletActionStep].
 	FailureReason FailureReason `json:"failure_reason"`
@@ -1030,6 +1082,8 @@ type WalletActionStepUnion struct {
 	GasCreditsChargedUsd string `json:"gas_credits_charged_usd"`
 	// This field is from variant [SvmTransactionWalletActionStep].
 	TransactionSignature string `json:"transaction_signature"`
+	// This field is from variant [TvmTransactionWalletActionStep].
+	TransactionID string `json:"transaction_id"`
 	// This field is from variant [CustodianTransactionWalletActionStep].
 	Custodian string `json:"custodian"`
 	JSON      struct {
@@ -1044,6 +1098,7 @@ type WalletActionStepUnion struct {
 		UserOperationHash     respjson.Field
 		GasCreditsChargedUsd  respjson.Field
 		TransactionSignature  respjson.Field
+		TransactionID         respjson.Field
 		Custodian             respjson.Field
 		raw                   string
 	} `json:"-"`
@@ -1058,6 +1113,7 @@ type anyWalletActionStep interface {
 func (EvmTransactionWalletActionStep) implWalletActionStepUnion()       {}
 func (EvmUserOperationWalletActionStep) implWalletActionStepUnion()     {}
 func (SvmTransactionWalletActionStep) implWalletActionStepUnion()       {}
+func (TvmTransactionWalletActionStep) implWalletActionStepUnion()       {}
 func (ExternalTransactionWalletActionStep) implWalletActionStepUnion()  {}
 func (CustodianTransactionWalletActionStep) implWalletActionStepUnion() {}
 
@@ -1067,6 +1123,7 @@ func (CustodianTransactionWalletActionStep) implWalletActionStepUnion() {}
 //	case privyclient.EvmTransactionWalletActionStep:
 //	case privyclient.EvmUserOperationWalletActionStep:
 //	case privyclient.SvmTransactionWalletActionStep:
+//	case privyclient.TvmTransactionWalletActionStep:
 //	case privyclient.ExternalTransactionWalletActionStep:
 //	case privyclient.CustodianTransactionWalletActionStep:
 //	default:
@@ -1080,6 +1137,8 @@ func (u WalletActionStepUnion) AsAny() anyWalletActionStep {
 		return u.AsEvmUserOperation()
 	case "svm_transaction":
 		return u.AsSvmTransaction()
+	case "tvm_transaction":
+		return u.AsTvmTransaction()
 	case "external_transaction":
 		return u.AsExternalTransaction()
 	case "custodian_transaction":
@@ -1099,6 +1158,11 @@ func (u WalletActionStepUnion) AsEvmUserOperation() (v EvmUserOperationWalletAct
 }
 
 func (u WalletActionStepUnion) AsSvmTransaction() (v SvmTransactionWalletActionStep) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletActionStepUnion) AsTvmTransaction() (v TvmTransactionWalletActionStep) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
