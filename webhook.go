@@ -798,10 +798,10 @@ const (
 
 // Payload for the mfa.disabled webhook event.
 type MfaDisabledWebhookPayload struct {
-	// The MFA method that was disabled.
+	// A multi-factor authentication method supported by the app.
 	//
 	// Any of "sms", "totp", "passkey".
-	Method MfaDisabledWebhookPayloadMethod `json:"method" api:"required"`
+	Method MfaMethod `json:"method" api:"required"`
 	// The type of webhook event.
 	//
 	// Any of "mfa.disabled".
@@ -824,15 +824,6 @@ func (r *MfaDisabledWebhookPayload) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// The MFA method that was disabled.
-type MfaDisabledWebhookPayloadMethod string
-
-const (
-	MfaDisabledWebhookPayloadMethodSMS     MfaDisabledWebhookPayloadMethod = "sms"
-	MfaDisabledWebhookPayloadMethodTotp    MfaDisabledWebhookPayloadMethod = "totp"
-	MfaDisabledWebhookPayloadMethodPasskey MfaDisabledWebhookPayloadMethod = "passkey"
-)
-
 // The type of webhook event.
 type MfaDisabledWebhookPayloadType string
 
@@ -842,10 +833,10 @@ const (
 
 // Payload for the mfa.enabled webhook event.
 type MfaEnabledWebhookPayload struct {
-	// The MFA method that was enabled.
+	// A multi-factor authentication method supported by the app.
 	//
 	// Any of "sms", "totp", "passkey".
-	Method MfaEnabledWebhookPayloadMethod `json:"method" api:"required"`
+	Method MfaMethod `json:"method" api:"required"`
 	// The type of webhook event.
 	//
 	// Any of "mfa.enabled".
@@ -867,15 +858,6 @@ func (r MfaEnabledWebhookPayload) RawJSON() string { return r.JSON.raw }
 func (r *MfaEnabledWebhookPayload) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-// The MFA method that was enabled.
-type MfaEnabledWebhookPayloadMethod string
-
-const (
-	MfaEnabledWebhookPayloadMethodSMS     MfaEnabledWebhookPayloadMethod = "sms"
-	MfaEnabledWebhookPayloadMethodTotp    MfaEnabledWebhookPayloadMethod = "totp"
-	MfaEnabledWebhookPayloadMethodPasskey MfaEnabledWebhookPayloadMethod = "passkey"
-)
 
 // The type of webhook event.
 type MfaEnabledWebhookPayloadType string
