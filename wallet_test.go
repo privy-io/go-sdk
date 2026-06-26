@@ -113,6 +113,7 @@ func TestWalletListWithOptionalParams(t *testing.T) {
 		option.WithAppSecret("My App Secret"),
 	)
 	_, err := client.Wallets.List(context.TODO(), privyclient.WalletListParams{
+		Address:          privyclient.String("string"),
 		AuthorizationKey: privyclient.String("s=-/fw-L-+N\n"),
 		ChainType:        privyclient.WalletChainTypeEthereum,
 		Cursor:           privyclient.String("x"),
