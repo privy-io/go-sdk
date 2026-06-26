@@ -729,8 +729,12 @@ const (
 // Base schema for wallet accounts linked to the user.
 type LinkedAccountBaseWallet struct {
 	Address string `json:"address" api:"required"`
-	// Any of "solana", "ethereum".
-	ChainType LinkedAccountBaseWalletChainType `json:"chain_type" api:"required"`
+	// The wallet chain types that offer first class support.
+	//
+	// Any of "ethereum", "solana".
+	ChainType FirstClassChainType `json:"chain_type" api:"required"`
+	// The type of wallet linked account (external wallet or smart wallet).
+	//
 	// Any of "wallet", "smart_wallet".
 	Type LinkedAccountBaseWalletType `json:"type" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -749,13 +753,7 @@ func (r *LinkedAccountBaseWallet) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type LinkedAccountBaseWalletChainType string
-
-const (
-	LinkedAccountBaseWalletChainTypeSolana   LinkedAccountBaseWalletChainType = "solana"
-	LinkedAccountBaseWalletChainTypeEthereum LinkedAccountBaseWalletChainType = "ethereum"
-)
-
+// The type of wallet linked account (external wallet or smart wallet).
 type LinkedAccountBaseWalletType string
 
 const (
@@ -1574,7 +1572,7 @@ const (
 	LinkedAccountGoogleOAuthTypeGoogleOAuth LinkedAccountGoogleOAuthType = "google_oauth"
 )
 
-func LinkedAccountInputOfWallet(address string, chainType LinkedAccountWalletInputChainType) LinkedAccountInputUnion {
+func LinkedAccountInputOfWallet(address string, chainType FirstClassChainType) LinkedAccountInputUnion {
 	var wallet LinkedAccountWalletInput
 	wallet.Address = address
 	wallet.ChainType = chainType
@@ -1975,16 +1973,28 @@ const (
 	LinkedAccountPasskeyTypePasskey LinkedAccountPasskeyType = "passkey"
 )
 
+// WebAuthn credential device type indicating platform or cross-platform
+// authenticator residency.
+type LinkedAccountPasskeyCredentialDeviceType string
+
+const (
+	LinkedAccountPasskeyCredentialDeviceTypeSingleDevice LinkedAccountPasskeyCredentialDeviceType = "singleDevice"
+	LinkedAccountPasskeyCredentialDeviceTypeMultiDevice  LinkedAccountPasskeyCredentialDeviceType = "multiDevice"
+)
+
 // The payload for importing a passkey account.
 //
 // The properties CredentialDeviceType, CredentialID, CredentialPublicKey,
 // CredentialUsername, Type are required.
 type LinkedAccountPasskeyInput struct {
+	// WebAuthn credential device type indicating platform or cross-platform
+	// authenticator residency.
+	//
 	// Any of "singleDevice", "multiDevice".
-	CredentialDeviceType LinkedAccountPasskeyInputCredentialDeviceType `json:"credential_device_type,omitzero" api:"required"`
-	CredentialID         string                                        `json:"credential_id" api:"required"`
-	CredentialPublicKey  string                                        `json:"credential_public_key" api:"required"`
-	CredentialUsername   string                                        `json:"credential_username" api:"required"`
+	CredentialDeviceType LinkedAccountPasskeyCredentialDeviceType `json:"credential_device_type,omitzero" api:"required"`
+	CredentialID         string                                   `json:"credential_id" api:"required"`
+	CredentialPublicKey  string                                   `json:"credential_public_key" api:"required"`
+	CredentialUsername   string                                   `json:"credential_username" api:"required"`
 	// This field can be elided, and will marshal its zero value as "passkey".
 	Type constant.Passkey `json:"type" default:"passkey"`
 	paramObj
@@ -1997,13 +2007,6 @@ func (r LinkedAccountPasskeyInput) MarshalJSON() (data []byte, err error) {
 func (r *LinkedAccountPasskeyInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-type LinkedAccountPasskeyInputCredentialDeviceType string
-
-const (
-	LinkedAccountPasskeyInputCredentialDeviceTypeSingleDevice LinkedAccountPasskeyInputCredentialDeviceType = "singleDevice"
-	LinkedAccountPasskeyInputCredentialDeviceTypeMultiDevice  LinkedAccountPasskeyInputCredentialDeviceType = "multiDevice"
-)
 
 // A phone number account linked to the user.
 type LinkedAccountPhone struct {
@@ -2555,8 +2558,10 @@ const (
 // The properties Address, ChainType, Type are required.
 type LinkedAccountWalletInput struct {
 	Address string `json:"address" api:"required"`
+	// The wallet chain types that offer first class support.
+	//
 	// Any of "ethereum", "solana".
-	ChainType LinkedAccountWalletInputChainType `json:"chain_type,omitzero" api:"required"`
+	ChainType FirstClassChainType `json:"chain_type,omitzero" api:"required"`
 	// This field can be elided, and will marshal its zero value as "wallet".
 	Type constant.Wallet `json:"type" default:"wallet"`
 	paramObj
@@ -2569,13 +2574,6 @@ func (r LinkedAccountWalletInput) MarshalJSON() (data []byte, err error) {
 func (r *LinkedAccountWalletInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-type LinkedAccountWalletInputChainType string
-
-const (
-	LinkedAccountWalletInputChainTypeEthereum LinkedAccountWalletInputChainType = "ethereum"
-	LinkedAccountWalletInputChainTypeSolana   LinkedAccountWalletInputChainType = "solana"
-)
 
 // LinkedMfaMethodUnion contains all possible properties and values from
 // [SMSMfaMethod], [TotpMfaMethod], [PasskeyMfaMethod].

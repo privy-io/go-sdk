@@ -2511,6 +2511,14 @@ func (r *FeeLineItemUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// The wallet chain types that offer first class support.
+type FirstClassChainType string
+
+const (
+	FirstClassChainTypeEthereum FirstClassChainType = "ethereum"
+	FirstClassChainTypeSolana   FirstClassChainType = "solana"
+)
+
 // Gas cost for a blockchain action. Includes both raw base-unit amount and a
 // human-readable decimal string, plus the gas token symbol.
 type Gas struct {
@@ -7464,6 +7472,31 @@ const (
 	WalletAssetEurc  WalletAsset = "eurc"
 	WalletAssetUsdb  WalletAsset = "usdb"
 	WalletAssetSol   WalletAsset = "sol"
+)
+
+// Supported blockchain network names for wallet balance and transaction queries.
+type WalletAssetChainNameInput string
+
+const (
+	WalletAssetChainNameInputEthereum        WalletAssetChainNameInput = "ethereum"
+	WalletAssetChainNameInputArbitrum        WalletAssetChainNameInput = "arbitrum"
+	WalletAssetChainNameInputAvalanche       WalletAssetChainNameInput = "avalanche"
+	WalletAssetChainNameInputBase            WalletAssetChainNameInput = "base"
+	WalletAssetChainNameInputTempo           WalletAssetChainNameInput = "tempo"
+	WalletAssetChainNameInputLinea           WalletAssetChainNameInput = "linea"
+	WalletAssetChainNameInputOptimism        WalletAssetChainNameInput = "optimism"
+	WalletAssetChainNameInputPolygon         WalletAssetChainNameInput = "polygon"
+	WalletAssetChainNameInputSolana          WalletAssetChainNameInput = "solana"
+	WalletAssetChainNameInputZksyncEra       WalletAssetChainNameInput = "zksync_era"
+	WalletAssetChainNameInputSepolia         WalletAssetChainNameInput = "sepolia"
+	WalletAssetChainNameInputArbitrumSepolia WalletAssetChainNameInput = "arbitrum_sepolia"
+	WalletAssetChainNameInputAvalancheFuji   WalletAssetChainNameInput = "avalanche_fuji"
+	WalletAssetChainNameInputBaseSepolia     WalletAssetChainNameInput = "base_sepolia"
+	WalletAssetChainNameInputLineaTestnet    WalletAssetChainNameInput = "linea_testnet"
+	WalletAssetChainNameInputOptimismSepolia WalletAssetChainNameInput = "optimism_sepolia"
+	WalletAssetChainNameInputPolygonAmoy     WalletAssetChainNameInput = "polygon_amoy"
+	WalletAssetChainNameInputSolanaDevnet    WalletAssetChainNameInput = "solana_devnet"
+	WalletAssetChainNameInputSolanaTestnet   WalletAssetChainNameInput = "solana_testnet"
 )
 
 // Request body for wallet authentication with HPKE-encrypted response.
