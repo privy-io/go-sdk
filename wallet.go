@@ -2548,7 +2548,9 @@ func (r *Gas) UnmarshalJSON(data []byte) error {
 //
 // The property Address is required.
 type GetByWalletAddressRequestBody struct {
-	// A blockchain wallet address (Ethereum or Solana).
+	// A blockchain wallet address. Ethereum addresses are normalized to EIP-55
+	// checksum format. Solana addresses are validated as base58. All other chain
+	// addresses (Stellar, Tron, Sui, Aptos, etc.) are accepted as-is.
 	Address Address `json:"address" api:"required"`
 	// Include archived wallets in lookup. Defaults to false (archived wallets return
 	// 404).
@@ -9194,6 +9196,10 @@ func (r *WalletUpdateParams) UnmarshalJSON(data []byte) error {
 
 type WalletListParams struct {
 	Limit param.Opt[float64] `query:"limit,omitzero" json:"-"`
+	// A blockchain wallet address. Ethereum addresses are normalized to EIP-55
+	// checksum format. Solana addresses are validated as base58. All other chain
+	// addresses (Stellar, Tron, Sui, Aptos, etc.) are accepted as-is.
+	Address param.Opt[Address] `query:"address,omitzero" json:"-"`
 	// Filter wallets by authorization public key. Returns wallets owned by key quorums
 	// that include the specified P-256 public key (base64-encoded DER format). Cannot
 	// be used together with user_id.
