@@ -41,5 +41,28 @@ Use `setupTestWalletResources` + `createTestWallets` for all tests.
 ## Lint
 
 ```sh
-just go::lint
+go build ./...
+go test -run='^$' ./...
+```
+
+Compiles all packages and verifies tests compile. Catches syntax errors and type mismatches.
+
+## Tests
+
+Unit tests (top-level + internal packages):
+
+```sh
+go test ./...
+```
+
+E2E tests only (requires a populated `.env` — see `.env.example`):
+
+```sh
+go test ./e2e/...
+```
+
+Unit tests only (exclude e2e):
+
+```sh
+go test $(go list ./... | grep -v /e2e)
 ```
