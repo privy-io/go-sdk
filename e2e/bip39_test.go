@@ -128,10 +128,10 @@ func deriveSolAddressFromMnemonic(t *testing.T, mnemonic string, index int) stri
 
 	// Derive m/44'/501'/{index}'/0'
 	path := []uint32{
-		0x80000000 + 44,           // 44' (purpose)
-		0x80000000 + 501,          // 501' (Solana coin type)
+		0x80000000 + 44,            // 44' (purpose)
+		0x80000000 + 501,           // 501' (Solana coin type)
 		0x80000000 + uint32(index), // {index}' (account)
-		0x80000000 + 0,            // 0' (change)
+		0x80000000 + 0,             // 0' (change)
 	}
 
 	for _, childIndex := range path {

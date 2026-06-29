@@ -679,6 +679,8 @@ func (r *EthereumCalldataCondition) UnmarshalJSON(data []byte) error {
 // The verbatim Ethereum transaction object in an eth_signTransaction or
 // eth_sendTransaction request.
 type EthereumTransactionConditionResp struct {
+	// Ethereum transaction-level fields that can be referenced in a policy condition.
+	//
 	// Any of "to", "value", "chain_id".
 	Field EthereumTransactionConditionField `json:"field" api:"required"`
 	// Any of "ethereum_transaction".
@@ -718,14 +720,6 @@ func (r EthereumTransactionConditionResp) ToParam() EthereumTransactionCondition
 	return param.Override[EthereumTransactionCondition](json.RawMessage(r.RawJSON()))
 }
 
-type EthereumTransactionConditionField string
-
-const (
-	EthereumTransactionConditionFieldTo      EthereumTransactionConditionField = "to"
-	EthereumTransactionConditionFieldValue   EthereumTransactionConditionField = "value"
-	EthereumTransactionConditionFieldChainID EthereumTransactionConditionField = "chain_id"
-)
-
 type EthereumTransactionConditionFieldSource string
 
 const (
@@ -737,6 +731,8 @@ const (
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type EthereumTransactionCondition struct {
+	// Ethereum transaction-level fields that can be referenced in a policy condition.
+	//
 	// Any of "to", "value", "chain_id".
 	Field EthereumTransactionConditionField `json:"field,omitzero" api:"required"`
 	// Any of "ethereum_transaction".
@@ -760,8 +756,19 @@ func (r *EthereumTransactionCondition) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Ethereum transaction-level fields that can be referenced in a policy condition.
+type EthereumTransactionConditionField string
+
+const (
+	EthereumTransactionConditionFieldTo      EthereumTransactionConditionField = "to"
+	EthereumTransactionConditionFieldValue   EthereumTransactionConditionField = "value"
+	EthereumTransactionConditionFieldChainID EthereumTransactionConditionField = "chain_id"
+)
+
 // Attributes from the signing domain that will verify the signature.
 type EthereumTypedDataDomainConditionResp struct {
+	// Supported fields for Ethereum typed data domain conditions.
+	//
 	// Any of "chainId", "verifyingContract", "chain_id", "verifying_contract".
 	Field EthereumTypedDataDomainConditionField `json:"field" api:"required"`
 	// Any of "ethereum_typed_data_domain".
@@ -801,15 +808,6 @@ func (r EthereumTypedDataDomainConditionResp) ToParam() EthereumTypedDataDomainC
 	return param.Override[EthereumTypedDataDomainCondition](json.RawMessage(r.RawJSON()))
 }
 
-type EthereumTypedDataDomainConditionField string
-
-const (
-	EthereumTypedDataDomainConditionFieldChainIDMixedCase           EthereumTypedDataDomainConditionField = "chainId"
-	EthereumTypedDataDomainConditionFieldVerifyingContractCamelCase EthereumTypedDataDomainConditionField = "verifyingContract"
-	EthereumTypedDataDomainConditionFieldChainID                    EthereumTypedDataDomainConditionField = "chain_id"
-	EthereumTypedDataDomainConditionFieldVerifyingContract          EthereumTypedDataDomainConditionField = "verifying_contract"
-)
-
 type EthereumTypedDataDomainConditionFieldSource string
 
 const (
@@ -820,6 +818,8 @@ const (
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type EthereumTypedDataDomainCondition struct {
+	// Supported fields for Ethereum typed data domain conditions.
+	//
 	// Any of "chainId", "verifyingContract", "chain_id", "verifying_contract".
 	Field EthereumTypedDataDomainConditionField `json:"field,omitzero" api:"required"`
 	// Any of "ethereum_typed_data_domain".
@@ -842,6 +842,16 @@ func (r EthereumTypedDataDomainCondition) MarshalJSON() (data []byte, err error)
 func (r *EthereumTypedDataDomainCondition) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// Supported fields for Ethereum typed data domain conditions.
+type EthereumTypedDataDomainConditionField string
+
+const (
+	EthereumTypedDataDomainConditionFieldChainIDMixedCase           EthereumTypedDataDomainConditionField = "chainId"
+	EthereumTypedDataDomainConditionFieldVerifyingContractCamelCase EthereumTypedDataDomainConditionField = "verifyingContract"
+	EthereumTypedDataDomainConditionFieldChainID                    EthereumTypedDataDomainConditionField = "chain_id"
+	EthereumTypedDataDomainConditionFieldVerifyingContract          EthereumTypedDataDomainConditionField = "verifying_contract"
+)
 
 // 'types' and 'primary_type' attributes of the TypedData JSON object defined in
 // EIP-712.
@@ -1420,6 +1430,8 @@ const (
 	PolicyMethodExportSeedPhrase         PolicyMethod = "exportSeedPhrase"
 	PolicyMethodSignTransactionBytes     PolicyMethod = "signTransactionBytes"
 	PolicyMethodSignRawMessageBytes      PolicyMethod = "signRawMessageBytes"
+	PolicyMethodTronSendTransaction      PolicyMethod = "tron_sendTransaction"
+	PolicyMethodTronSignTransaction      PolicyMethod = "tron_signTransaction"
 	PolicyMethodEarnDeposit              PolicyMethod = "earn_deposit"
 	PolicyMethodEarnWithdraw             PolicyMethod = "earn_withdraw"
 	PolicyMethodTransfer                 PolicyMethod = "transfer"
@@ -1439,7 +1451,8 @@ type PolicyRuleRequestBodyResp struct {
 	// "eth_signTypedData_v4", "personal_sign", "eth_sign7702Authorization",
 	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
 	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes",
-	// "signRawMessageBytes", "earn_deposit", "earn_withdraw", "transfer", "\*".
+	// "signRawMessageBytes", "tron_sendTransaction", "tron_signTransaction",
+	// "earn_deposit", "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod `json:"method" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -1483,7 +1496,8 @@ type PolicyRuleRequestBody struct {
 	// "eth_signTypedData_v4", "personal_sign", "eth_sign7702Authorization",
 	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
 	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes",
-	// "signRawMessageBytes", "earn_deposit", "earn_withdraw", "transfer", "\*".
+	// "signRawMessageBytes", "tron_sendTransaction", "tron_signTransaction",
+	// "earn_deposit", "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod `json:"method,omitzero" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	paramObj
@@ -1512,7 +1526,8 @@ type PolicyRuleResponse struct {
 	// "eth_signTypedData_v4", "personal_sign", "eth_sign7702Authorization",
 	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
 	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes",
-	// "signRawMessageBytes", "earn_deposit", "earn_withdraw", "transfer", "\*".
+	// "signRawMessageBytes", "tron_sendTransaction", "tron_signTransaction",
+	// "earn_deposit", "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod `json:"method" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -1616,6 +1631,9 @@ func (r *SolanaProgramInstructionCondition) UnmarshalJSON(data []byte) error {
 // Solana System Program attributes, including more granular Transfer instruction
 // fields.
 type SolanaSystemProgramInstructionConditionResp struct {
+	// Supported fields for Solana System Program conditions including Transfer
+	// instruction fields.
+	//
 	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
 	Field SolanaSystemProgramInstructionConditionField `json:"field" api:"required"`
 	// Any of "solana_system_program_instruction".
@@ -1655,15 +1673,6 @@ func (r SolanaSystemProgramInstructionConditionResp) ToParam() SolanaSystemProgr
 	return param.Override[SolanaSystemProgramInstructionCondition](json.RawMessage(r.RawJSON()))
 }
 
-type SolanaSystemProgramInstructionConditionField string
-
-const (
-	SolanaSystemProgramInstructionConditionFieldInstructionName  SolanaSystemProgramInstructionConditionField = "instructionName"
-	SolanaSystemProgramInstructionConditionFieldTransferFrom     SolanaSystemProgramInstructionConditionField = "Transfer.from"
-	SolanaSystemProgramInstructionConditionFieldTransferTo       SolanaSystemProgramInstructionConditionField = "Transfer.to"
-	SolanaSystemProgramInstructionConditionFieldTransferLamports SolanaSystemProgramInstructionConditionField = "Transfer.lamports"
-)
-
 type SolanaSystemProgramInstructionConditionFieldSource string
 
 const (
@@ -1675,6 +1684,9 @@ const (
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type SolanaSystemProgramInstructionCondition struct {
+	// Supported fields for Solana System Program conditions including Transfer
+	// instruction fields.
+	//
 	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
 	Field SolanaSystemProgramInstructionConditionField `json:"field,omitzero" api:"required"`
 	// Any of "solana_system_program_instruction".
@@ -1698,9 +1710,24 @@ func (r *SolanaSystemProgramInstructionCondition) UnmarshalJSON(data []byte) err
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Supported fields for Solana System Program conditions including Transfer
+// instruction fields.
+type SolanaSystemProgramInstructionConditionField string
+
+const (
+	SolanaSystemProgramInstructionConditionFieldInstructionName  SolanaSystemProgramInstructionConditionField = "instructionName"
+	SolanaSystemProgramInstructionConditionFieldTransferFrom     SolanaSystemProgramInstructionConditionField = "Transfer.from"
+	SolanaSystemProgramInstructionConditionFieldTransferTo       SolanaSystemProgramInstructionConditionField = "Transfer.to"
+	SolanaSystemProgramInstructionConditionFieldTransferLamports SolanaSystemProgramInstructionConditionField = "Transfer.lamports"
+)
+
 // Solana Token Program attributes, including more granular TransferChecked
 // instruction fields.
 type SolanaTokenProgramInstructionConditionResp struct {
+	// Supported fields for Solana Token Program conditions including Transfer,
+	// TransferChecked, Burn, MintTo, CloseAccount, and InitializeAccount3 instruction
+	// fields.
+	//
 	// Any of "instructionName", "Transfer.source", "Transfer.destination",
 	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
 	// "TransferChecked.destination", "TransferChecked.authority",
@@ -1748,35 +1775,6 @@ func (r SolanaTokenProgramInstructionConditionResp) ToParam() SolanaTokenProgram
 	return param.Override[SolanaTokenProgramInstructionCondition](json.RawMessage(r.RawJSON()))
 }
 
-type SolanaTokenProgramInstructionConditionField string
-
-const (
-	SolanaTokenProgramInstructionConditionFieldInstructionName            SolanaTokenProgramInstructionConditionField = "instructionName"
-	SolanaTokenProgramInstructionConditionFieldTransferSource             SolanaTokenProgramInstructionConditionField = "Transfer.source"
-	SolanaTokenProgramInstructionConditionFieldTransferDestination        SolanaTokenProgramInstructionConditionField = "Transfer.destination"
-	SolanaTokenProgramInstructionConditionFieldTransferAuthority          SolanaTokenProgramInstructionConditionField = "Transfer.authority"
-	SolanaTokenProgramInstructionConditionFieldTransferAmount             SolanaTokenProgramInstructionConditionField = "Transfer.amount"
-	SolanaTokenProgramInstructionConditionFieldTransferCheckedSource      SolanaTokenProgramInstructionConditionField = "TransferChecked.source"
-	SolanaTokenProgramInstructionConditionFieldTransferCheckedDestination SolanaTokenProgramInstructionConditionField = "TransferChecked.destination"
-	SolanaTokenProgramInstructionConditionFieldTransferCheckedAuthority   SolanaTokenProgramInstructionConditionField = "TransferChecked.authority"
-	SolanaTokenProgramInstructionConditionFieldTransferCheckedAmount      SolanaTokenProgramInstructionConditionField = "TransferChecked.amount"
-	SolanaTokenProgramInstructionConditionFieldTransferCheckedMint        SolanaTokenProgramInstructionConditionField = "TransferChecked.mint"
-	SolanaTokenProgramInstructionConditionFieldBurnAccount                SolanaTokenProgramInstructionConditionField = "Burn.account"
-	SolanaTokenProgramInstructionConditionFieldBurnMint                   SolanaTokenProgramInstructionConditionField = "Burn.mint"
-	SolanaTokenProgramInstructionConditionFieldBurnAuthority              SolanaTokenProgramInstructionConditionField = "Burn.authority"
-	SolanaTokenProgramInstructionConditionFieldBurnAmount                 SolanaTokenProgramInstructionConditionField = "Burn.amount"
-	SolanaTokenProgramInstructionConditionFieldMintToMint                 SolanaTokenProgramInstructionConditionField = "MintTo.mint"
-	SolanaTokenProgramInstructionConditionFieldMintToAccount              SolanaTokenProgramInstructionConditionField = "MintTo.account"
-	SolanaTokenProgramInstructionConditionFieldMintToAuthority            SolanaTokenProgramInstructionConditionField = "MintTo.authority"
-	SolanaTokenProgramInstructionConditionFieldMintToAmount               SolanaTokenProgramInstructionConditionField = "MintTo.amount"
-	SolanaTokenProgramInstructionConditionFieldCloseAccountAccount        SolanaTokenProgramInstructionConditionField = "CloseAccount.account"
-	SolanaTokenProgramInstructionConditionFieldCloseAccountDestination    SolanaTokenProgramInstructionConditionField = "CloseAccount.destination"
-	SolanaTokenProgramInstructionConditionFieldCloseAccountAuthority      SolanaTokenProgramInstructionConditionField = "CloseAccount.authority"
-	SolanaTokenProgramInstructionConditionFieldInitializeAccount3Account  SolanaTokenProgramInstructionConditionField = "InitializeAccount3.account"
-	SolanaTokenProgramInstructionConditionFieldInitializeAccount3Mint     SolanaTokenProgramInstructionConditionField = "InitializeAccount3.mint"
-	SolanaTokenProgramInstructionConditionFieldInitializeAccount3Owner    SolanaTokenProgramInstructionConditionField = "InitializeAccount3.owner"
-)
-
 type SolanaTokenProgramInstructionConditionFieldSource string
 
 const (
@@ -1788,6 +1786,10 @@ const (
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type SolanaTokenProgramInstructionCondition struct {
+	// Supported fields for Solana Token Program conditions including Transfer,
+	// TransferChecked, Burn, MintTo, CloseAccount, and InitializeAccount3 instruction
+	// fields.
+	//
 	// Any of "instructionName", "Transfer.source", "Transfer.destination",
 	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
 	// "TransferChecked.destination", "TransferChecked.authority",
@@ -1818,6 +1820,38 @@ func (r SolanaTokenProgramInstructionCondition) MarshalJSON() (data []byte, err 
 func (r *SolanaTokenProgramInstructionCondition) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// Supported fields for Solana Token Program conditions including Transfer,
+// TransferChecked, Burn, MintTo, CloseAccount, and InitializeAccount3 instruction
+// fields.
+type SolanaTokenProgramInstructionConditionField string
+
+const (
+	SolanaTokenProgramInstructionConditionFieldInstructionName            SolanaTokenProgramInstructionConditionField = "instructionName"
+	SolanaTokenProgramInstructionConditionFieldTransferSource             SolanaTokenProgramInstructionConditionField = "Transfer.source"
+	SolanaTokenProgramInstructionConditionFieldTransferDestination        SolanaTokenProgramInstructionConditionField = "Transfer.destination"
+	SolanaTokenProgramInstructionConditionFieldTransferAuthority          SolanaTokenProgramInstructionConditionField = "Transfer.authority"
+	SolanaTokenProgramInstructionConditionFieldTransferAmount             SolanaTokenProgramInstructionConditionField = "Transfer.amount"
+	SolanaTokenProgramInstructionConditionFieldTransferCheckedSource      SolanaTokenProgramInstructionConditionField = "TransferChecked.source"
+	SolanaTokenProgramInstructionConditionFieldTransferCheckedDestination SolanaTokenProgramInstructionConditionField = "TransferChecked.destination"
+	SolanaTokenProgramInstructionConditionFieldTransferCheckedAuthority   SolanaTokenProgramInstructionConditionField = "TransferChecked.authority"
+	SolanaTokenProgramInstructionConditionFieldTransferCheckedAmount      SolanaTokenProgramInstructionConditionField = "TransferChecked.amount"
+	SolanaTokenProgramInstructionConditionFieldTransferCheckedMint        SolanaTokenProgramInstructionConditionField = "TransferChecked.mint"
+	SolanaTokenProgramInstructionConditionFieldBurnAccount                SolanaTokenProgramInstructionConditionField = "Burn.account"
+	SolanaTokenProgramInstructionConditionFieldBurnMint                   SolanaTokenProgramInstructionConditionField = "Burn.mint"
+	SolanaTokenProgramInstructionConditionFieldBurnAuthority              SolanaTokenProgramInstructionConditionField = "Burn.authority"
+	SolanaTokenProgramInstructionConditionFieldBurnAmount                 SolanaTokenProgramInstructionConditionField = "Burn.amount"
+	SolanaTokenProgramInstructionConditionFieldMintToMint                 SolanaTokenProgramInstructionConditionField = "MintTo.mint"
+	SolanaTokenProgramInstructionConditionFieldMintToAccount              SolanaTokenProgramInstructionConditionField = "MintTo.account"
+	SolanaTokenProgramInstructionConditionFieldMintToAuthority            SolanaTokenProgramInstructionConditionField = "MintTo.authority"
+	SolanaTokenProgramInstructionConditionFieldMintToAmount               SolanaTokenProgramInstructionConditionField = "MintTo.amount"
+	SolanaTokenProgramInstructionConditionFieldCloseAccountAccount        SolanaTokenProgramInstructionConditionField = "CloseAccount.account"
+	SolanaTokenProgramInstructionConditionFieldCloseAccountDestination    SolanaTokenProgramInstructionConditionField = "CloseAccount.destination"
+	SolanaTokenProgramInstructionConditionFieldCloseAccountAuthority      SolanaTokenProgramInstructionConditionField = "CloseAccount.authority"
+	SolanaTokenProgramInstructionConditionFieldInitializeAccount3Account  SolanaTokenProgramInstructionConditionField = "InitializeAccount3.account"
+	SolanaTokenProgramInstructionConditionFieldInitializeAccount3Mint     SolanaTokenProgramInstructionConditionField = "InitializeAccount3.mint"
+	SolanaTokenProgramInstructionConditionFieldInitializeAccount3Owner    SolanaTokenProgramInstructionConditionField = "InitializeAccount3.owner"
+)
 
 // SUI transaction command attributes, enables allowlisting specific command types.
 // Allowed commands: 'TransferObjects', 'SplitCoins', 'MergeCoins'. Only 'eq' and
@@ -2310,7 +2344,8 @@ func (r *TronCalldataCondition) UnmarshalJSON(data []byte) error {
 // TRON transaction fields for TransferContract and TriggerSmartContract
 // transaction types.
 type TronTransactionConditionResp struct {
-	// Supported TRON transaction fields in format "TransactionType.field_name"
+	// Supported TRON transaction fields for TransferContract and TriggerSmartContract
+	// in format "TransactionType.field_name".
 	//
 	// Any of "TransferContract.to_address", "TransferContract.amount",
 	// "TriggerSmartContract.contract_address", "TriggerSmartContract.call_value",
@@ -2353,18 +2388,6 @@ func (r TronTransactionConditionResp) ToParam() TronTransactionCondition {
 	return param.Override[TronTransactionCondition](json.RawMessage(r.RawJSON()))
 }
 
-// Supported TRON transaction fields in format "TransactionType.field_name"
-type TronTransactionConditionField string
-
-const (
-	TronTransactionConditionFieldTransferContractToAddress           TronTransactionConditionField = "TransferContract.to_address"
-	TronTransactionConditionFieldTransferContractAmount              TronTransactionConditionField = "TransferContract.amount"
-	TronTransactionConditionFieldTriggerSmartContractContractAddress TronTransactionConditionField = "TriggerSmartContract.contract_address"
-	TronTransactionConditionFieldTriggerSmartContractCallValue       TronTransactionConditionField = "TriggerSmartContract.call_value"
-	TronTransactionConditionFieldTriggerSmartContractTokenID         TronTransactionConditionField = "TriggerSmartContract.token_id"
-	TronTransactionConditionFieldTriggerSmartContractCallTokenValue  TronTransactionConditionField = "TriggerSmartContract.call_token_value"
-)
-
 type TronTransactionConditionFieldSource string
 
 const (
@@ -2376,7 +2399,8 @@ const (
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type TronTransactionCondition struct {
-	// Supported TRON transaction fields in format "TransactionType.field_name"
+	// Supported TRON transaction fields for TransferContract and TriggerSmartContract
+	// in format "TransactionType.field_name".
 	//
 	// Any of "TransferContract.to_address", "TransferContract.amount",
 	// "TriggerSmartContract.contract_address", "TriggerSmartContract.call_value",
@@ -2402,6 +2426,19 @@ func (r TronTransactionCondition) MarshalJSON() (data []byte, err error) {
 func (r *TronTransactionCondition) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// Supported TRON transaction fields for TransferContract and TriggerSmartContract
+// in format "TransactionType.field_name".
+type TronTransactionConditionField string
+
+const (
+	TronTransactionConditionFieldTransferContractToAddress           TronTransactionConditionField = "TransferContract.to_address"
+	TronTransactionConditionFieldTransferContractAmount              TronTransactionConditionField = "TransferContract.amount"
+	TronTransactionConditionFieldTriggerSmartContractContractAddress TronTransactionConditionField = "TriggerSmartContract.contract_address"
+	TronTransactionConditionFieldTriggerSmartContractCallValue       TronTransactionConditionField = "TriggerSmartContract.call_value"
+	TronTransactionConditionFieldTriggerSmartContractTokenID         TronTransactionConditionField = "TriggerSmartContract.token_id"
+	TronTransactionConditionFieldTriggerSmartContractCallTokenValue  TronTransactionConditionField = "TriggerSmartContract.call_token_value"
+)
 
 // The typed data structure containing EIP-712 types and the primary type for typed
 // data message policy conditions.
@@ -2499,7 +2536,8 @@ type PolicyNewParamsRule struct {
 	// "eth_signTypedData_v4", "personal_sign", "eth_sign7702Authorization",
 	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
 	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes",
-	// "signRawMessageBytes", "earn_deposit", "earn_withdraw", "transfer", "\*".
+	// "signRawMessageBytes", "tron_sendTransaction", "tron_signTransaction",
+	// "earn_deposit", "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod      `json:"method,omitzero" api:"required"`
 	Name   string            `json:"name" api:"required"`
 	ID     param.Opt[string] `json:"id,omitzero"`

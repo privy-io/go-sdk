@@ -878,8 +878,11 @@ type PrivateKeyExportWebhookPayload struct {
 	WalletAddress string `json:"wallet_address" api:"required"`
 	// The ID of the wallet.
 	WalletID string `json:"wallet_id" api:"required"`
+	// The export type. 'display' is for showing the key to the user in the UI,
+	// 'client' is for exporting to the client application.
+	//
 	// Any of "display", "client".
-	ExportSource PrivateKeyExportWebhookPayloadExportSource `json:"export_source"`
+	ExportSource ExportType `json:"export_source"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Type          respjson.Field
@@ -903,13 +906,6 @@ type PrivateKeyExportWebhookPayloadType string
 
 const (
 	PrivateKeyExportWebhookPayloadTypeWalletPrivateKeyExport PrivateKeyExportWebhookPayloadType = "wallet.private_key_export"
-)
-
-type PrivateKeyExportWebhookPayloadExportSource string
-
-const (
-	PrivateKeyExportWebhookPayloadExportSourceDisplay PrivateKeyExportWebhookPayloadExportSource = "display"
-	PrivateKeyExportWebhookPayloadExportSourceClient  PrivateKeyExportWebhookPayloadExportSource = "client"
 )
 
 // Payload for the transaction.broadcasted webhook event.
@@ -3396,15 +3392,27 @@ const (
 	WalletRecoveredWebhookPayloadTypeWalletRecovered WalletRecoveredWebhookPayloadType = "wallet.recovered"
 )
 
+// Recovery method types for embedded wallet recovery setup webhooks.
+type WalletRecoverySetupMethod string
+
+const (
+	WalletRecoverySetupMethodUserPasscodeDerivedRecoveryKey  WalletRecoverySetupMethod = "user_passcode_derived_recovery_key"
+	WalletRecoverySetupMethodPrivyPasscodeDerivedRecoveryKey WalletRecoverySetupMethod = "privy_passcode_derived_recovery_key"
+	WalletRecoverySetupMethodPrivyGeneratedRecoveryKey       WalletRecoverySetupMethod = "privy_generated_recovery_key"
+	WalletRecoverySetupMethodGoogleDriveRecoverySecret       WalletRecoverySetupMethod = "google_drive_recovery_secret"
+	WalletRecoverySetupMethodICloudRecoverySecret            WalletRecoverySetupMethod = "icloud_recovery_secret"
+	WalletRecoverySetupMethodRecoveryEncryptionKey           WalletRecoverySetupMethod = "recovery_encryption_key"
+)
+
 // Payload for the wallet.recovery_setup webhook event.
 type WalletRecoverySetupWebhookPayload struct {
-	// The recovery method that was set up.
+	// Recovery method types for embedded wallet recovery setup webhooks.
 	//
 	// Any of "user_passcode_derived_recovery_key",
 	// "privy_passcode_derived_recovery_key", "privy_generated_recovery_key",
 	// "google_drive_recovery_secret", "icloud_recovery_secret",
 	// "recovery_encryption_key".
-	Method WalletRecoverySetupWebhookPayloadMethod `json:"method" api:"required"`
+	Method WalletRecoverySetupMethod `json:"method" api:"required"`
 	// The type of webhook event.
 	//
 	// Any of "wallet.recovery_setup".
@@ -3432,18 +3440,6 @@ func (r WalletRecoverySetupWebhookPayload) RawJSON() string { return r.JSON.raw 
 func (r *WalletRecoverySetupWebhookPayload) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-// The recovery method that was set up.
-type WalletRecoverySetupWebhookPayloadMethod string
-
-const (
-	WalletRecoverySetupWebhookPayloadMethodUserPasscodeDerivedRecoveryKey  WalletRecoverySetupWebhookPayloadMethod = "user_passcode_derived_recovery_key"
-	WalletRecoverySetupWebhookPayloadMethodPrivyPasscodeDerivedRecoveryKey WalletRecoverySetupWebhookPayloadMethod = "privy_passcode_derived_recovery_key"
-	WalletRecoverySetupWebhookPayloadMethodPrivyGeneratedRecoveryKey       WalletRecoverySetupWebhookPayloadMethod = "privy_generated_recovery_key"
-	WalletRecoverySetupWebhookPayloadMethodGoogleDriveRecoverySecret       WalletRecoverySetupWebhookPayloadMethod = "google_drive_recovery_secret"
-	WalletRecoverySetupWebhookPayloadMethodICloudRecoverySecret            WalletRecoverySetupWebhookPayloadMethod = "icloud_recovery_secret"
-	WalletRecoverySetupWebhookPayloadMethodRecoveryEncryptionKey           WalletRecoverySetupWebhookPayloadMethod = "recovery_encryption_key"
-)
 
 // The type of webhook event.
 type WalletRecoverySetupWebhookPayloadType string
@@ -3768,7 +3764,7 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	BridgeMetadata BridgeMetadataUnion `json:"bridge_metadata"`
 	TransactionFee string              `json:"transaction_fee"`
 	// This field is from variant [PrivateKeyExportWebhookPayload].
-	ExportSource PrivateKeyExportWebhookPayloadExportSource `json:"export_source"`
+	ExportSource ExportType `json:"export_source"`
 	// This field is from variant [WalletActionEarnDepositCreatedWebhookPayload].
 	ActionType     WalletActionType `json:"action_type"`
 	AssetAddress   string           `json:"asset_address"`
