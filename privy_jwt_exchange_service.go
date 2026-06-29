@@ -46,7 +46,7 @@ func (s *PrivyJwtExchangeService) ExchangeJwtForAuthorizationKey(ctx context.Con
 		return "", fmt.Errorf("failed to authenticate with JWT: %w", err)
 	}
 
-	encResp := resp.AsWithEncryption()
+	encResp := resp.AsEncryptedWalletAuthenticateResponse()
 	encKey := encResp.EncryptedAuthorizationKey
 
 	if encKey.EncapsulatedKey == "" || encKey.Ciphertext == "" {
