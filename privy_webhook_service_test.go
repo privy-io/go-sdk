@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	svix "github.com/svix/svix-webhooks/go"
 	privyclient "github.com/privy-io/go-sdk"
+	svix "github.com/svix/svix-webhooks/go"
 )
 
 func TestPrivyWebhookService_Verify(t *testing.T) {
@@ -46,8 +46,8 @@ func TestPrivyWebhookService_Verify(t *testing.T) {
 		headers := signWebhookPayload(t, perCallSecret, payload)
 
 		event, err := client.Webhooks.Verify(privyclient.VerifyInput{
-			Payload:      payload,
-			Headers:      headers,
+			Payload:       payload,
+			Headers:       headers,
 			SigningSecret: perCallSecret,
 		})
 		if err != nil {

@@ -38,8 +38,9 @@ func TestWalletBalanceGetWithOptionalParams(t *testing.T) {
 				OfWalletBalanceGetsAssetString: privyclient.Opt(privyclient.WalletBalanceGetParamsAssetStringUsdc),
 			},
 			Chain: privyclient.WalletBalanceGetParamsChainUnion{
-				OfWalletBalanceGetsChainString: privyclient.String("ethereum"),
+				OfWalletAssetChainNameInput: privyclient.Opt(privyclient.WalletAssetChainNameInputEthereum),
 			},
+			IncludeArchived: privyclient.Bool(true),
 			IncludeCurrency: privyclient.WalletBalanceGetParamsIncludeCurrencyUsd,
 		},
 	)

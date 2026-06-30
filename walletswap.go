@@ -46,6 +46,9 @@ func (r *WalletSwapService) Execute(ctx context.Context, walletID string, params
 	if !param.IsOmitted(params.PrivyIdempotencyKey) {
 		opts = append(opts, option.WithHeader("privy-idempotency-key", fmt.Sprintf("%v", params.PrivyIdempotencyKey.Value)))
 	}
+	if !param.IsOmitted(params.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	if walletID == "" {
 		err = errors.New("missing required wallet_id parameter")
@@ -60,6 +63,9 @@ func (r *WalletSwapService) Execute(ctx context.Context, walletID string, params
 func (r *WalletSwapService) Quote(ctx context.Context, walletID string, params WalletSwapQuoteParams, opts ...option.RequestOption) (res *SwapQuoteResponse, err error) {
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
 		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
+	}
+	if !param.IsOmitted(params.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if walletID == "" {
@@ -80,6 +86,9 @@ type WalletSwapExecuteParams struct {
 	// Idempotency keys ensure API requests are executed only once within a 24-hour
 	// window.
 	PrivyIdempotencyKey param.Opt[string] `header:"privy-idempotency-key,omitzero" json:"-"`
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
 	paramObj
 }
 
@@ -96,6 +105,9 @@ type WalletSwapQuoteParams struct {
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.
 	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
 	paramObj
 }
 

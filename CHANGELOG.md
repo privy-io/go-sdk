@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.11.0 (2026-06-29)
+
+Full Changelog: [v0.10.0...v0.11.0](https://github.com/privy-io/go-sdk/compare/v0.10.0...v0.11.0)
+
+### Features
+
+* **api:** api update ([9c16787](https://github.com/privy-io/go-sdk/commit/9c1678793c7238a37192720b8f0e2bcf830b6ebe))
+* **api:** api update ([dee8cf2](https://github.com/privy-io/go-sdk/commit/dee8cf2341a0a318bacf458bd7bfe82612ddd979))
+* **api:** api update ([203a89b](https://github.com/privy-io/go-sdk/commit/203a89b3c5d96bf9fce51f3cfa4485bc4248308d))
+* **api:** api update ([2c44992](https://github.com/privy-io/go-sdk/commit/2c449927a57a99c20803e6b2e58b59d6a3025dc0))
+* **api:** api update ([b8fbfcc](https://github.com/privy-io/go-sdk/commit/b8fbfcca6f7ce8e7450e994a9030a0e22ac1a43e))
+* **api:** api update ([147d8cf](https://github.com/privy-io/go-sdk/commit/147d8cfdfe42461c6f7c5d4e3cde0d0ce8f279d1))
+* **api:** api update ([d191627](https://github.com/privy-io/go-sdk/commit/d191627487e672bb5bf72c927a874d982affff89))
+* **api:** api update ([4b18120](https://github.com/privy-io/go-sdk/commit/4b1812001907c8feb7cba55ea9d54dd26e1acf5e))
+* **api:** api update ([ccdc49d](https://github.com/privy-io/go-sdk/commit/ccdc49d7cfbe2efc69eddac550b5a9b2d28fdbf1))
+* **api:** api update ([48b50e5](https://github.com/privy-io/go-sdk/commit/48b50e5d167ce3e59eff3564ffb0797d7c73de66))
+* **api:** api update ([bb1f95a](https://github.com/privy-io/go-sdk/commit/bb1f95a636f715ff29eb764ed823d33766d6f293))
+* **api:** api update ([e9a7b92](https://github.com/privy-io/go-sdk/commit/e9a7b92326d0fca55a5f250d9b6152fc6b71bbe5))
+* **api:** api update ([3b49e05](https://github.com/privy-io/go-sdk/commit/3b49e05c89b0fe1526e2c37095e386bf7817d2d1))
+* **api:** api update ([b18a928](https://github.com/privy-io/go-sdk/commit/b18a9284823bab6aacc592bcb465a6e839798427))
+* **api:** api update ([c2ae6db](https://github.com/privy-io/go-sdk/commit/c2ae6db0b1c95f774dba9d093e9e753dba85478d))
+
 ## 0.10.0 (2026-06-05)
 
 Full Changelog: [v0.9.0...v0.10.0](https://github.com/privy-io/go-sdk/compare/v0.9.0...v0.10.0)

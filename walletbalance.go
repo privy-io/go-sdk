@@ -69,14 +69,16 @@ func (r *WalletBalanceGetResponse) UnmarshalJSON(data []byte) error {
 
 type WalletBalanceGetResponseBalance struct {
 	Asset WalletBalanceGetResponseBalanceAsset `json:"asset" api:"required"`
+	// Supported blockchain network names for wallet balance and transaction queries.
+	//
 	// Any of "ethereum", "arbitrum", "avalanche", "base", "tempo", "linea",
 	// "optimism", "polygon", "solana", "zksync_era", "sepolia", "arbitrum_sepolia",
 	// "avalanche_fuji", "base_sepolia", "linea_testnet", "optimism_sepolia",
 	// "polygon_amoy", "solana_devnet", "solana_testnet".
-	Chain            string            `json:"chain" api:"required"`
-	DisplayValues    map[string]string `json:"display_values" api:"required"`
-	RawValue         string            `json:"raw_value" api:"required"`
-	RawValueDecimals float64           `json:"raw_value_decimals" api:"required"`
+	Chain            WalletAssetChainNameInput `json:"chain" api:"required"`
+	DisplayValues    map[string]string         `json:"display_values" api:"required"`
+	RawValue         string                    `json:"raw_value" api:"required"`
+	RawValueDecimals float64                   `json:"raw_value_decimals" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Asset            respjson.Field
@@ -110,6 +112,8 @@ const (
 )
 
 type WalletBalanceGetParams struct {
+	// Include archived wallets in lookup. Defaults to false.
+	IncludeArchived param.Opt[bool] `query:"include_archived,omitzero" json:"-"`
 	// The token contract address(es) to query in format "chain:address" (e.g.,
 	// "base:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" or
 	// "solana:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"). Cannot be used together
@@ -176,35 +180,11 @@ const (
 // Use [param.IsOmitted] to confirm if a field is set.
 type WalletBalanceGetParamsChainUnion struct {
 	// Check if union is this variant with
-	// !param.IsOmitted(union.OfWalletBalanceGetsChainString)
-	OfWalletBalanceGetsChainString         param.Opt[string] `query:",omitzero,inline"`
-	OfWalletBalanceGetsChainArrayItemArray []string          `query:",omitzero,inline"`
+	// !param.IsOmitted(union.OfWalletAssetChainNameInput)
+	OfWalletAssetChainNameInput      param.Opt[WalletAssetChainNameInput] `query:",omitzero,inline"`
+	OfWalletAssetChainNameInputArray []WalletAssetChainNameInput          `query:",omitzero,inline"`
 	paramUnion
 }
-
-type WalletBalanceGetParamsChainString string
-
-const (
-	WalletBalanceGetParamsChainStringEthereum        WalletBalanceGetParamsChainString = "ethereum"
-	WalletBalanceGetParamsChainStringArbitrum        WalletBalanceGetParamsChainString = "arbitrum"
-	WalletBalanceGetParamsChainStringAvalanche       WalletBalanceGetParamsChainString = "avalanche"
-	WalletBalanceGetParamsChainStringBase            WalletBalanceGetParamsChainString = "base"
-	WalletBalanceGetParamsChainStringTempo           WalletBalanceGetParamsChainString = "tempo"
-	WalletBalanceGetParamsChainStringLinea           WalletBalanceGetParamsChainString = "linea"
-	WalletBalanceGetParamsChainStringOptimism        WalletBalanceGetParamsChainString = "optimism"
-	WalletBalanceGetParamsChainStringPolygon         WalletBalanceGetParamsChainString = "polygon"
-	WalletBalanceGetParamsChainStringSolana          WalletBalanceGetParamsChainString = "solana"
-	WalletBalanceGetParamsChainStringZksyncEra       WalletBalanceGetParamsChainString = "zksync_era"
-	WalletBalanceGetParamsChainStringSepolia         WalletBalanceGetParamsChainString = "sepolia"
-	WalletBalanceGetParamsChainStringArbitrumSepolia WalletBalanceGetParamsChainString = "arbitrum_sepolia"
-	WalletBalanceGetParamsChainStringAvalancheFuji   WalletBalanceGetParamsChainString = "avalanche_fuji"
-	WalletBalanceGetParamsChainStringBaseSepolia     WalletBalanceGetParamsChainString = "base_sepolia"
-	WalletBalanceGetParamsChainStringLineaTestnet    WalletBalanceGetParamsChainString = "linea_testnet"
-	WalletBalanceGetParamsChainStringOptimismSepolia WalletBalanceGetParamsChainString = "optimism_sepolia"
-	WalletBalanceGetParamsChainStringPolygonAmoy     WalletBalanceGetParamsChainString = "polygon_amoy"
-	WalletBalanceGetParamsChainStringSolanaDevnet    WalletBalanceGetParamsChainString = "solana_devnet"
-	WalletBalanceGetParamsChainStringSolanaTestnet   WalletBalanceGetParamsChainString = "solana_testnet"
-)
 
 // If set, balances are converted to the specified fiat currency. Not supported
 // when `token` is provided.

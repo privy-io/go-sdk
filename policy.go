@@ -300,7 +300,8 @@ type ActionRequestBodyConditionResp struct {
 	FieldSource ActionRequestBodyConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -347,7 +348,8 @@ type ActionRequestBodyCondition struct {
 	FieldSource ActionRequestBodyConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -371,7 +373,8 @@ type AggregationConditionResp struct {
 	FieldSource AggregationConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -418,7 +421,8 @@ type AggregationCondition struct {
 	FieldSource AggregationConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -445,6 +449,9 @@ const (
 	ConditionOperatorLte            ConditionOperator = "lte"
 	ConditionOperatorIn             ConditionOperator = "in"
 	ConditionOperatorInConditionSet ConditionOperator = "in_condition_set"
+	ConditionOperatorContains       ConditionOperator = "contains"
+	ConditionOperatorStartsWith     ConditionOperator = "starts_with"
+	ConditionOperatorEndsWith       ConditionOperator = "ends_with"
 )
 
 // ConditionValueUnionResp contains all possible properties and values from
@@ -516,7 +523,8 @@ type Ethereum7702AuthorizationConditionResp struct {
 	FieldSource Ethereum7702AuthorizationConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -570,7 +578,8 @@ type Ethereum7702AuthorizationCondition struct {
 	FieldSource Ethereum7702AuthorizationConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -597,7 +606,8 @@ type EthereumCalldataConditionResp struct {
 	FieldSource EthereumCalldataConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -649,7 +659,8 @@ type EthereumCalldataCondition struct {
 	FieldSource EthereumCalldataConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -668,13 +679,16 @@ func (r *EthereumCalldataCondition) UnmarshalJSON(data []byte) error {
 // The verbatim Ethereum transaction object in an eth_signTransaction or
 // eth_sendTransaction request.
 type EthereumTransactionConditionResp struct {
+	// Ethereum transaction-level fields that can be referenced in a policy condition.
+	//
 	// Any of "to", "value", "chain_id".
 	Field EthereumTransactionConditionField `json:"field" api:"required"`
 	// Any of "ethereum_transaction".
 	FieldSource EthereumTransactionConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -706,14 +720,6 @@ func (r EthereumTransactionConditionResp) ToParam() EthereumTransactionCondition
 	return param.Override[EthereumTransactionCondition](json.RawMessage(r.RawJSON()))
 }
 
-type EthereumTransactionConditionField string
-
-const (
-	EthereumTransactionConditionFieldTo      EthereumTransactionConditionField = "to"
-	EthereumTransactionConditionFieldValue   EthereumTransactionConditionField = "value"
-	EthereumTransactionConditionFieldChainID EthereumTransactionConditionField = "chain_id"
-)
-
 type EthereumTransactionConditionFieldSource string
 
 const (
@@ -725,13 +731,16 @@ const (
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type EthereumTransactionCondition struct {
+	// Ethereum transaction-level fields that can be referenced in a policy condition.
+	//
 	// Any of "to", "value", "chain_id".
 	Field EthereumTransactionConditionField `json:"field,omitzero" api:"required"`
 	// Any of "ethereum_transaction".
 	FieldSource EthereumTransactionConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -747,15 +756,27 @@ func (r *EthereumTransactionCondition) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Ethereum transaction-level fields that can be referenced in a policy condition.
+type EthereumTransactionConditionField string
+
+const (
+	EthereumTransactionConditionFieldTo      EthereumTransactionConditionField = "to"
+	EthereumTransactionConditionFieldValue   EthereumTransactionConditionField = "value"
+	EthereumTransactionConditionFieldChainID EthereumTransactionConditionField = "chain_id"
+)
+
 // Attributes from the signing domain that will verify the signature.
 type EthereumTypedDataDomainConditionResp struct {
+	// Supported fields for Ethereum typed data domain conditions.
+	//
 	// Any of "chainId", "verifyingContract", "chain_id", "verifying_contract".
 	Field EthereumTypedDataDomainConditionField `json:"field" api:"required"`
 	// Any of "ethereum_typed_data_domain".
 	FieldSource EthereumTypedDataDomainConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -787,15 +808,6 @@ func (r EthereumTypedDataDomainConditionResp) ToParam() EthereumTypedDataDomainC
 	return param.Override[EthereumTypedDataDomainCondition](json.RawMessage(r.RawJSON()))
 }
 
-type EthereumTypedDataDomainConditionField string
-
-const (
-	EthereumTypedDataDomainConditionFieldChainIDMixedCase           EthereumTypedDataDomainConditionField = "chainId"
-	EthereumTypedDataDomainConditionFieldVerifyingContractCamelCase EthereumTypedDataDomainConditionField = "verifyingContract"
-	EthereumTypedDataDomainConditionFieldChainID                    EthereumTypedDataDomainConditionField = "chain_id"
-	EthereumTypedDataDomainConditionFieldVerifyingContract          EthereumTypedDataDomainConditionField = "verifying_contract"
-)
-
 type EthereumTypedDataDomainConditionFieldSource string
 
 const (
@@ -806,13 +818,16 @@ const (
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type EthereumTypedDataDomainCondition struct {
+	// Supported fields for Ethereum typed data domain conditions.
+	//
 	// Any of "chainId", "verifyingContract", "chain_id", "verifying_contract".
 	Field EthereumTypedDataDomainConditionField `json:"field,omitzero" api:"required"`
 	// Any of "ethereum_typed_data_domain".
 	FieldSource EthereumTypedDataDomainConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -828,6 +843,16 @@ func (r *EthereumTypedDataDomainCondition) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Supported fields for Ethereum typed data domain conditions.
+type EthereumTypedDataDomainConditionField string
+
+const (
+	EthereumTypedDataDomainConditionFieldChainIDMixedCase           EthereumTypedDataDomainConditionField = "chainId"
+	EthereumTypedDataDomainConditionFieldVerifyingContractCamelCase EthereumTypedDataDomainConditionField = "verifyingContract"
+	EthereumTypedDataDomainConditionFieldChainID                    EthereumTypedDataDomainConditionField = "chain_id"
+	EthereumTypedDataDomainConditionFieldVerifyingContract          EthereumTypedDataDomainConditionField = "verifying_contract"
+)
+
 // 'types' and 'primary_type' attributes of the TypedData JSON object defined in
 // EIP-712.
 type EthereumTypedDataMessageConditionResp struct {
@@ -836,9 +861,12 @@ type EthereumTypedDataMessageConditionResp struct {
 	FieldSource EthereumTypedDataMessageConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator  ConditionOperator                              `json:"operator" api:"required"`
-	TypedData EthereumTypedDataMessageConditionTypedDataResp `json:"typed_data" api:"required"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
+	Operator ConditionOperator `json:"operator" api:"required"`
+	// The typed data structure containing EIP-712 types and the primary type for typed
+	// data message policy conditions.
+	TypedData TypedDataInputResp `json:"typed_data" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
 	Value ConditionValueUnionResp `json:"value" api:"required"`
@@ -876,25 +904,6 @@ const (
 	EthereumTypedDataMessageConditionFieldSourceEthereumTypedDataMessage EthereumTypedDataMessageConditionFieldSource = "ethereum_typed_data_message"
 )
 
-type EthereumTypedDataMessageConditionTypedDataResp struct {
-	PrimaryType string `json:"primary_type" api:"required"`
-	// The type definitions for EIP-712 typed data signing.
-	Types TypedDataTypesInputParamsResp `json:"types" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		PrimaryType respjson.Field
-		Types       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r EthereumTypedDataMessageConditionTypedDataResp) RawJSON() string { return r.JSON.raw }
-func (r *EthereumTypedDataMessageConditionTypedDataResp) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // 'types' and 'primary_type' attributes of the TypedData JSON object defined in
 // EIP-712.
 //
@@ -905,9 +914,12 @@ type EthereumTypedDataMessageCondition struct {
 	FieldSource EthereumTypedDataMessageConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator  ConditionOperator                          `json:"operator,omitzero" api:"required"`
-	TypedData EthereumTypedDataMessageConditionTypedData `json:"typed_data,omitzero" api:"required"`
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
+	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
+	// The typed data structure containing EIP-712 types and the primary type for typed
+	// data message policy conditions.
+	TypedData TypedDataInput `json:"typed_data,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
 	Value ConditionValueUnion `json:"value,omitzero" api:"required"`
@@ -922,21 +934,90 @@ func (r *EthereumTypedDataMessageCondition) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// The properties PrimaryType, Types are required.
-type EthereumTypedDataMessageConditionTypedData struct {
-	PrimaryType string `json:"primary_type" api:"required"`
-	// The type definitions for EIP-712 typed data signing.
-	Types TypedDataTypesInputParams `json:"types,omitzero" api:"required"`
+// Condition on the message being signed (e.g. in personal_sign).
+type MessageSigningConditionResp struct {
+	// Supported fields for message signing conditions.
+	//
+	// Any of "content", "byte_length".
+	Field MessageSigningField `json:"field" api:"required"`
+	// Any of "message".
+	FieldSource MessageSigningConditionFieldSource `json:"field_source" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
+	Operator ConditionOperator `json:"operator" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnionResp `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r MessageSigningConditionResp) RawJSON() string { return r.JSON.raw }
+func (r *MessageSigningConditionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this MessageSigningConditionResp to a MessageSigningCondition.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// MessageSigningCondition.Overrides()
+func (r MessageSigningConditionResp) ToParam() MessageSigningCondition {
+	return param.Override[MessageSigningCondition](json.RawMessage(r.RawJSON()))
+}
+
+type MessageSigningConditionFieldSource string
+
+const (
+	MessageSigningConditionFieldSourceMessage MessageSigningConditionFieldSource = "message"
+)
+
+// Condition on the message being signed (e.g. in personal_sign).
+//
+// The properties Field, FieldSource, Operator, Value are required.
+type MessageSigningCondition struct {
+	// Supported fields for message signing conditions.
+	//
+	// Any of "content", "byte_length".
+	Field MessageSigningField `json:"field,omitzero" api:"required"`
+	// Any of "message".
+	FieldSource MessageSigningConditionFieldSource `json:"field_source,omitzero" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
+	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnion `json:"value,omitzero" api:"required"`
 	paramObj
 }
 
-func (r EthereumTypedDataMessageConditionTypedData) MarshalJSON() (data []byte, err error) {
-	type shadow EthereumTypedDataMessageConditionTypedData
+func (r MessageSigningCondition) MarshalJSON() (data []byte, err error) {
+	type shadow MessageSigningCondition
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *EthereumTypedDataMessageConditionTypedData) UnmarshalJSON(data []byte) error {
+func (r *MessageSigningCondition) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// Supported fields for message signing conditions.
+type MessageSigningField string
+
+const (
+	MessageSigningFieldContent    MessageSigningField = "content"
+	MessageSigningFieldByteLength MessageSigningField = "byte_length"
+)
 
 // A policy for controlling wallet operations.
 type Policy struct {
@@ -953,8 +1034,8 @@ type Policy struct {
 	CreatedAt float64 `json:"created_at" api:"required"`
 	// Name to assign to policy.
 	Name string `json:"name" api:"required"`
-	// The key quorum ID of the owner of the policy.
-	OwnerID string               `json:"owner_id" api:"required"`
+	// A unique identifier for a key quorum.
+	OwnerID KeyQuorumID          `json:"owner_id" api:"required" format:"cuid2"`
 	Rules   []PolicyRuleResponse `json:"rules" api:"required"`
 	// Version of the policy. Currently, 1.0 is the only version.
 	//
@@ -1004,7 +1085,8 @@ const (
 // [SolanaTokenProgramInstructionConditionResp], [SystemConditionResp],
 // [TronTransactionConditionResp], [TronCalldataConditionResp],
 // [SuiTransactionCommandConditionResp], [SuiTransferObjectsCommandConditionResp],
-// [ActionRequestBodyConditionResp], [AggregationConditionResp].
+// [ActionRequestBodyConditionResp], [AggregationConditionResp],
+// [MessageSigningConditionResp].
 //
 // Use the [PolicyConditionUnionResp.AsAny] method to switch on the variant.
 //
@@ -1017,7 +1099,7 @@ type PolicyConditionUnionResp struct {
 	// "solana_program_instruction", "solana_system_program_instruction",
 	// "solana_token_program_instruction", "system", "tron_transaction",
 	// "tron_trigger_smart_contract_data", "sui_transaction_command",
-	// "sui_transfer_objects_command", "action_request_body", "reference".
+	// "sui_transfer_objects_command", "action_request_body", "reference", "message".
 	FieldSource string `json:"field_source"`
 	Operator    string `json:"operator"`
 	// This field is a union of [ConditionValueUnionResp],
@@ -1026,7 +1108,7 @@ type PolicyConditionUnionResp struct {
 	// This field is from variant [EthereumCalldataConditionResp].
 	Abi AbiSchemaResp `json:"abi"`
 	// This field is from variant [EthereumTypedDataMessageConditionResp].
-	TypedData EthereumTypedDataMessageConditionTypedDataResp `json:"typed_data"`
+	TypedData TypedDataInputResp `json:"typed_data"`
 	JSON      struct {
 		Field       respjson.Field
 		FieldSource respjson.Field
@@ -1061,6 +1143,7 @@ func (SuiTransactionCommandConditionResp) implPolicyConditionUnionResp()        
 func (SuiTransferObjectsCommandConditionResp) implPolicyConditionUnionResp()      {}
 func (ActionRequestBodyConditionResp) implPolicyConditionUnionResp()              {}
 func (AggregationConditionResp) implPolicyConditionUnionResp()                    {}
+func (MessageSigningConditionResp) implPolicyConditionUnionResp()                 {}
 
 // Use the following switch statement to find the correct variant
 //
@@ -1081,6 +1164,7 @@ func (AggregationConditionResp) implPolicyConditionUnionResp()                  
 //	case privyclient.SuiTransferObjectsCommandConditionResp:
 //	case privyclient.ActionRequestBodyConditionResp:
 //	case privyclient.AggregationConditionResp:
+//	case privyclient.MessageSigningConditionResp:
 //	default:
 //	  fmt.Errorf("no variant present")
 //	}
@@ -1118,6 +1202,8 @@ func (u PolicyConditionUnionResp) AsAny() anyPolicyConditionResp {
 		return u.AsActionRequestBody()
 	case "reference":
 		return u.AsReference()
+	case "message":
+		return u.AsMessage()
 	}
 	return nil
 }
@@ -1202,6 +1288,11 @@ func (u PolicyConditionUnionResp) AsReference() (v AggregationConditionResp) {
 	return
 }
 
+func (u PolicyConditionUnionResp) AsMessage() (v MessageSigningConditionResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
 // Returns the unmodified JSON received from the API
 func (u PolicyConditionUnionResp) RawJSON() string { return u.JSON.raw }
 
@@ -1271,6 +1362,7 @@ type PolicyConditionUnion struct {
 	OfSuiTransferObjectsCommand      *SuiTransferObjectsCommandCondition      `json:",omitzero,inline"`
 	OfActionRequestBody              *ActionRequestBodyCondition              `json:",omitzero,inline"`
 	OfReference                      *AggregationCondition                    `json:",omitzero,inline"`
+	OfMessage                        *MessageSigningCondition                 `json:",omitzero,inline"`
 	paramUnion
 }
 
@@ -1290,7 +1382,8 @@ func (u PolicyConditionUnion) MarshalJSON() ([]byte, error) {
 		u.OfSuiTransactionCommand,
 		u.OfSuiTransferObjectsCommand,
 		u.OfActionRequestBody,
-		u.OfReference)
+		u.OfReference,
+		u.OfMessage)
 }
 func (u *PolicyConditionUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
@@ -1315,6 +1408,7 @@ func init() {
 		apijson.Discriminator[SuiTransferObjectsCommandCondition]("sui_transfer_objects_command"),
 		apijson.Discriminator[ActionRequestBodyCondition]("action_request_body"),
 		apijson.Discriminator[AggregationCondition]("reference"),
+		apijson.Discriminator[MessageSigningCondition]("message"),
 	)
 }
 
@@ -1331,9 +1425,13 @@ const (
 	PolicyMethodWalletSendCalls          PolicyMethod = "wallet_sendCalls"
 	PolicyMethodSignTransaction          PolicyMethod = "signTransaction"
 	PolicyMethodSignAndSendTransaction   PolicyMethod = "signAndSendTransaction"
+	PolicyMethodSignMessage              PolicyMethod = "signMessage"
 	PolicyMethodExportPrivateKey         PolicyMethod = "exportPrivateKey"
 	PolicyMethodExportSeedPhrase         PolicyMethod = "exportSeedPhrase"
 	PolicyMethodSignTransactionBytes     PolicyMethod = "signTransactionBytes"
+	PolicyMethodSignRawMessageBytes      PolicyMethod = "signRawMessageBytes"
+	PolicyMethodTronSendTransaction      PolicyMethod = "tron_sendTransaction"
+	PolicyMethodTronSignTransaction      PolicyMethod = "tron_signTransaction"
 	PolicyMethodEarnDeposit              PolicyMethod = "earn_deposit"
 	PolicyMethodEarnWithdraw             PolicyMethod = "earn_withdraw"
 	PolicyMethodTransfer                 PolicyMethod = "transfer"
@@ -1351,9 +1449,10 @@ type PolicyRuleRequestBodyResp struct {
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "personal_sign", "eth_sign7702Authorization",
-	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction",
-	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "earn_deposit",
-	// "earn_withdraw", "transfer", "\*".
+	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
+	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes",
+	// "signRawMessageBytes", "tron_sendTransaction", "tron_signTransaction",
+	// "earn_deposit", "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod `json:"method" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -1395,9 +1494,10 @@ type PolicyRuleRequestBody struct {
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "personal_sign", "eth_sign7702Authorization",
-	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction",
-	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "earn_deposit",
-	// "earn_withdraw", "transfer", "\*".
+	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
+	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes",
+	// "signRawMessageBytes", "tron_sendTransaction", "tron_signTransaction",
+	// "earn_deposit", "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod `json:"method,omitzero" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	paramObj
@@ -1424,9 +1524,10 @@ type PolicyRuleResponse struct {
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "personal_sign", "eth_sign7702Authorization",
-	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction",
-	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "earn_deposit",
-	// "earn_withdraw", "transfer", "\*".
+	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
+	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes",
+	// "signRawMessageBytes", "tron_sendTransaction", "tron_signTransaction",
+	// "earn_deposit", "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod `json:"method" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -1455,7 +1556,8 @@ type SolanaProgramInstructionConditionResp struct {
 	FieldSource SolanaProgramInstructionConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -1509,7 +1611,8 @@ type SolanaProgramInstructionCondition struct {
 	FieldSource SolanaProgramInstructionConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -1528,13 +1631,17 @@ func (r *SolanaProgramInstructionCondition) UnmarshalJSON(data []byte) error {
 // Solana System Program attributes, including more granular Transfer instruction
 // fields.
 type SolanaSystemProgramInstructionConditionResp struct {
+	// Supported fields for Solana System Program conditions including Transfer
+	// instruction fields.
+	//
 	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
 	Field SolanaSystemProgramInstructionConditionField `json:"field" api:"required"`
 	// Any of "solana_system_program_instruction".
 	FieldSource SolanaSystemProgramInstructionConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -1566,15 +1673,6 @@ func (r SolanaSystemProgramInstructionConditionResp) ToParam() SolanaSystemProgr
 	return param.Override[SolanaSystemProgramInstructionCondition](json.RawMessage(r.RawJSON()))
 }
 
-type SolanaSystemProgramInstructionConditionField string
-
-const (
-	SolanaSystemProgramInstructionConditionFieldInstructionName  SolanaSystemProgramInstructionConditionField = "instructionName"
-	SolanaSystemProgramInstructionConditionFieldTransferFrom     SolanaSystemProgramInstructionConditionField = "Transfer.from"
-	SolanaSystemProgramInstructionConditionFieldTransferTo       SolanaSystemProgramInstructionConditionField = "Transfer.to"
-	SolanaSystemProgramInstructionConditionFieldTransferLamports SolanaSystemProgramInstructionConditionField = "Transfer.lamports"
-)
-
 type SolanaSystemProgramInstructionConditionFieldSource string
 
 const (
@@ -1586,13 +1684,17 @@ const (
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type SolanaSystemProgramInstructionCondition struct {
+	// Supported fields for Solana System Program conditions including Transfer
+	// instruction fields.
+	//
 	// Any of "instructionName", "Transfer.from", "Transfer.to", "Transfer.lamports".
 	Field SolanaSystemProgramInstructionConditionField `json:"field,omitzero" api:"required"`
 	// Any of "solana_system_program_instruction".
 	FieldSource SolanaSystemProgramInstructionConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -1608,9 +1710,24 @@ func (r *SolanaSystemProgramInstructionCondition) UnmarshalJSON(data []byte) err
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Supported fields for Solana System Program conditions including Transfer
+// instruction fields.
+type SolanaSystemProgramInstructionConditionField string
+
+const (
+	SolanaSystemProgramInstructionConditionFieldInstructionName  SolanaSystemProgramInstructionConditionField = "instructionName"
+	SolanaSystemProgramInstructionConditionFieldTransferFrom     SolanaSystemProgramInstructionConditionField = "Transfer.from"
+	SolanaSystemProgramInstructionConditionFieldTransferTo       SolanaSystemProgramInstructionConditionField = "Transfer.to"
+	SolanaSystemProgramInstructionConditionFieldTransferLamports SolanaSystemProgramInstructionConditionField = "Transfer.lamports"
+)
+
 // Solana Token Program attributes, including more granular TransferChecked
 // instruction fields.
 type SolanaTokenProgramInstructionConditionResp struct {
+	// Supported fields for Solana Token Program conditions including Transfer,
+	// TransferChecked, Burn, MintTo, CloseAccount, and InitializeAccount3 instruction
+	// fields.
+	//
 	// Any of "instructionName", "Transfer.source", "Transfer.destination",
 	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
 	// "TransferChecked.destination", "TransferChecked.authority",
@@ -1625,7 +1742,8 @@ type SolanaTokenProgramInstructionConditionResp struct {
 	FieldSource SolanaTokenProgramInstructionConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -1657,6 +1775,55 @@ func (r SolanaTokenProgramInstructionConditionResp) ToParam() SolanaTokenProgram
 	return param.Override[SolanaTokenProgramInstructionCondition](json.RawMessage(r.RawJSON()))
 }
 
+type SolanaTokenProgramInstructionConditionFieldSource string
+
+const (
+	SolanaTokenProgramInstructionConditionFieldSourceSolanaTokenProgramInstruction SolanaTokenProgramInstructionConditionFieldSource = "solana_token_program_instruction"
+)
+
+// Solana Token Program attributes, including more granular TransferChecked
+// instruction fields.
+//
+// The properties Field, FieldSource, Operator, Value are required.
+type SolanaTokenProgramInstructionCondition struct {
+	// Supported fields for Solana Token Program conditions including Transfer,
+	// TransferChecked, Burn, MintTo, CloseAccount, and InitializeAccount3 instruction
+	// fields.
+	//
+	// Any of "instructionName", "Transfer.source", "Transfer.destination",
+	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
+	// "TransferChecked.destination", "TransferChecked.authority",
+	// "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint",
+	// "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account",
+	// "MintTo.authority", "MintTo.amount", "CloseAccount.account",
+	// "CloseAccount.destination", "CloseAccount.authority",
+	// "InitializeAccount3.account", "InitializeAccount3.mint",
+	// "InitializeAccount3.owner".
+	Field SolanaTokenProgramInstructionConditionField `json:"field,omitzero" api:"required"`
+	// Any of "solana_token_program_instruction".
+	FieldSource SolanaTokenProgramInstructionConditionFieldSource `json:"field_source,omitzero" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
+	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnion `json:"value,omitzero" api:"required"`
+	paramObj
+}
+
+func (r SolanaTokenProgramInstructionCondition) MarshalJSON() (data []byte, err error) {
+	type shadow SolanaTokenProgramInstructionCondition
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *SolanaTokenProgramInstructionCondition) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Supported fields for Solana Token Program conditions including Transfer,
+// TransferChecked, Burn, MintTo, CloseAccount, and InitializeAccount3 instruction
+// fields.
 type SolanaTokenProgramInstructionConditionField string
 
 const (
@@ -1685,47 +1852,6 @@ const (
 	SolanaTokenProgramInstructionConditionFieldInitializeAccount3Mint     SolanaTokenProgramInstructionConditionField = "InitializeAccount3.mint"
 	SolanaTokenProgramInstructionConditionFieldInitializeAccount3Owner    SolanaTokenProgramInstructionConditionField = "InitializeAccount3.owner"
 )
-
-type SolanaTokenProgramInstructionConditionFieldSource string
-
-const (
-	SolanaTokenProgramInstructionConditionFieldSourceSolanaTokenProgramInstruction SolanaTokenProgramInstructionConditionFieldSource = "solana_token_program_instruction"
-)
-
-// Solana Token Program attributes, including more granular TransferChecked
-// instruction fields.
-//
-// The properties Field, FieldSource, Operator, Value are required.
-type SolanaTokenProgramInstructionCondition struct {
-	// Any of "instructionName", "Transfer.source", "Transfer.destination",
-	// "Transfer.authority", "Transfer.amount", "TransferChecked.source",
-	// "TransferChecked.destination", "TransferChecked.authority",
-	// "TransferChecked.amount", "TransferChecked.mint", "Burn.account", "Burn.mint",
-	// "Burn.authority", "Burn.amount", "MintTo.mint", "MintTo.account",
-	// "MintTo.authority", "MintTo.amount", "CloseAccount.account",
-	// "CloseAccount.destination", "CloseAccount.authority",
-	// "InitializeAccount3.account", "InitializeAccount3.mint",
-	// "InitializeAccount3.owner".
-	Field SolanaTokenProgramInstructionConditionField `json:"field,omitzero" api:"required"`
-	// Any of "solana_token_program_instruction".
-	FieldSource SolanaTokenProgramInstructionConditionFieldSource `json:"field_source,omitzero" api:"required"`
-	// Operator to use for policy conditions.
-	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
-	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
-	// Value to compare against in a policy condition. Can be a single string or an
-	// array of strings.
-	Value ConditionValueUnion `json:"value,omitzero" api:"required"`
-	paramObj
-}
-
-func (r SolanaTokenProgramInstructionCondition) MarshalJSON() (data []byte, err error) {
-	type shadow SolanaTokenProgramInstructionCondition
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *SolanaTokenProgramInstructionCondition) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
 
 // SUI transaction command attributes, enables allowlisting specific command types.
 // Allowed commands: 'TransferObjects', 'SplitCoins', 'MergeCoins'. Only 'eq' and
@@ -1886,7 +2012,8 @@ type SuiTransferObjectsCommandConditionResp struct {
 	FieldSource SuiTransferObjectsCommandConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -1937,7 +2064,8 @@ type SuiTransferObjectsCommandCondition struct {
 	FieldSource SuiTransferObjectsCommandConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -1970,7 +2098,8 @@ type SystemConditionResp struct {
 	FieldSource SystemConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -2023,7 +2152,8 @@ type SystemCondition struct {
 	FieldSource SystemConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -2052,7 +2182,8 @@ type TempoTransactionConditionResp struct {
 	FieldSource TempoTransactionConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -2105,7 +2236,8 @@ type TempoTransactionCondition struct {
 	FieldSource TempoTransactionConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -2142,7 +2274,8 @@ type TronCalldataConditionResp struct {
 	FieldSource TronCalldataConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -2191,7 +2324,8 @@ type TronCalldataCondition struct {
 	FieldSource TronCalldataConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -2210,7 +2344,8 @@ func (r *TronCalldataCondition) UnmarshalJSON(data []byte) error {
 // TRON transaction fields for TransferContract and TriggerSmartContract
 // transaction types.
 type TronTransactionConditionResp struct {
-	// Supported TRON transaction fields in format "TransactionType.field_name"
+	// Supported TRON transaction fields for TransferContract and TriggerSmartContract
+	// in format "TransactionType.field_name".
 	//
 	// Any of "TransferContract.to_address", "TransferContract.amount",
 	// "TriggerSmartContract.contract_address", "TriggerSmartContract.call_value",
@@ -2220,7 +2355,8 @@ type TronTransactionConditionResp struct {
 	FieldSource TronTransactionConditionFieldSource `json:"field_source" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -2252,18 +2388,6 @@ func (r TronTransactionConditionResp) ToParam() TronTransactionCondition {
 	return param.Override[TronTransactionCondition](json.RawMessage(r.RawJSON()))
 }
 
-// Supported TRON transaction fields in format "TransactionType.field_name"
-type TronTransactionConditionField string
-
-const (
-	TronTransactionConditionFieldTransferContractToAddress           TronTransactionConditionField = "TransferContract.to_address"
-	TronTransactionConditionFieldTransferContractAmount              TronTransactionConditionField = "TransferContract.amount"
-	TronTransactionConditionFieldTriggerSmartContractContractAddress TronTransactionConditionField = "TriggerSmartContract.contract_address"
-	TronTransactionConditionFieldTriggerSmartContractCallValue       TronTransactionConditionField = "TriggerSmartContract.call_value"
-	TronTransactionConditionFieldTriggerSmartContractTokenID         TronTransactionConditionField = "TriggerSmartContract.token_id"
-	TronTransactionConditionFieldTriggerSmartContractCallTokenValue  TronTransactionConditionField = "TriggerSmartContract.call_token_value"
-)
-
 type TronTransactionConditionFieldSource string
 
 const (
@@ -2275,7 +2399,8 @@ const (
 //
 // The properties Field, FieldSource, Operator, Value are required.
 type TronTransactionCondition struct {
-	// Supported TRON transaction fields in format "TransactionType.field_name"
+	// Supported TRON transaction fields for TransferContract and TriggerSmartContract
+	// in format "TransactionType.field_name".
 	//
 	// Any of "TransferContract.to_address", "TransferContract.amount",
 	// "TriggerSmartContract.contract_address", "TriggerSmartContract.call_value",
@@ -2285,7 +2410,8 @@ type TronTransactionCondition struct {
 	FieldSource TronTransactionConditionFieldSource `json:"field_source,omitzero" api:"required"`
 	// Operator to use for policy conditions.
 	//
-	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set".
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
 	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
 	// Value to compare against in a policy condition. Can be a single string or an
 	// array of strings.
@@ -2298,6 +2424,68 @@ func (r TronTransactionCondition) MarshalJSON() (data []byte, err error) {
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *TronTransactionCondition) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Supported TRON transaction fields for TransferContract and TriggerSmartContract
+// in format "TransactionType.field_name".
+type TronTransactionConditionField string
+
+const (
+	TronTransactionConditionFieldTransferContractToAddress           TronTransactionConditionField = "TransferContract.to_address"
+	TronTransactionConditionFieldTransferContractAmount              TronTransactionConditionField = "TransferContract.amount"
+	TronTransactionConditionFieldTriggerSmartContractContractAddress TronTransactionConditionField = "TriggerSmartContract.contract_address"
+	TronTransactionConditionFieldTriggerSmartContractCallValue       TronTransactionConditionField = "TriggerSmartContract.call_value"
+	TronTransactionConditionFieldTriggerSmartContractTokenID         TronTransactionConditionField = "TriggerSmartContract.token_id"
+	TronTransactionConditionFieldTriggerSmartContractCallTokenValue  TronTransactionConditionField = "TriggerSmartContract.call_token_value"
+)
+
+// The typed data structure containing EIP-712 types and the primary type for typed
+// data message policy conditions.
+type TypedDataInputResp struct {
+	PrimaryType string `json:"primary_type" api:"required"`
+	// The type definitions for EIP-712 typed data signing.
+	Types TypedDataTypesInputParamsResp `json:"types" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		PrimaryType respjson.Field
+		Types       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TypedDataInputResp) RawJSON() string { return r.JSON.raw }
+func (r *TypedDataInputResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TypedDataInputResp to a TypedDataInput.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TypedDataInput.Overrides()
+func (r TypedDataInputResp) ToParam() TypedDataInput {
+	return param.Override[TypedDataInput](json.RawMessage(r.RawJSON()))
+}
+
+// The typed data structure containing EIP-712 types and the primary type for typed
+// data message policy conditions.
+//
+// The properties PrimaryType, Types are required.
+type TypedDataInput struct {
+	PrimaryType string `json:"primary_type" api:"required"`
+	// The type definitions for EIP-712 typed data signing.
+	Types TypedDataTypesInputParams `json:"types,omitzero" api:"required"`
+	paramObj
+}
+
+func (r TypedDataInput) MarshalJSON() (data []byte, err error) {
+	type shadow TypedDataInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TypedDataInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2346,9 +2534,10 @@ type PolicyNewParamsRule struct {
 	//
 	// Any of "eth_sendTransaction", "eth_signTransaction", "eth_signUserOperation",
 	// "eth_signTypedData_v4", "personal_sign", "eth_sign7702Authorization",
-	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction",
-	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes", "earn_deposit",
-	// "earn_withdraw", "transfer", "\*".
+	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
+	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes",
+	// "signRawMessageBytes", "tron_sendTransaction", "tron_signTransaction",
+	// "earn_deposit", "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod      `json:"method,omitzero" api:"required"`
 	Name   string            `json:"name" api:"required"`
 	ID     param.Opt[string] `json:"id,omitzero"`

@@ -3,15 +3,25 @@
 package privyclient
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"net/http"
+	"net/url"
+	"slices"
 	"time"
 
 	"github.com/privy-io/go-sdk/internal/apijson"
+	"github.com/privy-io/go-sdk/internal/apiquery"
+	"github.com/privy-io/go-sdk/internal/requestconfig"
 	"github.com/privy-io/go-sdk/option"
 	"github.com/privy-io/go-sdk/packages/param"
 	"github.com/privy-io/go-sdk/packages/respjson"
 )
 
+// Operations related to wallet actions
+//
 // WalletActionService contains methods and other services that help with
 // interacting with the Privy API API.
 //
@@ -31,6 +41,76 @@ func NewWalletActionService(opts ...option.RequestOption) (r WalletActionService
 	return
 }
 
+// Get the current status of a wallet action by its ID. Use `?include=steps` to
+// include step-level details.
+func (r *WalletActionService) Get(ctx context.Context, actionID string, params WalletActionGetParams, opts ...option.RequestOption) (res *WalletActionResponseUnion, err error) {
+	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
+		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
+	}
+	opts = slices.Concat(r.Options, opts)
+	if params.WalletID == "" {
+		err = errors.New("missing required wallet_id parameter")
+		return nil, err
+	}
+	if actionID == "" {
+		err = errors.New("missing required action_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/wallets/%s/actions/%s", url.PathEscape(params.WalletID), actionID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, params, &res, opts...)
+	return res, err
+}
+
+// A wallet action step representing a transaction executed by a custodian (e.g.
+// Bridge).
+type CustodianTransactionWalletActionStep struct {
+	// Identifier of the custodian executing this transaction (e.g. "bridge").
+	Custodian string `json:"custodian" api:"required"`
+	// Status of a custodian transaction step in a wallet action.
+	//
+	// Any of "preparing", "queued", "custodian_reviewing", "pending", "confirmed",
+	// "rejected", "failed".
+	Status CustodianTransactionWalletActionStepStatus `json:"status" api:"required"`
+	// Any of "custodian_transaction".
+	Type CustodianTransactionWalletActionStepType `json:"type" api:"required"`
+	// A description of why a wallet action (or a step within a wallet action) failed.
+	FailureReason FailureReason `json:"failure_reason"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Custodian     respjson.Field
+		Status        respjson.Field
+		Type          respjson.Field
+		FailureReason respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r CustodianTransactionWalletActionStep) RawJSON() string { return r.JSON.raw }
+func (r *CustodianTransactionWalletActionStep) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type CustodianTransactionWalletActionStepType string
+
+const (
+	CustodianTransactionWalletActionStepTypeCustodianTransaction CustodianTransactionWalletActionStepType = "custodian_transaction"
+)
+
+// Status of a custodian transaction step in a wallet action.
+type CustodianTransactionWalletActionStepStatus string
+
+const (
+	CustodianTransactionWalletActionStepStatusPreparing          CustodianTransactionWalletActionStepStatus = "preparing"
+	CustodianTransactionWalletActionStepStatusQueued             CustodianTransactionWalletActionStepStatus = "queued"
+	CustodianTransactionWalletActionStepStatusCustodianReviewing CustodianTransactionWalletActionStepStatus = "custodian_reviewing"
+	CustodianTransactionWalletActionStepStatusPending            CustodianTransactionWalletActionStepStatus = "pending"
+	CustodianTransactionWalletActionStepStatusConfirmed          CustodianTransactionWalletActionStepStatus = "confirmed"
+	CustodianTransactionWalletActionStepStatusRejected           CustodianTransactionWalletActionStepStatus = "rejected"
+	CustodianTransactionWalletActionStepStatusFailed             CustodianTransactionWalletActionStepStatus = "failed"
+)
+
 // A wallet action step consisting of an EVM transaction.
 type EvmTransactionWalletActionStep struct {
 	// CAIP-2 chain identifier of the transaction, containing the chain ID.
@@ -47,6 +127,9 @@ type EvmTransactionWalletActionStep struct {
 	Type EvmTransactionWalletActionStepType `json:"type" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason"`
+	// Whether this step has reached on-chain finality. Absent until finality is
+	// confirmed.
+	Finalized bool `json:"finalized"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2           respjson.Field
@@ -54,6 +137,7 @@ type EvmTransactionWalletActionStep struct {
 		TransactionHash respjson.Field
 		Type            respjson.Field
 		FailureReason   respjson.Field
+		Finalized       respjson.Field
 		ExtraFields     map[string]respjson.Field
 		raw             string
 	} `json:"-"`
@@ -71,6 +155,16 @@ const (
 	EvmTransactionWalletActionStepTypeEvmTransaction EvmTransactionWalletActionStepType = "evm_transaction"
 )
 
+// The ERC-4337 entrypoint contract version used by the user operation.
+type EvmUserOperationEntrypointVersion string
+
+const (
+	EvmUserOperationEntrypointVersion0_6 EvmUserOperationEntrypointVersion = "0.6"
+	EvmUserOperationEntrypointVersion0_7 EvmUserOperationEntrypointVersion = "0.7"
+	EvmUserOperationEntrypointVersion0_8 EvmUserOperationEntrypointVersion = "0.8"
+	EvmUserOperationEntrypointVersion0_9 EvmUserOperationEntrypointVersion = "0.9"
+)
+
 // A wallet action step consisting of an EVM user operation.
 type EvmUserOperationWalletActionStep struct {
 	// Transaction hash of the bundle in which this user operation was included. Null
@@ -78,10 +172,10 @@ type EvmUserOperationWalletActionStep struct {
 	BundleTransactionHash string `json:"bundle_transaction_hash" api:"required"`
 	// CAIP-2 network identifier, containing the chain ID of the user operation.
 	Caip2 string `json:"caip2" api:"required"`
-	// The entrypoint version of the user operation.
+	// The ERC-4337 entrypoint contract version used by the user operation.
 	//
 	// Any of "0.6", "0.7", "0.8", "0.9".
-	EntrypointVersion EvmUserOperationWalletActionStepEntrypointVersion `json:"entrypoint_version" api:"required"`
+	EntrypointVersion EvmUserOperationEntrypointVersion `json:"entrypoint_version" api:"required"`
 	// Status of an EVM step in a wallet action.
 	//
 	// Any of "preparing", "queued", "pending", "retrying", "confirmed", "rejected",
@@ -94,6 +188,11 @@ type EvmUserOperationWalletActionStep struct {
 	UserOperationHash string `json:"user_operation_hash" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason"`
+	// Whether this step has reached on-chain finality. Absent until finality is
+	// confirmed.
+	Finalized bool `json:"finalized"`
+	// Amount charged in USD for gas sponsorship on this step.
+	GasCreditsChargedUsd string `json:"gas_credits_charged_usd"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		BundleTransactionHash respjson.Field
@@ -103,6 +202,8 @@ type EvmUserOperationWalletActionStep struct {
 		Type                  respjson.Field
 		UserOperationHash     respjson.Field
 		FailureReason         respjson.Field
+		Finalized             respjson.Field
+		GasCreditsChargedUsd  respjson.Field
 		ExtraFields           map[string]respjson.Field
 		raw                   string
 	} `json:"-"`
@@ -113,16 +214,6 @@ func (r EvmUserOperationWalletActionStep) RawJSON() string { return r.JSON.raw }
 func (r *EvmUserOperationWalletActionStep) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-// The entrypoint version of the user operation.
-type EvmUserOperationWalletActionStepEntrypointVersion string
-
-const (
-	EvmUserOperationWalletActionStepEntrypointVersion0_6 EvmUserOperationWalletActionStepEntrypointVersion = "0.6"
-	EvmUserOperationWalletActionStepEntrypointVersion0_7 EvmUserOperationWalletActionStepEntrypointVersion = "0.7"
-	EvmUserOperationWalletActionStepEntrypointVersion0_8 EvmUserOperationWalletActionStepEntrypointVersion = "0.8"
-	EvmUserOperationWalletActionStepEntrypointVersion0_9 EvmUserOperationWalletActionStepEntrypointVersion = "0.9"
-)
 
 type EvmUserOperationWalletActionStepType string
 
@@ -509,8 +600,8 @@ type SvmTransactionWalletActionStep struct {
 	Caip2 string `json:"caip2" api:"required"`
 	// Status of an SVM step in a wallet action.
 	//
-	// Any of "preparing", "queued", "pending", "confirmed", "finalized", "rejected",
-	// "reverted", "failed".
+	// Any of "preparing", "queued", "pending", "confirmed", "rejected", "reverted",
+	// "failed".
 	Status SvmWalletActionStepStatus `json:"status" api:"required"`
 	// The Solana transaction signature (base58-encoded). Null until broadcast.
 	TransactionSignature string `json:"transaction_signature" api:"required"`
@@ -518,6 +609,11 @@ type SvmTransactionWalletActionStep struct {
 	Type SvmTransactionWalletActionStepType `json:"type" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason"`
+	// Whether this step has reached on-chain finality. Absent until finality is
+	// confirmed.
+	Finalized bool `json:"finalized"`
+	// Amount charged in USD for gas sponsorship on this step.
+	GasCreditsChargedUsd string `json:"gas_credits_charged_usd"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2                respjson.Field
@@ -525,6 +621,8 @@ type SvmTransactionWalletActionStep struct {
 		TransactionSignature respjson.Field
 		Type                 respjson.Field
 		FailureReason        respjson.Field
+		Finalized            respjson.Field
+		GasCreditsChargedUsd respjson.Field
 		ExtraFields          map[string]respjson.Field
 		raw                  string
 	} `json:"-"`
@@ -550,7 +648,6 @@ const (
 	SvmWalletActionStepStatusQueued    SvmWalletActionStepStatus = "queued"
 	SvmWalletActionStepStatusPending   SvmWalletActionStepStatus = "pending"
 	SvmWalletActionStepStatusConfirmed SvmWalletActionStepStatus = "confirmed"
-	SvmWalletActionStepStatusFinalized SvmWalletActionStepStatus = "finalized"
 	SvmWalletActionStepStatusRejected  SvmWalletActionStepStatus = "rejected"
 	SvmWalletActionStepStatusReverted  SvmWalletActionStepStatus = "reverted"
 	SvmWalletActionStepStatusFailed    SvmWalletActionStepStatus = "failed"
@@ -580,43 +677,50 @@ type SwapActionResponse struct {
 	Type SwapActionResponseType `json:"type" api:"required"`
 	// The ID of the wallet involved in the action.
 	WalletID string `json:"wallet_id" api:"required"`
+	// Recipient address on the destination chain. Present for cross-chain swaps. May
+	// differ from the source wallet address when swapping between chain types (e.g.
+	// EVM to Solana).
+	DestinationAddress string `json:"destination_address"`
 	// Destination chain CAIP-2 identifier. Present for cross-chain swaps.
 	DestinationCaip2 string `json:"destination_caip2"`
-	// Estimated fee breakdown from the provider quote.
-	EstimatedFees []FeeLineItemUnion `json:"estimated_fees"`
+	// Estimated fee breakdown from the provider quote. Only present for cross-chain
+	// swaps. Populated after on-chain confirmation.
+	EstimatedFees []FeeLineItemUnion `json:"estimated_fees" api:"nullable"`
 	// Gas cost for a blockchain action. Includes both raw base-unit amount and a
 	// human-readable decimal string, plus the gas token symbol.
-	EstimatedGas Gas `json:"estimated_gas"`
+	EstimatedGas Gas `json:"estimated_gas" api:"nullable"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason"`
-	// Actual fees paid for the swap. Populated after on-chain confirmation.
-	Fees []FeeLineItemUnion `json:"fees"`
+	// Actual fees paid for the swap. Populated after on-chain confirmation. Only
+	// present for cross-chain swaps.
+	Fees []FeeLineItemUnion `json:"fees" api:"nullable"`
 	// Gas cost for a blockchain action. Includes both raw base-unit amount and a
 	// human-readable decimal string, plus the gas token symbol.
-	Gas Gas `json:"gas"`
+	Gas Gas `json:"gas" api:"nullable"`
 	// The steps of the wallet action. Only returned if `?include=steps` is provided.
 	Steps []WalletActionStepUnion `json:"steps"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		ID               respjson.Field
-		Caip2            respjson.Field
-		CreatedAt        respjson.Field
-		InputAmount      respjson.Field
-		InputToken       respjson.Field
-		OutputAmount     respjson.Field
-		OutputToken      respjson.Field
-		Status           respjson.Field
-		Type             respjson.Field
-		WalletID         respjson.Field
-		DestinationCaip2 respjson.Field
-		EstimatedFees    respjson.Field
-		EstimatedGas     respjson.Field
-		FailureReason    respjson.Field
-		Fees             respjson.Field
-		Gas              respjson.Field
-		Steps            respjson.Field
-		ExtraFields      map[string]respjson.Field
-		raw              string
+		ID                 respjson.Field
+		Caip2              respjson.Field
+		CreatedAt          respjson.Field
+		InputAmount        respjson.Field
+		InputToken         respjson.Field
+		OutputAmount       respjson.Field
+		OutputToken        respjson.Field
+		Status             respjson.Field
+		Type               respjson.Field
+		WalletID           respjson.Field
+		DestinationAddress respjson.Field
+		DestinationCaip2   respjson.Field
+		EstimatedFees      respjson.Field
+		EstimatedGas       respjson.Field
+		FailureReason      respjson.Field
+		Fees               respjson.Field
+		Gas                respjson.Field
+		Steps              respjson.Field
+		ExtraFields        map[string]respjson.Field
+		raw                string
 	} `json:"-"`
 }
 
@@ -632,6 +736,58 @@ const (
 	SwapActionResponseTypeSwap SwapActionResponseType = "swap"
 )
 
+// A wallet action step consisting of a TVM (Tron) transaction.
+type TvmTransactionWalletActionStep struct {
+	// CAIP-2 chain identifier for the Tron network.
+	Caip2 string `json:"caip2" api:"required"`
+	// Status of a TVM (Tron) step in a wallet action.
+	//
+	// Any of "preparing", "queued", "pending", "confirmed", "rejected", "reverted",
+	// "failed".
+	Status TvmWalletActionStepStatus `json:"status" api:"required"`
+	// The Tron transaction ID. Null until broadcast.
+	TransactionID string `json:"transaction_id" api:"required"`
+	// Any of "tvm_transaction".
+	Type TvmTransactionWalletActionStepType `json:"type" api:"required"`
+	// A description of why a wallet action (or a step within a wallet action) failed.
+	FailureReason FailureReason `json:"failure_reason"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Caip2         respjson.Field
+		Status        respjson.Field
+		TransactionID respjson.Field
+		Type          respjson.Field
+		FailureReason respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TvmTransactionWalletActionStep) RawJSON() string { return r.JSON.raw }
+func (r *TvmTransactionWalletActionStep) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type TvmTransactionWalletActionStepType string
+
+const (
+	TvmTransactionWalletActionStepTypeTvmTransaction TvmTransactionWalletActionStepType = "tvm_transaction"
+)
+
+// Status of a TVM (Tron) step in a wallet action.
+type TvmWalletActionStepStatus string
+
+const (
+	TvmWalletActionStepStatusPreparing TvmWalletActionStepStatus = "preparing"
+	TvmWalletActionStepStatusQueued    TvmWalletActionStepStatus = "queued"
+	TvmWalletActionStepStatusPending   TvmWalletActionStepStatus = "pending"
+	TvmWalletActionStepStatusConfirmed TvmWalletActionStepStatus = "confirmed"
+	TvmWalletActionStepStatusRejected  TvmWalletActionStepStatus = "rejected"
+	TvmWalletActionStepStatusReverted  TvmWalletActionStepStatus = "reverted"
+	TvmWalletActionStepStatusFailed    TvmWalletActionStepStatus = "failed"
+)
+
 // Response for a transfer action.
 type TransferActionResponse struct {
 	// The ID of the wallet action.
@@ -640,6 +796,10 @@ type TransferActionResponse struct {
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Recipient address.
 	DestinationAddress string `json:"destination_address" api:"required"`
+	// Amount received on the destination chain. For exact_output cross-chain
+	// transfers, set at creation (the guaranteed exact amount). For exact_input
+	// cross-chain transfers, null until fill confirmation.
+	DestinationAmount string `json:"destination_amount" api:"required"`
 	// Chain name (e.g. "base", "ethereum").
 	SourceChain string `json:"source_chain" api:"required"`
 	// Status of a wallet action.
@@ -650,27 +810,30 @@ type TransferActionResponse struct {
 	Type TransferActionResponseType `json:"type" api:"required"`
 	// The ID of the wallet involved in the action.
 	WalletID string `json:"wallet_id" api:"required"`
-	// Amount received on the destination chain. Populated immediately for exact_output
-	// transfers, or after fill confirmation for exact_input transfers.
-	DestinationAmount string `json:"destination_amount"`
+	// Whether the amount refers to the input token or output token.
+	//
+	// Any of "exact_input", "exact_output".
+	AmountType AmountType `json:"amount_type"`
 	// Destination asset for cross-asset transfers. Omitted for same-asset transfers.
 	DestinationAsset string `json:"destination_asset"`
 	// Destination chain for cross-chain transfers. Omitted for same-chain transfers.
 	DestinationChain string `json:"destination_chain"`
-	// Estimated fee breakdown from the provider quote.
-	EstimatedFees []FeeLineItemUnion `json:"estimated_fees"`
+	// Estimated fee breakdown from the provider quote. Only present for cross-chain or
+	// cross-asset transfers. Populated after on-chain confirmation.
+	EstimatedFees []FeeLineItemUnion `json:"estimated_fees" api:"nullable"`
 	// Gas cost for a blockchain action. Includes both raw base-unit amount and a
 	// human-readable decimal string, plus the gas token symbol.
-	EstimatedGas Gas `json:"estimated_gas"`
+	EstimatedGas Gas `json:"estimated_gas" api:"nullable"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason"`
-	// Actual fees paid for the transfer. Populated after on-chain confirmation.
-	Fees []FeeLineItemUnion `json:"fees"`
+	// Actual fees paid for the transfer. Populated after on-chain confirmation. Only
+	// present for cross-chain transfers.
+	Fees []FeeLineItemUnion `json:"fees" api:"nullable"`
 	// Gas cost for a blockchain action. Includes both raw base-unit amount and a
 	// human-readable decimal string, plus the gas token symbol.
-	Gas Gas `json:"gas"`
-	// Decimal amount sent on the source chain (e.g. "1.5"). Omitted for exact_output
-	// cross-chain transfers until the source amount is determined.
+	Gas Gas `json:"gas" api:"nullable"`
+	// Decimal amount sent on the source chain (e.g. "1.5"). For exact_output
+	// cross-chain transfers, null until fill confirmation.
 	SourceAmount string `json:"source_amount"`
 	// Asset identifier (e.g. "usdc", "eth"). Present when the transfer was initiated
 	// with a named asset; omitted for custom-token transfers.
@@ -688,11 +851,12 @@ type TransferActionResponse struct {
 		ID                  respjson.Field
 		CreatedAt           respjson.Field
 		DestinationAddress  respjson.Field
+		DestinationAmount   respjson.Field
 		SourceChain         respjson.Field
 		Status              respjson.Field
 		Type                respjson.Field
 		WalletID            respjson.Field
-		DestinationAmount   respjson.Field
+		AmountType          respjson.Field
 		DestinationAsset    respjson.Field
 		DestinationChain    respjson.Field
 		EstimatedFees       respjson.Field
@@ -722,6 +886,194 @@ const (
 	TransferActionResponseTypeTransfer TransferActionResponseType = "transfer"
 )
 
+// Expandable relations to include on a wallet action response.
+type WalletActionInclude string
+
+const (
+	WalletActionIncludeSteps WalletActionInclude = "steps"
+)
+
+// WalletActionResponseUnion contains all possible properties and values from
+// [SwapActionResponse], [TransferActionResponse], [EarnDepositActionResponse],
+// [EarnWithdrawActionResponse], [EarnIncentiveClaimActionResponse].
+//
+// Use the [WalletActionResponseUnion.AsAny] method to switch on the variant.
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type WalletActionResponseUnion struct {
+	ID        string    `json:"id"`
+	Caip2     string    `json:"caip2"`
+	CreatedAt time.Time `json:"created_at"`
+	// This field is from variant [SwapActionResponse].
+	InputAmount string `json:"input_amount"`
+	// This field is from variant [SwapActionResponse].
+	InputToken string `json:"input_token"`
+	// This field is from variant [SwapActionResponse].
+	OutputAmount string `json:"output_amount"`
+	// This field is from variant [SwapActionResponse].
+	OutputToken string `json:"output_token"`
+	// This field is from variant [SwapActionResponse].
+	Status WalletActionStatus `json:"status"`
+	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
+	// "earn_incentive_claim".
+	Type               string `json:"type"`
+	WalletID           string `json:"wallet_id"`
+	DestinationAddress string `json:"destination_address"`
+	// This field is from variant [SwapActionResponse].
+	DestinationCaip2 string             `json:"destination_caip2"`
+	EstimatedFees    []FeeLineItemUnion `json:"estimated_fees"`
+	// This field is from variant [SwapActionResponse].
+	EstimatedGas Gas `json:"estimated_gas"`
+	// This field is from variant [SwapActionResponse].
+	FailureReason FailureReason      `json:"failure_reason"`
+	Fees          []FeeLineItemUnion `json:"fees"`
+	// This field is from variant [SwapActionResponse].
+	Gas   Gas                     `json:"gas"`
+	Steps []WalletActionStepUnion `json:"steps"`
+	// This field is from variant [TransferActionResponse].
+	DestinationAmount string `json:"destination_amount"`
+	// This field is from variant [TransferActionResponse].
+	SourceChain string `json:"source_chain"`
+	// This field is from variant [TransferActionResponse].
+	AmountType AmountType `json:"amount_type"`
+	// This field is from variant [TransferActionResponse].
+	DestinationAsset string `json:"destination_asset"`
+	// This field is from variant [TransferActionResponse].
+	DestinationChain string `json:"destination_chain"`
+	// This field is from variant [TransferActionResponse].
+	SourceAmount string `json:"source_amount"`
+	// This field is from variant [TransferActionResponse].
+	SourceAsset string `json:"source_asset"`
+	// This field is from variant [TransferActionResponse].
+	SourceAssetAddress string `json:"source_asset_address"`
+	// This field is from variant [TransferActionResponse].
+	SourceAssetDecimals int64  `json:"source_asset_decimals"`
+	AssetAddress        string `json:"asset_address"`
+	RawAmount           string `json:"raw_amount"`
+	ShareAmount         string `json:"share_amount"`
+	VaultAddress        string `json:"vault_address"`
+	VaultID             string `json:"vault_id"`
+	Amount              string `json:"amount"`
+	Asset               string `json:"asset"`
+	Decimals            int64  `json:"decimals"`
+	// This field is from variant [EarnIncentiveClaimActionResponse].
+	Chain string `json:"chain"`
+	// This field is from variant [EarnIncentiveClaimActionResponse].
+	Rewards []EarnIncetiveClaimRewardEntry `json:"rewards"`
+	JSON    struct {
+		ID                  respjson.Field
+		Caip2               respjson.Field
+		CreatedAt           respjson.Field
+		InputAmount         respjson.Field
+		InputToken          respjson.Field
+		OutputAmount        respjson.Field
+		OutputToken         respjson.Field
+		Status              respjson.Field
+		Type                respjson.Field
+		WalletID            respjson.Field
+		DestinationAddress  respjson.Field
+		DestinationCaip2    respjson.Field
+		EstimatedFees       respjson.Field
+		EstimatedGas        respjson.Field
+		FailureReason       respjson.Field
+		Fees                respjson.Field
+		Gas                 respjson.Field
+		Steps               respjson.Field
+		DestinationAmount   respjson.Field
+		SourceChain         respjson.Field
+		AmountType          respjson.Field
+		DestinationAsset    respjson.Field
+		DestinationChain    respjson.Field
+		SourceAmount        respjson.Field
+		SourceAsset         respjson.Field
+		SourceAssetAddress  respjson.Field
+		SourceAssetDecimals respjson.Field
+		AssetAddress        respjson.Field
+		RawAmount           respjson.Field
+		ShareAmount         respjson.Field
+		VaultAddress        respjson.Field
+		VaultID             respjson.Field
+		Amount              respjson.Field
+		Asset               respjson.Field
+		Decimals            respjson.Field
+		Chain               respjson.Field
+		Rewards             respjson.Field
+		raw                 string
+	} `json:"-"`
+}
+
+// anyWalletActionResponse is implemented by each variant of
+// [WalletActionResponseUnion] to add type safety for the return type of
+// [WalletActionResponseUnion.AsAny]
+type anyWalletActionResponse interface {
+	implWalletActionResponseUnion()
+}
+
+func (SwapActionResponse) implWalletActionResponseUnion()               {}
+func (TransferActionResponse) implWalletActionResponseUnion()           {}
+func (EarnDepositActionResponse) implWalletActionResponseUnion()        {}
+func (EarnWithdrawActionResponse) implWalletActionResponseUnion()       {}
+func (EarnIncentiveClaimActionResponse) implWalletActionResponseUnion() {}
+
+// Use the following switch statement to find the correct variant
+//
+//	switch variant := WalletActionResponseUnion.AsAny().(type) {
+//	case privyclient.SwapActionResponse:
+//	case privyclient.TransferActionResponse:
+//	case privyclient.EarnDepositActionResponse:
+//	case privyclient.EarnWithdrawActionResponse:
+//	case privyclient.EarnIncentiveClaimActionResponse:
+//	default:
+//	  fmt.Errorf("no variant present")
+//	}
+func (u WalletActionResponseUnion) AsAny() anyWalletActionResponse {
+	switch u.Type {
+	case "swap":
+		return u.AsSwap()
+	case "transfer":
+		return u.AsTransfer()
+	case "earn_deposit":
+		return u.AsEarnDeposit()
+	case "earn_withdraw":
+		return u.AsEarnWithdraw()
+	case "earn_incentive_claim":
+		return u.AsEarnIncentiveClaim()
+	}
+	return nil
+}
+
+func (u WalletActionResponseUnion) AsSwap() (v SwapActionResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletActionResponseUnion) AsTransfer() (v TransferActionResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletActionResponseUnion) AsEarnDeposit() (v EarnDepositActionResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletActionResponseUnion) AsEarnWithdraw() (v EarnWithdrawActionResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletActionResponseUnion) AsEarnIncentiveClaim() (v EarnIncentiveClaimActionResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u WalletActionResponseUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *WalletActionResponseUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Status of a wallet action.
 type WalletActionStatus string
 
@@ -734,7 +1086,8 @@ const (
 
 // WalletActionStepUnion contains all possible properties and values from
 // [EvmTransactionWalletActionStep], [EvmUserOperationWalletActionStep],
-// [SvmTransactionWalletActionStep], [ExternalTransactionWalletActionStep].
+// [SvmTransactionWalletActionStep], [TvmTransactionWalletActionStep],
+// [ExternalTransactionWalletActionStep], [CustodianTransactionWalletActionStep].
 //
 // Use the [WalletActionStepUnion.AsAny] method to switch on the variant.
 //
@@ -745,28 +1098,38 @@ type WalletActionStepUnion struct {
 	// This field is from variant [EvmTransactionWalletActionStep].
 	TransactionHash string `json:"transaction_hash"`
 	// Any of "evm_transaction", "evm_user_operation", "svm_transaction",
-	// "external_transaction".
+	// "tvm_transaction", "external_transaction", "custodian_transaction".
 	Type string `json:"type"`
 	// This field is from variant [EvmTransactionWalletActionStep].
 	FailureReason FailureReason `json:"failure_reason"`
+	Finalized     bool          `json:"finalized"`
 	// This field is from variant [EvmUserOperationWalletActionStep].
 	BundleTransactionHash string `json:"bundle_transaction_hash"`
 	// This field is from variant [EvmUserOperationWalletActionStep].
-	EntrypointVersion EvmUserOperationWalletActionStepEntrypointVersion `json:"entrypoint_version"`
+	EntrypointVersion EvmUserOperationEntrypointVersion `json:"entrypoint_version"`
 	// This field is from variant [EvmUserOperationWalletActionStep].
-	UserOperationHash string `json:"user_operation_hash"`
+	UserOperationHash    string `json:"user_operation_hash"`
+	GasCreditsChargedUsd string `json:"gas_credits_charged_usd"`
 	// This field is from variant [SvmTransactionWalletActionStep].
 	TransactionSignature string `json:"transaction_signature"`
-	JSON                 struct {
+	// This field is from variant [TvmTransactionWalletActionStep].
+	TransactionID string `json:"transaction_id"`
+	// This field is from variant [CustodianTransactionWalletActionStep].
+	Custodian string `json:"custodian"`
+	JSON      struct {
 		Caip2                 respjson.Field
 		Status                respjson.Field
 		TransactionHash       respjson.Field
 		Type                  respjson.Field
 		FailureReason         respjson.Field
+		Finalized             respjson.Field
 		BundleTransactionHash respjson.Field
 		EntrypointVersion     respjson.Field
 		UserOperationHash     respjson.Field
+		GasCreditsChargedUsd  respjson.Field
 		TransactionSignature  respjson.Field
+		TransactionID         respjson.Field
+		Custodian             respjson.Field
 		raw                   string
 	} `json:"-"`
 }
@@ -777,10 +1140,12 @@ type anyWalletActionStep interface {
 	implWalletActionStepUnion()
 }
 
-func (EvmTransactionWalletActionStep) implWalletActionStepUnion()      {}
-func (EvmUserOperationWalletActionStep) implWalletActionStepUnion()    {}
-func (SvmTransactionWalletActionStep) implWalletActionStepUnion()      {}
-func (ExternalTransactionWalletActionStep) implWalletActionStepUnion() {}
+func (EvmTransactionWalletActionStep) implWalletActionStepUnion()       {}
+func (EvmUserOperationWalletActionStep) implWalletActionStepUnion()     {}
+func (SvmTransactionWalletActionStep) implWalletActionStepUnion()       {}
+func (TvmTransactionWalletActionStep) implWalletActionStepUnion()       {}
+func (ExternalTransactionWalletActionStep) implWalletActionStepUnion()  {}
+func (CustodianTransactionWalletActionStep) implWalletActionStepUnion() {}
 
 // Use the following switch statement to find the correct variant
 //
@@ -788,7 +1153,9 @@ func (ExternalTransactionWalletActionStep) implWalletActionStepUnion() {}
 //	case privyclient.EvmTransactionWalletActionStep:
 //	case privyclient.EvmUserOperationWalletActionStep:
 //	case privyclient.SvmTransactionWalletActionStep:
+//	case privyclient.TvmTransactionWalletActionStep:
 //	case privyclient.ExternalTransactionWalletActionStep:
+//	case privyclient.CustodianTransactionWalletActionStep:
 //	default:
 //	  fmt.Errorf("no variant present")
 //	}
@@ -800,8 +1167,12 @@ func (u WalletActionStepUnion) AsAny() anyWalletActionStep {
 		return u.AsEvmUserOperation()
 	case "svm_transaction":
 		return u.AsSvmTransaction()
+	case "tvm_transaction":
+		return u.AsTvmTransaction()
 	case "external_transaction":
 		return u.AsExternalTransaction()
+	case "custodian_transaction":
+		return u.AsCustodianTransaction()
 	}
 	return nil
 }
@@ -821,7 +1192,17 @@ func (u WalletActionStepUnion) AsSvmTransaction() (v SvmTransactionWalletActionS
 	return
 }
 
+func (u WalletActionStepUnion) AsTvmTransaction() (v TvmTransactionWalletActionStep) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
 func (u WalletActionStepUnion) AsExternalTransaction() (v ExternalTransactionWalletActionStep) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletActionStepUnion) AsCustodianTransaction() (v CustodianTransactionWalletActionStep) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -843,3 +1224,24 @@ const (
 	WalletActionTypeEarnWithdraw       WalletActionType = "earn_withdraw"
 	WalletActionTypeEarnIncentiveClaim WalletActionType = "earn_incentive_claim"
 )
+
+type WalletActionGetParams struct {
+	// ID of the wallet.
+	WalletID string `path:"wallet_id" api:"required" json:"-"`
+	// Request authorization signature. If multiple signatures are required, they
+	// should be comma separated.
+	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
+	// Expandable relations to include on a wallet action response.
+	//
+	// Any of "steps".
+	Include WalletActionInclude `query:"include,omitzero" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [WalletActionGetParams]'s query parameters as `url.Values`.
+func (r WalletActionGetParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}

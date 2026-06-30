@@ -51,6 +51,7 @@ func TestWalletSwapExecuteWithOptionalParams(t *testing.T) {
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
 			PrivyIdempotencyKey:         privyclient.String("privy-idempotency-key"),
+			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {
@@ -99,6 +100,7 @@ func TestWalletSwapQuoteWithOptionalParams(t *testing.T) {
 				SlippageBps: privyclient.Int(0),
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
+			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},
 	)
 	if err != nil {

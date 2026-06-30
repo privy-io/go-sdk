@@ -38,6 +38,27 @@ func (r *WebhookService) UnsafeUnwrap(payload []byte, opts ...option.RequestOpti
 	return res, nil
 }
 
+// Block metadata for a wallet transfer event.
+type BlockInfo struct {
+	// The block number.
+	Number float64 `json:"number" api:"required"`
+	// The block timestamp.
+	Timestamp float64 `json:"timestamp" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Number      respjson.Field
+		Timestamp   respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r BlockInfo) RawJSON() string { return r.JSON.raw }
+func (r *BlockInfo) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Bridge metadata for a crypto deposit via liquidation address.
 type BridgeCryptoDepositMetadata struct {
 	DrainID string `json:"drain_id" api:"required"`
@@ -395,8 +416,9 @@ type FundsDepositedWebhookPayload struct {
 	// The amount transferred, as a stringified bigint.
 	Amount string `json:"amount" api:"required"`
 	// An asset involved in a wallet transfer.
-	Asset WalletFundsAssetUnion             `json:"asset" api:"required"`
-	Block FundsDepositedWebhookPayloadBlock `json:"block" api:"required"`
+	Asset WalletFundsAssetUnion `json:"asset" api:"required"`
+	// Block metadata for a wallet transfer event.
+	Block BlockInfo `json:"block" api:"required"`
 	// The CAIP-2 chain identifier.
 	Caip2 string `json:"caip2" api:"required"`
 	// A unique key for this event.
@@ -442,26 +464,6 @@ func (r *FundsDepositedWebhookPayload) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type FundsDepositedWebhookPayloadBlock struct {
-	// The block number.
-	Number float64 `json:"number" api:"required"`
-	// The block timestamp.
-	Timestamp float64 `json:"timestamp" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Number      respjson.Field
-		Timestamp   respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r FundsDepositedWebhookPayloadBlock) RawJSON() string { return r.JSON.raw }
-func (r *FundsDepositedWebhookPayloadBlock) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // The type of webhook event.
 type FundsDepositedWebhookPayloadType string
 
@@ -474,8 +476,9 @@ type FundsWithdrawnWebhookPayload struct {
 	// The amount transferred, as a stringified bigint.
 	Amount string `json:"amount" api:"required"`
 	// An asset involved in a wallet transfer.
-	Asset WalletFundsAssetUnion             `json:"asset" api:"required"`
-	Block FundsWithdrawnWebhookPayloadBlock `json:"block" api:"required"`
+	Asset WalletFundsAssetUnion `json:"asset" api:"required"`
+	// Block metadata for a wallet transfer event.
+	Block BlockInfo `json:"block" api:"required"`
 	// The CAIP-2 chain identifier.
 	Caip2 string `json:"caip2" api:"required"`
 	// A unique key for this event.
@@ -515,26 +518,6 @@ type FundsWithdrawnWebhookPayload struct {
 // Returns the unmodified JSON received from the API
 func (r FundsWithdrawnWebhookPayload) RawJSON() string { return r.JSON.raw }
 func (r *FundsWithdrawnWebhookPayload) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type FundsWithdrawnWebhookPayloadBlock struct {
-	// The block number.
-	Number float64 `json:"number" api:"required"`
-	// The block timestamp.
-	Timestamp float64 `json:"timestamp" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Number      respjson.Field
-		Timestamp   respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r FundsWithdrawnWebhookPayloadBlock) RawJSON() string { return r.JSON.raw }
-func (r *FundsWithdrawnWebhookPayloadBlock) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -815,10 +798,10 @@ const (
 
 // Payload for the mfa.disabled webhook event.
 type MfaDisabledWebhookPayload struct {
-	// The MFA method that was disabled.
+	// A multi-factor authentication method supported by the app.
 	//
 	// Any of "sms", "totp", "passkey".
-	Method MfaDisabledWebhookPayloadMethod `json:"method" api:"required"`
+	Method MfaMethod `json:"method" api:"required"`
 	// The type of webhook event.
 	//
 	// Any of "mfa.disabled".
@@ -841,15 +824,6 @@ func (r *MfaDisabledWebhookPayload) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// The MFA method that was disabled.
-type MfaDisabledWebhookPayloadMethod string
-
-const (
-	MfaDisabledWebhookPayloadMethodSMS     MfaDisabledWebhookPayloadMethod = "sms"
-	MfaDisabledWebhookPayloadMethodTotp    MfaDisabledWebhookPayloadMethod = "totp"
-	MfaDisabledWebhookPayloadMethodPasskey MfaDisabledWebhookPayloadMethod = "passkey"
-)
-
 // The type of webhook event.
 type MfaDisabledWebhookPayloadType string
 
@@ -859,10 +833,10 @@ const (
 
 // Payload for the mfa.enabled webhook event.
 type MfaEnabledWebhookPayload struct {
-	// The MFA method that was enabled.
+	// A multi-factor authentication method supported by the app.
 	//
 	// Any of "sms", "totp", "passkey".
-	Method MfaEnabledWebhookPayloadMethod `json:"method" api:"required"`
+	Method MfaMethod `json:"method" api:"required"`
 	// The type of webhook event.
 	//
 	// Any of "mfa.enabled".
@@ -885,15 +859,6 @@ func (r *MfaEnabledWebhookPayload) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// The MFA method that was enabled.
-type MfaEnabledWebhookPayloadMethod string
-
-const (
-	MfaEnabledWebhookPayloadMethodSMS     MfaEnabledWebhookPayloadMethod = "sms"
-	MfaEnabledWebhookPayloadMethodTotp    MfaEnabledWebhookPayloadMethod = "totp"
-	MfaEnabledWebhookPayloadMethodPasskey MfaEnabledWebhookPayloadMethod = "passkey"
-)
-
 // The type of webhook event.
 type MfaEnabledWebhookPayloadType string
 
@@ -913,8 +878,11 @@ type PrivateKeyExportWebhookPayload struct {
 	WalletAddress string `json:"wallet_address" api:"required"`
 	// The ID of the wallet.
 	WalletID string `json:"wallet_id" api:"required"`
+	// The export type. 'display' is for showing the key to the user in the UI,
+	// 'client' is for exporting to the client application.
+	//
 	// Any of "display", "client".
-	ExportSource PrivateKeyExportWebhookPayloadExportSource `json:"export_source"`
+	ExportSource ExportType `json:"export_source"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Type          respjson.Field
@@ -938,13 +906,6 @@ type PrivateKeyExportWebhookPayloadType string
 
 const (
 	PrivateKeyExportWebhookPayloadTypeWalletPrivateKeyExport PrivateKeyExportWebhookPayloadType = "wallet.private_key_export"
-)
-
-type PrivateKeyExportWebhookPayloadExportSource string
-
-const (
-	PrivateKeyExportWebhookPayloadExportSourceDisplay PrivateKeyExportWebhookPayloadExportSource = "display"
-	PrivateKeyExportWebhookPayloadExportSourceClient  PrivateKeyExportWebhookPayloadExportSource = "client"
 )
 
 // Payload for the transaction.broadcasted webhook event.
@@ -1397,13 +1358,31 @@ const (
 	UserOperationCompletedWebhookPayloadTypeUserOperationCompleted UserOperationCompletedWebhookPayloadType = "user_operation.completed"
 )
 
+// A reference to a user by their unique identifier.
+type UserReference struct {
+	ID string `json:"id" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID          respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r UserReference) RawJSON() string { return r.JSON.raw }
+func (r *UserReference) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Payload for the user.transferred_account webhook event.
 type UserTransferredAccountWebhookPayload struct {
 	// A linked account for the user.
 	Account LinkedAccountUnion `json:"account" api:"required"`
 	// Any of true.
-	DeletedUser bool                                         `json:"deletedUser" api:"required"`
-	FromUser    UserTransferredAccountWebhookPayloadFromUser `json:"fromUser" api:"required"`
+	DeletedUser bool `json:"deletedUser" api:"required"`
+	// A reference to a user by their unique identifier.
+	FromUser UserReference `json:"fromUser" api:"required"`
 	// A Privy user object.
 	ToUser User `json:"toUser" api:"required"`
 	// The type of webhook event.
@@ -1425,22 +1404,6 @@ type UserTransferredAccountWebhookPayload struct {
 // Returns the unmodified JSON received from the API
 func (r UserTransferredAccountWebhookPayload) RawJSON() string { return r.JSON.raw }
 func (r *UserTransferredAccountWebhookPayload) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type UserTransferredAccountWebhookPayloadFromUser struct {
-	ID string `json:"id" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID          respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r UserTransferredAccountWebhookPayloadFromUser) RawJSON() string { return r.JSON.raw }
-func (r *UserTransferredAccountWebhookPayloadFromUser) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -1561,6 +1524,8 @@ type WalletActionEarnDepositCreatedWebhookPayload struct {
 	AssetAddress string `json:"asset_address" api:"required"`
 	// CAIP-2 chain identifier.
 	Caip2 string `json:"caip2" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
 	// Base-unit amount of asset deposited (e.g. "1500000").
 	RawAmount string `json:"raw_amount" api:"required"`
 	// The status of the wallet action.
@@ -1593,6 +1558,7 @@ type WalletActionEarnDepositCreatedWebhookPayload struct {
 		ActionType     respjson.Field
 		AssetAddress   respjson.Field
 		Caip2          respjson.Field
+		CreatedAt      respjson.Field
 		RawAmount      respjson.Field
 		Status         respjson.Field
 		Type           respjson.Field
@@ -1639,6 +1605,10 @@ type WalletActionEarnDepositFailedWebhookPayload struct {
 	AssetAddress string `json:"asset_address" api:"required"`
 	// CAIP-2 chain identifier.
 	Caip2 string `json:"caip2" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
+	// ISO 8601 timestamp of when the wallet action failed.
+	FailedAt string `json:"failed_at" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason" api:"required"`
 	// Base-unit amount of asset deposited (e.g. "1500000").
@@ -1676,6 +1646,8 @@ type WalletActionEarnDepositFailedWebhookPayload struct {
 		ActionType     respjson.Field
 		AssetAddress   respjson.Field
 		Caip2          respjson.Field
+		CreatedAt      respjson.Field
+		FailedAt       respjson.Field
 		FailureReason  respjson.Field
 		RawAmount      respjson.Field
 		Status         respjson.Field
@@ -1724,10 +1696,14 @@ type WalletActionEarnDepositRejectedWebhookPayload struct {
 	AssetAddress string `json:"asset_address" api:"required"`
 	// CAIP-2 chain identifier.
 	Caip2 string `json:"caip2" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason" api:"required"`
 	// Base-unit amount of asset deposited (e.g. "1500000").
 	RawAmount string `json:"raw_amount" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was rejected.
+	RejectedAt string `json:"rejected_at" api:"required"`
 	// The status of the wallet action.
 	//
 	// Any of "rejected".
@@ -1760,8 +1736,10 @@ type WalletActionEarnDepositRejectedWebhookPayload struct {
 		ActionType     respjson.Field
 		AssetAddress   respjson.Field
 		Caip2          respjson.Field
+		CreatedAt      respjson.Field
 		FailureReason  respjson.Field
 		RawAmount      respjson.Field
+		RejectedAt     respjson.Field
 		Status         respjson.Field
 		Steps          respjson.Field
 		Type           respjson.Field
@@ -1808,6 +1786,10 @@ type WalletActionEarnDepositSucceededWebhookPayload struct {
 	AssetAddress string `json:"asset_address" api:"required"`
 	// CAIP-2 chain identifier.
 	Caip2 string `json:"caip2" api:"required"`
+	// ISO 8601 timestamp of when the wallet action completed successfully.
+	CompletedAt string `json:"completed_at" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
 	// Base-unit amount of asset deposited (e.g. "1500000").
 	RawAmount string `json:"raw_amount" api:"required"`
 	// Vault shares received in base units.
@@ -1844,6 +1826,8 @@ type WalletActionEarnDepositSucceededWebhookPayload struct {
 		ActionType     respjson.Field
 		AssetAddress   respjson.Field
 		Caip2          respjson.Field
+		CompletedAt    respjson.Field
+		CreatedAt      respjson.Field
 		RawAmount      respjson.Field
 		ShareAmount    respjson.Field
 		Status         respjson.Field
@@ -1890,6 +1874,8 @@ type WalletActionEarnIncentiveClaimCreatedWebhookPayload struct {
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// EVM chain name (e.g. "base", "ethereum").
 	Chain string `json:"chain" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
 	// Claimed reward tokens. Populated after the preparation step fetches from Merkl.
 	Rewards []EarnIncetiveClaimRewardEntry `json:"rewards" api:"required"`
 	// The status of the wallet action.
@@ -1908,6 +1894,7 @@ type WalletActionEarnIncentiveClaimCreatedWebhookPayload struct {
 	JSON struct {
 		ActionType     respjson.Field
 		Chain          respjson.Field
+		CreatedAt      respjson.Field
 		Rewards        respjson.Field
 		Status         respjson.Field
 		Type           respjson.Field
@@ -1947,6 +1934,10 @@ type WalletActionEarnIncentiveClaimFailedWebhookPayload struct {
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// EVM chain name (e.g. "base", "ethereum").
 	Chain string `json:"chain" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
+	// ISO 8601 timestamp of when the wallet action failed.
+	FailedAt string `json:"failed_at" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason" api:"required"`
 	// Claimed reward tokens. Populated after the preparation step fetches from Merkl.
@@ -1970,6 +1961,8 @@ type WalletActionEarnIncentiveClaimFailedWebhookPayload struct {
 	JSON struct {
 		ActionType     respjson.Field
 		Chain          respjson.Field
+		CreatedAt      respjson.Field
+		FailedAt       respjson.Field
 		FailureReason  respjson.Field
 		Rewards        respjson.Field
 		Status         respjson.Field
@@ -2011,8 +2004,12 @@ type WalletActionEarnIncentiveClaimRejectedWebhookPayload struct {
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// EVM chain name (e.g. "base", "ethereum").
 	Chain string `json:"chain" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was rejected.
+	RejectedAt string `json:"rejected_at" api:"required"`
 	// Claimed reward tokens. Populated after the preparation step fetches from Merkl.
 	Rewards []EarnIncetiveClaimRewardEntry `json:"rewards" api:"required"`
 	// The status of the wallet action.
@@ -2033,7 +2030,9 @@ type WalletActionEarnIncentiveClaimRejectedWebhookPayload struct {
 	JSON struct {
 		ActionType     respjson.Field
 		Chain          respjson.Field
+		CreatedAt      respjson.Field
 		FailureReason  respjson.Field
+		RejectedAt     respjson.Field
 		Rewards        respjson.Field
 		Status         respjson.Field
 		Steps          respjson.Field
@@ -2074,6 +2073,10 @@ type WalletActionEarnIncentiveClaimSucceededWebhookPayload struct {
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// EVM chain name (e.g. "base", "ethereum").
 	Chain string `json:"chain" api:"required"`
+	// ISO 8601 timestamp of when the wallet action completed successfully.
+	CompletedAt string `json:"completed_at" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
 	// Claimed reward tokens. Populated after the preparation step fetches from Merkl.
 	Rewards []EarnIncetiveClaimRewardEntry `json:"rewards" api:"required"`
 	// The status of the wallet action.
@@ -2094,6 +2097,8 @@ type WalletActionEarnIncentiveClaimSucceededWebhookPayload struct {
 	JSON struct {
 		ActionType     respjson.Field
 		Chain          respjson.Field
+		CompletedAt    respjson.Field
+		CreatedAt      respjson.Field
 		Rewards        respjson.Field
 		Status         respjson.Field
 		Steps          respjson.Field
@@ -2136,6 +2141,8 @@ type WalletActionEarnWithdrawCreatedWebhookPayload struct {
 	AssetAddress string `json:"asset_address" api:"required"`
 	// CAIP-2 chain identifier.
 	Caip2 string `json:"caip2" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
 	// Base-unit amount of asset withdrawn (e.g. "1500000").
 	RawAmount string `json:"raw_amount" api:"required"`
 	// The status of the wallet action.
@@ -2168,6 +2175,7 @@ type WalletActionEarnWithdrawCreatedWebhookPayload struct {
 		ActionType     respjson.Field
 		AssetAddress   respjson.Field
 		Caip2          respjson.Field
+		CreatedAt      respjson.Field
 		RawAmount      respjson.Field
 		Status         respjson.Field
 		Type           respjson.Field
@@ -2214,6 +2222,10 @@ type WalletActionEarnWithdrawFailedWebhookPayload struct {
 	AssetAddress string `json:"asset_address" api:"required"`
 	// CAIP-2 chain identifier.
 	Caip2 string `json:"caip2" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
+	// ISO 8601 timestamp of when the wallet action failed.
+	FailedAt string `json:"failed_at" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason" api:"required"`
 	// Base-unit amount of asset withdrawn (e.g. "1500000").
@@ -2251,6 +2263,8 @@ type WalletActionEarnWithdrawFailedWebhookPayload struct {
 		ActionType     respjson.Field
 		AssetAddress   respjson.Field
 		Caip2          respjson.Field
+		CreatedAt      respjson.Field
+		FailedAt       respjson.Field
 		FailureReason  respjson.Field
 		RawAmount      respjson.Field
 		Status         respjson.Field
@@ -2299,10 +2313,14 @@ type WalletActionEarnWithdrawRejectedWebhookPayload struct {
 	AssetAddress string `json:"asset_address" api:"required"`
 	// CAIP-2 chain identifier.
 	Caip2 string `json:"caip2" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason" api:"required"`
 	// Base-unit amount of asset withdrawn (e.g. "1500000").
 	RawAmount string `json:"raw_amount" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was rejected.
+	RejectedAt string `json:"rejected_at" api:"required"`
 	// The status of the wallet action.
 	//
 	// Any of "rejected".
@@ -2335,8 +2353,10 @@ type WalletActionEarnWithdrawRejectedWebhookPayload struct {
 		ActionType     respjson.Field
 		AssetAddress   respjson.Field
 		Caip2          respjson.Field
+		CreatedAt      respjson.Field
 		FailureReason  respjson.Field
 		RawAmount      respjson.Field
+		RejectedAt     respjson.Field
 		Status         respjson.Field
 		Steps          respjson.Field
 		Type           respjson.Field
@@ -2383,6 +2403,10 @@ type WalletActionEarnWithdrawSucceededWebhookPayload struct {
 	AssetAddress string `json:"asset_address" api:"required"`
 	// CAIP-2 chain identifier.
 	Caip2 string `json:"caip2" api:"required"`
+	// ISO 8601 timestamp of when the wallet action completed successfully.
+	CompletedAt string `json:"completed_at" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
 	// Base-unit amount of asset withdrawn (e.g. "1500000").
 	RawAmount string `json:"raw_amount" api:"required"`
 	// Vault shares burned in base units.
@@ -2419,6 +2443,8 @@ type WalletActionEarnWithdrawSucceededWebhookPayload struct {
 		ActionType     respjson.Field
 		AssetAddress   respjson.Field
 		Caip2          respjson.Field
+		CompletedAt    respjson.Field
+		CreatedAt      respjson.Field
 		RawAmount      respjson.Field
 		ShareAmount    respjson.Field
 		Status         respjson.Field
@@ -2465,7 +2491,9 @@ type WalletActionSwapCreatedWebhookPayload struct {
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// Chain identifier.
 	Caip2 string `json:"caip2" api:"required"`
-	// Amount of input token in base units. Populated after on-chain confirmation.
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
+	// Amount of input token in base units. Populated after onchain confirmation.
 	InputAmount string `json:"input_amount" api:"required"`
 	// Token address being sold.
 	InputToken string `json:"input_token" api:"required"`
@@ -2487,6 +2515,7 @@ type WalletActionSwapCreatedWebhookPayload struct {
 	JSON struct {
 		ActionType     respjson.Field
 		Caip2          respjson.Field
+		CreatedAt      respjson.Field
 		InputAmount    respjson.Field
 		InputToken     respjson.Field
 		OutputToken    respjson.Field
@@ -2528,9 +2557,13 @@ type WalletActionSwapFailedWebhookPayload struct {
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// Chain identifier.
 	Caip2 string `json:"caip2" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
+	// ISO 8601 timestamp of when the wallet action failed.
+	FailedAt string `json:"failed_at" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason" api:"required"`
-	// Amount of input token in base units. Populated after on-chain confirmation.
+	// Amount of input token in base units. Populated after onchain confirmation.
 	InputAmount string `json:"input_amount" api:"required"`
 	// Token address being sold.
 	InputToken string `json:"input_token" api:"required"`
@@ -2555,6 +2588,8 @@ type WalletActionSwapFailedWebhookPayload struct {
 	JSON struct {
 		ActionType     respjson.Field
 		Caip2          respjson.Field
+		CreatedAt      respjson.Field
+		FailedAt       respjson.Field
 		FailureReason  respjson.Field
 		InputAmount    respjson.Field
 		InputToken     respjson.Field
@@ -2598,14 +2633,18 @@ type WalletActionSwapRejectedWebhookPayload struct {
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// Chain identifier.
 	Caip2 string `json:"caip2" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason" api:"required"`
-	// Amount of input token in base units. Populated after on-chain confirmation.
+	// Amount of input token in base units. Populated after onchain confirmation.
 	InputAmount string `json:"input_amount" api:"required"`
 	// Token address being sold.
 	InputToken string `json:"input_token" api:"required"`
 	// Token address being bought.
 	OutputToken string `json:"output_token" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was rejected.
+	RejectedAt string `json:"rejected_at" api:"required"`
 	// The status of the wallet action.
 	//
 	// Any of "rejected".
@@ -2624,10 +2663,12 @@ type WalletActionSwapRejectedWebhookPayload struct {
 	JSON struct {
 		ActionType     respjson.Field
 		Caip2          respjson.Field
+		CreatedAt      respjson.Field
 		FailureReason  respjson.Field
 		InputAmount    respjson.Field
 		InputToken     respjson.Field
 		OutputToken    respjson.Field
+		RejectedAt     respjson.Field
 		Status         respjson.Field
 		Steps          respjson.Field
 		Type           respjson.Field
@@ -2667,11 +2708,15 @@ type WalletActionSwapSucceededWebhookPayload struct {
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// Chain identifier.
 	Caip2 string `json:"caip2" api:"required"`
-	// Amount of input token in base units. Populated after on-chain confirmation.
+	// ISO 8601 timestamp of when the wallet action completed successfully.
+	CompletedAt string `json:"completed_at" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
+	// Amount of input token in base units. Populated after onchain confirmation.
 	InputAmount string `json:"input_amount" api:"required"`
 	// Token address being sold.
 	InputToken string `json:"input_token" api:"required"`
-	// Amount of output token received, in base units. Populated after on-chain
+	// Amount of output token received, in base units. Populated after onchain
 	// confirmation.
 	OutputAmount string `json:"output_amount" api:"required"`
 	// Token address being bought.
@@ -2694,6 +2739,8 @@ type WalletActionSwapSucceededWebhookPayload struct {
 	JSON struct {
 		ActionType     respjson.Field
 		Caip2          respjson.Field
+		CompletedAt    respjson.Field
+		CreatedAt      respjson.Field
 		InputAmount    respjson.Field
 		InputToken     respjson.Field
 		OutputAmount   respjson.Field
@@ -2735,6 +2782,8 @@ type WalletActionTransferCreatedWebhookPayload struct {
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
 	// "earn_incentive_claim".
 	ActionType WalletActionType `json:"action_type" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
 	// Recipient address.
 	DestinationAddress string `json:"destination_address" api:"required"`
 	// Chain name (e.g. "base", "ethereum").
@@ -2761,11 +2810,12 @@ type WalletActionTransferCreatedWebhookPayload struct {
 	// was initiated with `asset_address`.
 	SourceAssetAddress string `json:"source_asset_address"`
 	// Number of decimals for the transferred token. Present when the transfer was
-	// initiated with `asset_address` and the decimals were resolved on-chain.
+	// initiated with `asset_address` and the decimals were resolved onchain.
 	SourceAssetDecimals int64 `json:"source_asset_decimals"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType          respjson.Field
+		CreatedAt           respjson.Field
 		DestinationAddress  respjson.Field
 		SourceChain         respjson.Field
 		Status              respjson.Field
@@ -2808,8 +2858,12 @@ type WalletActionTransferFailedWebhookPayload struct {
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
 	// "earn_incentive_claim".
 	ActionType WalletActionType `json:"action_type" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
 	// Recipient address.
 	DestinationAddress string `json:"destination_address" api:"required"`
+	// ISO 8601 timestamp of when the wallet action failed.
+	FailedAt string `json:"failed_at" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason" api:"required"`
 	// Chain name (e.g. "base", "ethereum").
@@ -2839,12 +2893,14 @@ type WalletActionTransferFailedWebhookPayload struct {
 	// was initiated with `asset_address`.
 	SourceAssetAddress string `json:"source_asset_address"`
 	// Number of decimals for the transferred token. Present when the transfer was
-	// initiated with `asset_address` and the decimals were resolved on-chain.
+	// initiated with `asset_address` and the decimals were resolved onchain.
 	SourceAssetDecimals int64 `json:"source_asset_decimals"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType          respjson.Field
+		CreatedAt           respjson.Field
 		DestinationAddress  respjson.Field
+		FailedAt            respjson.Field
 		FailureReason       respjson.Field
 		SourceChain         respjson.Field
 		Status              respjson.Field
@@ -2888,10 +2944,14 @@ type WalletActionTransferRejectedWebhookPayload struct {
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
 	// "earn_incentive_claim".
 	ActionType WalletActionType `json:"action_type" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
 	// Recipient address.
 	DestinationAddress string `json:"destination_address" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was rejected.
+	RejectedAt string `json:"rejected_at" api:"required"`
 	// Chain name (e.g. "base", "ethereum").
 	SourceChain string `json:"source_chain" api:"required"`
 	// The status of the wallet action.
@@ -2918,13 +2978,15 @@ type WalletActionTransferRejectedWebhookPayload struct {
 	// was initiated with `asset_address`.
 	SourceAssetAddress string `json:"source_asset_address"`
 	// Number of decimals for the transferred token. Present when the transfer was
-	// initiated with `asset_address` and the decimals were resolved on-chain.
+	// initiated with `asset_address` and the decimals were resolved onchain.
 	SourceAssetDecimals int64 `json:"source_asset_decimals"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType          respjson.Field
+		CreatedAt           respjson.Field
 		DestinationAddress  respjson.Field
 		FailureReason       respjson.Field
+		RejectedAt          respjson.Field
 		SourceChain         respjson.Field
 		Status              respjson.Field
 		Steps               respjson.Field
@@ -2967,6 +3029,10 @@ type WalletActionTransferSucceededWebhookPayload struct {
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
 	// "earn_incentive_claim".
 	ActionType WalletActionType `json:"action_type" api:"required"`
+	// ISO 8601 timestamp of when the wallet action completed successfully.
+	CompletedAt string `json:"completed_at" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
 	// Recipient address.
 	DestinationAddress string `json:"destination_address" api:"required"`
 	// Chain name (e.g. "base", "ethereum").
@@ -2995,11 +3061,13 @@ type WalletActionTransferSucceededWebhookPayload struct {
 	// was initiated with `asset_address`.
 	SourceAssetAddress string `json:"source_asset_address"`
 	// Number of decimals for the transferred token. Present when the transfer was
-	// initiated with `asset_address` and the decimals were resolved on-chain.
+	// initiated with `asset_address` and the decimals were resolved onchain.
 	SourceAssetDecimals int64 `json:"source_asset_decimals"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType          respjson.Field
+		CompletedAt         respjson.Field
+		CreatedAt           respjson.Field
 		DestinationAddress  respjson.Field
 		SourceChain         respjson.Field
 		Status              respjson.Field
@@ -3034,6 +3102,45 @@ type WalletActionTransferSucceededWebhookPayloadType string
 
 const (
 	WalletActionTransferSucceededWebhookPayloadTypeWalletActionTransferSucceeded WalletActionTransferSucceededWebhookPayloadType = "wallet_action.transfer.succeeded"
+)
+
+// Payload for the wallet.archived webhook event.
+type WalletArchivedWebhookPayload struct {
+	// Unix timestamp of when the wallet was archived.
+	ArchivedAt float64 `json:"archived_at" api:"required"`
+	// The chain type of the archived wallet.
+	ChainType string `json:"chain_type" api:"required"`
+	// The type of webhook event.
+	//
+	// Any of "wallet.archived".
+	Type WalletArchivedWebhookPayloadType `json:"type" api:"required"`
+	// The address of the archived wallet.
+	WalletAddress string `json:"wallet_address" api:"required"`
+	// The ID of the archived wallet.
+	WalletID string `json:"wallet_id" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ArchivedAt    respjson.Field
+		ChainType     respjson.Field
+		Type          respjson.Field
+		WalletAddress respjson.Field
+		WalletID      respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletArchivedWebhookPayload) RawJSON() string { return r.JSON.raw }
+func (r *WalletArchivedWebhookPayload) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The type of webhook event.
+type WalletArchivedWebhookPayloadType string
+
+const (
+	WalletArchivedWebhookPayloadTypeWalletArchived WalletArchivedWebhookPayloadType = "wallet.archived"
 )
 
 // WalletFundsAssetUnion contains all possible properties and values from
@@ -3285,15 +3392,27 @@ const (
 	WalletRecoveredWebhookPayloadTypeWalletRecovered WalletRecoveredWebhookPayloadType = "wallet.recovered"
 )
 
+// Recovery method types for embedded wallet recovery setup webhooks.
+type WalletRecoverySetupMethod string
+
+const (
+	WalletRecoverySetupMethodUserPasscodeDerivedRecoveryKey  WalletRecoverySetupMethod = "user_passcode_derived_recovery_key"
+	WalletRecoverySetupMethodPrivyPasscodeDerivedRecoveryKey WalletRecoverySetupMethod = "privy_passcode_derived_recovery_key"
+	WalletRecoverySetupMethodPrivyGeneratedRecoveryKey       WalletRecoverySetupMethod = "privy_generated_recovery_key"
+	WalletRecoverySetupMethodGoogleDriveRecoverySecret       WalletRecoverySetupMethod = "google_drive_recovery_secret"
+	WalletRecoverySetupMethodICloudRecoverySecret            WalletRecoverySetupMethod = "icloud_recovery_secret"
+	WalletRecoverySetupMethodRecoveryEncryptionKey           WalletRecoverySetupMethod = "recovery_encryption_key"
+)
+
 // Payload for the wallet.recovery_setup webhook event.
 type WalletRecoverySetupWebhookPayload struct {
-	// The recovery method that was set up.
+	// Recovery method types for embedded wallet recovery setup webhooks.
 	//
 	// Any of "user_passcode_derived_recovery_key",
 	// "privy_passcode_derived_recovery_key", "privy_generated_recovery_key",
 	// "google_drive_recovery_secret", "icloud_recovery_secret",
 	// "recovery_encryption_key".
-	Method WalletRecoverySetupWebhookPayloadMethod `json:"method" api:"required"`
+	Method WalletRecoverySetupMethod `json:"method" api:"required"`
 	// The type of webhook event.
 	//
 	// Any of "wallet.recovery_setup".
@@ -3322,18 +3441,6 @@ func (r *WalletRecoverySetupWebhookPayload) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// The recovery method that was set up.
-type WalletRecoverySetupWebhookPayloadMethod string
-
-const (
-	WalletRecoverySetupWebhookPayloadMethodUserPasscodeDerivedRecoveryKey  WalletRecoverySetupWebhookPayloadMethod = "user_passcode_derived_recovery_key"
-	WalletRecoverySetupWebhookPayloadMethodPrivyPasscodeDerivedRecoveryKey WalletRecoverySetupWebhookPayloadMethod = "privy_passcode_derived_recovery_key"
-	WalletRecoverySetupWebhookPayloadMethodPrivyGeneratedRecoveryKey       WalletRecoverySetupWebhookPayloadMethod = "privy_generated_recovery_key"
-	WalletRecoverySetupWebhookPayloadMethodGoogleDriveRecoverySecret       WalletRecoverySetupWebhookPayloadMethod = "google_drive_recovery_secret"
-	WalletRecoverySetupWebhookPayloadMethodICloudRecoverySecret            WalletRecoverySetupWebhookPayloadMethod = "icloud_recovery_secret"
-	WalletRecoverySetupWebhookPayloadMethodRecoveryEncryptionKey           WalletRecoverySetupWebhookPayloadMethod = "recovery_encryption_key"
-)
-
 // The type of webhook event.
 type WalletRecoverySetupWebhookPayloadType string
 
@@ -3341,11 +3448,47 @@ const (
 	WalletRecoverySetupWebhookPayloadTypeWalletRecoverySetup WalletRecoverySetupWebhookPayloadType = "wallet.recovery_setup"
 )
 
+// Payload for the wallet.restored webhook event.
+type WalletRestoredWebhookPayload struct {
+	// The chain type of the restored wallet.
+	ChainType string `json:"chain_type" api:"required"`
+	// The type of webhook event.
+	//
+	// Any of "wallet.restored".
+	Type WalletRestoredWebhookPayloadType `json:"type" api:"required"`
+	// The address of the restored wallet.
+	WalletAddress string `json:"wallet_address" api:"required"`
+	// The ID of the restored wallet.
+	WalletID string `json:"wallet_id" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ChainType     respjson.Field
+		Type          respjson.Field
+		WalletAddress respjson.Field
+		WalletID      respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletRestoredWebhookPayload) RawJSON() string { return r.JSON.raw }
+func (r *WalletRestoredWebhookPayload) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The type of webhook event.
+type WalletRestoredWebhookPayloadType string
+
+const (
+	WalletRestoredWebhookPayloadTypeWalletRestored WalletRestoredWebhookPayloadType = "wallet.restored"
+)
+
 // Payload for the yield.claim.confirmed webhook event.
 type YieldClaimConfirmedWebhookPayload struct {
-	Caip2         string                                    `json:"caip2" api:"required"`
-	Rewards       []YieldClaimConfirmedWebhookPayloadReward `json:"rewards" api:"required"`
-	TransactionID string                                    `json:"transaction_id" api:"required"`
+	Caip2         string             `json:"caip2" api:"required"`
+	Rewards       []YieldClaimReward `json:"rewards" api:"required"`
+	TransactionID string             `json:"transaction_id" api:"required"`
 	// The type of webhook event.
 	//
 	// Any of "yield.claim.confirmed".
@@ -3369,7 +3512,15 @@ func (r *YieldClaimConfirmedWebhookPayload) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type YieldClaimConfirmedWebhookPayloadReward struct {
+// The type of webhook event.
+type YieldClaimConfirmedWebhookPayloadType string
+
+const (
+	YieldClaimConfirmedWebhookPayloadTypeYieldClaimConfirmed YieldClaimConfirmedWebhookPayloadType = "yield.claim.confirmed"
+)
+
+// A single reward token claimed from a yield vault.
+type YieldClaimReward struct {
 	Amount       string `json:"amount" api:"required"`
 	TokenAddress string `json:"token_address" api:"required"`
 	TokenSymbol  string `json:"token_symbol" api:"required"`
@@ -3384,17 +3535,10 @@ type YieldClaimConfirmedWebhookPayloadReward struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r YieldClaimConfirmedWebhookPayloadReward) RawJSON() string { return r.JSON.raw }
-func (r *YieldClaimConfirmedWebhookPayloadReward) UnmarshalJSON(data []byte) error {
+func (r YieldClaimReward) RawJSON() string { return r.JSON.raw }
+func (r *YieldClaimReward) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-// The type of webhook event.
-type YieldClaimConfirmedWebhookPayloadType string
-
-const (
-	YieldClaimConfirmedWebhookPayloadTypeYieldClaimConfirmed YieldClaimConfirmedWebhookPayloadType = "yield.claim.confirmed"
-)
 
 // Payload for the yield.deposit.confirmed webhook event.
 type YieldDepositConfirmedWebhookPayload struct {
@@ -3488,9 +3632,10 @@ const (
 // [UserCreatedWebhookPayload], [UserLinkedAccountWebhookPayload],
 // [UserTransferredAccountWebhookPayload], [UserUnlinkedAccountWebhookPayload],
 // [UserUpdatedAccountWebhookPayload], [UserWalletCreatedWebhookPayload],
-// [UserOperationCompletedWebhookPayload], [FundsDepositedWebhookPayload],
-// [FundsWithdrawnWebhookPayload], [PrivateKeyExportWebhookPayload],
-// [WalletRecoveredWebhookPayload], [WalletRecoverySetupWebhookPayload],
+// [UserOperationCompletedWebhookPayload], [WalletArchivedWebhookPayload],
+// [FundsDepositedWebhookPayload], [FundsWithdrawnWebhookPayload],
+// [PrivateKeyExportWebhookPayload], [WalletRecoveredWebhookPayload],
+// [WalletRecoverySetupWebhookPayload], [WalletRestoredWebhookPayload],
 // [WalletActionEarnDepositCreatedWebhookPayload],
 // [WalletActionEarnDepositFailedWebhookPayload],
 // [WalletActionEarnDepositRejectedWebhookPayload],
@@ -3519,9 +3664,13 @@ const (
 type UnsafeUnwrapWebhookEventUnion struct {
 	// This field is from variant [IntentAuthorizedWebhookPayload].
 	AuthorizedAt float64 `json:"authorized_at"`
-	CreatedAt    float64 `json:"created_at"`
-	ExpiresAt    float64 `json:"expires_at"`
-	IntentID     string  `json:"intent_id"`
+	// This field is a union of [float64], [float64], [float64], [float64], [float64],
+	// [string], [string], [string], [string], [string], [string], [string], [string],
+	// [string], [string], [string], [string], [string], [string], [string], [string],
+	// [string], [string], [string], [string]
+	CreatedAt UnsafeUnwrapWebhookEventUnionCreatedAt `json:"created_at"`
+	ExpiresAt float64                                `json:"expires_at"`
+	IntentID  string                                 `json:"intent_id"`
 	// This field is from variant [IntentAuthorizedWebhookPayload].
 	IntentType IntentType `json:"intent_type"`
 	// This field is from variant [IntentAuthorizedWebhookPayload].
@@ -3535,10 +3684,11 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	// "transaction.still_pending", "user.authenticated", "user.created",
 	// "user.linked_account", "user.transferred_account", "user.unlinked_account",
 	// "user.updated_account", "user.wallet_created", "user_operation.completed",
-	// "wallet.funds_deposited", "wallet.funds_withdrawn", "wallet.private_key_export",
-	// "wallet.recovered", "wallet.recovery_setup",
-	// "wallet_action.earn_deposit.created", "wallet_action.earn_deposit.failed",
-	// "wallet_action.earn_deposit.rejected", "wallet_action.earn_deposit.succeeded",
+	// "wallet.archived", "wallet.funds_deposited", "wallet.funds_withdrawn",
+	// "wallet.private_key_export", "wallet.recovered", "wallet.recovery_setup",
+	// "wallet.restored", "wallet_action.earn_deposit.created",
+	// "wallet_action.earn_deposit.failed", "wallet_action.earn_deposit.rejected",
+	// "wallet_action.earn_deposit.succeeded",
 	// "wallet_action.earn_incentive_claim.created",
 	// "wallet_action.earn_incentive_claim.failed",
 	// "wallet_action.earn_incentive_claim.rejected",
@@ -3557,15 +3707,16 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	AuthorizationDetails []IntentAuthorization `json:"authorization_details"`
 	// This field is from variant [IntentExecutedWebhookPayload].
 	ActionResult BaseActionResult `json:"action_result"`
-	// This field is from variant [IntentRejectedWebhookPayload].
-	RejectedAt      float64 `json:"rejected_at"`
-	Method          string  `json:"method"`
-	UserID          string  `json:"user_id"`
-	Caip2           string  `json:"caip2"`
-	TransactionHash string  `json:"transaction_hash"`
-	TransactionID   string  `json:"transaction_id"`
-	WalletID        string  `json:"wallet_id"`
-	ReferenceID     string  `json:"reference_id"`
+	// This field is a union of [float64], [string], [string], [string], [string],
+	// [string]
+	RejectedAt      UnsafeUnwrapWebhookEventUnionRejectedAt `json:"rejected_at"`
+	Method          string                                  `json:"method"`
+	UserID          string                                  `json:"user_id"`
+	Caip2           string                                  `json:"caip2"`
+	TransactionHash string                                  `json:"transaction_hash"`
+	TransactionID   string                                  `json:"transaction_id"`
+	WalletID        string                                  `json:"wallet_id"`
+	ReferenceID     string                                  `json:"reference_id"`
 	// This field is from variant [TransactionStillPendingWebhookPayload].
 	TransactionRequest UnsignedStandardEthereumTransactionResp `json:"transaction_request"`
 	// This field is from variant [UserAuthenticatedWebhookPayload].
@@ -3575,7 +3726,7 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	// This field is from variant [UserTransferredAccountWebhookPayload].
 	DeletedUser bool `json:"deletedUser"`
 	// This field is from variant [UserTransferredAccountWebhookPayload].
-	FromUser UserTransferredAccountWebhookPayloadFromUser `json:"fromUser"`
+	FromUser UserReference `json:"fromUser"`
 	// This field is from variant [UserTransferredAccountWebhookPayload].
 	ToUser User `json:"toUser"`
 	// This field is from variant [UserWalletCreatedWebhookPayload].
@@ -3597,21 +3748,23 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	Success bool `json:"success"`
 	// This field is from variant [UserOperationCompletedWebhookPayload].
 	UserOpHash string `json:"user_op_hash"`
-	Amount     string `json:"amount"`
+	// This field is from variant [WalletArchivedWebhookPayload].
+	ArchivedAt    float64 `json:"archived_at"`
+	ChainType     string  `json:"chain_type"`
+	WalletAddress string  `json:"wallet_address"`
+	Amount        string  `json:"amount"`
 	// This field is a union of [WalletFundsAssetUnion], [string], [string], [string],
 	// [string], [string], [string], [string], [string]
 	Asset UnsafeUnwrapWebhookEventUnionAsset `json:"asset"`
-	// This field is a union of [FundsDepositedWebhookPayloadBlock],
-	// [FundsWithdrawnWebhookPayloadBlock]
-	Block          UnsafeUnwrapWebhookEventUnionBlock `json:"block"`
-	IdempotencyKey string                             `json:"idempotency_key"`
-	Recipient      string                             `json:"recipient"`
+	// This field is from variant [FundsDepositedWebhookPayload].
+	Block          BlockInfo `json:"block"`
+	IdempotencyKey string    `json:"idempotency_key"`
+	Recipient      string    `json:"recipient"`
 	// This field is from variant [FundsDepositedWebhookPayload].
 	BridgeMetadata BridgeMetadataUnion `json:"bridge_metadata"`
 	TransactionFee string              `json:"transaction_fee"`
-	WalletAddress  string              `json:"wallet_address"`
 	// This field is from variant [PrivateKeyExportWebhookPayload].
-	ExportSource PrivateKeyExportWebhookPayloadExportSource `json:"export_source"`
+	ExportSource ExportType `json:"export_source"`
 	// This field is from variant [WalletActionEarnDepositCreatedWebhookPayload].
 	ActionType     WalletActionType `json:"action_type"`
 	AssetAddress   string           `json:"asset_address"`
@@ -3620,14 +3773,16 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	VaultID        string           `json:"vault_id"`
 	WalletActionID string           `json:"wallet_action_id"`
 	Decimals       int64            `json:"decimals"`
+	FailedAt       string           `json:"failed_at"`
 	// This field is from variant [WalletActionEarnDepositFailedWebhookPayload].
 	FailureReason FailureReason           `json:"failure_reason"`
 	Steps         []WalletActionStepUnion `json:"steps"`
+	CompletedAt   string                  `json:"completed_at"`
 	ShareAmount   string                  `json:"share_amount"`
 	Chain         string                  `json:"chain"`
 	// This field is a union of [[]EarnIncetiveClaimRewardEntry],
 	// [[]EarnIncetiveClaimRewardEntry], [[]EarnIncetiveClaimRewardEntry],
-	// [[]EarnIncetiveClaimRewardEntry], [[]YieldClaimConfirmedWebhookPayloadReward]
+	// [[]EarnIncetiveClaimRewardEntry], [[]YieldClaimReward]
 	Rewards     UnsafeUnwrapWebhookEventUnionRewards `json:"rewards"`
 	InputAmount string                               `json:"input_amount"`
 	InputToken  string                               `json:"input_token"`
@@ -3682,6 +3837,9 @@ type UnsafeUnwrapWebhookEventUnion struct {
 		Sender               respjson.Field
 		Success              respjson.Field
 		UserOpHash           respjson.Field
+		ArchivedAt           respjson.Field
+		ChainType            respjson.Field
+		WalletAddress        respjson.Field
 		Amount               respjson.Field
 		Asset                respjson.Field
 		Block                respjson.Field
@@ -3689,7 +3847,6 @@ type UnsafeUnwrapWebhookEventUnion struct {
 		Recipient            respjson.Field
 		BridgeMetadata       respjson.Field
 		TransactionFee       respjson.Field
-		WalletAddress        respjson.Field
 		ExportSource         respjson.Field
 		ActionType           respjson.Field
 		AssetAddress         respjson.Field
@@ -3698,8 +3855,10 @@ type UnsafeUnwrapWebhookEventUnion struct {
 		VaultID              respjson.Field
 		WalletActionID       respjson.Field
 		Decimals             respjson.Field
+		FailedAt             respjson.Field
 		FailureReason        respjson.Field
 		Steps                respjson.Field
+		CompletedAt          respjson.Field
 		ShareAmount          respjson.Field
 		Chain                respjson.Field
 		Rewards              respjson.Field
@@ -3750,11 +3909,13 @@ func (UserUnlinkedAccountWebhookPayload) implUnsafeUnwrapWebhookEventUnion()    
 func (UserUpdatedAccountWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                      {}
 func (UserWalletCreatedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                       {}
 func (UserOperationCompletedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                  {}
+func (WalletArchivedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                          {}
 func (FundsDepositedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                          {}
 func (FundsWithdrawnWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                          {}
 func (PrivateKeyExportWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                        {}
 func (WalletRecoveredWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                         {}
 func (WalletRecoverySetupWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                     {}
+func (WalletRestoredWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                          {}
 func (WalletActionEarnDepositCreatedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()          {}
 func (WalletActionEarnDepositFailedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()           {}
 func (WalletActionEarnDepositRejectedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()         {}
@@ -3804,11 +3965,13 @@ func (YieldWithdrawConfirmedWebhookPayload) implUnsafeUnwrapWebhookEventUnion() 
 //	case privyclient.UserUpdatedAccountWebhookPayload:
 //	case privyclient.UserWalletCreatedWebhookPayload:
 //	case privyclient.UserOperationCompletedWebhookPayload:
+//	case privyclient.WalletArchivedWebhookPayload:
 //	case privyclient.FundsDepositedWebhookPayload:
 //	case privyclient.FundsWithdrawnWebhookPayload:
 //	case privyclient.PrivateKeyExportWebhookPayload:
 //	case privyclient.WalletRecoveredWebhookPayload:
 //	case privyclient.WalletRecoverySetupWebhookPayload:
+//	case privyclient.WalletRestoredWebhookPayload:
 //	case privyclient.WalletActionEarnDepositCreatedWebhookPayload:
 //	case privyclient.WalletActionEarnDepositFailedWebhookPayload:
 //	case privyclient.WalletActionEarnDepositRejectedWebhookPayload:
@@ -3881,6 +4044,8 @@ func (u UnsafeUnwrapWebhookEventUnion) AsAny() anyUnsafeUnwrapWebhookEvent {
 		return u.AsUserWalletCreated()
 	case "user_operation.completed":
 		return u.AsUserOperationCompleted()
+	case "wallet.archived":
+		return u.AsWalletArchived()
 	case "wallet.funds_deposited":
 		return u.AsWalletFundsDeposited()
 	case "wallet.funds_withdrawn":
@@ -3891,6 +4056,8 @@ func (u UnsafeUnwrapWebhookEventUnion) AsAny() anyUnsafeUnwrapWebhookEvent {
 		return u.AsWalletRecovered()
 	case "wallet.recovery_setup":
 		return u.AsWalletRecoverySetup()
+	case "wallet.restored":
+		return u.AsWalletRestored()
 	case "wallet_action.earn_deposit.created":
 		return u.AsWalletActionEarnDepositCreated()
 	case "wallet_action.earn_deposit.failed":
@@ -4051,6 +4218,11 @@ func (u UnsafeUnwrapWebhookEventUnion) AsUserOperationCompleted() (v UserOperati
 	return
 }
 
+func (u UnsafeUnwrapWebhookEventUnion) AsWalletArchived() (v WalletArchivedWebhookPayload) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
 func (u UnsafeUnwrapWebhookEventUnion) AsWalletFundsDeposited() (v FundsDepositedWebhookPayload) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
@@ -4072,6 +4244,11 @@ func (u UnsafeUnwrapWebhookEventUnion) AsWalletRecovered() (v WalletRecoveredWeb
 }
 
 func (u UnsafeUnwrapWebhookEventUnion) AsWalletRecoverySetup() (v WalletRecoverySetupWebhookPayload) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u UnsafeUnwrapWebhookEventUnion) AsWalletRestored() (v WalletRestoredWebhookPayload) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -4198,6 +4375,56 @@ func (r *UnsafeUnwrapWebhookEventUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// UnsafeUnwrapWebhookEventUnionCreatedAt is an implicit subunion of
+// [UnsafeUnwrapWebhookEventUnion]. UnsafeUnwrapWebhookEventUnionCreatedAt provides
+// convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [UnsafeUnwrapWebhookEventUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfFloat OfString]
+type UnsafeUnwrapWebhookEventUnionCreatedAt struct {
+	// This field will be present if the value is a [float64] instead of an object.
+	OfFloat float64 `json:",inline"`
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	JSON     struct {
+		OfFloat  respjson.Field
+		OfString respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (r *UnsafeUnwrapWebhookEventUnionCreatedAt) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// UnsafeUnwrapWebhookEventUnionRejectedAt is an implicit subunion of
+// [UnsafeUnwrapWebhookEventUnion]. UnsafeUnwrapWebhookEventUnionRejectedAt
+// provides convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [UnsafeUnwrapWebhookEventUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfFloat OfString]
+type UnsafeUnwrapWebhookEventUnionRejectedAt struct {
+	// This field will be present if the value is a [float64] instead of an object.
+	OfFloat float64 `json:",inline"`
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	JSON     struct {
+		OfFloat  respjson.Field
+		OfString respjson.Field
+		raw      string
+	} `json:"-"`
+}
+
+func (r *UnsafeUnwrapWebhookEventUnionRejectedAt) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // UnsafeUnwrapWebhookEventUnionAsset is an implicit subunion of
 // [UnsafeUnwrapWebhookEventUnion]. UnsafeUnwrapWebhookEventUnionAsset provides
 // convenient access to the sub-properties of the union.
@@ -4253,26 +4480,6 @@ func (r *UnsafeUnwrapWebhookEventUnionAssetAddress) UnmarshalJSON(data []byte) e
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// UnsafeUnwrapWebhookEventUnionBlock is an implicit subunion of
-// [UnsafeUnwrapWebhookEventUnion]. UnsafeUnwrapWebhookEventUnionBlock provides
-// convenient access to the sub-properties of the union.
-//
-// For type safety it is recommended to directly use a variant of the
-// [UnsafeUnwrapWebhookEventUnion].
-type UnsafeUnwrapWebhookEventUnionBlock struct {
-	Number    float64 `json:"number"`
-	Timestamp float64 `json:"timestamp"`
-	JSON      struct {
-		Number    respjson.Field
-		Timestamp respjson.Field
-		raw       string
-	} `json:"-"`
-}
-
-func (r *UnsafeUnwrapWebhookEventUnionBlock) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // UnsafeUnwrapWebhookEventUnionRewards is an implicit subunion of
 // [UnsafeUnwrapWebhookEventUnion]. UnsafeUnwrapWebhookEventUnionRewards provides
 // convenient access to the sub-properties of the union.
@@ -4281,19 +4488,18 @@ func (r *UnsafeUnwrapWebhookEventUnionBlock) UnmarshalJSON(data []byte) error {
 // [UnsafeUnwrapWebhookEventUnion].
 //
 // If the underlying value is not a json object, one of the following properties
-// will be valid: OfEarnIncetiveClaimRewardEntryArray
-// OfYieldClaimConfirmedWebhookPayloadRewards]
+// will be valid: OfEarnIncetiveClaimRewardEntryArray OfYieldClaimRewardArray]
 type UnsafeUnwrapWebhookEventUnionRewards struct {
 	// This field will be present if the value is a [[]EarnIncetiveClaimRewardEntry]
 	// instead of an object.
 	OfEarnIncetiveClaimRewardEntryArray []EarnIncetiveClaimRewardEntry `json:",inline"`
-	// This field will be present if the value is a
-	// [[]YieldClaimConfirmedWebhookPayloadReward] instead of an object.
-	OfYieldClaimConfirmedWebhookPayloadRewards []YieldClaimConfirmedWebhookPayloadReward `json:",inline"`
-	JSON                                       struct {
-		OfEarnIncetiveClaimRewardEntryArray        respjson.Field
-		OfYieldClaimConfirmedWebhookPayloadRewards respjson.Field
-		raw                                        string
+	// This field will be present if the value is a [[]YieldClaimReward] instead of an
+	// object.
+	OfYieldClaimRewardArray []YieldClaimReward `json:",inline"`
+	JSON                    struct {
+		OfEarnIncetiveClaimRewardEntryArray respjson.Field
+		OfYieldClaimRewardArray             respjson.Field
+		raw                                 string
 	} `json:"-"`
 }
 

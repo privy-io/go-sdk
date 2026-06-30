@@ -29,6 +29,8 @@ import (
 // the [NewWalletService] method instead.
 type WalletService struct {
 	Options []option.RequestOption
+	// Operations related to wallet actions
+	Actions WalletActionService
 	Earn    WalletEarnService
 	// Operations related to wallets
 	Transactions WalletTransactionService
@@ -44,6 +46,7 @@ type WalletService struct {
 func NewWalletService(opts ...option.RequestOption) (r WalletService) {
 	r = WalletService{}
 	r.Options = opts
+	r.Actions = NewWalletActionService(opts...)
 	r.Earn = NewWalletEarnService(opts...)
 	r.Transactions = NewWalletTransactionService(opts...)
 	r.Balance = NewWalletBalanceService(opts...)
@@ -140,6 +143,20 @@ func (r *WalletService) Transfer(ctx context.Context, walletID string, params Wa
 	return res, err
 }
 
+// Archives a wallet, preventing it from being used in any write or signing
+// operations. Archived wallets are hidden from list endpoints by default. Returns
+// 404 if the wallet does not exist or is already archived.
+func (r *WalletService) Archive(ctx context.Context, walletID string, opts ...option.RequestOption) (res *Wallet, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if walletID == "" {
+		err = errors.New("missing required wallet_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/wallets/%s/archive", url.PathEscape(walletID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, nil, &res, opts...)
+	return res, err
+}
+
 // Exchange a user JWT for a session key authorized to act on the user's wallets.
 // Returns the encrypted authorization key and the list of wallets it can access.
 func (r *WalletService) AuthenticateWithJwt(ctx context.Context, body WalletAuthenticateWithJwtParams, opts ...option.RequestOption) (res *WalletAuthenticateWithJwtResponseUnion, err error) {
@@ -178,14 +195,14 @@ func (r *WalletService) Export(ctx context.Context, walletID string, params Wall
 }
 
 // Get a wallet by wallet ID.
-func (r *WalletService) Get(ctx context.Context, walletID string, opts ...option.RequestOption) (res *Wallet, err error) {
+func (r *WalletService) Get(ctx context.Context, walletID string, query WalletGetParams, opts ...option.RequestOption) (res *Wallet, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if walletID == "" {
 		err = errors.New("missing required wallet_id parameter")
 		return nil, err
 	}
 	path := fmt.Sprintf("v1/wallets/%s", url.PathEscape(walletID))
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return res, err
 }
 
@@ -237,6 +254,51 @@ func (r *WalletService) Rpc(ctx context.Context, walletID string, params WalletR
 	path := fmt.Sprintf("v1/wallets/%s/rpc", url.PathEscape(walletID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return res, err
+}
+
+// An entry in an EIP-2930 access list, specifying an address and its storage keys.
+type AccessListEntryResp struct {
+	Address     string `json:"address" api:"required"`
+	StorageKeys []Hex  `json:"storage_keys" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Address     respjson.Field
+		StorageKeys respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AccessListEntryResp) RawJSON() string { return r.JSON.raw }
+func (r *AccessListEntryResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this AccessListEntryResp to a AccessListEntry.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// AccessListEntry.Overrides()
+func (r AccessListEntryResp) ToParam() AccessListEntry {
+	return param.Override[AccessListEntry](json.RawMessage(r.RawJSON()))
+}
+
+// An entry in an EIP-2930 access list, specifying an address and its storage keys.
+//
+// The properties Address, StorageKeys are required.
+type AccessListEntry struct {
+	Address     string `json:"address" api:"required"`
+	StorageKeys []Hex  `json:"storage_keys,omitzero" api:"required"`
+	paramObj
+}
+
+func (r AccessListEntry) MarshalJSON() (data []byte, err error) {
+	type shadow AccessListEntry
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *AccessListEntry) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
 type AdditionalSignerInputResp []AdditionalSignerItemInputResp
@@ -325,8 +387,10 @@ const (
 // address (Solana). Use this variant for tokens that are not first-class assets.
 type CustomTokenTransferSourceResp struct {
 	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
-	// USDC, "0.01" for 0.01 ETH). Not in the smallest on-chain unit (wei, lamports,
-	// etc.). Maximum 100 characters.
+	// USDC, "0.01" for 0.01 ETH). For exact_input, specifies the amount to send. Not
+	// in the smallest on-chain unit (wei, lamports, etc.). Maximum 100 characters.
+	//
+	// Deprecated: deprecated
 	Amount string `json:"amount" api:"required"`
 	// The token contract address (EVM) or mint address (Solana) of the asset to
 	// transfer.
@@ -367,8 +431,10 @@ func (r CustomTokenTransferSourceResp) ToParam() CustomTokenTransferSource {
 // The properties Amount, AssetAddress, Chain are required.
 type CustomTokenTransferSource struct {
 	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
-	// USDC, "0.01" for 0.01 ETH). Not in the smallest on-chain unit (wei, lamports,
-	// etc.). Maximum 100 characters.
+	// USDC, "0.01" for 0.01 ETH). For exact_input, specifies the amount to send. Not
+	// in the smallest on-chain unit (wei, lamports, etc.). Maximum 100 characters.
+	//
+	// Deprecated: deprecated
 	Amount string `json:"amount" api:"required"`
 	// The token contract address (EVM) or mint address (Solana) of the asset to
 	// transfer.
@@ -417,6 +483,65 @@ const (
 	DeveloperFeeTypeDeveloper DeveloperFeeType = "developer"
 )
 
+// HPKE-encrypted authorization key with encapsulated key and ciphertext.
+type EncryptedAuthorizationKey struct {
+	// The encrypted authorization key corresponding to the user's current
+	// authentication session.
+	Ciphertext string `json:"ciphertext" api:"required"`
+	// Base64-encoded ephemeral public key used in the HPKE encryption process.
+	// Required for decryption.
+	EncapsulatedKey string `json:"encapsulated_key" api:"required"`
+	// The encryption type used. Currently only supports HPKE.
+	//
+	// Any of "HPKE".
+	EncryptionType EncryptedAuthorizationKeyEncryptionType `json:"encryption_type" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Ciphertext      respjson.Field
+		EncapsulatedKey respjson.Field
+		EncryptionType  respjson.Field
+		ExtraFields     map[string]respjson.Field
+		raw             string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EncryptedAuthorizationKey) RawJSON() string { return r.JSON.raw }
+func (r *EncryptedAuthorizationKey) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The encryption type used. Currently only supports HPKE.
+type EncryptedAuthorizationKeyEncryptionType string
+
+const (
+	EncryptedAuthorizationKeyEncryptionTypeHpke EncryptedAuthorizationKeyEncryptionType = "HPKE"
+)
+
+// The response from authenticating a wallet with HPKE encryption, containing an
+// encrypted authorization key and wallet data.
+type EncryptedWalletAuthenticateResponse struct {
+	// HPKE-encrypted authorization key with encapsulated key and ciphertext.
+	EncryptedAuthorizationKey EncryptedAuthorizationKey `json:"encrypted_authorization_key" api:"required"`
+	// The expiration time of the authorization key in milliseconds since the epoch.
+	ExpiresAt float64  `json:"expires_at" api:"required"`
+	Wallets   []Wallet `json:"wallets" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		EncryptedAuthorizationKey respjson.Field
+		ExpiresAt                 respjson.Field
+		Wallets                   respjson.Field
+		ExtraFields               map[string]respjson.Field
+		raw                       string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EncryptedWalletAuthenticateResponse) RawJSON() string { return r.JSON.raw }
+func (r *EncryptedWalletAuthenticateResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Executes the EVM `personal_sign` RPC (EIP-191) to sign a message.
 type EthereumPersonalSignRpcInputResp struct {
 	// Any of "personal_sign".
@@ -424,18 +549,25 @@ type EthereumPersonalSignRpcInputResp struct {
 	// Parameters for the EVM `personal_sign` RPC.
 	Params  EthereumPersonalSignRpcInputParamsResp `json:"params" api:"required"`
 	Address string                                 `json:"address"`
+	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	Caip2 Caip2 `json:"caip2"`
 	// Any of "ethereum".
 	ChainType EthereumPersonalSignRpcInputChainType `json:"chain_type"`
-	WalletID  string                                `json:"wallet_id"`
+	// Options controlling signature production for personal_sign and
+	// eth_signTypedData_v4.
+	SignatureOptions SignatureOptionsResp `json:"signature_options"`
+	WalletID         string               `json:"wallet_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		Method      respjson.Field
-		Params      respjson.Field
-		Address     respjson.Field
-		ChainType   respjson.Field
-		WalletID    respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
+		Method           respjson.Field
+		Params           respjson.Field
+		Address          respjson.Field
+		Caip2            respjson.Field
+		ChainType        respjson.Field
+		SignatureOptions respjson.Field
+		WalletID         respjson.Field
+		ExtraFields      map[string]respjson.Field
+		raw              string
 	} `json:"-"`
 }
 
@@ -474,11 +606,16 @@ type EthereumPersonalSignRpcInput struct {
 	// Any of "personal_sign".
 	Method EthereumPersonalSignRpcInputMethod `json:"method,omitzero" api:"required"`
 	// Parameters for the EVM `personal_sign` RPC.
-	Params   EthereumPersonalSignRpcInputParams `json:"params,omitzero" api:"required"`
-	Address  param.Opt[string]                  `json:"address,omitzero"`
-	WalletID param.Opt[string]                  `json:"wallet_id,omitzero"`
+	Params  EthereumPersonalSignRpcInputParams `json:"params,omitzero" api:"required"`
+	Address param.Opt[string]                  `json:"address,omitzero"`
+	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	Caip2    param.Opt[Caip2]  `json:"caip2,omitzero"`
+	WalletID param.Opt[string] `json:"wallet_id,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumPersonalSignRpcInputChainType `json:"chain_type,omitzero"`
+	// Options controlling signature production for personal_sign and
+	// eth_signTypedData_v4.
+	SignatureOptions SignatureOptions `json:"signature_options,omitzero"`
 	paramObj
 }
 
@@ -1648,18 +1785,25 @@ type EthereumSignTypedDataRpcInputResp struct {
 	// Parameters for the EVM `eth_signTypedData_v4` RPC.
 	Params  EthereumSignTypedDataRpcInputParamsResp `json:"params" api:"required"`
 	Address string                                  `json:"address"`
+	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	Caip2 Caip2 `json:"caip2"`
 	// Any of "ethereum".
 	ChainType EthereumSignTypedDataRpcInputChainType `json:"chain_type"`
-	WalletID  string                                 `json:"wallet_id"`
+	// Options controlling signature production for personal_sign and
+	// eth_signTypedData_v4.
+	SignatureOptions SignatureOptionsResp `json:"signature_options"`
+	WalletID         string               `json:"wallet_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		Method      respjson.Field
-		Params      respjson.Field
-		Address     respjson.Field
-		ChainType   respjson.Field
-		WalletID    respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
+		Method           respjson.Field
+		Params           respjson.Field
+		Address          respjson.Field
+		Caip2            respjson.Field
+		ChainType        respjson.Field
+		SignatureOptions respjson.Field
+		WalletID         respjson.Field
+		ExtraFields      map[string]respjson.Field
+		raw              string
 	} `json:"-"`
 }
 
@@ -1699,11 +1843,16 @@ type EthereumSignTypedDataRpcInput struct {
 	// Any of "eth_signTypedData_v4".
 	Method EthereumSignTypedDataRpcInputMethod `json:"method,omitzero" api:"required"`
 	// Parameters for the EVM `eth_signTypedData_v4` RPC.
-	Params   EthereumSignTypedDataRpcInputParams `json:"params,omitzero" api:"required"`
-	Address  param.Opt[string]                   `json:"address,omitzero"`
-	WalletID param.Opt[string]                   `json:"wallet_id,omitzero"`
+	Params  EthereumSignTypedDataRpcInputParams `json:"params,omitzero" api:"required"`
+	Address param.Opt[string]                   `json:"address,omitzero"`
+	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	Caip2    param.Opt[Caip2]  `json:"caip2,omitzero"`
+	WalletID param.Opt[string] `json:"wallet_id,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumSignTypedDataRpcInputChainType `json:"chain_type,omitzero"`
+	// Options controlling signature production for personal_sign and
+	// eth_signTypedData_v4.
+	SignatureOptions SignatureOptions `json:"signature_options,omitzero"`
 	paramObj
 }
 
@@ -2362,6 +2511,14 @@ func (r *FeeLineItemUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// The wallet chain types that offer first class support.
+type FirstClassChainType string
+
+const (
+	FirstClassChainTypeEthereum FirstClassChainType = "ethereum"
+	FirstClassChainTypeSolana   FirstClassChainType = "solana"
+)
+
 // Gas cost for a blockchain action. Includes both raw base-unit amount and a
 // human-readable decimal string, plus the gas token symbol.
 type Gas struct {
@@ -2391,8 +2548,13 @@ func (r *Gas) UnmarshalJSON(data []byte) error {
 //
 // The property Address is required.
 type GetByWalletAddressRequestBody struct {
-	// A blockchain wallet address (Ethereum or Solana).
+	// A blockchain wallet address. Ethereum addresses are normalized to EIP-55
+	// checksum format. Solana addresses are validated as base58. All other chain
+	// addresses (Stellar, Tron, Sui, Aptos, etc.) are accepted as-is.
 	Address Address `json:"address" api:"required"`
+	// Include archived wallets in lookup. Defaults to false (archived wallets return
+	// 404).
+	IncludeArchived param.Opt[bool] `json:"include_archived,omitzero"`
 	paramObj
 }
 
@@ -2411,10 +2573,10 @@ func (r *GetByWalletAddressRequestBody) UnmarshalJSON(data []byte) error {
 type HDInitInput struct {
 	// The address of the wallet to import.
 	Address string `json:"address" api:"required"`
-	// The chain type of the wallet to import. Currently supports `ethereum` and
-	// `solana`.
+	// The chain type of the wallet to import. Supports `ethereum`, `solana`,
+	// `stellar`, `tron`, `sui`, and `aptos`.
 	//
-	// Any of "ethereum", "solana".
+	// Any of "ethereum", "solana", "stellar", "tron", "sui", "aptos".
 	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
 	//
@@ -2451,10 +2613,10 @@ const (
 type HDSubmitInput struct {
 	// The address of the wallet to import.
 	Address string `json:"address" api:"required"`
-	// The chain type of the wallet to import. Currently supports `ethereum` and
-	// `solana`.
+	// The chain type of the wallet to import. Supports `ethereum`, `solana`,
+	// `stellar`, `tron`, `sui`, and `aptos`.
 	//
-	// Any of "ethereum", "solana".
+	// Any of "ethereum", "solana", "stellar", "tron", "sui", "aptos".
 	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
 	// The encrypted entropy of the wallet to import.
 	Ciphertext string `json:"ciphertext" api:"required"`
@@ -2539,8 +2701,10 @@ type Hex = string
 // variant for first-class assets maintained by Privy.
 type NamedTokenTransferSourceResp struct {
 	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
-	// USDC, "0.01" for 0.01 ETH). Not in the smallest on-chain unit (wei, lamports,
-	// etc.). Maximum 100 characters.
+	// USDC, "0.01" for 0.01 ETH). For exact_input, specifies the amount to send. Not
+	// in the smallest on-chain unit (wei, lamports, etc.). Maximum 100 characters.
+	//
+	// Deprecated: deprecated
 	Amount string `json:"amount" api:"required"`
 	// The asset to transfer. Supported: 'usdc', 'usdb', 'usdt' (stablecoins), 'eth'
 	// (native Ethereum), 'sol' (native Solana).
@@ -2581,8 +2745,10 @@ func (r NamedTokenTransferSourceResp) ToParam() NamedTokenTransferSource {
 // The properties Amount, Asset, Chain are required.
 type NamedTokenTransferSource struct {
 	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
-	// USDC, "0.01" for 0.01 ETH). Not in the smallest on-chain unit (wei, lamports,
-	// etc.). Maximum 100 characters.
+	// USDC, "0.01" for 0.01 ETH). For exact_input, specifies the amount to send. Not
+	// in the smallest on-chain unit (wei, lamports, etc.). Maximum 100 characters.
+	//
+	// Deprecated: deprecated
 	Amount string `json:"amount" api:"required"`
 	// The asset to transfer. Supported: 'usdc', 'usdb', 'usdt' (stablecoins), 'eth'
 	// (native Ethereum), 'sol' (native Solana).
@@ -2730,10 +2896,10 @@ func (r *PrivateKeyExportInput) UnmarshalJSON(data []byte) error {
 type PrivateKeyInitInput struct {
 	// The address of the wallet to import.
 	Address string `json:"address" api:"required"`
-	// The chain type of the wallet to import. Currently supports `ethereum` and
-	// `solana`.
+	// The chain type of the wallet to import. Supports `ethereum`, `solana`,
+	// `stellar`, `tron`, `sui`, and `aptos`.
 	//
-	// Any of "ethereum", "solana".
+	// Any of "ethereum", "solana", "stellar", "tron", "sui", "aptos".
 	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
 	//
@@ -2765,10 +2931,10 @@ const (
 type PrivateKeySubmitInput struct {
 	// The address of the wallet to import.
 	Address string `json:"address" api:"required"`
-	// The chain type of the wallet to import. Currently supports `ethereum` and
-	// `solana`.
+	// The chain type of the wallet to import. Supports `ethereum`, `solana`,
+	// `stellar`, `tron`, `sui`, and `aptos`.
 	//
-	// Any of "ethereum", "solana".
+	// Any of "ethereum", "solana", "stellar", "tron", "sui", "aptos".
 	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
 	// The encrypted entropy of the wallet to import.
 	Ciphertext string `json:"ciphertext" api:"required"`
@@ -3056,6 +3222,30 @@ const (
 	RawSignResponseDataEncodingHex RawSignResponseDataEncoding = "hex"
 )
 
+// The response from authenticating a wallet without encryption, containing a raw
+// authorization key and wallet data.
+type RawWalletAuthenticateResponse struct {
+	// The raw authorization key data.
+	AuthorizationKey string `json:"authorization_key" api:"required"`
+	// The expiration time of the authorization key in milliseconds since the epoch.
+	ExpiresAt float64  `json:"expires_at" api:"required"`
+	Wallets   []Wallet `json:"wallets" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		AuthorizationKey respjson.Field
+		ExpiresAt        respjson.Field
+		Wallets          respjson.Field
+		ExtraFields      map[string]respjson.Field
+		raw              string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RawWalletAuthenticateResponse) RawJSON() string { return r.JSON.raw }
+func (r *RawWalletAuthenticateResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 type RecipientPublicKey = string
 
 // Estimated fee paid to the relayer.
@@ -3179,6 +3369,70 @@ func (r SeedPhraseExportResponse) RawJSON() string { return r.JSON.raw }
 func (r *SeedPhraseExportResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// Options controlling signature production for personal_sign and
+// eth_signTypedData_v4.
+type SignatureOptionsResp struct {
+	// The type of cryptographic signature to produce. Use "ecdsa" for standard ECDSA
+	// signatures, or "erc1271" for ERC-1271 compliant signatures for smart account
+	// wallets.
+	//
+	// Any of "ecdsa", "erc1271".
+	Type SignatureType `json:"type" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Type        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SignatureOptionsResp) RawJSON() string { return r.JSON.raw }
+func (r *SignatureOptionsResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this SignatureOptionsResp to a SignatureOptions.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// SignatureOptions.Overrides()
+func (r SignatureOptionsResp) ToParam() SignatureOptions {
+	return param.Override[SignatureOptions](json.RawMessage(r.RawJSON()))
+}
+
+// Options controlling signature production for personal_sign and
+// eth_signTypedData_v4.
+//
+// The property Type is required.
+type SignatureOptions struct {
+	// The type of cryptographic signature to produce. Use "ecdsa" for standard ECDSA
+	// signatures, or "erc1271" for ERC-1271 compliant signatures for smart account
+	// wallets.
+	//
+	// Any of "ecdsa", "erc1271".
+	Type SignatureType `json:"type,omitzero" api:"required"`
+	paramObj
+}
+
+func (r SignatureOptions) MarshalJSON() (data []byte, err error) {
+	type shadow SignatureOptions
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *SignatureOptions) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The type of cryptographic signature to produce. Use "ecdsa" for standard ECDSA
+// signatures, or "erc1271" for ERC-1271 compliant signatures for smart account
+// wallets.
+type SignatureType string
+
+const (
+	SignatureTypeEcdsa   SignatureType = "ecdsa"
+	SignatureTypeErc1271 SignatureType = "erc1271"
+)
 
 // Executes the SVM `signAndSendTransaction` RPC to sign and broadcast a
 // transaction.
@@ -5797,6 +6051,10 @@ type TransferRequestBodyResp struct {
 	// The source asset, amount, and chain for a token transfer. Specify either `asset`
 	// (named) or `asset_address` (custom), not both.
 	Source TokenTransferSourceUnionResp `json:"source" api:"required"`
+	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
+	// USDC). For exact_input, the amount to send. For exact_output, the exact amount
+	// to receive. Takes precedence over source.amount when both are provided.
+	Amount string `json:"amount"`
 	// Whether the amount refers to the input token or output token.
 	//
 	// Any of "exact_input", "exact_output".
@@ -5810,6 +6068,7 @@ type TransferRequestBodyResp struct {
 	JSON struct {
 		Destination      respjson.Field
 		Source           respjson.Field
+		Amount           respjson.Field
 		AmountType       respjson.Field
 		FeeConfiguration respjson.Field
 		SlippageBps      respjson.Field
@@ -5843,6 +6102,10 @@ type TransferRequestBody struct {
 	// The source asset, amount, and chain for a token transfer. Specify either `asset`
 	// (named) or `asset_address` (custom), not both.
 	Source TokenTransferSourceUnion `json:"source,omitzero" api:"required"`
+	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
+	// USDC). For exact_input, the amount to send. For exact_output, the exact amount
+	// to receive. Takes precedence over source.amount when both are provided.
+	Amount param.Opt[string] `json:"amount,omitzero"`
 	// Maximum allowed slippage in basis points (1 bps = 0.01%). Only applicable for
 	// cross-chain or cross-asset transfers; omit to use the provider default.
 	SlippageBps param.Opt[int64] `json:"slippage_bps,omitzero"`
@@ -5860,6 +6123,720 @@ func (r TransferRequestBody) MarshalJSON() (data []byte, err error) {
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *TransferRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// TronContractUnionResp contains all possible properties and values from
+// [TronTransferContractResp], [TronTriggerSmartContractResp].
+//
+// Use the [TronContractUnionResp.AsAny] method to switch on the variant.
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type TronContractUnionResp struct {
+	// This field is from variant [TronTransferContractResp].
+	Amount int64 `json:"amount"`
+	// This field is from variant [TronTransferContractResp].
+	OwnerAddress TronHexAddress `json:"owner_address"`
+	// This field is from variant [TronTransferContractResp].
+	ToAddress TronHexAddress `json:"to_address"`
+	// Any of "TransferContract", "TriggerSmartContract".
+	Type string `json:"type"`
+	// This field is from variant [TronTriggerSmartContractResp].
+	ContractAddress TronHexAddress `json:"contract_address"`
+	// This field is from variant [TronTriggerSmartContractResp].
+	CallTokenValue int64 `json:"call_token_value"`
+	// This field is from variant [TronTriggerSmartContractResp].
+	CallValue int64 `json:"call_value"`
+	// This field is from variant [TronTriggerSmartContractResp].
+	Data string `json:"data"`
+	// This field is from variant [TronTriggerSmartContractResp].
+	TokenID int64 `json:"token_id"`
+	JSON    struct {
+		Amount          respjson.Field
+		OwnerAddress    respjson.Field
+		ToAddress       respjson.Field
+		Type            respjson.Field
+		ContractAddress respjson.Field
+		CallTokenValue  respjson.Field
+		CallValue       respjson.Field
+		Data            respjson.Field
+		TokenID         respjson.Field
+		raw             string
+	} `json:"-"`
+}
+
+// anyTronContractResp is implemented by each variant of [TronContractUnionResp] to
+// add type safety for the return type of [TronContractUnionResp.AsAny]
+type anyTronContractResp interface {
+	implTronContractUnionResp()
+}
+
+func (TronTransferContractResp) implTronContractUnionResp()     {}
+func (TronTriggerSmartContractResp) implTronContractUnionResp() {}
+
+// Use the following switch statement to find the correct variant
+//
+//	switch variant := TronContractUnionResp.AsAny().(type) {
+//	case privyclient.TronTransferContractResp:
+//	case privyclient.TronTriggerSmartContractResp:
+//	default:
+//	  fmt.Errorf("no variant present")
+//	}
+func (u TronContractUnionResp) AsAny() anyTronContractResp {
+	switch u.Type {
+	case "TransferContract":
+		return u.AsTransferContract()
+	case "TriggerSmartContract":
+		return u.AsTriggerSmartContract()
+	}
+	return nil
+}
+
+func (u TronContractUnionResp) AsTransferContract() (v TronTransferContractResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u TronContractUnionResp) AsTriggerSmartContract() (v TronTriggerSmartContractResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u TronContractUnionResp) RawJSON() string { return u.JSON.raw }
+
+func (r *TronContractUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TronContractUnionResp to a TronContractUnion.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TronContractUnion.Overrides()
+func (r TronContractUnionResp) ToParam() TronContractUnion {
+	return param.Override[TronContractUnion](json.RawMessage(r.RawJSON()))
+}
+
+func TronContractOfTriggerSmartContract(contractAddress TronHexAddress, ownerAddress TronHexAddress, type_ TronTriggerSmartContractType) TronContractUnion {
+	var triggerSmartContract TronTriggerSmartContract
+	triggerSmartContract.ContractAddress = contractAddress
+	triggerSmartContract.OwnerAddress = ownerAddress
+	triggerSmartContract.Type = type_
+	return TronContractUnion{OfTriggerSmartContract: &triggerSmartContract}
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type TronContractUnion struct {
+	OfTransferContract     *TronTransferContract     `json:",omitzero,inline"`
+	OfTriggerSmartContract *TronTriggerSmartContract `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u TronContractUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfTransferContract, u.OfTriggerSmartContract)
+}
+func (u *TronContractUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+func init() {
+	apijson.RegisterUnion[TronContractUnion](
+		"type",
+		apijson.Discriminator[TronTransferContract]("TransferContract"),
+		apijson.Discriminator[TronTriggerSmartContract]("TriggerSmartContract"),
+	)
+}
+
+// Tron raw_data for tron_sendTransaction. Block reference fields are optional;
+// Privy fetches fresh values if omitted.
+type TronRawDataForSendResp struct {
+	Contract      []TronContractUnionResp `json:"contract" api:"required"`
+	Data          string                  `json:"data"`
+	Expiration    int64                   `json:"expiration"`
+	FeeLimit      int64                   `json:"fee_limit"`
+	RefBlockBytes string                  `json:"ref_block_bytes"`
+	RefBlockHash  string                  `json:"ref_block_hash"`
+	Timestamp     int64                   `json:"timestamp"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Contract      respjson.Field
+		Data          respjson.Field
+		Expiration    respjson.Field
+		FeeLimit      respjson.Field
+		RefBlockBytes respjson.Field
+		RefBlockHash  respjson.Field
+		Timestamp     respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronRawDataForSendResp) RawJSON() string { return r.JSON.raw }
+func (r *TronRawDataForSendResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TronRawDataForSendResp to a TronRawDataForSend.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TronRawDataForSend.Overrides()
+func (r TronRawDataForSendResp) ToParam() TronRawDataForSend {
+	return param.Override[TronRawDataForSend](json.RawMessage(r.RawJSON()))
+}
+
+// Tron raw_data for tron_sendTransaction. Block reference fields are optional;
+// Privy fetches fresh values if omitted.
+//
+// The property Contract is required.
+type TronRawDataForSend struct {
+	Contract      []TronContractUnion `json:"contract,omitzero" api:"required"`
+	Data          param.Opt[string]   `json:"data,omitzero"`
+	Expiration    param.Opt[int64]    `json:"expiration,omitzero"`
+	FeeLimit      param.Opt[int64]    `json:"fee_limit,omitzero"`
+	RefBlockBytes param.Opt[string]   `json:"ref_block_bytes,omitzero"`
+	RefBlockHash  param.Opt[string]   `json:"ref_block_hash,omitzero"`
+	Timestamp     param.Opt[int64]    `json:"timestamp,omitzero"`
+	paramObj
+}
+
+func (r TronRawDataForSend) MarshalJSON() (data []byte, err error) {
+	type shadow TronRawDataForSend
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TronRawDataForSend) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Tron raw_data for tron_signTransaction. Block reference fields are required;
+// caller is responsible for fetching them.
+type TronRawDataForSignResp struct {
+	Contract      []TronContractUnionResp `json:"contract" api:"required"`
+	Expiration    int64                   `json:"expiration" api:"required"`
+	RefBlockBytes string                  `json:"ref_block_bytes" api:"required"`
+	RefBlockHash  string                  `json:"ref_block_hash" api:"required"`
+	Data          string                  `json:"data"`
+	FeeLimit      int64                   `json:"fee_limit"`
+	Timestamp     int64                   `json:"timestamp"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Contract      respjson.Field
+		Expiration    respjson.Field
+		RefBlockBytes respjson.Field
+		RefBlockHash  respjson.Field
+		Data          respjson.Field
+		FeeLimit      respjson.Field
+		Timestamp     respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronRawDataForSignResp) RawJSON() string { return r.JSON.raw }
+func (r *TronRawDataForSignResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TronRawDataForSignResp to a TronRawDataForSign.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TronRawDataForSign.Overrides()
+func (r TronRawDataForSignResp) ToParam() TronRawDataForSign {
+	return param.Override[TronRawDataForSign](json.RawMessage(r.RawJSON()))
+}
+
+// Tron raw_data for tron_signTransaction. Block reference fields are required;
+// caller is responsible for fetching them.
+//
+// The properties Contract, Expiration, RefBlockBytes, RefBlockHash are required.
+type TronRawDataForSign struct {
+	Contract      []TronContractUnion `json:"contract,omitzero" api:"required"`
+	Expiration    int64               `json:"expiration" api:"required"`
+	RefBlockBytes string              `json:"ref_block_bytes" api:"required"`
+	RefBlockHash  string              `json:"ref_block_hash" api:"required"`
+	Data          param.Opt[string]   `json:"data,omitzero"`
+	FeeLimit      param.Opt[int64]    `json:"fee_limit,omitzero"`
+	Timestamp     param.Opt[int64]    `json:"timestamp,omitzero"`
+	paramObj
+}
+
+func (r TronRawDataForSign) MarshalJSON() (data []byte, err error) {
+	type shadow TronRawDataForSign
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TronRawDataForSign) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Executes the Tron `tron_sendTransaction` RPC to sign and broadcast a
+// transaction.
+type TronSendTransactionRpcInputResp struct {
+	// Any of "tron_sendTransaction".
+	Method TronSendTransactionRpcInputMethod `json:"method" api:"required"`
+	// Parameters for the Tron `tron_sendTransaction` RPC.
+	Params TronSendTransactionRpcInputParamsResp `json:"params" api:"required"`
+	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	Caip2 Caip2 `json:"caip2"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Method      respjson.Field
+		Params      respjson.Field
+		Caip2       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronSendTransactionRpcInputResp) RawJSON() string { return r.JSON.raw }
+func (r *TronSendTransactionRpcInputResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TronSendTransactionRpcInputResp to a
+// TronSendTransactionRpcInput.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TronSendTransactionRpcInput.Overrides()
+func (r TronSendTransactionRpcInputResp) ToParam() TronSendTransactionRpcInput {
+	return param.Override[TronSendTransactionRpcInput](json.RawMessage(r.RawJSON()))
+}
+
+type TronSendTransactionRpcInputMethod string
+
+const (
+	TronSendTransactionRpcInputMethodTronSendTransaction TronSendTransactionRpcInputMethod = "tron_sendTransaction"
+)
+
+// Executes the Tron `tron_sendTransaction` RPC to sign and broadcast a
+// transaction.
+//
+// The properties Method, Params are required.
+type TronSendTransactionRpcInput struct {
+	// Any of "tron_sendTransaction".
+	Method TronSendTransactionRpcInputMethod `json:"method,omitzero" api:"required"`
+	// Parameters for the Tron `tron_sendTransaction` RPC.
+	Params TronSendTransactionRpcInputParams `json:"params,omitzero" api:"required"`
+	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	Caip2 param.Opt[Caip2] `json:"caip2,omitzero"`
+	paramObj
+}
+
+func (r TronSendTransactionRpcInput) MarshalJSON() (data []byte, err error) {
+	type shadow TronSendTransactionRpcInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TronSendTransactionRpcInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Parameters for the Tron `tron_sendTransaction` RPC.
+type TronSendTransactionRpcInputParamsResp struct {
+	// Tron raw_data for tron_sendTransaction. Block reference fields are optional;
+	// Privy fetches fresh values if omitted.
+	RawData     TronRawDataForSendResp `json:"raw_data" api:"required"`
+	ReferenceID string                 `json:"reference_id"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		RawData     respjson.Field
+		ReferenceID respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronSendTransactionRpcInputParamsResp) RawJSON() string { return r.JSON.raw }
+func (r *TronSendTransactionRpcInputParamsResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TronSendTransactionRpcInputParamsResp to a
+// TronSendTransactionRpcInputParams.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TronSendTransactionRpcInputParams.Overrides()
+func (r TronSendTransactionRpcInputParamsResp) ToParam() TronSendTransactionRpcInputParams {
+	return param.Override[TronSendTransactionRpcInputParams](json.RawMessage(r.RawJSON()))
+}
+
+// Parameters for the Tron `tron_sendTransaction` RPC.
+//
+// The property RawData is required.
+type TronSendTransactionRpcInputParams struct {
+	// Tron raw_data for tron_sendTransaction. Block reference fields are optional;
+	// Privy fetches fresh values if omitted.
+	RawData     TronRawDataForSend `json:"raw_data,omitzero" api:"required"`
+	ReferenceID param.Opt[string]  `json:"reference_id,omitzero"`
+	paramObj
+}
+
+func (r TronSendTransactionRpcInputParams) MarshalJSON() (data []byte, err error) {
+	type shadow TronSendTransactionRpcInputParams
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TronSendTransactionRpcInputParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response to the Tron `tron_sendTransaction` RPC.
+type TronSendTransactionRpcResponse struct {
+	// Data returned by the Tron `tron_sendTransaction` RPC.
+	Data TronSendTransactionRpcResponseData `json:"data" api:"required"`
+	// Any of "tron_sendTransaction".
+	Method TronSendTransactionRpcResponseMethod `json:"method" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		Method      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronSendTransactionRpcResponse) RawJSON() string { return r.JSON.raw }
+func (r *TronSendTransactionRpcResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type TronSendTransactionRpcResponseMethod string
+
+const (
+	TronSendTransactionRpcResponseMethodTronSendTransaction TronSendTransactionRpcResponseMethod = "tron_sendTransaction"
+)
+
+// Data returned by the Tron `tron_sendTransaction` RPC.
+type TronSendTransactionRpcResponseData struct {
+	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	Caip2         Caip2  `json:"caip2" api:"required"`
+	Hash          string `json:"hash" api:"required"`
+	TransactionID string `json:"transaction_id" api:"required"`
+	ReferenceID   string `json:"reference_id"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Caip2         respjson.Field
+		Hash          respjson.Field
+		TransactionID respjson.Field
+		ReferenceID   respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronSendTransactionRpcResponseData) RawJSON() string { return r.JSON.raw }
+func (r *TronSendTransactionRpcResponseData) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Executes the Tron `tron_signTransaction` RPC to sign a transaction. The caller
+// is responsible for broadcasting.
+type TronSignTransactionRpcInputResp struct {
+	// Any of "tron_signTransaction".
+	Method TronSignTransactionRpcInputMethod `json:"method" api:"required"`
+	// Parameters for the Tron `tron_signTransaction` RPC.
+	Params TronSignTransactionRpcInputParamsResp `json:"params" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Method      respjson.Field
+		Params      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronSignTransactionRpcInputResp) RawJSON() string { return r.JSON.raw }
+func (r *TronSignTransactionRpcInputResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TronSignTransactionRpcInputResp to a
+// TronSignTransactionRpcInput.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TronSignTransactionRpcInput.Overrides()
+func (r TronSignTransactionRpcInputResp) ToParam() TronSignTransactionRpcInput {
+	return param.Override[TronSignTransactionRpcInput](json.RawMessage(r.RawJSON()))
+}
+
+type TronSignTransactionRpcInputMethod string
+
+const (
+	TronSignTransactionRpcInputMethodTronSignTransaction TronSignTransactionRpcInputMethod = "tron_signTransaction"
+)
+
+// Executes the Tron `tron_signTransaction` RPC to sign a transaction. The caller
+// is responsible for broadcasting.
+//
+// The properties Method, Params are required.
+type TronSignTransactionRpcInput struct {
+	// Any of "tron_signTransaction".
+	Method TronSignTransactionRpcInputMethod `json:"method,omitzero" api:"required"`
+	// Parameters for the Tron `tron_signTransaction` RPC.
+	Params TronSignTransactionRpcInputParams `json:"params,omitzero" api:"required"`
+	paramObj
+}
+
+func (r TronSignTransactionRpcInput) MarshalJSON() (data []byte, err error) {
+	type shadow TronSignTransactionRpcInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TronSignTransactionRpcInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Parameters for the Tron `tron_signTransaction` RPC.
+type TronSignTransactionRpcInputParamsResp struct {
+	// Tron raw_data for tron_signTransaction. Block reference fields are required;
+	// caller is responsible for fetching them.
+	RawData TronRawDataForSignResp `json:"raw_data" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		RawData     respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronSignTransactionRpcInputParamsResp) RawJSON() string { return r.JSON.raw }
+func (r *TronSignTransactionRpcInputParamsResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TronSignTransactionRpcInputParamsResp to a
+// TronSignTransactionRpcInputParams.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TronSignTransactionRpcInputParams.Overrides()
+func (r TronSignTransactionRpcInputParamsResp) ToParam() TronSignTransactionRpcInputParams {
+	return param.Override[TronSignTransactionRpcInputParams](json.RawMessage(r.RawJSON()))
+}
+
+// Parameters for the Tron `tron_signTransaction` RPC.
+//
+// The property RawData is required.
+type TronSignTransactionRpcInputParams struct {
+	// Tron raw_data for tron_signTransaction. Block reference fields are required;
+	// caller is responsible for fetching them.
+	RawData TronRawDataForSign `json:"raw_data,omitzero" api:"required"`
+	paramObj
+}
+
+func (r TronSignTransactionRpcInputParams) MarshalJSON() (data []byte, err error) {
+	type shadow TronSignTransactionRpcInputParams
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TronSignTransactionRpcInputParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response to the Tron `tron_signTransaction` RPC.
+type TronSignTransactionRpcResponse struct {
+	// Data returned by the Tron `tron_signTransaction` RPC.
+	Data TronSignTransactionRpcResponseData `json:"data" api:"required"`
+	// Any of "tron_signTransaction".
+	Method TronSignTransactionRpcResponseMethod `json:"method" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		Method      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronSignTransactionRpcResponse) RawJSON() string { return r.JSON.raw }
+func (r *TronSignTransactionRpcResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type TronSignTransactionRpcResponseMethod string
+
+const (
+	TronSignTransactionRpcResponseMethodTronSignTransaction TronSignTransactionRpcResponseMethod = "tron_signTransaction"
+)
+
+// Data returned by the Tron `tron_signTransaction` RPC.
+type TronSignTransactionRpcResponseData struct {
+	// Any of "hex".
+	Encoding          TronSignTransactionRpcResponseDataEncoding `json:"encoding" api:"required"`
+	SignedTransaction string                                     `json:"signed_transaction" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Encoding          respjson.Field
+		SignedTransaction respjson.Field
+		ExtraFields       map[string]respjson.Field
+		raw               string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronSignTransactionRpcResponseData) RawJSON() string { return r.JSON.raw }
+func (r *TronSignTransactionRpcResponseData) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type TronSignTransactionRpcResponseDataEncoding string
+
+const (
+	TronSignTransactionRpcResponseDataEncodingHex TronSignTransactionRpcResponseDataEncoding = "hex"
+)
+
+// Tron native TRX transfer contract.
+type TronTransferContractResp struct {
+	Amount int64 `json:"amount" api:"required"`
+	// Tron address in hex format: 41-prefixed, 42 hex characters (21 bytes), no 0x
+	// prefix.
+	OwnerAddress TronHexAddress `json:"owner_address" api:"required"`
+	// Tron address in hex format: 41-prefixed, 42 hex characters (21 bytes), no 0x
+	// prefix.
+	ToAddress TronHexAddress `json:"to_address" api:"required"`
+	// Any of "TransferContract".
+	Type TronTransferContractType `json:"type" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Amount       respjson.Field
+		OwnerAddress respjson.Field
+		ToAddress    respjson.Field
+		Type         respjson.Field
+		ExtraFields  map[string]respjson.Field
+		raw          string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronTransferContractResp) RawJSON() string { return r.JSON.raw }
+func (r *TronTransferContractResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TronTransferContractResp to a TronTransferContract.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TronTransferContract.Overrides()
+func (r TronTransferContractResp) ToParam() TronTransferContract {
+	return param.Override[TronTransferContract](json.RawMessage(r.RawJSON()))
+}
+
+type TronTransferContractType string
+
+const (
+	TronTransferContractTypeTransferContract TronTransferContractType = "TransferContract"
+)
+
+// Tron native TRX transfer contract.
+//
+// The properties Amount, OwnerAddress, ToAddress, Type are required.
+type TronTransferContract struct {
+	Amount int64 `json:"amount" api:"required"`
+	// Tron address in hex format: 41-prefixed, 42 hex characters (21 bytes), no 0x
+	// prefix.
+	OwnerAddress TronHexAddress `json:"owner_address" api:"required"`
+	// Tron address in hex format: 41-prefixed, 42 hex characters (21 bytes), no 0x
+	// prefix.
+	ToAddress TronHexAddress `json:"to_address" api:"required"`
+	// Any of "TransferContract".
+	Type TronTransferContractType `json:"type,omitzero" api:"required"`
+	paramObj
+}
+
+func (r TronTransferContract) MarshalJSON() (data []byte, err error) {
+	type shadow TronTransferContract
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TronTransferContract) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Tron smart contract call (TRC-20 transfers and general contract interactions).
+type TronTriggerSmartContractResp struct {
+	// Tron address in hex format: 41-prefixed, 42 hex characters (21 bytes), no 0x
+	// prefix.
+	ContractAddress TronHexAddress `json:"contract_address" api:"required"`
+	// Tron address in hex format: 41-prefixed, 42 hex characters (21 bytes), no 0x
+	// prefix.
+	OwnerAddress TronHexAddress `json:"owner_address" api:"required"`
+	// Any of "TriggerSmartContract".
+	Type           TronTriggerSmartContractType `json:"type" api:"required"`
+	CallTokenValue int64                        `json:"call_token_value"`
+	CallValue      int64                        `json:"call_value"`
+	Data           string                       `json:"data"`
+	TokenID        int64                        `json:"token_id"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ContractAddress respjson.Field
+		OwnerAddress    respjson.Field
+		Type            respjson.Field
+		CallTokenValue  respjson.Field
+		CallValue       respjson.Field
+		Data            respjson.Field
+		TokenID         respjson.Field
+		ExtraFields     map[string]respjson.Field
+		raw             string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TronTriggerSmartContractResp) RawJSON() string { return r.JSON.raw }
+func (r *TronTriggerSmartContractResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TronTriggerSmartContractResp to a
+// TronTriggerSmartContract.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TronTriggerSmartContract.Overrides()
+func (r TronTriggerSmartContractResp) ToParam() TronTriggerSmartContract {
+	return param.Override[TronTriggerSmartContract](json.RawMessage(r.RawJSON()))
+}
+
+type TronTriggerSmartContractType string
+
+const (
+	TronTriggerSmartContractTypeTriggerSmartContract TronTriggerSmartContractType = "TriggerSmartContract"
+)
+
+// Tron smart contract call (TRC-20 transfers and general contract interactions).
+//
+// The properties ContractAddress, OwnerAddress, Type are required.
+type TronTriggerSmartContract struct {
+	// Tron address in hex format: 41-prefixed, 42 hex characters (21 bytes), no 0x
+	// prefix.
+	ContractAddress TronHexAddress `json:"contract_address" api:"required"`
+	// Tron address in hex format: 41-prefixed, 42 hex characters (21 bytes), no 0x
+	// prefix.
+	OwnerAddress TronHexAddress `json:"owner_address" api:"required"`
+	// Any of "TriggerSmartContract".
+	Type           TronTriggerSmartContractType `json:"type,omitzero" api:"required"`
+	CallTokenValue param.Opt[int64]             `json:"call_token_value,omitzero"`
+	CallValue      param.Opt[int64]             `json:"call_value,omitzero"`
+	Data           param.Opt[string]            `json:"data,omitzero"`
+	TokenID        param.Opt[int64]             `json:"token_id,omitzero"`
+	paramObj
+}
+
+func (r TronTriggerSmartContract) MarshalJSON() (data []byte, err error) {
+	type shadow TronTriggerSmartContract
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TronTriggerSmartContract) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -5946,7 +6923,7 @@ type UnsignedEthereumTransactionUnionResp struct {
 	// This field is from variant [UnsignedTempoTransactionResp].
 	AaAuthorizationList []TempoAaAuthorizationResp `json:"aa_authorization_list"`
 	// This field is from variant [UnsignedTempoTransactionResp].
-	AccessList []UnsignedTempoTransactionAccessListResp `json:"access_list"`
+	AccessList []AccessListEntryResp `json:"access_list"`
 	// This field is from variant [UnsignedTempoTransactionResp].
 	FeePayerSignature TempoFeePayerSignatureResp `json:"fee_payer_signature"`
 	// This field is from variant [UnsignedTempoTransactionResp].
@@ -6152,9 +7129,9 @@ func init() {
 type UnsignedTempoTransactionResp struct {
 	Calls []TempoCallResp `json:"calls" api:"required"`
 	// Any of 118.
-	Type                float64                                  `json:"type" api:"required"`
-	AaAuthorizationList []TempoAaAuthorizationResp               `json:"aa_authorization_list"`
-	AccessList          []UnsignedTempoTransactionAccessListResp `json:"access_list"`
+	Type                float64                    `json:"type" api:"required"`
+	AaAuthorizationList []TempoAaAuthorizationResp `json:"aa_authorization_list"`
+	AccessList          []AccessListEntryResp      `json:"access_list"`
 	// A quantity value that can be either a hex string starting with '0x' or a
 	// non-negative integer.
 	ChainID QuantityUnionResp `json:"chain_id"`
@@ -6221,35 +7198,17 @@ func (r UnsignedTempoTransactionResp) ToParam() UnsignedTempoTransaction {
 	return param.Override[UnsignedTempoTransaction](json.RawMessage(r.RawJSON()))
 }
 
-type UnsignedTempoTransactionAccessListResp struct {
-	Address     string `json:"address" api:"required"`
-	StorageKeys []Hex  `json:"storage_keys" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Address     respjson.Field
-		StorageKeys respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r UnsignedTempoTransactionAccessListResp) RawJSON() string { return r.JSON.raw }
-func (r *UnsignedTempoTransactionAccessListResp) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // An unsigned Tempo transaction (type 118) with batched calls.
 //
 // The properties Calls, Type are required.
 type UnsignedTempoTransaction struct {
 	Calls []TempoCall `json:"calls,omitzero" api:"required"`
 	// Any of 118.
-	Type                float64                              `json:"type,omitzero" api:"required"`
-	FeeToken            param.Opt[string]                    `json:"fee_token,omitzero"`
-	From                param.Opt[string]                    `json:"from,omitzero"`
-	AaAuthorizationList []TempoAaAuthorization               `json:"aa_authorization_list,omitzero"`
-	AccessList          []UnsignedTempoTransactionAccessList `json:"access_list,omitzero"`
+	Type                float64                `json:"type,omitzero" api:"required"`
+	FeeToken            param.Opt[string]      `json:"fee_token,omitzero"`
+	From                param.Opt[string]      `json:"from,omitzero"`
+	AaAuthorizationList []TempoAaAuthorization `json:"aa_authorization_list,omitzero"`
+	AccessList          []AccessListEntry      `json:"access_list,omitzero"`
 	// A quantity value that can be either a hex string starting with '0x' or a
 	// non-negative integer.
 	ChainID QuantityUnion `json:"chain_id,omitzero"`
@@ -6291,21 +7250,6 @@ func init() {
 	apijson.RegisterFieldValidator[UnsignedTempoTransaction](
 		"type", 118,
 	)
-}
-
-// The properties Address, StorageKeys are required.
-type UnsignedTempoTransactionAccessList struct {
-	Address     string `json:"address" api:"required"`
-	StorageKeys []Hex  `json:"storage_keys,omitzero" api:"required"`
-	paramObj
-}
-
-func (r UnsignedTempoTransactionAccessList) MarshalJSON() (data []byte, err error) {
-	type shadow UnsignedTempoTransactionAccessList
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *UnsignedTempoTransactionAccessList) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
 }
 
 // An ERC-4337 user operation.
@@ -6451,6 +7395,9 @@ type Wallet struct {
 	OwnerID string `json:"owner_id" api:"required" format:"cuid2"`
 	// List of policy IDs for policies that are enforced on the wallet.
 	PolicyIDs []string `json:"policy_ids" api:"required"`
+	// Unix timestamp of when the wallet was archived in milliseconds, or null if the
+	// wallet is active.
+	ArchivedAt float64 `json:"archived_at" api:"nullable"`
 	// The number of keys that must sign for an action to be valid.
 	AuthorizationThreshold float64 `json:"authorization_threshold"`
 	// Information about the custodian managing this wallet.
@@ -6474,6 +7421,7 @@ type Wallet struct {
 		ImportedAt             respjson.Field
 		OwnerID                respjson.Field
 		PolicyIDs              respjson.Field
+		ArchivedAt             respjson.Field
 		AuthorizationThreshold respjson.Field
 		Custody                respjson.Field
 		DisplayName            respjson.Field
@@ -6528,6 +7476,31 @@ const (
 	WalletAssetSol   WalletAsset = "sol"
 )
 
+// Supported blockchain network names for wallet balance and transaction queries.
+type WalletAssetChainNameInput string
+
+const (
+	WalletAssetChainNameInputEthereum        WalletAssetChainNameInput = "ethereum"
+	WalletAssetChainNameInputArbitrum        WalletAssetChainNameInput = "arbitrum"
+	WalletAssetChainNameInputAvalanche       WalletAssetChainNameInput = "avalanche"
+	WalletAssetChainNameInputBase            WalletAssetChainNameInput = "base"
+	WalletAssetChainNameInputTempo           WalletAssetChainNameInput = "tempo"
+	WalletAssetChainNameInputLinea           WalletAssetChainNameInput = "linea"
+	WalletAssetChainNameInputOptimism        WalletAssetChainNameInput = "optimism"
+	WalletAssetChainNameInputPolygon         WalletAssetChainNameInput = "polygon"
+	WalletAssetChainNameInputSolana          WalletAssetChainNameInput = "solana"
+	WalletAssetChainNameInputZksyncEra       WalletAssetChainNameInput = "zksync_era"
+	WalletAssetChainNameInputSepolia         WalletAssetChainNameInput = "sepolia"
+	WalletAssetChainNameInputArbitrumSepolia WalletAssetChainNameInput = "arbitrum_sepolia"
+	WalletAssetChainNameInputAvalancheFuji   WalletAssetChainNameInput = "avalanche_fuji"
+	WalletAssetChainNameInputBaseSepolia     WalletAssetChainNameInput = "base_sepolia"
+	WalletAssetChainNameInputLineaTestnet    WalletAssetChainNameInput = "linea_testnet"
+	WalletAssetChainNameInputOptimismSepolia WalletAssetChainNameInput = "optimism_sepolia"
+	WalletAssetChainNameInputPolygonAmoy     WalletAssetChainNameInput = "polygon_amoy"
+	WalletAssetChainNameInputSolanaDevnet    WalletAssetChainNameInput = "solana_devnet"
+	WalletAssetChainNameInputSolanaTestnet   WalletAssetChainNameInput = "solana_testnet"
+)
+
 // Request body for wallet authentication with HPKE-encrypted response.
 //
 // The properties EncryptionType, RecipientPublicKey, UserJwt are required.
@@ -6562,16 +7535,16 @@ const (
 )
 
 // WalletAuthenticateWithJwtResponseUnion contains all possible properties and
-// values from [WalletAuthenticateWithJwtResponseWithEncryption],
-// [WalletAuthenticateWithJwtResponseWithoutEncryption].
+// values from [EncryptedWalletAuthenticateResponse],
+// [RawWalletAuthenticateResponse].
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 type WalletAuthenticateWithJwtResponseUnion struct {
-	// This field is from variant [WalletAuthenticateWithJwtResponseWithEncryption].
-	EncryptedAuthorizationKey WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey `json:"encrypted_authorization_key"`
-	ExpiresAt                 float64                                                                  `json:"expires_at"`
-	Wallets                   []Wallet                                                                 `json:"wallets"`
-	// This field is from variant [WalletAuthenticateWithJwtResponseWithoutEncryption].
+	// This field is from variant [EncryptedWalletAuthenticateResponse].
+	EncryptedAuthorizationKey EncryptedAuthorizationKey `json:"encrypted_authorization_key"`
+	ExpiresAt                 float64                   `json:"expires_at"`
+	Wallets                   []Wallet                  `json:"wallets"`
+	// This field is from variant [RawWalletAuthenticateResponse].
 	AuthorizationKey string `json:"authorization_key"`
 	JSON             struct {
 		EncryptedAuthorizationKey respjson.Field
@@ -6582,12 +7555,12 @@ type WalletAuthenticateWithJwtResponseUnion struct {
 	} `json:"-"`
 }
 
-func (u WalletAuthenticateWithJwtResponseUnion) AsWithEncryption() (v WalletAuthenticateWithJwtResponseWithEncryption) {
+func (u WalletAuthenticateWithJwtResponseUnion) AsEncryptedWalletAuthenticateResponse() (v EncryptedWalletAuthenticateResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u WalletAuthenticateWithJwtResponseUnion) AsWithoutEncryption() (v WalletAuthenticateWithJwtResponseWithoutEncryption) {
+func (u WalletAuthenticateWithJwtResponseUnion) AsRawWalletAuthenticateResponse() (v RawWalletAuthenticateResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -6596,80 +7569,6 @@ func (u WalletAuthenticateWithJwtResponseUnion) AsWithoutEncryption() (v WalletA
 func (u WalletAuthenticateWithJwtResponseUnion) RawJSON() string { return u.JSON.raw }
 
 func (r *WalletAuthenticateWithJwtResponseUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type WalletAuthenticateWithJwtResponseWithEncryption struct {
-	// The encrypted authorization key data.
-	EncryptedAuthorizationKey WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey `json:"encrypted_authorization_key" api:"required"`
-	// The expiration time of the authorization key in milliseconds since the epoch.
-	ExpiresAt float64  `json:"expires_at" api:"required"`
-	Wallets   []Wallet `json:"wallets" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		EncryptedAuthorizationKey respjson.Field
-		ExpiresAt                 respjson.Field
-		Wallets                   respjson.Field
-		ExtraFields               map[string]respjson.Field
-		raw                       string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r WalletAuthenticateWithJwtResponseWithEncryption) RawJSON() string { return r.JSON.raw }
-func (r *WalletAuthenticateWithJwtResponseWithEncryption) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The encrypted authorization key data.
-type WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey struct {
-	// The encrypted authorization key corresponding to the user's current
-	// authentication session.
-	Ciphertext string `json:"ciphertext" api:"required"`
-	// Base64-encoded ephemeral public key used in the HPKE encryption process.
-	// Required for decryption.
-	EncapsulatedKey string `json:"encapsulated_key" api:"required"`
-	// The encryption type used. Currently only supports HPKE.
-	//
-	// Any of "HPKE".
-	EncryptionType string `json:"encryption_type" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Ciphertext      respjson.Field
-		EncapsulatedKey respjson.Field
-		EncryptionType  respjson.Field
-		ExtraFields     map[string]respjson.Field
-		raw             string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey) RawJSON() string {
-	return r.JSON.raw
-}
-func (r *WalletAuthenticateWithJwtResponseWithEncryptionEncryptedAuthorizationKey) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type WalletAuthenticateWithJwtResponseWithoutEncryption struct {
-	// The raw authorization key data.
-	AuthorizationKey string `json:"authorization_key" api:"required"`
-	// The expiration time of the authorization key in milliseconds since the epoch.
-	ExpiresAt float64  `json:"expires_at" api:"required"`
-	Wallets   []Wallet `json:"wallets" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		AuthorizationKey respjson.Field
-		ExpiresAt        respjson.Field
-		Wallets          respjson.Field
-		ExtraFields      map[string]respjson.Field
-		raw              string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r WalletAuthenticateWithJwtResponseWithoutEncryption) RawJSON() string { return r.JSON.raw }
-func (r *WalletAuthenticateWithJwtResponseWithoutEncryption) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -6930,13 +7829,17 @@ func (r *WalletExportResponseBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// The chain type of the wallet to import. Currently supports `ethereum` and
-// `solana`.
+// The chain type of the wallet to import. Supports `ethereum`, `solana`,
+// `stellar`, `tron`, `sui`, and `aptos`.
 type WalletImportSupportedChains string
 
 const (
 	WalletImportSupportedChainsEthereum WalletImportSupportedChains = "ethereum"
 	WalletImportSupportedChainsSolana   WalletImportSupportedChains = "solana"
+	WalletImportSupportedChainsStellar  WalletImportSupportedChains = "stellar"
+	WalletImportSupportedChainsTron     WalletImportSupportedChains = "tron"
+	WalletImportSupportedChainsSui      WalletImportSupportedChains = "sui"
+	WalletImportSupportedChainsAptos    WalletImportSupportedChains = "aptos"
 )
 
 // WalletRpcRequestBodyUnionResp contains all possible properties and values from
@@ -6953,8 +7856,9 @@ const (
 // [SparkClaimStaticDepositRpcInputResp],
 // [SparkCreateLightningInvoiceRpcInputResp],
 // [SparkPayLightningInvoiceRpcInputResp],
-// [SparkSignMessageWithIdentityKeyRpcInputResp], [ExportPrivateKeyRpcInputResp],
-// [ExportSeedPhraseRpcInputResp].
+// [SparkSignMessageWithIdentityKeyRpcInputResp],
+// [TronSignTransactionRpcInputResp], [TronSendTransactionRpcInputResp],
+// [ExportPrivateKeyRpcInputResp], [ExportSeedPhraseRpcInputResp].
 //
 // Use the [WalletRpcRequestBodyUnionResp.AsAny] method to switch on the variant.
 //
@@ -6966,7 +7870,8 @@ type WalletRpcRequestBodyUnionResp struct {
 	// "signAndSendTransaction", "signMessage", "transfer", "getBalance",
 	// "transferTokens", "getStaticDepositAddress", "getClaimStaticDepositQuote",
 	// "claimStaticDeposit", "createLightningInvoice", "payLightningInvoice",
-	// "signMessageWithIdentityKey", "exportPrivateKey", "exportSeedPhrase".
+	// "signMessageWithIdentityKey", "tron_signTransaction", "tron_sendTransaction",
+	// "exportPrivateKey", "exportSeedPhrase".
 	Method string `json:"method"`
 	// This field is a union of [EthereumSignTransactionRpcInputParamsResp],
 	// [EthereumSendTransactionRpcInputParamsResp],
@@ -6985,7 +7890,9 @@ type WalletRpcRequestBodyUnionResp struct {
 	// [SparkCreateLightningInvoiceRpcInputParamsResp],
 	// [SparkPayLightningInvoiceRpcInputParamsResp],
 	// [SparkSignMessageWithIdentityKeyRpcInputParamsResp],
-	// [PrivateKeyExportInputResp], [SeedPhraseExportInputResp]
+	// [TronSignTransactionRpcInputParamsResp],
+	// [TronSendTransactionRpcInputParamsResp], [PrivateKeyExportInputResp],
+	// [SeedPhraseExportInputResp]
 	Params    WalletRpcRequestBodyUnionRespParams `json:"params"`
 	Address   string                              `json:"address"`
 	ChainType string                              `json:"chain_type"`
@@ -6996,6 +7903,8 @@ type WalletRpcRequestBodyUnionResp struct {
 	ExperimentalDataSuffix Hex    `json:"experimental_data_suffix"`
 	ReferenceID            string `json:"reference_id"`
 	Sponsor                bool   `json:"sponsor"`
+	// This field is from variant [EthereumPersonalSignRpcInputResp].
+	SignatureOptions SignatureOptionsResp `json:"signature_options"`
 	// This field is from variant [SolanaSignAndSendTransactionRpcInputResp].
 	OptimisticBroadcast bool `json:"optimistic_broadcast"`
 	// This field is from variant [SparkTransferRpcInputResp].
@@ -7010,6 +7919,7 @@ type WalletRpcRequestBodyUnionResp struct {
 		ExperimentalDataSuffix respjson.Field
 		ReferenceID            respjson.Field
 		Sponsor                respjson.Field
+		SignatureOptions       respjson.Field
 		OptimisticBroadcast    respjson.Field
 		Network                respjson.Field
 		raw                    string
@@ -7043,6 +7953,8 @@ func (SparkClaimStaticDepositRpcInputResp) implWalletRpcRequestBodyUnionResp()  
 func (SparkCreateLightningInvoiceRpcInputResp) implWalletRpcRequestBodyUnionResp()     {}
 func (SparkPayLightningInvoiceRpcInputResp) implWalletRpcRequestBodyUnionResp()        {}
 func (SparkSignMessageWithIdentityKeyRpcInputResp) implWalletRpcRequestBodyUnionResp() {}
+func (TronSignTransactionRpcInputResp) implWalletRpcRequestBodyUnionResp()             {}
+func (TronSendTransactionRpcInputResp) implWalletRpcRequestBodyUnionResp()             {}
 func (ExportPrivateKeyRpcInputResp) implWalletRpcRequestBodyUnionResp()                {}
 func (ExportSeedPhraseRpcInputResp) implWalletRpcRequestBodyUnionResp()                {}
 
@@ -7069,6 +7981,8 @@ func (ExportSeedPhraseRpcInputResp) implWalletRpcRequestBodyUnionResp()         
 //	case privyclient.SparkCreateLightningInvoiceRpcInputResp:
 //	case privyclient.SparkPayLightningInvoiceRpcInputResp:
 //	case privyclient.SparkSignMessageWithIdentityKeyRpcInputResp:
+//	case privyclient.TronSignTransactionRpcInputResp:
+//	case privyclient.TronSendTransactionRpcInputResp:
 //	case privyclient.ExportPrivateKeyRpcInputResp:
 //	case privyclient.ExportSeedPhraseRpcInputResp:
 //	default:
@@ -7116,6 +8030,10 @@ func (u WalletRpcRequestBodyUnionResp) AsAny() anyWalletRpcRequestBodyResp {
 		return u.AsPayLightningInvoice()
 	case "signMessageWithIdentityKey":
 		return u.AsSignMessageWithIdentityKey()
+	case "tron_signTransaction":
+		return u.AsTronSignTransaction()
+	case "tron_sendTransaction":
+		return u.AsTronSendTransaction()
 	case "exportPrivateKey":
 		return u.AsExportPrivateKey()
 	case "exportSeedPhrase":
@@ -7224,6 +8142,16 @@ func (u WalletRpcRequestBodyUnionResp) AsSignMessageWithIdentityKey() (v SparkSi
 	return
 }
 
+func (u WalletRpcRequestBodyUnionResp) AsTronSignTransaction() (v TronSignTransactionRpcInputResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletRpcRequestBodyUnionResp) AsTronSendTransaction() (v TronSendTransactionRpcInputResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
 func (u WalletRpcRequestBodyUnionResp) AsExportPrivateKey() (v ExportPrivateKeyRpcInputResp) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
@@ -7304,6 +8232,10 @@ type WalletRpcRequestBodyUnionRespParams struct {
 	PreferSpark bool `json:"prefer_spark"`
 	// This field is from variant [SparkSignMessageWithIdentityKeyRpcInputParamsResp].
 	Compact bool `json:"compact"`
+	// This field is a union of [TronRawDataForSignResp], [TronRawDataForSendResp]
+	RawData WalletRpcRequestBodyUnionRespParamsRawData `json:"raw_data"`
+	// This field is from variant [TronSendTransactionRpcInputParamsResp].
+	ReferenceID string `json:"reference_id"`
 	// This field is from variant [PrivateKeyExportInputResp].
 	EncryptionType HpkeEncryption `json:"encryption_type"`
 	// This field is from variant [PrivateKeyExportInputResp].
@@ -7343,6 +8275,8 @@ type WalletRpcRequestBodyUnionRespParams struct {
 		AmountSatsToSend        respjson.Field
 		PreferSpark             respjson.Field
 		Compact                 respjson.Field
+		RawData                 respjson.Field
+		ReferenceID             respjson.Field
 		EncryptionType          respjson.Field
 		RecipientPublicKey      respjson.Field
 		ExportSeedPhrase        respjson.Field
@@ -7394,7 +8328,7 @@ type WalletRpcRequestBodyUnionRespParamsTransaction struct {
 	// This field is from variant [UnsignedEthereumTransactionUnionResp].
 	AaAuthorizationList []TempoAaAuthorizationResp `json:"aa_authorization_list"`
 	// This field is from variant [UnsignedEthereumTransactionUnionResp].
-	AccessList []UnsignedTempoTransactionAccessListResp `json:"access_list"`
+	AccessList []AccessListEntryResp `json:"access_list"`
 	// This field is from variant [UnsignedEthereumTransactionUnionResp].
 	FeePayerSignature TempoFeePayerSignatureResp `json:"fee_payer_signature"`
 	// This field is from variant [UnsignedEthereumTransactionUnionResp].
@@ -7432,6 +8366,36 @@ type WalletRpcRequestBodyUnionRespParamsTransaction struct {
 }
 
 func (r *WalletRpcRequestBodyUnionRespParamsTransaction) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// WalletRpcRequestBodyUnionRespParamsRawData is an implicit subunion of
+// [WalletRpcRequestBodyUnionResp]. WalletRpcRequestBodyUnionRespParamsRawData
+// provides convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [WalletRpcRequestBodyUnionResp].
+type WalletRpcRequestBodyUnionRespParamsRawData struct {
+	Contract      []TronContractUnionResp `json:"contract"`
+	Expiration    int64                   `json:"expiration"`
+	RefBlockBytes string                  `json:"ref_block_bytes"`
+	RefBlockHash  string                  `json:"ref_block_hash"`
+	Data          string                  `json:"data"`
+	FeeLimit      int64                   `json:"fee_limit"`
+	Timestamp     int64                   `json:"timestamp"`
+	JSON          struct {
+		Contract      respjson.Field
+		Expiration    respjson.Field
+		RefBlockBytes respjson.Field
+		RefBlockHash  respjson.Field
+		Data          respjson.Field
+		FeeLimit      respjson.Field
+		Timestamp     respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (r *WalletRpcRequestBodyUnionRespParamsRawData) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -7571,6 +8535,18 @@ func WalletRpcRequestBodyOfSignMessageWithIdentityKey(params SparkSignMessageWit
 	return WalletRpcRequestBodyUnion{OfSignMessageWithIdentityKey: &signMessageWithIdentityKey}
 }
 
+func WalletRpcRequestBodyOfTronSignTransaction(params TronSignTransactionRpcInputParams) WalletRpcRequestBodyUnion {
+	var tronSignTransaction TronSignTransactionRpcInput
+	tronSignTransaction.Params = params
+	return WalletRpcRequestBodyUnion{OfTronSignTransaction: &tronSignTransaction}
+}
+
+func WalletRpcRequestBodyOfTronSendTransaction(params TronSendTransactionRpcInputParams) WalletRpcRequestBodyUnion {
+	var tronSendTransaction TronSendTransactionRpcInput
+	tronSendTransaction.Params = params
+	return WalletRpcRequestBodyUnion{OfTronSendTransaction: &tronSendTransaction}
+}
+
 func WalletRpcRequestBodyOfExportPrivateKey(address string, method ExportPrivateKeyRpcInputMethod, params PrivateKeyExportInput) WalletRpcRequestBodyUnion {
 	var exportPrivateKey ExportPrivateKeyRpcInput
 	exportPrivateKey.Address = address
@@ -7611,6 +8587,8 @@ type WalletRpcRequestBodyUnion struct {
 	OfCreateLightningInvoice     *SparkCreateLightningInvoiceRpcInput     `json:",omitzero,inline"`
 	OfPayLightningInvoice        *SparkPayLightningInvoiceRpcInput        `json:",omitzero,inline"`
 	OfSignMessageWithIdentityKey *SparkSignMessageWithIdentityKeyRpcInput `json:",omitzero,inline"`
+	OfTronSignTransaction        *TronSignTransactionRpcInput             `json:",omitzero,inline"`
+	OfTronSendTransaction        *TronSendTransactionRpcInput             `json:",omitzero,inline"`
 	OfExportPrivateKey           *ExportPrivateKeyRpcInput                `json:",omitzero,inline"`
 	OfExportSeedPhrase           *ExportSeedPhraseRpcInput                `json:",omitzero,inline"`
 	paramUnion
@@ -7637,6 +8615,8 @@ func (u WalletRpcRequestBodyUnion) MarshalJSON() ([]byte, error) {
 		u.OfCreateLightningInvoice,
 		u.OfPayLightningInvoice,
 		u.OfSignMessageWithIdentityKey,
+		u.OfTronSignTransaction,
+		u.OfTronSendTransaction,
 		u.OfExportPrivateKey,
 		u.OfExportSeedPhrase)
 }
@@ -7667,6 +8647,8 @@ func init() {
 		apijson.Discriminator[SparkCreateLightningInvoiceRpcInput]("createLightningInvoice"),
 		apijson.Discriminator[SparkPayLightningInvoiceRpcInput]("payLightningInvoice"),
 		apijson.Discriminator[SparkSignMessageWithIdentityKeyRpcInput]("signMessageWithIdentityKey"),
+		apijson.Discriminator[TronSignTransactionRpcInput]("tron_signTransaction"),
+		apijson.Discriminator[TronSendTransactionRpcInput]("tron_sendTransaction"),
 		apijson.Discriminator[ExportPrivateKeyRpcInput]("exportPrivateKey"),
 		apijson.Discriminator[ExportSeedPhraseRpcInput]("exportSeedPhrase"),
 	)
@@ -7684,7 +8666,8 @@ func init() {
 // [SparkGetClaimStaticDepositQuoteRpcResponse],
 // [SparkClaimStaticDepositRpcResponse], [SparkCreateLightningInvoiceRpcResponse],
 // [SparkPayLightningInvoiceRpcResponse],
-// [SparkSignMessageWithIdentityKeyRpcResponse], [ExportPrivateKeyRpcResponse],
+// [SparkSignMessageWithIdentityKeyRpcResponse], [TronSignTransactionRpcResponse],
+// [TronSendTransactionRpcResponse], [ExportPrivateKeyRpcResponse],
 // [ExportSeedPhraseRpcResponse].
 //
 // Use the [WalletRpcResponseUnion.AsAny] method to switch on the variant.
@@ -7705,8 +8688,9 @@ type WalletRpcResponseUnion struct {
 	// [SparkGetClaimStaticDepositQuoteRpcResponseData],
 	// [SparkClaimStaticDepositRpcResponseData], [SparkLightningReceiveRequest],
 	// [SparkPayLightningInvoiceRpcResponseDataUnion],
-	// [SparkSignMessageWithIdentityKeyRpcResponseData], [PrivateKeyExportInputResp],
-	// [SeedPhraseExportResponse]
+	// [SparkSignMessageWithIdentityKeyRpcResponseData],
+	// [TronSignTransactionRpcResponseData], [TronSendTransactionRpcResponseData],
+	// [PrivateKeyExportInputResp], [SeedPhraseExportResponse]
 	Data WalletRpcResponseUnionData `json:"data"`
 	// Any of "personal_sign", "eth_signTypedData_v4", "eth_signTransaction",
 	// "eth_sendTransaction", "eth_signUserOperation", "eth_sign7702Authorization",
@@ -7714,7 +8698,8 @@ type WalletRpcResponseUnion struct {
 	// "signAndSendTransaction", "transfer", "getBalance", "transferTokens",
 	// "getStaticDepositAddress", "getClaimStaticDepositQuote", "claimStaticDeposit",
 	// "createLightningInvoice", "payLightningInvoice", "signMessageWithIdentityKey",
-	// "exportPrivateKey", "exportSeedPhrase".
+	// "tron_signTransaction", "tron_sendTransaction", "exportPrivateKey",
+	// "exportSeedPhrase".
 	Method string `json:"method"`
 	JSON   struct {
 		Data   respjson.Field
@@ -7749,6 +8734,8 @@ func (SparkClaimStaticDepositRpcResponse) implWalletRpcResponseUnion()         {
 func (SparkCreateLightningInvoiceRpcResponse) implWalletRpcResponseUnion()     {}
 func (SparkPayLightningInvoiceRpcResponse) implWalletRpcResponseUnion()        {}
 func (SparkSignMessageWithIdentityKeyRpcResponse) implWalletRpcResponseUnion() {}
+func (TronSignTransactionRpcResponse) implWalletRpcResponseUnion()             {}
+func (TronSendTransactionRpcResponse) implWalletRpcResponseUnion()             {}
 func (ExportPrivateKeyRpcResponse) implWalletRpcResponseUnion()                {}
 func (ExportSeedPhraseRpcResponse) implWalletRpcResponseUnion()                {}
 
@@ -7775,6 +8762,8 @@ func (ExportSeedPhraseRpcResponse) implWalletRpcResponseUnion()                {
 //	case privyclient.SparkCreateLightningInvoiceRpcResponse:
 //	case privyclient.SparkPayLightningInvoiceRpcResponse:
 //	case privyclient.SparkSignMessageWithIdentityKeyRpcResponse:
+//	case privyclient.TronSignTransactionRpcResponse:
+//	case privyclient.TronSendTransactionRpcResponse:
 //	case privyclient.ExportPrivateKeyRpcResponse:
 //	case privyclient.ExportSeedPhraseRpcResponse:
 //	default:
@@ -7822,6 +8811,10 @@ func (u WalletRpcResponseUnion) AsAny() anyWalletRpcResponse {
 		return u.AsPayLightningInvoice()
 	case "signMessageWithIdentityKey":
 		return u.AsSignMessageWithIdentityKey()
+	case "tron_signTransaction":
+		return u.AsTronSignTransaction()
+	case "tron_sendTransaction":
+		return u.AsTronSendTransaction()
 	case "exportPrivateKey":
 		return u.AsExportPrivateKey()
 	case "exportSeedPhrase":
@@ -7926,6 +8919,16 @@ func (u WalletRpcResponseUnion) AsPayLightningInvoice() (v SparkPayLightningInvo
 }
 
 func (u WalletRpcResponseUnion) AsSignMessageWithIdentityKey() (v SparkSignMessageWithIdentityKeyRpcResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletRpcResponseUnion) AsTronSignTransaction() (v TronSignTransactionRpcResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletRpcResponseUnion) AsTronSendTransaction() (v TronSendTransactionRpcResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -8193,6 +9196,10 @@ func (r *WalletUpdateParams) UnmarshalJSON(data []byte) error {
 
 type WalletListParams struct {
 	Limit param.Opt[float64] `query:"limit,omitzero" json:"-"`
+	// A blockchain wallet address. Ethereum addresses are normalized to EIP-55
+	// checksum format. Solana addresses are validated as base58. All other chain
+	// addresses (Stellar, Tron, Sui, Aptos, etc.) are accepted as-is.
+	Address param.Opt[Address] `query:"address,omitzero" json:"-"`
 	// Filter wallets by authorization public key. Returns wallets owned by key quorums
 	// that include the specified P-256 public key (base64-encoded DER format). Cannot
 	// be used together with user_id.
@@ -8200,6 +9207,8 @@ type WalletListParams struct {
 	Cursor           param.Opt[string] `query:"cursor,omitzero" json:"-"`
 	// Filter wallets by external ID.
 	ExternalID param.Opt[string] `query:"external_id,omitzero" json:"-"`
+	// Include archived wallets in lookup. Defaults to false.
+	IncludeArchived param.Opt[bool] `query:"include_archived,omitzero" json:"-"`
 	// Filter wallets by user ID. Cannot be used together with authorization_key.
 	UserID param.Opt[string] `query:"user_id,omitzero" json:"-"`
 	// The wallet chain types.
@@ -8361,6 +9370,20 @@ func (r WalletExportParams) MarshalJSON() (data []byte, err error) {
 }
 func (r *WalletExportParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+type WalletGetParams struct {
+	// Include archived wallets in lookup. Defaults to false.
+	IncludeArchived param.Opt[bool] `query:"include_archived,omitzero" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [WalletGetParams]'s query parameters as `url.Values`.
+func (r WalletGetParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }
 
 type WalletGetWalletByAddressParams struct {
