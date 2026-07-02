@@ -4170,6 +4170,94 @@ func (r *SparkClaimStaticDepositRpcResponseData) UnmarshalJSON(data []byte) erro
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// A fee quote for a cooperative exit from Spark to Bitcoin L1.
+type SparkCoopExitFeeQuote struct {
+	ID        string `json:"id" api:"required"`
+	CreatedAt string `json:"created_at" api:"required"`
+	ExpiresAt string `json:"expires_at" api:"required"`
+	// A currency amount with its original value and unit.
+	L1BroadcastFeeFast SparkCurrencyAmount `json:"l1_broadcast_fee_fast" api:"required"`
+	// A currency amount with its original value and unit.
+	L1BroadcastFeeMedium SparkCurrencyAmount `json:"l1_broadcast_fee_medium" api:"required"`
+	// A currency amount with its original value and unit.
+	L1BroadcastFeeSlow SparkCurrencyAmount `json:"l1_broadcast_fee_slow" api:"required"`
+	Network            string              `json:"network" api:"required"`
+	// A currency amount with its original value and unit.
+	TotalAmount SparkCurrencyAmount `json:"total_amount" api:"required"`
+	UpdatedAt   string              `json:"updated_at" api:"required"`
+	// A currency amount with its original value and unit.
+	UserFeeFast SparkCurrencyAmount `json:"user_fee_fast" api:"required"`
+	// A currency amount with its original value and unit.
+	UserFeeMedium SparkCurrencyAmount `json:"user_fee_medium" api:"required"`
+	// A currency amount with its original value and unit.
+	UserFeeSlow SparkCurrencyAmount `json:"user_fee_slow" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID                   respjson.Field
+		CreatedAt            respjson.Field
+		ExpiresAt            respjson.Field
+		L1BroadcastFeeFast   respjson.Field
+		L1BroadcastFeeMedium respjson.Field
+		L1BroadcastFeeSlow   respjson.Field
+		Network              respjson.Field
+		TotalAmount          respjson.Field
+		UpdatedAt            respjson.Field
+		UserFeeFast          respjson.Field
+		UserFeeMedium        respjson.Field
+		UserFeeSlow          respjson.Field
+		ExtraFields          map[string]respjson.Field
+		raw                  string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SparkCoopExitFeeQuote) RawJSON() string { return r.JSON.raw }
+func (r *SparkCoopExitFeeQuote) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A cooperative exit request from Spark to Bitcoin L1.
+type SparkCoopExitRequest struct {
+	ID           string `json:"id" api:"required"`
+	CoopExitTxid string `json:"coop_exit_txid" api:"required"`
+	CreatedAt    string `json:"created_at" api:"required"`
+	ExpiresAt    string `json:"expires_at" api:"required"`
+	// A currency amount with its original value and unit.
+	Fee SparkCurrencyAmount `json:"fee" api:"required"`
+	// A currency amount with its original value and unit.
+	L1BroadcastFee SparkCurrencyAmount `json:"l1_broadcast_fee" api:"required"`
+	Network        string              `json:"network" api:"required"`
+	Status         string              `json:"status" api:"required"`
+	UpdatedAt      string              `json:"updated_at" api:"required"`
+	// The exit speed for a cooperative withdrawal from Spark to L1.
+	//
+	// Any of "FAST", "MEDIUM", "SLOW".
+	ExitSpeed  SparkExitSpeed `json:"exit_speed"`
+	FeeQuoteID string         `json:"fee_quote_id"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID             respjson.Field
+		CoopExitTxid   respjson.Field
+		CreatedAt      respjson.Field
+		ExpiresAt      respjson.Field
+		Fee            respjson.Field
+		L1BroadcastFee respjson.Field
+		Network        respjson.Field
+		Status         respjson.Field
+		UpdatedAt      respjson.Field
+		ExitSpeed      respjson.Field
+		FeeQuoteID     respjson.Field
+		ExtraFields    map[string]respjson.Field
+		raw            string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SparkCoopExitRequest) RawJSON() string { return r.JSON.raw }
+func (r *SparkCoopExitRequest) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Creates a Lightning invoice for the Spark wallet.
 type SparkCreateLightningInvoiceRpcInputResp struct {
 	// Any of "createLightningInvoice".
@@ -4318,6 +4406,34 @@ type SparkCreateLightningInvoiceRpcResponseMethod string
 
 const (
 	SparkCreateLightningInvoiceRpcResponseMethodCreateLightningInvoice SparkCreateLightningInvoiceRpcResponseMethod = "createLightningInvoice"
+)
+
+// A currency amount with its original value and unit.
+type SparkCurrencyAmount struct {
+	OriginalUnit  string  `json:"original_unit" api:"required"`
+	OriginalValue float64 `json:"original_value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		OriginalUnit  respjson.Field
+		OriginalValue respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SparkCurrencyAmount) RawJSON() string { return r.JSON.raw }
+func (r *SparkCurrencyAmount) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The exit speed for a cooperative withdrawal from Spark to L1.
+type SparkExitSpeed string
+
+const (
+	SparkExitSpeedFast   SparkExitSpeed = "FAST"
+	SparkExitSpeedMedium SparkExitSpeed = "MEDIUM"
+	SparkExitSpeedSlow   SparkExitSpeed = "SLOW"
 )
 
 // Gets the balance of the Spark wallet.
@@ -4672,6 +4788,144 @@ func (r SparkGetStaticDepositAddressRpcResponseData) RawJSON() string { return r
 func (r *SparkGetStaticDepositAddressRpcResponseData) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// Gets a fee quote for withdrawing from Spark to a Bitcoin L1 address.
+type SparkGetWithdrawalFeeQuoteRpcInputResp struct {
+	// Any of "getWithdrawalFeeQuote".
+	Method SparkGetWithdrawalFeeQuoteRpcInputMethod `json:"method" api:"required"`
+	// Parameters for the Spark `getWithdrawalFeeQuote` RPC.
+	Params SparkGetWithdrawalFeeQuoteRpcInputParamsResp `json:"params" api:"required"`
+	// The Spark network.
+	//
+	// Any of "MAINNET", "REGTEST".
+	Network SparkNetwork `json:"network"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Method      respjson.Field
+		Params      respjson.Field
+		Network     respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SparkGetWithdrawalFeeQuoteRpcInputResp) RawJSON() string { return r.JSON.raw }
+func (r *SparkGetWithdrawalFeeQuoteRpcInputResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this SparkGetWithdrawalFeeQuoteRpcInputResp to a
+// SparkGetWithdrawalFeeQuoteRpcInput.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// SparkGetWithdrawalFeeQuoteRpcInput.Overrides()
+func (r SparkGetWithdrawalFeeQuoteRpcInputResp) ToParam() SparkGetWithdrawalFeeQuoteRpcInput {
+	return param.Override[SparkGetWithdrawalFeeQuoteRpcInput](json.RawMessage(r.RawJSON()))
+}
+
+type SparkGetWithdrawalFeeQuoteRpcInputMethod string
+
+const (
+	SparkGetWithdrawalFeeQuoteRpcInputMethodGetWithdrawalFeeQuote SparkGetWithdrawalFeeQuoteRpcInputMethod = "getWithdrawalFeeQuote"
+)
+
+// Gets a fee quote for withdrawing from Spark to a Bitcoin L1 address.
+//
+// The properties Method, Params are required.
+type SparkGetWithdrawalFeeQuoteRpcInput struct {
+	// Any of "getWithdrawalFeeQuote".
+	Method SparkGetWithdrawalFeeQuoteRpcInputMethod `json:"method,omitzero" api:"required"`
+	// Parameters for the Spark `getWithdrawalFeeQuote` RPC.
+	Params SparkGetWithdrawalFeeQuoteRpcInputParams `json:"params,omitzero" api:"required"`
+	// The Spark network.
+	//
+	// Any of "MAINNET", "REGTEST".
+	Network SparkNetwork `json:"network,omitzero"`
+	paramObj
+}
+
+func (r SparkGetWithdrawalFeeQuoteRpcInput) MarshalJSON() (data []byte, err error) {
+	type shadow SparkGetWithdrawalFeeQuoteRpcInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *SparkGetWithdrawalFeeQuoteRpcInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Parameters for the Spark `getWithdrawalFeeQuote` RPC.
+type SparkGetWithdrawalFeeQuoteRpcInputParamsResp struct {
+	AmountSats     float64 `json:"amount_sats" api:"required"`
+	OnchainAddress string  `json:"onchain_address" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		AmountSats     respjson.Field
+		OnchainAddress respjson.Field
+		ExtraFields    map[string]respjson.Field
+		raw            string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SparkGetWithdrawalFeeQuoteRpcInputParamsResp) RawJSON() string { return r.JSON.raw }
+func (r *SparkGetWithdrawalFeeQuoteRpcInputParamsResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this SparkGetWithdrawalFeeQuoteRpcInputParamsResp to a
+// SparkGetWithdrawalFeeQuoteRpcInputParams.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// SparkGetWithdrawalFeeQuoteRpcInputParams.Overrides()
+func (r SparkGetWithdrawalFeeQuoteRpcInputParamsResp) ToParam() SparkGetWithdrawalFeeQuoteRpcInputParams {
+	return param.Override[SparkGetWithdrawalFeeQuoteRpcInputParams](json.RawMessage(r.RawJSON()))
+}
+
+// Parameters for the Spark `getWithdrawalFeeQuote` RPC.
+//
+// The properties AmountSats, OnchainAddress are required.
+type SparkGetWithdrawalFeeQuoteRpcInputParams struct {
+	AmountSats     float64 `json:"amount_sats" api:"required"`
+	OnchainAddress string  `json:"onchain_address" api:"required"`
+	paramObj
+}
+
+func (r SparkGetWithdrawalFeeQuoteRpcInputParams) MarshalJSON() (data []byte, err error) {
+	type shadow SparkGetWithdrawalFeeQuoteRpcInputParams
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *SparkGetWithdrawalFeeQuoteRpcInputParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response to the Spark `getWithdrawalFeeQuote` RPC.
+type SparkGetWithdrawalFeeQuoteRpcResponse struct {
+	// Any of "getWithdrawalFeeQuote".
+	Method SparkGetWithdrawalFeeQuoteRpcResponseMethod `json:"method" api:"required"`
+	// A fee quote for a cooperative exit from Spark to Bitcoin L1.
+	Data SparkCoopExitFeeQuote `json:"data"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Method      respjson.Field
+		Data        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SparkGetWithdrawalFeeQuoteRpcResponse) RawJSON() string { return r.JSON.raw }
+func (r *SparkGetWithdrawalFeeQuoteRpcResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type SparkGetWithdrawalFeeQuoteRpcResponseMethod string
+
+const (
+	SparkGetWithdrawalFeeQuoteRpcResponseMethodGetWithdrawalFeeQuote SparkGetWithdrawalFeeQuoteRpcResponseMethod = "getWithdrawalFeeQuote"
+)
 
 // The fee for a Spark Lightning payment.
 type SparkLightningFee struct {
@@ -5647,6 +5901,161 @@ func (r SparkWalletLeaf) RawJSON() string { return r.JSON.raw }
 func (r *SparkWalletLeaf) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// Withdraws from Spark to a Bitcoin L1 address (cooperative exit).
+type SparkWithdrawRpcInputResp struct {
+	// Any of "withdraw".
+	Method SparkWithdrawRpcInputMethod `json:"method" api:"required"`
+	// Parameters for the Spark `withdraw` RPC.
+	Params SparkWithdrawRpcInputParamsResp `json:"params" api:"required"`
+	// The Spark network.
+	//
+	// Any of "MAINNET", "REGTEST".
+	Network SparkNetwork `json:"network"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Method      respjson.Field
+		Params      respjson.Field
+		Network     respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SparkWithdrawRpcInputResp) RawJSON() string { return r.JSON.raw }
+func (r *SparkWithdrawRpcInputResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this SparkWithdrawRpcInputResp to a SparkWithdrawRpcInput.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// SparkWithdrawRpcInput.Overrides()
+func (r SparkWithdrawRpcInputResp) ToParam() SparkWithdrawRpcInput {
+	return param.Override[SparkWithdrawRpcInput](json.RawMessage(r.RawJSON()))
+}
+
+type SparkWithdrawRpcInputMethod string
+
+const (
+	SparkWithdrawRpcInputMethodWithdraw SparkWithdrawRpcInputMethod = "withdraw"
+)
+
+// Withdraws from Spark to a Bitcoin L1 address (cooperative exit).
+//
+// The properties Method, Params are required.
+type SparkWithdrawRpcInput struct {
+	// Any of "withdraw".
+	Method SparkWithdrawRpcInputMethod `json:"method,omitzero" api:"required"`
+	// Parameters for the Spark `withdraw` RPC.
+	Params SparkWithdrawRpcInputParams `json:"params,omitzero" api:"required"`
+	// The Spark network.
+	//
+	// Any of "MAINNET", "REGTEST".
+	Network SparkNetwork `json:"network,omitzero"`
+	paramObj
+}
+
+func (r SparkWithdrawRpcInput) MarshalJSON() (data []byte, err error) {
+	type shadow SparkWithdrawRpcInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *SparkWithdrawRpcInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Parameters for the Spark `withdraw` RPC.
+type SparkWithdrawRpcInputParamsResp struct {
+	// The exit speed for a cooperative withdrawal from Spark to L1.
+	//
+	// Any of "FAST", "MEDIUM", "SLOW".
+	ExitSpeed                     SparkExitSpeed `json:"exit_speed" api:"required"`
+	OnchainAddress                string         `json:"onchain_address" api:"required"`
+	AmountSats                    float64        `json:"amount_sats"`
+	DeductFeeFromWithdrawalAmount bool           `json:"deduct_fee_from_withdrawal_amount"`
+	FeeAmountSats                 float64        `json:"fee_amount_sats"`
+	FeeQuoteID                    string         `json:"fee_quote_id"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ExitSpeed                     respjson.Field
+		OnchainAddress                respjson.Field
+		AmountSats                    respjson.Field
+		DeductFeeFromWithdrawalAmount respjson.Field
+		FeeAmountSats                 respjson.Field
+		FeeQuoteID                    respjson.Field
+		ExtraFields                   map[string]respjson.Field
+		raw                           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SparkWithdrawRpcInputParamsResp) RawJSON() string { return r.JSON.raw }
+func (r *SparkWithdrawRpcInputParamsResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this SparkWithdrawRpcInputParamsResp to a
+// SparkWithdrawRpcInputParams.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// SparkWithdrawRpcInputParams.Overrides()
+func (r SparkWithdrawRpcInputParamsResp) ToParam() SparkWithdrawRpcInputParams {
+	return param.Override[SparkWithdrawRpcInputParams](json.RawMessage(r.RawJSON()))
+}
+
+// Parameters for the Spark `withdraw` RPC.
+//
+// The properties ExitSpeed, OnchainAddress are required.
+type SparkWithdrawRpcInputParams struct {
+	// The exit speed for a cooperative withdrawal from Spark to L1.
+	//
+	// Any of "FAST", "MEDIUM", "SLOW".
+	ExitSpeed                     SparkExitSpeed     `json:"exit_speed,omitzero" api:"required"`
+	OnchainAddress                string             `json:"onchain_address" api:"required"`
+	AmountSats                    param.Opt[float64] `json:"amount_sats,omitzero"`
+	DeductFeeFromWithdrawalAmount param.Opt[bool]    `json:"deduct_fee_from_withdrawal_amount,omitzero"`
+	FeeAmountSats                 param.Opt[float64] `json:"fee_amount_sats,omitzero"`
+	FeeQuoteID                    param.Opt[string]  `json:"fee_quote_id,omitzero"`
+	paramObj
+}
+
+func (r SparkWithdrawRpcInputParams) MarshalJSON() (data []byte, err error) {
+	type shadow SparkWithdrawRpcInputParams
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *SparkWithdrawRpcInputParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response to the Spark `withdraw` RPC.
+type SparkWithdrawRpcResponse struct {
+	// Any of "withdraw".
+	Method SparkWithdrawRpcResponseMethod `json:"method" api:"required"`
+	// A cooperative exit request from Spark to Bitcoin L1.
+	Data SparkCoopExitRequest `json:"data"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Method      respjson.Field
+		Data        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SparkWithdrawRpcResponse) RawJSON() string { return r.JSON.raw }
+func (r *SparkWithdrawRpcResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type SparkWithdrawRpcResponseMethod string
+
+const (
+	SparkWithdrawRpcResponseMethodWithdraw SparkWithdrawRpcResponseMethod = "withdraw"
+)
 
 // SUI transaction commands allowlist for raw_sign endpoint policy evaluation
 type SuiCommandName string
@@ -7470,10 +7879,12 @@ const (
 	WalletAssetEth   WalletAsset = "eth"
 	WalletAssetAvax  WalletAsset = "avax"
 	WalletAssetPol   WalletAsset = "pol"
+	WalletAssetBnb   WalletAsset = "bnb"
 	WalletAssetUsdt  WalletAsset = "usdt"
 	WalletAssetEurc  WalletAsset = "eurc"
 	WalletAssetUsdb  WalletAsset = "usdb"
 	WalletAssetSol   WalletAsset = "sol"
+	WalletAssetTrx   WalletAsset = "trx"
 )
 
 // Supported blockchain network names for wallet balance and transaction queries.
@@ -7488,7 +7899,9 @@ const (
 	WalletAssetChainNameInputLinea           WalletAssetChainNameInput = "linea"
 	WalletAssetChainNameInputOptimism        WalletAssetChainNameInput = "optimism"
 	WalletAssetChainNameInputPolygon         WalletAssetChainNameInput = "polygon"
+	WalletAssetChainNameInputBsc             WalletAssetChainNameInput = "bsc"
 	WalletAssetChainNameInputSolana          WalletAssetChainNameInput = "solana"
+	WalletAssetChainNameInputTron            WalletAssetChainNameInput = "tron"
 	WalletAssetChainNameInputZksyncEra       WalletAssetChainNameInput = "zksync_era"
 	WalletAssetChainNameInputSepolia         WalletAssetChainNameInput = "sepolia"
 	WalletAssetChainNameInputArbitrumSepolia WalletAssetChainNameInput = "arbitrum_sepolia"
@@ -7499,6 +7912,7 @@ const (
 	WalletAssetChainNameInputPolygonAmoy     WalletAssetChainNameInput = "polygon_amoy"
 	WalletAssetChainNameInputSolanaDevnet    WalletAssetChainNameInput = "solana_devnet"
 	WalletAssetChainNameInputSolanaTestnet   WalletAssetChainNameInput = "solana_testnet"
+	WalletAssetChainNameInputTronNile        WalletAssetChainNameInput = "tron_nile"
 )
 
 // Request body for wallet authentication with HPKE-encrypted response.
@@ -7856,9 +8270,10 @@ const (
 // [SparkClaimStaticDepositRpcInputResp],
 // [SparkCreateLightningInvoiceRpcInputResp],
 // [SparkPayLightningInvoiceRpcInputResp],
-// [SparkSignMessageWithIdentityKeyRpcInputResp],
-// [TronSignTransactionRpcInputResp], [TronSendTransactionRpcInputResp],
-// [ExportPrivateKeyRpcInputResp], [ExportSeedPhraseRpcInputResp].
+// [SparkSignMessageWithIdentityKeyRpcInputResp], [SparkWithdrawRpcInputResp],
+// [SparkGetWithdrawalFeeQuoteRpcInputResp], [TronSignTransactionRpcInputResp],
+// [TronSendTransactionRpcInputResp], [ExportPrivateKeyRpcInputResp],
+// [ExportSeedPhraseRpcInputResp].
 //
 // Use the [WalletRpcRequestBodyUnionResp.AsAny] method to switch on the variant.
 //
@@ -7870,8 +8285,9 @@ type WalletRpcRequestBodyUnionResp struct {
 	// "signAndSendTransaction", "signMessage", "transfer", "getBalance",
 	// "transferTokens", "getStaticDepositAddress", "getClaimStaticDepositQuote",
 	// "claimStaticDeposit", "createLightningInvoice", "payLightningInvoice",
-	// "signMessageWithIdentityKey", "tron_signTransaction", "tron_sendTransaction",
-	// "exportPrivateKey", "exportSeedPhrase".
+	// "signMessageWithIdentityKey", "withdraw", "getWithdrawalFeeQuote",
+	// "tron_signTransaction", "tron_sendTransaction", "exportPrivateKey",
+	// "exportSeedPhrase".
 	Method string `json:"method"`
 	// This field is a union of [EthereumSignTransactionRpcInputParamsResp],
 	// [EthereumSendTransactionRpcInputParamsResp],
@@ -7890,6 +8306,8 @@ type WalletRpcRequestBodyUnionResp struct {
 	// [SparkCreateLightningInvoiceRpcInputParamsResp],
 	// [SparkPayLightningInvoiceRpcInputParamsResp],
 	// [SparkSignMessageWithIdentityKeyRpcInputParamsResp],
+	// [SparkWithdrawRpcInputParamsResp],
+	// [SparkGetWithdrawalFeeQuoteRpcInputParamsResp],
 	// [TronSignTransactionRpcInputParamsResp],
 	// [TronSendTransactionRpcInputParamsResp], [PrivateKeyExportInputResp],
 	// [SeedPhraseExportInputResp]
@@ -7953,6 +8371,8 @@ func (SparkClaimStaticDepositRpcInputResp) implWalletRpcRequestBodyUnionResp()  
 func (SparkCreateLightningInvoiceRpcInputResp) implWalletRpcRequestBodyUnionResp()     {}
 func (SparkPayLightningInvoiceRpcInputResp) implWalletRpcRequestBodyUnionResp()        {}
 func (SparkSignMessageWithIdentityKeyRpcInputResp) implWalletRpcRequestBodyUnionResp() {}
+func (SparkWithdrawRpcInputResp) implWalletRpcRequestBodyUnionResp()                   {}
+func (SparkGetWithdrawalFeeQuoteRpcInputResp) implWalletRpcRequestBodyUnionResp()      {}
 func (TronSignTransactionRpcInputResp) implWalletRpcRequestBodyUnionResp()             {}
 func (TronSendTransactionRpcInputResp) implWalletRpcRequestBodyUnionResp()             {}
 func (ExportPrivateKeyRpcInputResp) implWalletRpcRequestBodyUnionResp()                {}
@@ -7981,6 +8401,8 @@ func (ExportSeedPhraseRpcInputResp) implWalletRpcRequestBodyUnionResp()         
 //	case privyclient.SparkCreateLightningInvoiceRpcInputResp:
 //	case privyclient.SparkPayLightningInvoiceRpcInputResp:
 //	case privyclient.SparkSignMessageWithIdentityKeyRpcInputResp:
+//	case privyclient.SparkWithdrawRpcInputResp:
+//	case privyclient.SparkGetWithdrawalFeeQuoteRpcInputResp:
 //	case privyclient.TronSignTransactionRpcInputResp:
 //	case privyclient.TronSendTransactionRpcInputResp:
 //	case privyclient.ExportPrivateKeyRpcInputResp:
@@ -8030,6 +8452,10 @@ func (u WalletRpcRequestBodyUnionResp) AsAny() anyWalletRpcRequestBodyResp {
 		return u.AsPayLightningInvoice()
 	case "signMessageWithIdentityKey":
 		return u.AsSignMessageWithIdentityKey()
+	case "withdraw":
+		return u.AsWithdraw()
+	case "getWithdrawalFeeQuote":
+		return u.AsGetWithdrawalFeeQuote()
 	case "tron_signTransaction":
 		return u.AsTronSignTransaction()
 	case "tron_sendTransaction":
@@ -8142,6 +8568,16 @@ func (u WalletRpcRequestBodyUnionResp) AsSignMessageWithIdentityKey() (v SparkSi
 	return
 }
 
+func (u WalletRpcRequestBodyUnionResp) AsWithdraw() (v SparkWithdrawRpcInputResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletRpcRequestBodyUnionResp) AsGetWithdrawalFeeQuote() (v SparkGetWithdrawalFeeQuoteRpcInputResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
 func (u WalletRpcRequestBodyUnionResp) AsTronSignTransaction() (v TronSignTransactionRpcInputResp) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
@@ -8232,6 +8668,15 @@ type WalletRpcRequestBodyUnionRespParams struct {
 	PreferSpark bool `json:"prefer_spark"`
 	// This field is from variant [SparkSignMessageWithIdentityKeyRpcInputParamsResp].
 	Compact bool `json:"compact"`
+	// This field is from variant [SparkWithdrawRpcInputParamsResp].
+	ExitSpeed      SparkExitSpeed `json:"exit_speed"`
+	OnchainAddress string         `json:"onchain_address"`
+	// This field is from variant [SparkWithdrawRpcInputParamsResp].
+	DeductFeeFromWithdrawalAmount bool `json:"deduct_fee_from_withdrawal_amount"`
+	// This field is from variant [SparkWithdrawRpcInputParamsResp].
+	FeeAmountSats float64 `json:"fee_amount_sats"`
+	// This field is from variant [SparkWithdrawRpcInputParamsResp].
+	FeeQuoteID string `json:"fee_quote_id"`
 	// This field is a union of [TronRawDataForSignResp], [TronRawDataForSendResp]
 	RawData WalletRpcRequestBodyUnionRespParamsRawData `json:"raw_data"`
 	// This field is from variant [TronSendTransactionRpcInputParamsResp].
@@ -8244,44 +8689,49 @@ type WalletRpcRequestBodyUnionRespParams struct {
 	// This field is from variant [PrivateKeyExportInputResp].
 	ExportType ExportType `json:"export_type"`
 	JSON       struct {
-		Transaction             respjson.Field
-		Encoding                respjson.Field
-		Message                 respjson.Field
-		TypedData               respjson.Field
-		Hash                    respjson.Field
-		ChainID                 respjson.Field
-		Contract                respjson.Field
-		Executor                respjson.Field
-		Nonce                   respjson.Field
-		UserOperation           respjson.Field
-		Calls                   respjson.Field
-		AmountSats              respjson.Field
-		ReceiverSparkAddress    respjson.Field
-		TokenAmount             respjson.Field
-		TokenIdentifier         respjson.Field
-		OutputSelectionStrategy respjson.Field
-		SelectedOutputs         respjson.Field
-		TransactionID           respjson.Field
-		OutputIndex             respjson.Field
-		CreditAmountSats        respjson.Field
-		Signature               respjson.Field
-		DescriptionHash         respjson.Field
-		ExpirySeconds           respjson.Field
-		IncludeSparkAddress     respjson.Field
-		Memo                    respjson.Field
-		ReceiverIdentityPubkey  respjson.Field
-		Invoice                 respjson.Field
-		MaxFeeSats              respjson.Field
-		AmountSatsToSend        respjson.Field
-		PreferSpark             respjson.Field
-		Compact                 respjson.Field
-		RawData                 respjson.Field
-		ReferenceID             respjson.Field
-		EncryptionType          respjson.Field
-		RecipientPublicKey      respjson.Field
-		ExportSeedPhrase        respjson.Field
-		ExportType              respjson.Field
-		raw                     string
+		Transaction                   respjson.Field
+		Encoding                      respjson.Field
+		Message                       respjson.Field
+		TypedData                     respjson.Field
+		Hash                          respjson.Field
+		ChainID                       respjson.Field
+		Contract                      respjson.Field
+		Executor                      respjson.Field
+		Nonce                         respjson.Field
+		UserOperation                 respjson.Field
+		Calls                         respjson.Field
+		AmountSats                    respjson.Field
+		ReceiverSparkAddress          respjson.Field
+		TokenAmount                   respjson.Field
+		TokenIdentifier               respjson.Field
+		OutputSelectionStrategy       respjson.Field
+		SelectedOutputs               respjson.Field
+		TransactionID                 respjson.Field
+		OutputIndex                   respjson.Field
+		CreditAmountSats              respjson.Field
+		Signature                     respjson.Field
+		DescriptionHash               respjson.Field
+		ExpirySeconds                 respjson.Field
+		IncludeSparkAddress           respjson.Field
+		Memo                          respjson.Field
+		ReceiverIdentityPubkey        respjson.Field
+		Invoice                       respjson.Field
+		MaxFeeSats                    respjson.Field
+		AmountSatsToSend              respjson.Field
+		PreferSpark                   respjson.Field
+		Compact                       respjson.Field
+		ExitSpeed                     respjson.Field
+		OnchainAddress                respjson.Field
+		DeductFeeFromWithdrawalAmount respjson.Field
+		FeeAmountSats                 respjson.Field
+		FeeQuoteID                    respjson.Field
+		RawData                       respjson.Field
+		ReferenceID                   respjson.Field
+		EncryptionType                respjson.Field
+		RecipientPublicKey            respjson.Field
+		ExportSeedPhrase              respjson.Field
+		ExportType                    respjson.Field
+		raw                           string
 	} `json:"-"`
 }
 
@@ -8535,6 +8985,18 @@ func WalletRpcRequestBodyOfSignMessageWithIdentityKey(params SparkSignMessageWit
 	return WalletRpcRequestBodyUnion{OfSignMessageWithIdentityKey: &signMessageWithIdentityKey}
 }
 
+func WalletRpcRequestBodyOfWithdraw(params SparkWithdrawRpcInputParams) WalletRpcRequestBodyUnion {
+	var withdraw SparkWithdrawRpcInput
+	withdraw.Params = params
+	return WalletRpcRequestBodyUnion{OfWithdraw: &withdraw}
+}
+
+func WalletRpcRequestBodyOfGetWithdrawalFeeQuote(params SparkGetWithdrawalFeeQuoteRpcInputParams) WalletRpcRequestBodyUnion {
+	var getWithdrawalFeeQuote SparkGetWithdrawalFeeQuoteRpcInput
+	getWithdrawalFeeQuote.Params = params
+	return WalletRpcRequestBodyUnion{OfGetWithdrawalFeeQuote: &getWithdrawalFeeQuote}
+}
+
 func WalletRpcRequestBodyOfTronSignTransaction(params TronSignTransactionRpcInputParams) WalletRpcRequestBodyUnion {
 	var tronSignTransaction TronSignTransactionRpcInput
 	tronSignTransaction.Params = params
@@ -8587,6 +9049,8 @@ type WalletRpcRequestBodyUnion struct {
 	OfCreateLightningInvoice     *SparkCreateLightningInvoiceRpcInput     `json:",omitzero,inline"`
 	OfPayLightningInvoice        *SparkPayLightningInvoiceRpcInput        `json:",omitzero,inline"`
 	OfSignMessageWithIdentityKey *SparkSignMessageWithIdentityKeyRpcInput `json:",omitzero,inline"`
+	OfWithdraw                   *SparkWithdrawRpcInput                   `json:",omitzero,inline"`
+	OfGetWithdrawalFeeQuote      *SparkGetWithdrawalFeeQuoteRpcInput      `json:",omitzero,inline"`
 	OfTronSignTransaction        *TronSignTransactionRpcInput             `json:",omitzero,inline"`
 	OfTronSendTransaction        *TronSendTransactionRpcInput             `json:",omitzero,inline"`
 	OfExportPrivateKey           *ExportPrivateKeyRpcInput                `json:",omitzero,inline"`
@@ -8615,6 +9079,8 @@ func (u WalletRpcRequestBodyUnion) MarshalJSON() ([]byte, error) {
 		u.OfCreateLightningInvoice,
 		u.OfPayLightningInvoice,
 		u.OfSignMessageWithIdentityKey,
+		u.OfWithdraw,
+		u.OfGetWithdrawalFeeQuote,
 		u.OfTronSignTransaction,
 		u.OfTronSendTransaction,
 		u.OfExportPrivateKey,
@@ -8647,6 +9113,8 @@ func init() {
 		apijson.Discriminator[SparkCreateLightningInvoiceRpcInput]("createLightningInvoice"),
 		apijson.Discriminator[SparkPayLightningInvoiceRpcInput]("payLightningInvoice"),
 		apijson.Discriminator[SparkSignMessageWithIdentityKeyRpcInput]("signMessageWithIdentityKey"),
+		apijson.Discriminator[SparkWithdrawRpcInput]("withdraw"),
+		apijson.Discriminator[SparkGetWithdrawalFeeQuoteRpcInput]("getWithdrawalFeeQuote"),
 		apijson.Discriminator[TronSignTransactionRpcInput]("tron_signTransaction"),
 		apijson.Discriminator[TronSendTransactionRpcInput]("tron_sendTransaction"),
 		apijson.Discriminator[ExportPrivateKeyRpcInput]("exportPrivateKey"),
@@ -8666,7 +9134,8 @@ func init() {
 // [SparkGetClaimStaticDepositQuoteRpcResponse],
 // [SparkClaimStaticDepositRpcResponse], [SparkCreateLightningInvoiceRpcResponse],
 // [SparkPayLightningInvoiceRpcResponse],
-// [SparkSignMessageWithIdentityKeyRpcResponse], [TronSignTransactionRpcResponse],
+// [SparkSignMessageWithIdentityKeyRpcResponse], [SparkWithdrawRpcResponse],
+// [SparkGetWithdrawalFeeQuoteRpcResponse], [TronSignTransactionRpcResponse],
 // [TronSendTransactionRpcResponse], [ExportPrivateKeyRpcResponse],
 // [ExportSeedPhraseRpcResponse].
 //
@@ -8688,9 +9157,10 @@ type WalletRpcResponseUnion struct {
 	// [SparkGetClaimStaticDepositQuoteRpcResponseData],
 	// [SparkClaimStaticDepositRpcResponseData], [SparkLightningReceiveRequest],
 	// [SparkPayLightningInvoiceRpcResponseDataUnion],
-	// [SparkSignMessageWithIdentityKeyRpcResponseData],
-	// [TronSignTransactionRpcResponseData], [TronSendTransactionRpcResponseData],
-	// [PrivateKeyExportInputResp], [SeedPhraseExportResponse]
+	// [SparkSignMessageWithIdentityKeyRpcResponseData], [SparkCoopExitRequest],
+	// [SparkCoopExitFeeQuote], [TronSignTransactionRpcResponseData],
+	// [TronSendTransactionRpcResponseData], [PrivateKeyExportInputResp],
+	// [SeedPhraseExportResponse]
 	Data WalletRpcResponseUnionData `json:"data"`
 	// Any of "personal_sign", "eth_signTypedData_v4", "eth_signTransaction",
 	// "eth_sendTransaction", "eth_signUserOperation", "eth_sign7702Authorization",
@@ -8698,8 +9168,8 @@ type WalletRpcResponseUnion struct {
 	// "signAndSendTransaction", "transfer", "getBalance", "transferTokens",
 	// "getStaticDepositAddress", "getClaimStaticDepositQuote", "claimStaticDeposit",
 	// "createLightningInvoice", "payLightningInvoice", "signMessageWithIdentityKey",
-	// "tron_signTransaction", "tron_sendTransaction", "exportPrivateKey",
-	// "exportSeedPhrase".
+	// "withdraw", "getWithdrawalFeeQuote", "tron_signTransaction",
+	// "tron_sendTransaction", "exportPrivateKey", "exportSeedPhrase".
 	Method string `json:"method"`
 	JSON   struct {
 		Data   respjson.Field
@@ -8734,6 +9204,8 @@ func (SparkClaimStaticDepositRpcResponse) implWalletRpcResponseUnion()         {
 func (SparkCreateLightningInvoiceRpcResponse) implWalletRpcResponseUnion()     {}
 func (SparkPayLightningInvoiceRpcResponse) implWalletRpcResponseUnion()        {}
 func (SparkSignMessageWithIdentityKeyRpcResponse) implWalletRpcResponseUnion() {}
+func (SparkWithdrawRpcResponse) implWalletRpcResponseUnion()                   {}
+func (SparkGetWithdrawalFeeQuoteRpcResponse) implWalletRpcResponseUnion()      {}
 func (TronSignTransactionRpcResponse) implWalletRpcResponseUnion()             {}
 func (TronSendTransactionRpcResponse) implWalletRpcResponseUnion()             {}
 func (ExportPrivateKeyRpcResponse) implWalletRpcResponseUnion()                {}
@@ -8762,6 +9234,8 @@ func (ExportSeedPhraseRpcResponse) implWalletRpcResponseUnion()                {
 //	case privyclient.SparkCreateLightningInvoiceRpcResponse:
 //	case privyclient.SparkPayLightningInvoiceRpcResponse:
 //	case privyclient.SparkSignMessageWithIdentityKeyRpcResponse:
+//	case privyclient.SparkWithdrawRpcResponse:
+//	case privyclient.SparkGetWithdrawalFeeQuoteRpcResponse:
 //	case privyclient.TronSignTransactionRpcResponse:
 //	case privyclient.TronSendTransactionRpcResponse:
 //	case privyclient.ExportPrivateKeyRpcResponse:
@@ -8811,6 +9285,10 @@ func (u WalletRpcResponseUnion) AsAny() anyWalletRpcResponse {
 		return u.AsPayLightningInvoice()
 	case "signMessageWithIdentityKey":
 		return u.AsSignMessageWithIdentityKey()
+	case "withdraw":
+		return u.AsWithdraw()
+	case "getWithdrawalFeeQuote":
+		return u.AsGetWithdrawalFeeQuote()
 	case "tron_signTransaction":
 		return u.AsTronSignTransaction()
 	case "tron_sendTransaction":
@@ -8923,6 +9401,16 @@ func (u WalletRpcResponseUnion) AsSignMessageWithIdentityKey() (v SparkSignMessa
 	return
 }
 
+func (u WalletRpcResponseUnion) AsWithdraw() (v SparkWithdrawRpcResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletRpcResponseUnion) AsGetWithdrawalFeeQuote() (v SparkGetWithdrawalFeeQuoteRpcResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
 func (u WalletRpcResponseUnion) AsTronSignTransaction() (v TronSignTransactionRpcResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
@@ -9020,10 +9508,33 @@ type WalletRpcResponseUnionData struct {
 	Transfer        any    `json:"transfer"`
 	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataUnion].
 	EncodedInvoice string `json:"encoded_invoice"`
-	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataUnion].
-	Fee SparkLightningFee `json:"fee"`
+	// This field is a union of [SparkLightningFee], [SparkCurrencyAmount]
+	Fee WalletRpcResponseUnionDataFee `json:"fee"`
 	// This field is from variant [SparkPayLightningInvoiceRpcResponseDataUnion].
 	IdempotencyKey string `json:"idempotency_key"`
+	// This field is from variant [SparkCoopExitRequest].
+	CoopExitTxid string `json:"coop_exit_txid"`
+	ExpiresAt    string `json:"expires_at"`
+	// This field is from variant [SparkCoopExitRequest].
+	L1BroadcastFee SparkCurrencyAmount `json:"l1_broadcast_fee"`
+	// This field is from variant [SparkCoopExitRequest].
+	ExitSpeed SparkExitSpeed `json:"exit_speed"`
+	// This field is from variant [SparkCoopExitRequest].
+	FeeQuoteID string `json:"fee_quote_id"`
+	// This field is from variant [SparkCoopExitFeeQuote].
+	L1BroadcastFeeFast SparkCurrencyAmount `json:"l1_broadcast_fee_fast"`
+	// This field is from variant [SparkCoopExitFeeQuote].
+	L1BroadcastFeeMedium SparkCurrencyAmount `json:"l1_broadcast_fee_medium"`
+	// This field is from variant [SparkCoopExitFeeQuote].
+	L1BroadcastFeeSlow SparkCurrencyAmount `json:"l1_broadcast_fee_slow"`
+	// This field is from variant [SparkCoopExitFeeQuote].
+	TotalAmount SparkCurrencyAmount `json:"total_amount"`
+	// This field is from variant [SparkCoopExitFeeQuote].
+	UserFeeFast SparkCurrencyAmount `json:"user_fee_fast"`
+	// This field is from variant [SparkCoopExitFeeQuote].
+	UserFeeMedium SparkCurrencyAmount `json:"user_fee_medium"`
+	// This field is from variant [SparkCoopExitFeeQuote].
+	UserFeeSlow SparkCurrencyAmount `json:"user_fee_slow"`
 	// This field is from variant [PrivateKeyExportInputResp].
 	EncryptionType HpkeEncryption `json:"encryption_type"`
 	// This field is from variant [PrivateKeyExportInputResp].
@@ -9074,6 +9585,18 @@ type WalletRpcResponseUnionData struct {
 		EncodedInvoice            respjson.Field
 		Fee                       respjson.Field
 		IdempotencyKey            respjson.Field
+		CoopExitTxid              respjson.Field
+		ExpiresAt                 respjson.Field
+		L1BroadcastFee            respjson.Field
+		ExitSpeed                 respjson.Field
+		FeeQuoteID                respjson.Field
+		L1BroadcastFeeFast        respjson.Field
+		L1BroadcastFeeMedium      respjson.Field
+		L1BroadcastFeeSlow        respjson.Field
+		TotalAmount               respjson.Field
+		UserFeeFast               respjson.Field
+		UserFeeMedium             respjson.Field
+		UserFeeSlow               respjson.Field
 		EncryptionType            respjson.Field
 		RecipientPublicKey        respjson.Field
 		ExportSeedPhrase          respjson.Field
@@ -9085,6 +9608,26 @@ type WalletRpcResponseUnionData struct {
 }
 
 func (r *WalletRpcResponseUnionData) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// WalletRpcResponseUnionDataFee is an implicit subunion of
+// [WalletRpcResponseUnion]. WalletRpcResponseUnionDataFee provides convenient
+// access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [WalletRpcResponseUnion].
+type WalletRpcResponseUnionDataFee struct {
+	OriginalUnit  string  `json:"original_unit"`
+	OriginalValue float64 `json:"original_value"`
+	JSON          struct {
+		OriginalUnit  respjson.Field
+		OriginalValue respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (r *WalletRpcResponseUnionDataFee) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
