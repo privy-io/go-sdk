@@ -13,8 +13,8 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	// Load .env.secret file from project root
-	_ = godotenv.Load("../.env.secret")
+	// Load .env file from project root
+	_ = godotenv.Load("../.env")
 	os.Exit(m.Run())
 }
 
