@@ -807,6 +807,8 @@ type IntentResponseUnionRequestDetailsBody struct {
 	// [SparkCreateLightningInvoiceRpcInputParamsResp],
 	// [SparkPayLightningInvoiceRpcInputParamsResp],
 	// [SparkSignMessageWithIdentityKeyRpcInputParamsResp],
+	// [SparkWithdrawRpcInputParamsResp],
+	// [SparkGetWithdrawalFeeQuoteRpcInputParamsResp],
 	// [TronSignTransactionRpcInputParamsResp],
 	// [TronSendTransactionRpcInputParamsResp], [PrivateKeyExportInputResp],
 	// [SeedPhraseExportInputResp]
@@ -967,6 +969,15 @@ type IntentResponseUnionRequestDetailsBodyParams struct {
 	PreferSpark bool `json:"prefer_spark"`
 	// This field is from variant [SparkSignMessageWithIdentityKeyRpcInputParamsResp].
 	Compact bool `json:"compact"`
+	// This field is from variant [SparkWithdrawRpcInputParamsResp].
+	ExitSpeed      SparkExitSpeed `json:"exit_speed"`
+	OnchainAddress string         `json:"onchain_address"`
+	// This field is from variant [SparkWithdrawRpcInputParamsResp].
+	DeductFeeFromWithdrawalAmount bool `json:"deduct_fee_from_withdrawal_amount"`
+	// This field is from variant [SparkWithdrawRpcInputParamsResp].
+	FeeAmountSats float64 `json:"fee_amount_sats"`
+	// This field is from variant [SparkWithdrawRpcInputParamsResp].
+	FeeQuoteID string `json:"fee_quote_id"`
 	// This field is a union of [TronRawDataForSignResp], [TronRawDataForSendResp]
 	RawData IntentResponseUnionRequestDetailsBodyParamsRawData `json:"raw_data"`
 	// This field is from variant [TronSendTransactionRpcInputParamsResp].
@@ -979,44 +990,49 @@ type IntentResponseUnionRequestDetailsBodyParams struct {
 	// This field is from variant [PrivateKeyExportInputResp].
 	ExportType ExportType `json:"export_type"`
 	JSON       struct {
-		Transaction             respjson.Field
-		Encoding                respjson.Field
-		Message                 respjson.Field
-		TypedData               respjson.Field
-		Hash                    respjson.Field
-		ChainID                 respjson.Field
-		Contract                respjson.Field
-		Executor                respjson.Field
-		Nonce                   respjson.Field
-		UserOperation           respjson.Field
-		Calls                   respjson.Field
-		AmountSats              respjson.Field
-		ReceiverSparkAddress    respjson.Field
-		TokenAmount             respjson.Field
-		TokenIdentifier         respjson.Field
-		OutputSelectionStrategy respjson.Field
-		SelectedOutputs         respjson.Field
-		TransactionID           respjson.Field
-		OutputIndex             respjson.Field
-		CreditAmountSats        respjson.Field
-		Signature               respjson.Field
-		DescriptionHash         respjson.Field
-		ExpirySeconds           respjson.Field
-		IncludeSparkAddress     respjson.Field
-		Memo                    respjson.Field
-		ReceiverIdentityPubkey  respjson.Field
-		Invoice                 respjson.Field
-		MaxFeeSats              respjson.Field
-		AmountSatsToSend        respjson.Field
-		PreferSpark             respjson.Field
-		Compact                 respjson.Field
-		RawData                 respjson.Field
-		ReferenceID             respjson.Field
-		EncryptionType          respjson.Field
-		RecipientPublicKey      respjson.Field
-		ExportSeedPhrase        respjson.Field
-		ExportType              respjson.Field
-		raw                     string
+		Transaction                   respjson.Field
+		Encoding                      respjson.Field
+		Message                       respjson.Field
+		TypedData                     respjson.Field
+		Hash                          respjson.Field
+		ChainID                       respjson.Field
+		Contract                      respjson.Field
+		Executor                      respjson.Field
+		Nonce                         respjson.Field
+		UserOperation                 respjson.Field
+		Calls                         respjson.Field
+		AmountSats                    respjson.Field
+		ReceiverSparkAddress          respjson.Field
+		TokenAmount                   respjson.Field
+		TokenIdentifier               respjson.Field
+		OutputSelectionStrategy       respjson.Field
+		SelectedOutputs               respjson.Field
+		TransactionID                 respjson.Field
+		OutputIndex                   respjson.Field
+		CreditAmountSats              respjson.Field
+		Signature                     respjson.Field
+		DescriptionHash               respjson.Field
+		ExpirySeconds                 respjson.Field
+		IncludeSparkAddress           respjson.Field
+		Memo                          respjson.Field
+		ReceiverIdentityPubkey        respjson.Field
+		Invoice                       respjson.Field
+		MaxFeeSats                    respjson.Field
+		AmountSatsToSend              respjson.Field
+		PreferSpark                   respjson.Field
+		Compact                       respjson.Field
+		ExitSpeed                     respjson.Field
+		OnchainAddress                respjson.Field
+		DeductFeeFromWithdrawalAmount respjson.Field
+		FeeAmountSats                 respjson.Field
+		FeeQuoteID                    respjson.Field
+		RawData                       respjson.Field
+		ReferenceID                   respjson.Field
+		EncryptionType                respjson.Field
+		RecipientPublicKey            respjson.Field
+		ExportSeedPhrase              respjson.Field
+		ExportType                    respjson.Field
+		raw                           string
 	} `json:"-"`
 }
 
