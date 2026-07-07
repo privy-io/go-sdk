@@ -469,6 +469,7 @@ func TestUserPregenerateWallets(t *testing.T) {
 					OverridePolicyIDs: []string{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 				}},
 				CreateSmartWallet: privyclient.Bool(true),
+				ExternalID:        privyclient.String("my-order-123"),
 				PolicyIDs:         []string{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 			}},
 		},
