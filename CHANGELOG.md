@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.12.0 (2026-07-07)
+
+Full Changelog: [v0.11.0...v0.12.0](https://github.com/privy-io/go-sdk/compare/v0.11.0...v0.12.0)
+
+### Features
+
+* add typed Wallets.Tron service for signTransaction and sendTransaction ([#103](https://github.com/privy-io/go-sdk/issues/103)) ([cbde394](https://github.com/privy-io/go-sdk/commit/cbde3941ef0f14d35f111753b1e7995faec22a93))
+* **api:** api update ([fa0e8de](https://github.com/privy-io/go-sdk/commit/fa0e8deb7d7aa5f8c3a58bb06dbc463c0d63cde8))
+* **api:** api update ([a9a61d5](https://github.com/privy-io/go-sdk/commit/a9a61d5ed179b843df45e234be092967db7c6a3e))
+
+
+### Chores
+
+* improves go sdk harness ([#101](https://github.com/privy-io/go-sdk/issues/101)) ([2133e51](https://github.com/privy-io/go-sdk/commit/2133e51a34f18ec1d515b767b384ea809a5b88bd))
+
 ## 0.11.0 (2026-06-29)
 
 Full Changelog: [v0.10.0...v0.11.0](https://github.com/privy-io/go-sdk/compare/v0.10.0...v0.11.0)

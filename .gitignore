@@ -4,6 +4,6 @@ codegen.log
 Brewfile.lock.json
 .idea/
 
-.env.secret
+.env
 
 .claude/settings.local.json

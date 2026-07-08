@@ -28,6 +28,9 @@ type PrivyWalletService struct {
 
 	// Solana provides convenience methods for Solana wallet operations.
 	Solana *PrivySolanaWalletService
+
+	// Tron provides convenience methods for Tron wallet operations.
+	Tron *PrivyTronWalletService
 }
 
 // newPrivyWalletService creates a new wrapped wallet service.
@@ -52,6 +55,7 @@ func newPrivyWalletService(
 	}
 	s.Ethereum = newPrivyEthereumWalletService(s)
 	s.Solana = newPrivySolanaWalletService(s)
+	s.Tron = newPrivyTronWalletService(s)
 	return s
 }
 

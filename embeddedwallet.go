@@ -207,6 +207,10 @@ type WalletCreationInput struct {
 	// Create a smart wallet with this wallet as the signer. Only supported for wallets
 	// with `chain_type: "ethereum"`.
 	CreateSmartWallet param.Opt[bool] `json:"create_smart_wallet,omitzero"`
+	// A customer-provided identifier for mapping to external systems. Write-once, set
+	// only at creation. Must be alphanumeric, hyphens, or underscores, max 64
+	// characters.
+	ExternalID param.Opt[string] `json:"external_id,omitzero"`
 	// Additional signers for the wallet.
 	AdditionalSigners []WalletCreationAdditionalSignerItem `json:"additional_signers,omitzero"`
 	// Policy IDs to enforce on the wallet. Currently, only one policy is supported per
