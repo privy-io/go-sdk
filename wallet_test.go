@@ -241,9 +241,9 @@ func TestWalletTransferWithOptionalParams(t *testing.T) {
 				},
 				Source: privyclient.TokenTransferSourceUnion{
 					OfNamedTokenTransferSource: &privyclient.NamedTokenTransferSource{
-						Amount: "10.5",
 						Asset:  "usdc",
 						Chain:  "base",
+						Amount: privyclient.String("10.5"),
 					},
 				},
 				Amount:     privyclient.String("10.5"),
