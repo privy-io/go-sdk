@@ -1518,7 +1518,7 @@ type WalletActionEarnDepositCreatedWebhookPayload struct {
 	// Type of wallet action
 	//
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
-	// "earn_incentive_claim".
+	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// Underlying asset token address.
 	AssetAddress string `json:"asset_address" api:"required"`
@@ -1599,7 +1599,7 @@ type WalletActionEarnDepositFailedWebhookPayload struct {
 	// Type of wallet action
 	//
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
-	// "earn_incentive_claim".
+	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// Underlying asset token address.
 	AssetAddress string `json:"asset_address" api:"required"`
@@ -1690,7 +1690,7 @@ type WalletActionEarnDepositRejectedWebhookPayload struct {
 	// Type of wallet action
 	//
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
-	// "earn_incentive_claim".
+	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// Underlying asset token address.
 	AssetAddress string `json:"asset_address" api:"required"`
@@ -1780,7 +1780,7 @@ type WalletActionEarnDepositSucceededWebhookPayload struct {
 	// Type of wallet action
 	//
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
-	// "earn_incentive_claim".
+	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// Underlying asset token address.
 	AssetAddress string `json:"asset_address" api:"required"`
@@ -1865,12 +1865,361 @@ const (
 	WalletActionEarnDepositSucceededWebhookPayloadTypeWalletActionEarnDepositSucceeded WalletActionEarnDepositSucceededWebhookPayloadType = "wallet_action.earn_deposit.succeeded"
 )
 
+// Payload for the wallet_action.earn_fee_collect.created webhook event.
+type WalletActionEarnFeeCollectCreatedWebhookPayload struct {
+	// Type of wallet action
+	//
+	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
+	// "earn_incentive_claim", "earn_fee_collect".
+	ActionType WalletActionType `json:"action_type" api:"required"`
+	// Underlying asset token address.
+	AssetAddress string `json:"asset_address" api:"required"`
+	// CAIP-2 chain identifier.
+	Caip2 string `json:"caip2" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
+	// Base-unit amount of fees collected (e.g. "1500000").
+	RawAmount string `json:"raw_amount" api:"required"`
+	// The status of the wallet action.
+	//
+	// Any of "pending".
+	Status WalletActionEarnFeeCollectCreatedWebhookPayloadStatus `json:"status" api:"required"`
+	// The type of webhook event.
+	//
+	// Any of "wallet_action.earn_fee_collect.created".
+	Type WalletActionEarnFeeCollectCreatedWebhookPayloadType `json:"type" api:"required"`
+	// ERC-4626 vault contract address.
+	VaultAddress string `json:"vault_address" api:"required"`
+	// The vault ID.
+	VaultID string `json:"vault_id" api:"required"`
+	// The ID of the wallet action.
+	WalletActionID string `json:"wallet_action_id" api:"required"`
+	// The ID of the wallet involved in the action.
+	WalletID string `json:"wallet_id" api:"required"`
+	// Human-readable decimal amount of fees collected (e.g. "1.5"). Only present when
+	// the token is known in the asset registry.
+	Amount string `json:"amount"`
+	// Asset identifier (e.g. "usdc", "eth"). Only present when the token is known in
+	// the asset registry.
+	Asset string `json:"asset"`
+	// Number of decimals for the underlying asset (e.g. 6 for USDC, 18 for ETH). Only
+	// present when the token is known in the asset registry.
+	Decimals int64 `json:"decimals"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ActionType     respjson.Field
+		AssetAddress   respjson.Field
+		Caip2          respjson.Field
+		CreatedAt      respjson.Field
+		RawAmount      respjson.Field
+		Status         respjson.Field
+		Type           respjson.Field
+		VaultAddress   respjson.Field
+		VaultID        respjson.Field
+		WalletActionID respjson.Field
+		WalletID       respjson.Field
+		Amount         respjson.Field
+		Asset          respjson.Field
+		Decimals       respjson.Field
+		ExtraFields    map[string]respjson.Field
+		raw            string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletActionEarnFeeCollectCreatedWebhookPayload) RawJSON() string { return r.JSON.raw }
+func (r *WalletActionEarnFeeCollectCreatedWebhookPayload) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The status of the wallet action.
+type WalletActionEarnFeeCollectCreatedWebhookPayloadStatus string
+
+const (
+	WalletActionEarnFeeCollectCreatedWebhookPayloadStatusPending WalletActionEarnFeeCollectCreatedWebhookPayloadStatus = "pending"
+)
+
+// The type of webhook event.
+type WalletActionEarnFeeCollectCreatedWebhookPayloadType string
+
+const (
+	WalletActionEarnFeeCollectCreatedWebhookPayloadTypeWalletActionEarnFeeCollectCreated WalletActionEarnFeeCollectCreatedWebhookPayloadType = "wallet_action.earn_fee_collect.created"
+)
+
+// Payload for the wallet_action.earn_fee_collect.failed webhook event.
+type WalletActionEarnFeeCollectFailedWebhookPayload struct {
+	// Type of wallet action
+	//
+	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
+	// "earn_incentive_claim", "earn_fee_collect".
+	ActionType WalletActionType `json:"action_type" api:"required"`
+	// Underlying asset token address.
+	AssetAddress string `json:"asset_address" api:"required"`
+	// CAIP-2 chain identifier.
+	Caip2 string `json:"caip2" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
+	// ISO 8601 timestamp of when the wallet action failed.
+	FailedAt string `json:"failed_at" api:"required"`
+	// A description of why a wallet action (or a step within a wallet action) failed.
+	FailureReason FailureReason `json:"failure_reason" api:"required"`
+	// Base-unit amount of fees collected (e.g. "1500000").
+	RawAmount string `json:"raw_amount" api:"required"`
+	// The status of the wallet action.
+	//
+	// Any of "failed".
+	Status WalletActionEarnFeeCollectFailedWebhookPayloadStatus `json:"status" api:"required"`
+	// The steps of the wallet action. Completed steps will have transaction hashes;
+	// the failing step will have a failure_reason.
+	Steps []WalletActionStepUnion `json:"steps" api:"required"`
+	// The type of webhook event.
+	//
+	// Any of "wallet_action.earn_fee_collect.failed".
+	Type WalletActionEarnFeeCollectFailedWebhookPayloadType `json:"type" api:"required"`
+	// ERC-4626 vault contract address.
+	VaultAddress string `json:"vault_address" api:"required"`
+	// The vault ID.
+	VaultID string `json:"vault_id" api:"required"`
+	// The ID of the wallet action.
+	WalletActionID string `json:"wallet_action_id" api:"required"`
+	// The ID of the wallet involved in the action.
+	WalletID string `json:"wallet_id" api:"required"`
+	// Human-readable decimal amount of fees collected (e.g. "1.5"). Only present when
+	// the token is known in the asset registry.
+	Amount string `json:"amount"`
+	// Asset identifier (e.g. "usdc", "eth"). Only present when the token is known in
+	// the asset registry.
+	Asset string `json:"asset"`
+	// Number of decimals for the underlying asset (e.g. 6 for USDC, 18 for ETH). Only
+	// present when the token is known in the asset registry.
+	Decimals int64 `json:"decimals"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ActionType     respjson.Field
+		AssetAddress   respjson.Field
+		Caip2          respjson.Field
+		CreatedAt      respjson.Field
+		FailedAt       respjson.Field
+		FailureReason  respjson.Field
+		RawAmount      respjson.Field
+		Status         respjson.Field
+		Steps          respjson.Field
+		Type           respjson.Field
+		VaultAddress   respjson.Field
+		VaultID        respjson.Field
+		WalletActionID respjson.Field
+		WalletID       respjson.Field
+		Amount         respjson.Field
+		Asset          respjson.Field
+		Decimals       respjson.Field
+		ExtraFields    map[string]respjson.Field
+		raw            string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletActionEarnFeeCollectFailedWebhookPayload) RawJSON() string { return r.JSON.raw }
+func (r *WalletActionEarnFeeCollectFailedWebhookPayload) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The status of the wallet action.
+type WalletActionEarnFeeCollectFailedWebhookPayloadStatus string
+
+const (
+	WalletActionEarnFeeCollectFailedWebhookPayloadStatusFailed WalletActionEarnFeeCollectFailedWebhookPayloadStatus = "failed"
+)
+
+// The type of webhook event.
+type WalletActionEarnFeeCollectFailedWebhookPayloadType string
+
+const (
+	WalletActionEarnFeeCollectFailedWebhookPayloadTypeWalletActionEarnFeeCollectFailed WalletActionEarnFeeCollectFailedWebhookPayloadType = "wallet_action.earn_fee_collect.failed"
+)
+
+// Payload for the wallet_action.earn_fee_collect.rejected webhook event.
+type WalletActionEarnFeeCollectRejectedWebhookPayload struct {
+	// Type of wallet action
+	//
+	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
+	// "earn_incentive_claim", "earn_fee_collect".
+	ActionType WalletActionType `json:"action_type" api:"required"`
+	// Underlying asset token address.
+	AssetAddress string `json:"asset_address" api:"required"`
+	// CAIP-2 chain identifier.
+	Caip2 string `json:"caip2" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
+	// A description of why a wallet action (or a step within a wallet action) failed.
+	FailureReason FailureReason `json:"failure_reason" api:"required"`
+	// Base-unit amount of fees collected (e.g. "1500000").
+	RawAmount string `json:"raw_amount" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was rejected.
+	RejectedAt string `json:"rejected_at" api:"required"`
+	// The status of the wallet action.
+	//
+	// Any of "rejected".
+	Status WalletActionEarnFeeCollectRejectedWebhookPayloadStatus `json:"status" api:"required"`
+	// The steps of the wallet action at the time of rejection.
+	Steps []WalletActionStepUnion `json:"steps" api:"required"`
+	// The type of webhook event.
+	//
+	// Any of "wallet_action.earn_fee_collect.rejected".
+	Type WalletActionEarnFeeCollectRejectedWebhookPayloadType `json:"type" api:"required"`
+	// ERC-4626 vault contract address.
+	VaultAddress string `json:"vault_address" api:"required"`
+	// The vault ID.
+	VaultID string `json:"vault_id" api:"required"`
+	// The ID of the wallet action.
+	WalletActionID string `json:"wallet_action_id" api:"required"`
+	// The ID of the wallet involved in the action.
+	WalletID string `json:"wallet_id" api:"required"`
+	// Human-readable decimal amount of fees collected (e.g. "1.5"). Only present when
+	// the token is known in the asset registry.
+	Amount string `json:"amount"`
+	// Asset identifier (e.g. "usdc", "eth"). Only present when the token is known in
+	// the asset registry.
+	Asset string `json:"asset"`
+	// Number of decimals for the underlying asset (e.g. 6 for USDC, 18 for ETH). Only
+	// present when the token is known in the asset registry.
+	Decimals int64 `json:"decimals"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ActionType     respjson.Field
+		AssetAddress   respjson.Field
+		Caip2          respjson.Field
+		CreatedAt      respjson.Field
+		FailureReason  respjson.Field
+		RawAmount      respjson.Field
+		RejectedAt     respjson.Field
+		Status         respjson.Field
+		Steps          respjson.Field
+		Type           respjson.Field
+		VaultAddress   respjson.Field
+		VaultID        respjson.Field
+		WalletActionID respjson.Field
+		WalletID       respjson.Field
+		Amount         respjson.Field
+		Asset          respjson.Field
+		Decimals       respjson.Field
+		ExtraFields    map[string]respjson.Field
+		raw            string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletActionEarnFeeCollectRejectedWebhookPayload) RawJSON() string { return r.JSON.raw }
+func (r *WalletActionEarnFeeCollectRejectedWebhookPayload) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The status of the wallet action.
+type WalletActionEarnFeeCollectRejectedWebhookPayloadStatus string
+
+const (
+	WalletActionEarnFeeCollectRejectedWebhookPayloadStatusRejected WalletActionEarnFeeCollectRejectedWebhookPayloadStatus = "rejected"
+)
+
+// The type of webhook event.
+type WalletActionEarnFeeCollectRejectedWebhookPayloadType string
+
+const (
+	WalletActionEarnFeeCollectRejectedWebhookPayloadTypeWalletActionEarnFeeCollectRejected WalletActionEarnFeeCollectRejectedWebhookPayloadType = "wallet_action.earn_fee_collect.rejected"
+)
+
+// Payload for the wallet_action.earn_fee_collect.succeeded webhook event.
+type WalletActionEarnFeeCollectSucceededWebhookPayload struct {
+	// Type of wallet action
+	//
+	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
+	// "earn_incentive_claim", "earn_fee_collect".
+	ActionType WalletActionType `json:"action_type" api:"required"`
+	// Underlying asset token address.
+	AssetAddress string `json:"asset_address" api:"required"`
+	// CAIP-2 chain identifier.
+	Caip2 string `json:"caip2" api:"required"`
+	// ISO 8601 timestamp of when the wallet action completed successfully.
+	CompletedAt string `json:"completed_at" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt string `json:"created_at" api:"required"`
+	// Base-unit amount of fees collected (e.g. "1500000").
+	RawAmount string `json:"raw_amount" api:"required"`
+	// The status of the wallet action.
+	//
+	// Any of "succeeded".
+	Status WalletActionEarnFeeCollectSucceededWebhookPayloadStatus `json:"status" api:"required"`
+	// The steps of the wallet action, including transaction hashes.
+	Steps []WalletActionStepUnion `json:"steps" api:"required"`
+	// The type of webhook event.
+	//
+	// Any of "wallet_action.earn_fee_collect.succeeded".
+	Type WalletActionEarnFeeCollectSucceededWebhookPayloadType `json:"type" api:"required"`
+	// ERC-4626 vault contract address.
+	VaultAddress string `json:"vault_address" api:"required"`
+	// The vault ID.
+	VaultID string `json:"vault_id" api:"required"`
+	// The ID of the wallet action.
+	WalletActionID string `json:"wallet_action_id" api:"required"`
+	// The ID of the wallet involved in the action.
+	WalletID string `json:"wallet_id" api:"required"`
+	// Human-readable decimal amount of fees collected (e.g. "1.5"). Only present when
+	// the token is known in the asset registry.
+	Amount string `json:"amount"`
+	// Asset identifier (e.g. "usdc", "eth"). Only present when the token is known in
+	// the asset registry.
+	Asset string `json:"asset"`
+	// Number of decimals for the underlying asset (e.g. 6 for USDC, 18 for ETH). Only
+	// present when the token is known in the asset registry.
+	Decimals int64 `json:"decimals"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ActionType     respjson.Field
+		AssetAddress   respjson.Field
+		Caip2          respjson.Field
+		CompletedAt    respjson.Field
+		CreatedAt      respjson.Field
+		RawAmount      respjson.Field
+		Status         respjson.Field
+		Steps          respjson.Field
+		Type           respjson.Field
+		VaultAddress   respjson.Field
+		VaultID        respjson.Field
+		WalletActionID respjson.Field
+		WalletID       respjson.Field
+		Amount         respjson.Field
+		Asset          respjson.Field
+		Decimals       respjson.Field
+		ExtraFields    map[string]respjson.Field
+		raw            string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletActionEarnFeeCollectSucceededWebhookPayload) RawJSON() string { return r.JSON.raw }
+func (r *WalletActionEarnFeeCollectSucceededWebhookPayload) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The status of the wallet action.
+type WalletActionEarnFeeCollectSucceededWebhookPayloadStatus string
+
+const (
+	WalletActionEarnFeeCollectSucceededWebhookPayloadStatusSucceeded WalletActionEarnFeeCollectSucceededWebhookPayloadStatus = "succeeded"
+)
+
+// The type of webhook event.
+type WalletActionEarnFeeCollectSucceededWebhookPayloadType string
+
+const (
+	WalletActionEarnFeeCollectSucceededWebhookPayloadTypeWalletActionEarnFeeCollectSucceeded WalletActionEarnFeeCollectSucceededWebhookPayloadType = "wallet_action.earn_fee_collect.succeeded"
+)
+
 // Payload for the wallet_action.earn_incentive_claim.created webhook event.
 type WalletActionEarnIncentiveClaimCreatedWebhookPayload struct {
 	// Type of wallet action
 	//
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
-	// "earn_incentive_claim".
+	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// EVM chain name (e.g. "base", "ethereum").
 	Chain string `json:"chain" api:"required"`
@@ -1930,7 +2279,7 @@ type WalletActionEarnIncentiveClaimFailedWebhookPayload struct {
 	// Type of wallet action
 	//
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
-	// "earn_incentive_claim".
+	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// EVM chain name (e.g. "base", "ethereum").
 	Chain string `json:"chain" api:"required"`
@@ -2000,7 +2349,7 @@ type WalletActionEarnIncentiveClaimRejectedWebhookPayload struct {
 	// Type of wallet action
 	//
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
-	// "earn_incentive_claim".
+	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// EVM chain name (e.g. "base", "ethereum").
 	Chain string `json:"chain" api:"required"`
@@ -2069,7 +2418,7 @@ type WalletActionEarnIncentiveClaimSucceededWebhookPayload struct {
 	// Type of wallet action
 	//
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
-	// "earn_incentive_claim".
+	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// EVM chain name (e.g. "base", "ethereum").
 	Chain string `json:"chain" api:"required"`
@@ -2135,7 +2484,7 @@ type WalletActionEarnWithdrawCreatedWebhookPayload struct {
 	// Type of wallet action
 	//
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
-	// "earn_incentive_claim".
+	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// Underlying asset token address.
 	AssetAddress string `json:"asset_address" api:"required"`
@@ -2216,7 +2565,7 @@ type WalletActionEarnWithdrawFailedWebhookPayload struct {
 	// Type of wallet action
 	//
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
-	// "earn_incentive_claim".
+	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// Underlying asset token address.
 	AssetAddress string `json:"asset_address" api:"required"`
@@ -2307,7 +2656,7 @@ type WalletActionEarnWithdrawRejectedWebhookPayload struct {
 	// Type of wallet action
 	//
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
-	// "earn_incentive_claim".
+	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// Underlying asset token address.
 	AssetAddress string `json:"asset_address" api:"required"`
@@ -2397,7 +2746,7 @@ type WalletActionEarnWithdrawSucceededWebhookPayload struct {
 	// Type of wallet action
 	//
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
-	// "earn_incentive_claim".
+	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// Underlying asset token address.
 	AssetAddress string `json:"asset_address" api:"required"`
@@ -2487,7 +2836,7 @@ type WalletActionSwapCreatedWebhookPayload struct {
 	// Type of wallet action
 	//
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
-	// "earn_incentive_claim".
+	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// Chain identifier.
 	Caip2 string `json:"caip2" api:"required"`
@@ -2553,7 +2902,7 @@ type WalletActionSwapFailedWebhookPayload struct {
 	// Type of wallet action
 	//
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
-	// "earn_incentive_claim".
+	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// Chain identifier.
 	Caip2 string `json:"caip2" api:"required"`
@@ -2629,7 +2978,7 @@ type WalletActionSwapRejectedWebhookPayload struct {
 	// Type of wallet action
 	//
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
-	// "earn_incentive_claim".
+	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// Chain identifier.
 	Caip2 string `json:"caip2" api:"required"`
@@ -2704,7 +3053,7 @@ type WalletActionSwapSucceededWebhookPayload struct {
 	// Type of wallet action
 	//
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
-	// "earn_incentive_claim".
+	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// Chain identifier.
 	Caip2 string `json:"caip2" api:"required"`
@@ -2780,7 +3129,7 @@ type WalletActionTransferCreatedWebhookPayload struct {
 	// Type of wallet action
 	//
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
-	// "earn_incentive_claim".
+	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
@@ -2856,7 +3205,7 @@ type WalletActionTransferFailedWebhookPayload struct {
 	// Type of wallet action
 	//
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
-	// "earn_incentive_claim".
+	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
@@ -2942,7 +3291,7 @@ type WalletActionTransferRejectedWebhookPayload struct {
 	// Type of wallet action
 	//
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
-	// "earn_incentive_claim".
+	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
@@ -3027,7 +3376,7 @@ type WalletActionTransferSucceededWebhookPayload struct {
 	// Type of wallet action
 	//
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
-	// "earn_incentive_claim".
+	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
 	// ISO 8601 timestamp of when the wallet action completed successfully.
 	CompletedAt string `json:"completed_at" api:"required"`
@@ -3640,6 +3989,10 @@ const (
 // [WalletActionEarnDepositFailedWebhookPayload],
 // [WalletActionEarnDepositRejectedWebhookPayload],
 // [WalletActionEarnDepositSucceededWebhookPayload],
+// [WalletActionEarnFeeCollectCreatedWebhookPayload],
+// [WalletActionEarnFeeCollectFailedWebhookPayload],
+// [WalletActionEarnFeeCollectRejectedWebhookPayload],
+// [WalletActionEarnFeeCollectSucceededWebhookPayload],
 // [WalletActionEarnIncentiveClaimCreatedWebhookPayload],
 // [WalletActionEarnIncentiveClaimFailedWebhookPayload],
 // [WalletActionEarnIncentiveClaimRejectedWebhookPayload],
@@ -3667,7 +4020,7 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	// This field is a union of [float64], [float64], [float64], [float64], [float64],
 	// [string], [string], [string], [string], [string], [string], [string], [string],
 	// [string], [string], [string], [string], [string], [string], [string], [string],
-	// [string], [string], [string], [string]
+	// [string], [string], [string], [string], [string], [string], [string], [string]
 	CreatedAt UnsafeUnwrapWebhookEventUnionCreatedAt `json:"created_at"`
 	ExpiresAt float64                                `json:"expires_at"`
 	IntentID  string                                 `json:"intent_id"`
@@ -3689,6 +4042,10 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	// "wallet.restored", "wallet_action.earn_deposit.created",
 	// "wallet_action.earn_deposit.failed", "wallet_action.earn_deposit.rejected",
 	// "wallet_action.earn_deposit.succeeded",
+	// "wallet_action.earn_fee_collect.created",
+	// "wallet_action.earn_fee_collect.failed",
+	// "wallet_action.earn_fee_collect.rejected",
+	// "wallet_action.earn_fee_collect.succeeded",
 	// "wallet_action.earn_incentive_claim.created",
 	// "wallet_action.earn_incentive_claim.failed",
 	// "wallet_action.earn_incentive_claim.rejected",
@@ -3708,7 +4065,7 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	// This field is from variant [IntentExecutedWebhookPayload].
 	ActionResult BaseActionResult `json:"action_result"`
 	// This field is a union of [float64], [string], [string], [string], [string],
-	// [string]
+	// [string], [string]
 	RejectedAt      UnsafeUnwrapWebhookEventUnionRejectedAt `json:"rejected_at"`
 	Method          string                                  `json:"method"`
 	UserID          string                                  `json:"user_id"`
@@ -3754,7 +4111,8 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	WalletAddress string  `json:"wallet_address"`
 	Amount        string  `json:"amount"`
 	// This field is a union of [WalletFundsAssetUnion], [string], [string], [string],
-	// [string], [string], [string], [string], [string]
+	// [string], [string], [string], [string], [string], [string], [string], [string],
+	// [string]
 	Asset UnsafeUnwrapWebhookEventUnionAsset `json:"asset"`
 	// This field is from variant [FundsDepositedWebhookPayload].
 	Block          BlockInfo `json:"block"`
@@ -3920,6 +4278,10 @@ func (WalletActionEarnDepositCreatedWebhookPayload) implUnsafeUnwrapWebhookEvent
 func (WalletActionEarnDepositFailedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()           {}
 func (WalletActionEarnDepositRejectedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()         {}
 func (WalletActionEarnDepositSucceededWebhookPayload) implUnsafeUnwrapWebhookEventUnion()        {}
+func (WalletActionEarnFeeCollectCreatedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()       {}
+func (WalletActionEarnFeeCollectFailedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()        {}
+func (WalletActionEarnFeeCollectRejectedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()      {}
+func (WalletActionEarnFeeCollectSucceededWebhookPayload) implUnsafeUnwrapWebhookEventUnion()     {}
 func (WalletActionEarnIncentiveClaimCreatedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()   {}
 func (WalletActionEarnIncentiveClaimFailedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()    {}
 func (WalletActionEarnIncentiveClaimRejectedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()  {}
@@ -3976,6 +4338,10 @@ func (YieldWithdrawConfirmedWebhookPayload) implUnsafeUnwrapWebhookEventUnion() 
 //	case privyclient.WalletActionEarnDepositFailedWebhookPayload:
 //	case privyclient.WalletActionEarnDepositRejectedWebhookPayload:
 //	case privyclient.WalletActionEarnDepositSucceededWebhookPayload:
+//	case privyclient.WalletActionEarnFeeCollectCreatedWebhookPayload:
+//	case privyclient.WalletActionEarnFeeCollectFailedWebhookPayload:
+//	case privyclient.WalletActionEarnFeeCollectRejectedWebhookPayload:
+//	case privyclient.WalletActionEarnFeeCollectSucceededWebhookPayload:
 //	case privyclient.WalletActionEarnIncentiveClaimCreatedWebhookPayload:
 //	case privyclient.WalletActionEarnIncentiveClaimFailedWebhookPayload:
 //	case privyclient.WalletActionEarnIncentiveClaimRejectedWebhookPayload:
@@ -4066,6 +4432,14 @@ func (u UnsafeUnwrapWebhookEventUnion) AsAny() anyUnsafeUnwrapWebhookEvent {
 		return u.AsWalletActionEarnDepositRejected()
 	case "wallet_action.earn_deposit.succeeded":
 		return u.AsWalletActionEarnDepositSucceeded()
+	case "wallet_action.earn_fee_collect.created":
+		return u.AsWalletActionEarnFeeCollectCreated()
+	case "wallet_action.earn_fee_collect.failed":
+		return u.AsWalletActionEarnFeeCollectFailed()
+	case "wallet_action.earn_fee_collect.rejected":
+		return u.AsWalletActionEarnFeeCollectRejected()
+	case "wallet_action.earn_fee_collect.succeeded":
+		return u.AsWalletActionEarnFeeCollectSucceeded()
 	case "wallet_action.earn_incentive_claim.created":
 		return u.AsWalletActionEarnIncentiveClaimCreated()
 	case "wallet_action.earn_incentive_claim.failed":
@@ -4269,6 +4643,26 @@ func (u UnsafeUnwrapWebhookEventUnion) AsWalletActionEarnDepositRejected() (v Wa
 }
 
 func (u UnsafeUnwrapWebhookEventUnion) AsWalletActionEarnDepositSucceeded() (v WalletActionEarnDepositSucceededWebhookPayload) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u UnsafeUnwrapWebhookEventUnion) AsWalletActionEarnFeeCollectCreated() (v WalletActionEarnFeeCollectCreatedWebhookPayload) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u UnsafeUnwrapWebhookEventUnion) AsWalletActionEarnFeeCollectFailed() (v WalletActionEarnFeeCollectFailedWebhookPayload) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u UnsafeUnwrapWebhookEventUnion) AsWalletActionEarnFeeCollectRejected() (v WalletActionEarnFeeCollectRejectedWebhookPayload) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u UnsafeUnwrapWebhookEventUnion) AsWalletActionEarnFeeCollectSucceeded() (v WalletActionEarnFeeCollectSucceededWebhookPayload) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }

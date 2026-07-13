@@ -386,12 +386,6 @@ const (
 // Source for a transfer identified by a token contract address (EVM) or mint
 // address (Solana). Use this variant for tokens that are not first-class assets.
 type CustomTokenTransferSourceResp struct {
-	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
-	// USDC, "0.01" for 0.01 ETH). For exact_input, specifies the amount to send. Not
-	// in the smallest on-chain unit (wei, lamports, etc.). Maximum 100 characters.
-	//
-	// Deprecated: deprecated
-	Amount string `json:"amount" api:"required"`
 	// The token contract address (EVM) or mint address (Solana) of the asset to
 	// transfer.
 	AssetAddress string `json:"asset_address" api:"required"`
@@ -399,11 +393,18 @@ type CustomTokenTransferSourceResp struct {
 	// include: 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and their
 	// respective testnets.
 	Chain string `json:"chain" api:"required"`
+	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
+	// USDC, "0.01" for 0.01 ETH). For exact_input, specifies the amount to send. Not
+	// in the smallest on-chain unit (wei, lamports, etc.). Maximum 100 characters.
+	// Deprecated: use the top-level `amount` field instead.
+	//
+	// Deprecated: deprecated
+	Amount string `json:"amount"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		Amount       respjson.Field
 		AssetAddress respjson.Field
 		Chain        respjson.Field
+		Amount       respjson.Field
 		ExtraFields  map[string]respjson.Field
 		raw          string
 	} `json:"-"`
@@ -428,14 +429,8 @@ func (r CustomTokenTransferSourceResp) ToParam() CustomTokenTransferSource {
 // Source for a transfer identified by a token contract address (EVM) or mint
 // address (Solana). Use this variant for tokens that are not first-class assets.
 //
-// The properties Amount, AssetAddress, Chain are required.
+// The properties AssetAddress, Chain are required.
 type CustomTokenTransferSource struct {
-	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
-	// USDC, "0.01" for 0.01 ETH). For exact_input, specifies the amount to send. Not
-	// in the smallest on-chain unit (wei, lamports, etc.). Maximum 100 characters.
-	//
-	// Deprecated: deprecated
-	Amount string `json:"amount" api:"required"`
 	// The token contract address (EVM) or mint address (Solana) of the asset to
 	// transfer.
 	AssetAddress string `json:"asset_address" api:"required"`
@@ -443,6 +438,13 @@ type CustomTokenTransferSource struct {
 	// include: 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and their
 	// respective testnets.
 	Chain string `json:"chain" api:"required"`
+	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
+	// USDC, "0.01" for 0.01 ETH). For exact_input, specifies the amount to send. Not
+	// in the smallest on-chain unit (wei, lamports, etc.). Maximum 100 characters.
+	// Deprecated: use the top-level `amount` field instead.
+	//
+	// Deprecated: deprecated
+	Amount param.Opt[string] `json:"amount,omitzero"`
 	paramObj
 }
 
@@ -2700,12 +2702,6 @@ type Hex = string
 // Source for a transfer identified by a named asset (e.g. "usdc", "eth"). Use this
 // variant for first-class assets maintained by Privy.
 type NamedTokenTransferSourceResp struct {
-	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
-	// USDC, "0.01" for 0.01 ETH). For exact_input, specifies the amount to send. Not
-	// in the smallest on-chain unit (wei, lamports, etc.). Maximum 100 characters.
-	//
-	// Deprecated: deprecated
-	Amount string `json:"amount" api:"required"`
 	// The asset to transfer. Supported: 'usdc', 'usdb', 'usdt' (stablecoins), 'eth'
 	// (native Ethereum), 'sol' (native Solana).
 	Asset string `json:"asset" api:"required"`
@@ -2713,11 +2709,18 @@ type NamedTokenTransferSourceResp struct {
 	// include: 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and their
 	// respective testnets.
 	Chain string `json:"chain" api:"required"`
+	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
+	// USDC, "0.01" for 0.01 ETH). For exact_input, specifies the amount to send. Not
+	// in the smallest on-chain unit (wei, lamports, etc.). Maximum 100 characters.
+	// Deprecated: use the top-level `amount` field instead.
+	//
+	// Deprecated: deprecated
+	Amount string `json:"amount"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		Amount      respjson.Field
 		Asset       respjson.Field
 		Chain       respjson.Field
+		Amount      respjson.Field
 		ExtraFields map[string]respjson.Field
 		raw         string
 	} `json:"-"`
@@ -2742,14 +2745,8 @@ func (r NamedTokenTransferSourceResp) ToParam() NamedTokenTransferSource {
 // Source for a transfer identified by a named asset (e.g. "usdc", "eth"). Use this
 // variant for first-class assets maintained by Privy.
 //
-// The properties Amount, Asset, Chain are required.
+// The properties Asset, Chain are required.
 type NamedTokenTransferSource struct {
-	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
-	// USDC, "0.01" for 0.01 ETH). For exact_input, specifies the amount to send. Not
-	// in the smallest on-chain unit (wei, lamports, etc.). Maximum 100 characters.
-	//
-	// Deprecated: deprecated
-	Amount string `json:"amount" api:"required"`
 	// The asset to transfer. Supported: 'usdc', 'usdb', 'usdt' (stablecoins), 'eth'
 	// (native Ethereum), 'sol' (native Solana).
 	Asset string `json:"asset" api:"required"`
@@ -2757,6 +2754,13 @@ type NamedTokenTransferSource struct {
 	// include: 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and their
 	// respective testnets.
 	Chain string `json:"chain" api:"required"`
+	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
+	// USDC, "0.01" for 0.01 ETH). For exact_input, specifies the amount to send. Not
+	// in the smallest on-chain unit (wei, lamports, etc.). Maximum 100 characters.
+	// Deprecated: use the top-level `amount` field instead.
+	//
+	// Deprecated: deprecated
+	Amount param.Opt[string] `json:"amount,omitzero"`
 	paramObj
 }
 
@@ -6378,16 +6382,16 @@ func (r *TokenTransferDestination) UnmarshalJSON(data []byte) error {
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 type TokenTransferSourceUnionResp struct {
-	Amount string `json:"amount"`
 	// This field is from variant [NamedTokenTransferSourceResp].
-	Asset string `json:"asset"`
-	Chain string `json:"chain"`
+	Asset  string `json:"asset"`
+	Chain  string `json:"chain"`
+	Amount string `json:"amount"`
 	// This field is from variant [CustomTokenTransferSourceResp].
 	AssetAddress string `json:"asset_address"`
 	JSON         struct {
-		Amount       respjson.Field
 		Asset        respjson.Field
 		Chain        respjson.Field
+		Amount       respjson.Field
 		AssetAddress respjson.Field
 		raw          string
 	} `json:"-"`
@@ -6420,17 +6424,15 @@ func (r TokenTransferSourceUnionResp) ToParam() TokenTransferSourceUnion {
 	return param.Override[TokenTransferSourceUnion](json.RawMessage(r.RawJSON()))
 }
 
-func TokenTransferSourceOfNamedTokenTransferSource(amount string, asset string, chain string) TokenTransferSourceUnion {
+func TokenTransferSourceOfNamedTokenTransferSource(asset string, chain string) TokenTransferSourceUnion {
 	var variant NamedTokenTransferSource
-	variant.Amount = amount
 	variant.Asset = asset
 	variant.Chain = chain
 	return TokenTransferSourceUnion{OfNamedTokenTransferSource: &variant}
 }
 
-func TokenTransferSourceOfCustomTokenTransferSource(amount string, assetAddress string, chain string) TokenTransferSourceUnion {
+func TokenTransferSourceOfCustomTokenTransferSource(assetAddress string, chain string) TokenTransferSourceUnion {
 	var variant CustomTokenTransferSource
-	variant.Amount = amount
 	variant.AssetAddress = assetAddress
 	variant.Chain = chain
 	return TokenTransferSourceUnion{OfCustomTokenTransferSource: &variant}

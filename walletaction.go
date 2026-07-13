@@ -334,6 +334,79 @@ func (r *EarnDepositRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Response for an earn fee collect action.
+type EarnFeeCollectActionResponse struct {
+	// The ID of the wallet action.
+	ID string `json:"id" api:"required"`
+	// Underlying asset token address.
+	AssetAddress string `json:"asset_address" api:"required"`
+	// CAIP-2 chain identifier.
+	Caip2 string `json:"caip2" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// Base-unit amount of fees collected (e.g. "1500000"). Populated after on-chain
+	// confirmation.
+	RawAmount string `json:"raw_amount" api:"required"`
+	// Status of a wallet action.
+	//
+	// Any of "pending", "succeeded", "rejected", "failed".
+	Status WalletActionStatus `json:"status" api:"required"`
+	// Any of "earn_fee_collect".
+	Type EarnFeeCollectActionResponseType `json:"type" api:"required"`
+	// ERC-4626 vault contract address.
+	VaultAddress string `json:"vault_address" api:"required"`
+	// The vault ID.
+	VaultID string `json:"vault_id" api:"required"`
+	// The ID of the wallet involved in the action.
+	WalletID string `json:"wallet_id" api:"required"`
+	// Human-readable decimal amount of fees collected (e.g. "1.5"). Omitted when the
+	// token is not in the asset registry. Null while the action is pending; populated
+	// after on-chain confirmation.
+	Amount string `json:"amount" api:"nullable"`
+	// Asset identifier (e.g. "usdc", "eth"). Only present when the token is known in
+	// the asset registry.
+	Asset string `json:"asset"`
+	// Number of decimals for the underlying asset (e.g. 6 for USDC, 18 for ETH). Only
+	// present when the token is known in the asset registry.
+	Decimals int64 `json:"decimals"`
+	// A description of why a wallet action (or a step within a wallet action) failed.
+	FailureReason FailureReason `json:"failure_reason"`
+	// The steps of the wallet action. Only returned if `?include=steps` is provided.
+	Steps []WalletActionStepUnion `json:"steps"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID            respjson.Field
+		AssetAddress  respjson.Field
+		Caip2         respjson.Field
+		CreatedAt     respjson.Field
+		RawAmount     respjson.Field
+		Status        respjson.Field
+		Type          respjson.Field
+		VaultAddress  respjson.Field
+		VaultID       respjson.Field
+		WalletID      respjson.Field
+		Amount        respjson.Field
+		Asset         respjson.Field
+		Decimals      respjson.Field
+		FailureReason respjson.Field
+		Steps         respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EarnFeeCollectActionResponse) RawJSON() string { return r.JSON.raw }
+func (r *EarnFeeCollectActionResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type EarnFeeCollectActionResponseType string
+
+const (
+	EarnFeeCollectActionResponseTypeEarnFeeCollect EarnFeeCollectActionResponseType = "earn_fee_collect"
+)
+
 // Response for an earn incentive claim action.
 type EarnIncentiveClaimActionResponse struct {
 	// The ID of the wallet action.
@@ -895,7 +968,8 @@ const (
 
 // WalletActionResponseUnion contains all possible properties and values from
 // [SwapActionResponse], [TransferActionResponse], [EarnDepositActionResponse],
-// [EarnWithdrawActionResponse], [EarnIncentiveClaimActionResponse].
+// [EarnWithdrawActionResponse], [EarnIncentiveClaimActionResponse],
+// [EarnFeeCollectActionResponse].
 //
 // Use the [WalletActionResponseUnion.AsAny] method to switch on the variant.
 //
@@ -915,7 +989,7 @@ type WalletActionResponseUnion struct {
 	// This field is from variant [SwapActionResponse].
 	Status WalletActionStatus `json:"status"`
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
-	// "earn_incentive_claim".
+	// "earn_incentive_claim", "earn_fee_collect".
 	Type               string `json:"type"`
 	WalletID           string `json:"wallet_id"`
 	DestinationAddress string `json:"destination_address"`
@@ -1014,6 +1088,7 @@ func (TransferActionResponse) implWalletActionResponseUnion()           {}
 func (EarnDepositActionResponse) implWalletActionResponseUnion()        {}
 func (EarnWithdrawActionResponse) implWalletActionResponseUnion()       {}
 func (EarnIncentiveClaimActionResponse) implWalletActionResponseUnion() {}
+func (EarnFeeCollectActionResponse) implWalletActionResponseUnion()     {}
 
 // Use the following switch statement to find the correct variant
 //
@@ -1023,6 +1098,7 @@ func (EarnIncentiveClaimActionResponse) implWalletActionResponseUnion() {}
 //	case privyclient.EarnDepositActionResponse:
 //	case privyclient.EarnWithdrawActionResponse:
 //	case privyclient.EarnIncentiveClaimActionResponse:
+//	case privyclient.EarnFeeCollectActionResponse:
 //	default:
 //	  fmt.Errorf("no variant present")
 //	}
@@ -1038,6 +1114,8 @@ func (u WalletActionResponseUnion) AsAny() anyWalletActionResponse {
 		return u.AsEarnWithdraw()
 	case "earn_incentive_claim":
 		return u.AsEarnIncentiveClaim()
+	case "earn_fee_collect":
+		return u.AsEarnFeeCollect()
 	}
 	return nil
 }
@@ -1063,6 +1141,11 @@ func (u WalletActionResponseUnion) AsEarnWithdraw() (v EarnWithdrawActionRespons
 }
 
 func (u WalletActionResponseUnion) AsEarnIncentiveClaim() (v EarnIncentiveClaimActionResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletActionResponseUnion) AsEarnFeeCollect() (v EarnFeeCollectActionResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -1223,6 +1306,7 @@ const (
 	WalletActionTypeEarnDeposit        WalletActionType = "earn_deposit"
 	WalletActionTypeEarnWithdraw       WalletActionType = "earn_withdraw"
 	WalletActionTypeEarnIncentiveClaim WalletActionType = "earn_incentive_claim"
+	WalletActionTypeEarnFeeCollect     WalletActionType = "earn_fee_collect"
 )
 
 type WalletActionGetParams struct {
