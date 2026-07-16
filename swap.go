@@ -192,7 +192,8 @@ func (r *SwapRequestBody) UnmarshalJSON(data []byte) error {
 type SwapSource struct {
 	// Token contract address to sell, or "native" for the chain's native token.
 	AssetAddress string `json:"asset_address" api:"required"`
-	// CAIP-2 chain identifier (e.g., "eip155:1").
+	// CAIP-2 chain identifier (e.g., "eip155:4217" for Tempo, "eip155:1" for
+	// Ethereum).
 	Caip2 string `json:"caip2" api:"required"`
 	paramObj
 }
