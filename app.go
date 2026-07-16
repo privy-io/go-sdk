@@ -332,7 +332,7 @@ const (
 
 // A crypto currency identified by a CAIP-2 chain ID and optional asset.
 type Currency struct {
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	// A valid CAIP-2 chain ID (e.g. 'eip155:4217' for Tempo, 'eip155:1' for Ethereum).
 	Chain Caip2 `json:"chain" api:"required"`
 	// A currency asset type.
 	//

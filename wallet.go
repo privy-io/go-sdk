@@ -390,7 +390,7 @@ type CustomTokenTransferSourceResp struct {
 	// transfer.
 	AssetAddress string `json:"asset_address" api:"required"`
 	// The blockchain network on which to perform the transfer. Supported chains
-	// include: 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and their
+	// include: 'tempo', 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and their
 	// respective testnets.
 	Chain string `json:"chain" api:"required"`
 	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
@@ -435,7 +435,7 @@ type CustomTokenTransferSource struct {
 	// transfer.
 	AssetAddress string `json:"asset_address" api:"required"`
 	// The blockchain network on which to perform the transfer. Supported chains
-	// include: 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and their
+	// include: 'tempo', 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and their
 	// respective testnets.
 	Chain string `json:"chain" api:"required"`
 	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
@@ -551,7 +551,7 @@ type EthereumPersonalSignRpcInputResp struct {
 	// Parameters for the EVM `personal_sign` RPC.
 	Params  EthereumPersonalSignRpcInputParamsResp `json:"params" api:"required"`
 	Address string                                 `json:"address"`
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	// A valid CAIP-2 chain ID (e.g. 'eip155:4217' for Tempo, 'eip155:1' for Ethereum).
 	Caip2 Caip2 `json:"caip2"`
 	// Any of "ethereum".
 	ChainType EthereumPersonalSignRpcInputChainType `json:"chain_type"`
@@ -610,7 +610,7 @@ type EthereumPersonalSignRpcInput struct {
 	// Parameters for the EVM `personal_sign` RPC.
 	Params  EthereumPersonalSignRpcInputParams `json:"params,omitzero" api:"required"`
 	Address param.Opt[string]                  `json:"address,omitzero"`
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	// A valid CAIP-2 chain ID (e.g. 'eip155:4217' for Tempo, 'eip155:1' for Ethereum).
 	Caip2    param.Opt[Caip2]  `json:"caip2,omitzero"`
 	WalletID param.Opt[string] `json:"wallet_id,omitzero"`
 	// Any of "ethereum".
@@ -971,7 +971,7 @@ func (r *EthereumSendCallsCall) UnmarshalJSON(data []byte) error {
 // Executes the `wallet_sendCalls` RPC (EIP-5792) to batch multiple calls into a
 // single atomic transaction.
 type EthereumSendCallsRpcInputResp struct {
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	// A valid CAIP-2 chain ID (e.g. 'eip155:4217' for Tempo, 'eip155:1' for Ethereum).
 	Caip2 Caip2 `json:"caip2" api:"required"`
 	// Any of "wallet_sendCalls".
 	Method EthereumSendCallsRpcInputMethod `json:"method" api:"required"`
@@ -1033,7 +1033,7 @@ const (
 //
 // The properties Caip2, Method, Params are required.
 type EthereumSendCallsRpcInput struct {
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	// A valid CAIP-2 chain ID (e.g. 'eip155:4217' for Tempo, 'eip155:1' for Ethereum).
 	Caip2 Caip2 `json:"caip2" api:"required"`
 	// Any of "wallet_sendCalls".
 	Method EthereumSendCallsRpcInputMethod `json:"method,omitzero" api:"required"`
@@ -1130,7 +1130,7 @@ const (
 
 // Data returned by the `wallet_sendCalls` RPC.
 type EthereumSendCallsRpcResponseData struct {
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	// A valid CAIP-2 chain ID (e.g. 'eip155:4217' for Tempo, 'eip155:1' for Ethereum).
 	Caip2         Caip2  `json:"caip2" api:"required"`
 	TransactionID string `json:"transaction_id" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -1150,7 +1150,7 @@ func (r *EthereumSendCallsRpcResponseData) UnmarshalJSON(data []byte) error {
 
 // Executes the EVM `eth_sendTransaction` RPC to sign and broadcast a transaction.
 type EthereumSendTransactionRpcInputResp struct {
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	// A valid CAIP-2 chain ID (e.g. 'eip155:4217' for Tempo, 'eip155:1' for Ethereum).
 	Caip2 Caip2 `json:"caip2" api:"required"`
 	// Any of "eth_sendTransaction".
 	Method EthereumSendTransactionRpcInputMethod `json:"method" api:"required"`
@@ -1213,7 +1213,7 @@ const (
 //
 // The properties Caip2, Method, Params are required.
 type EthereumSendTransactionRpcInput struct {
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	// A valid CAIP-2 chain ID (e.g. 'eip155:4217' for Tempo, 'eip155:1' for Ethereum).
 	Caip2 Caip2 `json:"caip2" api:"required"`
 	// Any of "eth_sendTransaction".
 	Method EthereumSendTransactionRpcInputMethod `json:"method,omitzero" api:"required"`
@@ -1315,7 +1315,7 @@ const (
 
 // Data returned by the EVM `eth_sendTransaction` RPC.
 type EthereumSendTransactionRpcResponseData struct {
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	// A valid CAIP-2 chain ID (e.g. 'eip155:4217' for Tempo, 'eip155:1' for Ethereum).
 	Caip2         Caip2  `json:"caip2" api:"required"`
 	Hash          string `json:"hash" api:"required"`
 	ReferenceID   string `json:"reference_id" api:"nullable"`
@@ -1787,7 +1787,7 @@ type EthereumSignTypedDataRpcInputResp struct {
 	// Parameters for the EVM `eth_signTypedData_v4` RPC.
 	Params  EthereumSignTypedDataRpcInputParamsResp `json:"params" api:"required"`
 	Address string                                  `json:"address"`
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	// A valid CAIP-2 chain ID (e.g. 'eip155:4217' for Tempo, 'eip155:1' for Ethereum).
 	Caip2 Caip2 `json:"caip2"`
 	// Any of "ethereum".
 	ChainType EthereumSignTypedDataRpcInputChainType `json:"chain_type"`
@@ -1847,7 +1847,7 @@ type EthereumSignTypedDataRpcInput struct {
 	// Parameters for the EVM `eth_signTypedData_v4` RPC.
 	Params  EthereumSignTypedDataRpcInputParams `json:"params,omitzero" api:"required"`
 	Address param.Opt[string]                   `json:"address,omitzero"`
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	// A valid CAIP-2 chain ID (e.g. 'eip155:4217' for Tempo, 'eip155:1' for Ethereum).
 	Caip2    param.Opt[Caip2]  `json:"caip2,omitzero"`
 	WalletID param.Opt[string] `json:"wallet_id,omitzero"`
 	// Any of "ethereum".
@@ -2706,7 +2706,7 @@ type NamedTokenTransferSourceResp struct {
 	// (native Ethereum), 'sol' (native Solana).
 	Asset string `json:"asset" api:"required"`
 	// The blockchain network on which to perform the transfer. Supported chains
-	// include: 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and their
+	// include: 'tempo', 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and their
 	// respective testnets.
 	Chain string `json:"chain" api:"required"`
 	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
@@ -2751,7 +2751,7 @@ type NamedTokenTransferSource struct {
 	// (native Ethereum), 'sol' (native Solana).
 	Asset string `json:"asset" api:"required"`
 	// The blockchain network on which to perform the transfer. Supported chains
-	// include: 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and their
+	// include: 'tempo', 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and their
 	// respective testnets.
 	Chain string `json:"chain" api:"required"`
 	// Amount as a decimal string in the token's standard unit (e.g. "1.5" for 1.5
@@ -3441,7 +3441,7 @@ const (
 // Executes the SVM `signAndSendTransaction` RPC to sign and broadcast a
 // transaction.
 type SolanaSignAndSendTransactionRpcInputResp struct {
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	// A valid CAIP-2 chain ID (e.g. 'eip155:4217' for Tempo, 'eip155:1' for Ethereum).
 	Caip2 Caip2 `json:"caip2" api:"required"`
 	// Any of "signAndSendTransaction".
 	Method SolanaSignAndSendTransactionRpcInputMethod `json:"method" api:"required"`
@@ -3503,7 +3503,7 @@ const (
 //
 // The properties Caip2, Method, Params are required.
 type SolanaSignAndSendTransactionRpcInput struct {
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	// A valid CAIP-2 chain ID (e.g. 'eip155:4217' for Tempo, 'eip155:1' for Ethereum).
 	Caip2 Caip2 `json:"caip2" api:"required"`
 	// Any of "signAndSendTransaction".
 	Method SolanaSignAndSendTransactionRpcInputMethod `json:"method,omitzero" api:"required"`
@@ -3610,7 +3610,7 @@ const (
 
 // Data returned by the SVM `signAndSendTransaction` RPC.
 type SolanaSignAndSendTransactionRpcResponseData struct {
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	// A valid CAIP-2 chain ID (e.g. 'eip155:4217' for Tempo, 'eip155:1' for Ethereum).
 	Caip2             Caip2  `json:"caip2" api:"required"`
 	Hash              string `json:"hash" api:"required"`
 	ReferenceID       string `json:"reference_id" api:"nullable"`
@@ -6325,7 +6325,7 @@ type TokenTransferDestinationResp struct {
 	// to destination 'usdc').
 	Asset string `json:"asset"`
 	// The destination blockchain network. Required for cross-chain transfers (e.g.,
-	// source 'base' to destination 'arbitrum').
+	// source 'tempo' to destination 'base').
 	Chain string `json:"chain"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -6364,7 +6364,7 @@ type TokenTransferDestination struct {
 	// to destination 'usdc').
 	Asset param.Opt[string] `json:"asset,omitzero"`
 	// The destination blockchain network. Required for cross-chain transfers (e.g.,
-	// source 'base' to destination 'arbitrum').
+	// source 'tempo' to destination 'base').
 	Chain param.Opt[string] `json:"chain,omitzero"`
 	paramObj
 }
@@ -6792,7 +6792,7 @@ type TronSendTransactionRpcInputResp struct {
 	Method TronSendTransactionRpcInputMethod `json:"method" api:"required"`
 	// Parameters for the Tron `tron_sendTransaction` RPC.
 	Params TronSendTransactionRpcInputParamsResp `json:"params" api:"required"`
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	// A valid CAIP-2 chain ID (e.g. 'eip155:4217' for Tempo, 'eip155:1' for Ethereum).
 	Caip2 Caip2 `json:"caip2"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -6835,7 +6835,7 @@ type TronSendTransactionRpcInput struct {
 	Method TronSendTransactionRpcInputMethod `json:"method,omitzero" api:"required"`
 	// Parameters for the Tron `tron_sendTransaction` RPC.
 	Params TronSendTransactionRpcInputParams `json:"params,omitzero" api:"required"`
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	// A valid CAIP-2 chain ID (e.g. 'eip155:4217' for Tempo, 'eip155:1' for Ethereum).
 	Caip2 param.Opt[Caip2] `json:"caip2,omitzero"`
 	paramObj
 }
@@ -6927,7 +6927,7 @@ const (
 
 // Data returned by the Tron `tron_sendTransaction` RPC.
 type TronSendTransactionRpcResponseData struct {
-	// A valid CAIP-2 chain ID (e.g. 'eip155:1').
+	// A valid CAIP-2 chain ID (e.g. 'eip155:4217' for Tempo, 'eip155:1' for Ethereum).
 	Caip2         Caip2  `json:"caip2" api:"required"`
 	Hash          string `json:"hash" api:"required"`
 	TransactionID string `json:"transaction_id" api:"required"`
