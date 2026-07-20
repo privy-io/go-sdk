@@ -7687,7 +7687,11 @@ type UserOperationInputResp struct {
 	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
 	// bytes).
 	VerificationGasLimit Hex    `json:"verification_gas_limit" api:"required"`
-	Paymaster            string `json:"paymaster"`
+	Factory              string `json:"factory"`
+	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// bytes).
+	FactoryData Hex    `json:"factory_data"`
+	Paymaster   string `json:"paymaster"`
 	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
 	// bytes).
 	PaymasterData Hex `json:"paymaster_data"`
@@ -7707,6 +7711,8 @@ type UserOperationInputResp struct {
 		PreVerificationGas            respjson.Field
 		Sender                        respjson.Field
 		VerificationGasLimit          respjson.Field
+		Factory                       respjson.Field
+		FactoryData                   respjson.Field
 		Paymaster                     respjson.Field
 		PaymasterData                 respjson.Field
 		PaymasterPostOpGasLimit       respjson.Field
@@ -7758,7 +7764,11 @@ type UserOperationInput struct {
 	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
 	// bytes).
 	VerificationGasLimit Hex               `json:"verification_gas_limit" api:"required"`
-	Paymaster            param.Opt[string] `json:"paymaster,omitzero"`
+	Factory              param.Opt[string] `json:"factory,omitzero"`
+	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// bytes).
+	FactoryData param.Opt[Hex]    `json:"factory_data,omitzero"`
+	Paymaster   param.Opt[string] `json:"paymaster,omitzero"`
 	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
 	// bytes).
 	PaymasterData param.Opt[Hex] `json:"paymaster_data,omitzero"`
