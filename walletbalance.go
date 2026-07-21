@@ -101,17 +101,18 @@ func (r *WalletBalanceGetResponseBalance) UnmarshalJSON(data []byte) error {
 type WalletBalanceGetResponseBalanceAsset string
 
 const (
-	WalletBalanceGetResponseBalanceAssetUsdc  WalletBalanceGetResponseBalanceAsset = "usdc"
-	WalletBalanceGetResponseBalanceAssetUsdcE WalletBalanceGetResponseBalanceAsset = "usdc.e"
-	WalletBalanceGetResponseBalanceAssetEth   WalletBalanceGetResponseBalanceAsset = "eth"
-	WalletBalanceGetResponseBalanceAssetAvax  WalletBalanceGetResponseBalanceAsset = "avax"
-	WalletBalanceGetResponseBalanceAssetPol   WalletBalanceGetResponseBalanceAsset = "pol"
-	WalletBalanceGetResponseBalanceAssetBnb   WalletBalanceGetResponseBalanceAsset = "bnb"
-	WalletBalanceGetResponseBalanceAssetUsdt  WalletBalanceGetResponseBalanceAsset = "usdt"
-	WalletBalanceGetResponseBalanceAssetEurc  WalletBalanceGetResponseBalanceAsset = "eurc"
-	WalletBalanceGetResponseBalanceAssetUsdb  WalletBalanceGetResponseBalanceAsset = "usdb"
-	WalletBalanceGetResponseBalanceAssetSol   WalletBalanceGetResponseBalanceAsset = "sol"
-	WalletBalanceGetResponseBalanceAssetTrx   WalletBalanceGetResponseBalanceAsset = "trx"
+	WalletBalanceGetResponseBalanceAssetUsdc    WalletBalanceGetResponseBalanceAsset = "usdc"
+	WalletBalanceGetResponseBalanceAssetUsdcE   WalletBalanceGetResponseBalanceAsset = "usdc.e"
+	WalletBalanceGetResponseBalanceAssetEth     WalletBalanceGetResponseBalanceAsset = "eth"
+	WalletBalanceGetResponseBalanceAssetAvax    WalletBalanceGetResponseBalanceAsset = "avax"
+	WalletBalanceGetResponseBalanceAssetPol     WalletBalanceGetResponseBalanceAsset = "pol"
+	WalletBalanceGetResponseBalanceAssetBnb     WalletBalanceGetResponseBalanceAsset = "bnb"
+	WalletBalanceGetResponseBalanceAssetUsdt    WalletBalanceGetResponseBalanceAsset = "usdt"
+	WalletBalanceGetResponseBalanceAssetEurc    WalletBalanceGetResponseBalanceAsset = "eurc"
+	WalletBalanceGetResponseBalanceAssetUsdb    WalletBalanceGetResponseBalanceAsset = "usdb"
+	WalletBalanceGetResponseBalanceAssetPathusd WalletBalanceGetResponseBalanceAsset = "pathusd"
+	WalletBalanceGetResponseBalanceAssetSol     WalletBalanceGetResponseBalanceAsset = "sol"
+	WalletBalanceGetResponseBalanceAssetTrx     WalletBalanceGetResponseBalanceAsset = "trx"
 )
 
 type WalletBalanceGetParams struct {
@@ -167,17 +168,18 @@ type WalletBalanceGetParamsAssetUnion struct {
 type WalletBalanceGetParamsAssetString string
 
 const (
-	WalletBalanceGetParamsAssetStringUsdc  WalletBalanceGetParamsAssetString = "usdc"
-	WalletBalanceGetParamsAssetStringUsdcE WalletBalanceGetParamsAssetString = "usdc.e"
-	WalletBalanceGetParamsAssetStringEth   WalletBalanceGetParamsAssetString = "eth"
-	WalletBalanceGetParamsAssetStringAvax  WalletBalanceGetParamsAssetString = "avax"
-	WalletBalanceGetParamsAssetStringPol   WalletBalanceGetParamsAssetString = "pol"
-	WalletBalanceGetParamsAssetStringBnb   WalletBalanceGetParamsAssetString = "bnb"
-	WalletBalanceGetParamsAssetStringUsdt  WalletBalanceGetParamsAssetString = "usdt"
-	WalletBalanceGetParamsAssetStringEurc  WalletBalanceGetParamsAssetString = "eurc"
-	WalletBalanceGetParamsAssetStringUsdb  WalletBalanceGetParamsAssetString = "usdb"
-	WalletBalanceGetParamsAssetStringSol   WalletBalanceGetParamsAssetString = "sol"
-	WalletBalanceGetParamsAssetStringTrx   WalletBalanceGetParamsAssetString = "trx"
+	WalletBalanceGetParamsAssetStringUsdc    WalletBalanceGetParamsAssetString = "usdc"
+	WalletBalanceGetParamsAssetStringUsdcE   WalletBalanceGetParamsAssetString = "usdc.e"
+	WalletBalanceGetParamsAssetStringEth     WalletBalanceGetParamsAssetString = "eth"
+	WalletBalanceGetParamsAssetStringAvax    WalletBalanceGetParamsAssetString = "avax"
+	WalletBalanceGetParamsAssetStringPol     WalletBalanceGetParamsAssetString = "pol"
+	WalletBalanceGetParamsAssetStringBnb     WalletBalanceGetParamsAssetString = "bnb"
+	WalletBalanceGetParamsAssetStringUsdt    WalletBalanceGetParamsAssetString = "usdt"
+	WalletBalanceGetParamsAssetStringEurc    WalletBalanceGetParamsAssetString = "eurc"
+	WalletBalanceGetParamsAssetStringUsdb    WalletBalanceGetParamsAssetString = "usdb"
+	WalletBalanceGetParamsAssetStringPathusd WalletBalanceGetParamsAssetString = "pathusd"
+	WalletBalanceGetParamsAssetStringSol     WalletBalanceGetParamsAssetString = "sol"
+	WalletBalanceGetParamsAssetStringTrx     WalletBalanceGetParamsAssetString = "trx"
 )
 
 // Only one field can be non-zero.
