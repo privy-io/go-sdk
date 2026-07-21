@@ -7886,17 +7886,18 @@ func (r *WalletAdditionalSignerItem) UnmarshalJSON(data []byte) error {
 type WalletAsset string
 
 const (
-	WalletAssetUsdc  WalletAsset = "usdc"
-	WalletAssetUsdcE WalletAsset = "usdc.e"
-	WalletAssetEth   WalletAsset = "eth"
-	WalletAssetAvax  WalletAsset = "avax"
-	WalletAssetPol   WalletAsset = "pol"
-	WalletAssetBnb   WalletAsset = "bnb"
-	WalletAssetUsdt  WalletAsset = "usdt"
-	WalletAssetEurc  WalletAsset = "eurc"
-	WalletAssetUsdb  WalletAsset = "usdb"
-	WalletAssetSol   WalletAsset = "sol"
-	WalletAssetTrx   WalletAsset = "trx"
+	WalletAssetUsdc    WalletAsset = "usdc"
+	WalletAssetUsdcE   WalletAsset = "usdc.e"
+	WalletAssetEth     WalletAsset = "eth"
+	WalletAssetAvax    WalletAsset = "avax"
+	WalletAssetPol     WalletAsset = "pol"
+	WalletAssetBnb     WalletAsset = "bnb"
+	WalletAssetUsdt    WalletAsset = "usdt"
+	WalletAssetEurc    WalletAsset = "eurc"
+	WalletAssetUsdb    WalletAsset = "usdb"
+	WalletAssetPathusd WalletAsset = "pathusd"
+	WalletAssetSol     WalletAsset = "sol"
+	WalletAssetTrx     WalletAsset = "trx"
 )
 
 // Supported blockchain network names for wallet balance and transaction queries.
