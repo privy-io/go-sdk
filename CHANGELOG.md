@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.14.0 (2026-07-22)
+
+Full Changelog: [v0.13.0...v0.14.0](https://github.com/privy-io/go-sdk/compare/v0.13.0...v0.14.0)
+
+### Features
+
+* **api:** api update ([4cece45](https://github.com/privy-io/go-sdk/commit/4cece4552fb56f431f6f01134f751e7498fa383b))
+* **api:** api update ([e48912e](https://github.com/privy-io/go-sdk/commit/e48912e85934de37a136ba8641a9b19cd435fda1))
+* **api:** api update ([358865a](https://github.com/privy-io/go-sdk/commit/358865aa0eeadf1a49189e412d2227ee5ccf4b18))
+* **api:** api update ([33e6869](https://github.com/privy-io/go-sdk/commit/33e6869eeba4be3e72bc946a6582dc00ea7e2496))
+* **stlc:** configurable CI runner and private-production-repo support in workflow templates ([a8282e3](https://github.com/privy-io/go-sdk/commit/a8282e3060b977e327b6c85cf87b24fad9bc9388))
+
 ## 0.13.0 (2026-07-10)
 
 Full Changelog: [v0.12.0...v0.13.0](https://github.com/privy-io/go-sdk/compare/v0.12.0...v0.13.0)

@@ -910,7 +910,8 @@ const (
 
 // Payload for the transaction.broadcasted webhook event.
 type TransactionBroadcastedWebhookPayload struct {
-	// The CAIP-2 chain identifier (e.g., eip155:1 for Ethereum mainnet).
+	// The CAIP-2 chain identifier (e.g., eip155:4217 for Tempo, eip155:1 for Ethereum
+	// mainnet).
 	Caip2 string `json:"caip2" api:"required"`
 	// The blockchain transaction hash.
 	TransactionHash string `json:"transaction_hash" api:"required"`
@@ -953,7 +954,8 @@ const (
 
 // Payload for the transaction.confirmed webhook event.
 type TransactionConfirmedWebhookPayload struct {
-	// The CAIP-2 chain identifier (e.g., eip155:1 for Ethereum mainnet).
+	// The CAIP-2 chain identifier (e.g., eip155:4217 for Tempo, eip155:1 for Ethereum
+	// mainnet).
 	Caip2 string `json:"caip2" api:"required"`
 	// The blockchain transaction hash.
 	TransactionHash string `json:"transaction_hash" api:"required"`
@@ -996,7 +998,8 @@ const (
 
 // Payload for the transaction.execution_reverted webhook event.
 type TransactionExecutionRevertedWebhookPayload struct {
-	// The CAIP-2 chain identifier (e.g., eip155:1 for Ethereum mainnet).
+	// The CAIP-2 chain identifier (e.g., eip155:4217 for Tempo, eip155:1 for Ethereum
+	// mainnet).
 	Caip2 string `json:"caip2" api:"required"`
 	// The blockchain transaction hash.
 	TransactionHash string `json:"transaction_hash" api:"required"`
@@ -1039,7 +1042,8 @@ const (
 
 // Payload for the transaction.failed webhook event.
 type TransactionFailedWebhookPayload struct {
-	// The CAIP-2 chain identifier (e.g., eip155:1 for Ethereum mainnet).
+	// The CAIP-2 chain identifier (e.g., eip155:4217 for Tempo, eip155:1 for Ethereum
+	// mainnet).
 	Caip2 string `json:"caip2" api:"required"`
 	// The blockchain transaction hash.
 	TransactionHash string `json:"transaction_hash" api:"required"`
@@ -1082,7 +1086,8 @@ const (
 
 // Payload for the transaction.provider_error webhook event.
 type TransactionProviderErrorWebhookPayload struct {
-	// The CAIP-2 chain identifier (e.g., eip155:1 for Ethereum mainnet).
+	// The CAIP-2 chain identifier (e.g., eip155:4217 for Tempo, eip155:1 for Ethereum
+	// mainnet).
 	Caip2 string `json:"caip2" api:"required"`
 	// The blockchain transaction hash.
 	TransactionHash string `json:"transaction_hash" api:"required"`
@@ -1125,7 +1130,8 @@ const (
 
 // Payload for the transaction.replaced webhook event.
 type TransactionReplacedWebhookPayload struct {
-	// The CAIP-2 chain identifier (e.g., eip155:1 for Ethereum mainnet).
+	// The CAIP-2 chain identifier (e.g., eip155:4217 for Tempo, eip155:1 for Ethereum
+	// mainnet).
 	Caip2 string `json:"caip2" api:"required"`
 	// The blockchain transaction hash.
 	TransactionHash string `json:"transaction_hash" api:"required"`
@@ -1168,7 +1174,8 @@ const (
 
 // Payload for the transaction.still_pending webhook event.
 type TransactionStillPendingWebhookPayload struct {
-	// The CAIP-2 chain identifier (e.g., eip155:1 for Ethereum mainnet).
+	// The CAIP-2 chain identifier (e.g., eip155:4217 for Tempo, eip155:1 for Ethereum
+	// mainnet).
 	Caip2 string `json:"caip2" api:"required"`
 	// The blockchain transaction hash.
 	TransactionHash string `json:"transaction_hash" api:"required"`
@@ -2221,7 +2228,7 @@ type WalletActionEarnIncentiveClaimCreatedWebhookPayload struct {
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
 	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
-	// EVM chain name (e.g. "base", "ethereum").
+	// EVM chain name (e.g. "tempo", "base").
 	Chain string `json:"chain" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
@@ -2281,7 +2288,7 @@ type WalletActionEarnIncentiveClaimFailedWebhookPayload struct {
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
 	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
-	// EVM chain name (e.g. "base", "ethereum").
+	// EVM chain name (e.g. "tempo", "base").
 	Chain string `json:"chain" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
@@ -2351,7 +2358,7 @@ type WalletActionEarnIncentiveClaimRejectedWebhookPayload struct {
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
 	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
-	// EVM chain name (e.g. "base", "ethereum").
+	// EVM chain name (e.g. "tempo", "base").
 	Chain string `json:"chain" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
@@ -2420,7 +2427,7 @@ type WalletActionEarnIncentiveClaimSucceededWebhookPayload struct {
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
 	// "earn_incentive_claim", "earn_fee_collect".
 	ActionType WalletActionType `json:"action_type" api:"required"`
-	// EVM chain name (e.g. "base", "ethereum").
+	// EVM chain name (e.g. "tempo", "base").
 	Chain string `json:"chain" api:"required"`
 	// ISO 8601 timestamp of when the wallet action completed successfully.
 	CompletedAt string `json:"completed_at" api:"required"`
@@ -3135,7 +3142,7 @@ type WalletActionTransferCreatedWebhookPayload struct {
 	CreatedAt string `json:"created_at" api:"required"`
 	// Recipient address.
 	DestinationAddress string `json:"destination_address" api:"required"`
-	// Chain name (e.g. "base", "ethereum").
+	// Chain name (e.g. "tempo", "base").
 	SourceChain string `json:"source_chain" api:"required"`
 	// The status of the wallet action.
 	//
@@ -3215,7 +3222,7 @@ type WalletActionTransferFailedWebhookPayload struct {
 	FailedAt string `json:"failed_at" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason" api:"required"`
-	// Chain name (e.g. "base", "ethereum").
+	// Chain name (e.g. "tempo", "base").
 	SourceChain string `json:"source_chain" api:"required"`
 	// The status of the wallet action.
 	//
@@ -3301,7 +3308,7 @@ type WalletActionTransferRejectedWebhookPayload struct {
 	FailureReason FailureReason `json:"failure_reason" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was rejected.
 	RejectedAt string `json:"rejected_at" api:"required"`
-	// Chain name (e.g. "base", "ethereum").
+	// Chain name (e.g. "tempo", "base").
 	SourceChain string `json:"source_chain" api:"required"`
 	// The status of the wallet action.
 	//
@@ -3384,7 +3391,7 @@ type WalletActionTransferSucceededWebhookPayload struct {
 	CreatedAt string `json:"created_at" api:"required"`
 	// Recipient address.
 	DestinationAddress string `json:"destination_address" api:"required"`
-	// Chain name (e.g. "base", "ethereum").
+	// Chain name (e.g. "tempo", "base").
 	SourceChain string `json:"source_chain" api:"required"`
 	// The status of the wallet action.
 	//

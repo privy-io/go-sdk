@@ -411,7 +411,7 @@ const (
 type EarnIncentiveClaimActionResponse struct {
 	// The ID of the wallet action.
 	ID string `json:"id" api:"required"`
-	// EVM chain name (e.g. "base", "ethereum").
+	// EVM chain name (e.g. "tempo", "base").
 	Chain string `json:"chain" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
@@ -462,8 +462,8 @@ const (
 // The property Chain is required.
 type EarnIncentiveClaimRequestBody struct {
 	// The blockchain network on which to perform the incentive claim. Supported chains
-	// include: 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and more, along
-	// with their respective testnets.
+	// include: 'tempo', 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and more,
+	// along with their respective testnets.
 	Chain string `json:"chain" api:"required"`
 	paramObj
 }
@@ -873,7 +873,7 @@ type TransferActionResponse struct {
 	// transfers, set at creation (the guaranteed exact amount). For exact_input
 	// cross-chain transfers, null until fill confirmation.
 	DestinationAmount string `json:"destination_amount" api:"required"`
-	// Chain name (e.g. "base", "ethereum").
+	// Chain name (e.g. "tempo", "base").
 	SourceChain string `json:"source_chain" api:"required"`
 	// Status of a wallet action.
 	//
