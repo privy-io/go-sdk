@@ -595,6 +595,7 @@ const (
 	MfaMethodSMS     MfaMethod = "sms"
 	MfaMethodTotp    MfaMethod = "totp"
 	MfaMethodPasskey MfaMethod = "passkey"
+	MfaMethodEmail   MfaMethod = "email"
 )
 
 // Allowlist invite input for a phone number.

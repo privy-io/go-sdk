@@ -338,6 +338,32 @@ func (u *CustomMetadataItemUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
 }
 
+// An Email MFA method.
+type EmailMfaMethod struct {
+	// Any of "email".
+	Type       EmailMfaMethodType `json:"type" api:"required"`
+	VerifiedAt float64            `json:"verified_at" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Type        respjson.Field
+		VerifiedAt  respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EmailMfaMethod) RawJSON() string { return r.JSON.raw }
+func (r *EmailMfaMethod) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type EmailMfaMethodType string
+
+const (
+	EmailMfaMethodTypeEmail EmailMfaMethodType = "email"
+)
+
 // The method used to recover an embedded wallet account.
 type EmbeddedWalletRecoveryMethod string
 
@@ -2576,13 +2602,13 @@ func (r *LinkedAccountWalletInput) UnmarshalJSON(data []byte) error {
 }
 
 // LinkedMfaMethodUnion contains all possible properties and values from
-// [SMSMfaMethod], [TotpMfaMethod], [PasskeyMfaMethod].
+// [SMSMfaMethod], [TotpMfaMethod], [PasskeyMfaMethod], [EmailMfaMethod].
 //
 // Use the [LinkedMfaMethodUnion.AsAny] method to switch on the variant.
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 type LinkedMfaMethodUnion struct {
-	// Any of "sms", "totp", "passkey".
+	// Any of "sms", "totp", "passkey", "email".
 	Type       string  `json:"type"`
 	VerifiedAt float64 `json:"verified_at"`
 	JSON       struct {
@@ -2601,6 +2627,7 @@ type anyLinkedMfaMethod interface {
 func (SMSMfaMethod) implLinkedMfaMethodUnion()     {}
 func (TotpMfaMethod) implLinkedMfaMethodUnion()    {}
 func (PasskeyMfaMethod) implLinkedMfaMethodUnion() {}
+func (EmailMfaMethod) implLinkedMfaMethodUnion()   {}
 
 // Use the following switch statement to find the correct variant
 //
@@ -2608,6 +2635,7 @@ func (PasskeyMfaMethod) implLinkedMfaMethodUnion() {}
 //	case privyclient.SMSMfaMethod:
 //	case privyclient.TotpMfaMethod:
 //	case privyclient.PasskeyMfaMethod:
+//	case privyclient.EmailMfaMethod:
 //	default:
 //	  fmt.Errorf("no variant present")
 //	}
@@ -2619,6 +2647,8 @@ func (u LinkedMfaMethodUnion) AsAny() anyLinkedMfaMethod {
 		return u.AsTotp()
 	case "passkey":
 		return u.AsPasskey()
+	case "email":
+		return u.AsEmail()
 	}
 	return nil
 }
@@ -2634,6 +2664,11 @@ func (u LinkedMfaMethodUnion) AsTotp() (v TotpMfaMethod) {
 }
 
 func (u LinkedMfaMethodUnion) AsPasskey() (v PasskeyMfaMethod) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u LinkedMfaMethodUnion) AsEmail() (v EmailMfaMethod) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
