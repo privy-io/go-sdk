@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.15.0 (2026-07-24)
+
+Full Changelog: [v0.14.0...v0.15.0](https://github.com/privy-io/go-sdk/compare/v0.14.0...v0.15.0)
+
+### Features
+
+* **api:** api update ([b7c1297](https://github.com/privy-io/go-sdk/commit/b7c1297ed6fba5406e85f094f60ca31f7cd736c7))
+
 ## 0.14.0 (2026-07-22)
 
 Full Changelog: [v0.13.0...v0.14.0](https://github.com/privy-io/go-sdk/compare/v0.13.0...v0.14.0)

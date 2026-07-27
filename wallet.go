@@ -812,7 +812,7 @@ func (r *EthereumSecp256k1SignRpcInput) UnmarshalJSON(data []byte) error {
 
 // Parameters for the EVM `secp256k1_sign` RPC.
 type EthereumSecp256k1SignRpcInputParamsResp struct {
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	Hash Hex `json:"hash" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -843,7 +843,7 @@ func (r EthereumSecp256k1SignRpcInputParamsResp) ToParam() EthereumSecp256k1Sign
 //
 // The property Hash is required.
 type EthereumSecp256k1SignRpcInputParams struct {
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	Hash Hex `json:"hash" api:"required"`
 	paramObj
@@ -888,7 +888,7 @@ const (
 type EthereumSecp256k1SignRpcResponseData struct {
 	// Any of "hex".
 	Encoding EthereumSecp256k1SignRpcResponseDataEncoding `json:"encoding" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	Signature Hex `json:"signature" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -915,7 +915,7 @@ const (
 // A single call within a batched wallet_sendCalls request.
 type EthereumSendCallsCallResp struct {
 	To string `json:"to" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	Data Hex `json:"data"`
 	// A quantity value that can be either a hex string starting with '0x' or a
@@ -951,7 +951,7 @@ func (r EthereumSendCallsCallResp) ToParam() EthereumSendCallsCall {
 // The property To is required.
 type EthereumSendCallsCall struct {
 	To string `json:"to" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	Data param.Opt[Hex] `json:"data,omitzero"`
 	// A quantity value that can be either a hex string starting with '0x' or a
@@ -980,7 +980,7 @@ type EthereumSendCallsRpcInputResp struct {
 	Address string                              `json:"address"`
 	// Any of "ethereum".
 	ChainType EthereumSendCallsRpcInputChainType `json:"chain_type"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	ExperimentalDataSuffix Hex    `json:"experimental_data_suffix"`
 	Sponsor                bool   `json:"sponsor"`
@@ -1040,7 +1040,7 @@ type EthereumSendCallsRpcInput struct {
 	// Parameters for the `wallet_sendCalls` RPC.
 	Params  EthereumSendCallsRpcInputParams `json:"params,omitzero" api:"required"`
 	Address param.Opt[string]               `json:"address,omitzero"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	ExperimentalDataSuffix param.Opt[Hex]    `json:"experimental_data_suffix,omitzero"`
 	Sponsor                param.Opt[bool]   `json:"sponsor,omitzero"`
@@ -1159,7 +1159,7 @@ type EthereumSendTransactionRpcInputResp struct {
 	Address string                                    `json:"address"`
 	// Any of "ethereum".
 	ChainType EthereumSendTransactionRpcInputChainType `json:"chain_type"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	ExperimentalDataSuffix Hex    `json:"experimental_data_suffix"`
 	ReferenceID            string `json:"reference_id"`
@@ -1220,7 +1220,7 @@ type EthereumSendTransactionRpcInput struct {
 	// Parameters for the EVM `eth_sendTransaction` RPC.
 	Params  EthereumSendTransactionRpcInputParams `json:"params,omitzero" api:"required"`
 	Address param.Opt[string]                     `json:"address,omitzero"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	ExperimentalDataSuffix param.Opt[Hex]    `json:"experimental_data_suffix,omitzero"`
 	ReferenceID            param.Opt[string] `json:"reference_id,omitzero"`
@@ -1353,10 +1353,10 @@ type EthereumSign7702AuthorizationResp struct {
 	// A quantity value that can be either a hex string starting with '0x' or a
 	// non-negative integer.
 	Nonce QuantityUnionResp `json:"nonce" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	R Hex `json:"r" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	S       Hex     `json:"s" api:"required"`
 	YParity float64 `json:"y_parity" api:"required"`
@@ -1401,10 +1401,10 @@ type EthereumSign7702Authorization struct {
 	// A quantity value that can be either a hex string starting with '0x' or a
 	// non-negative integer.
 	Nonce QuantityUnion `json:"nonce,omitzero" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	R Hex `json:"r" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	S       Hex     `json:"s" api:"required"`
 	YParity float64 `json:"y_parity" api:"required"`
@@ -3109,7 +3109,7 @@ func (r *RawSignBytesParams) UnmarshalJSON(data []byte) error {
 //
 // The property Hash is required.
 type RawSignHashParams struct {
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	Hash Hex `json:"hash" api:"required"`
 	paramObj
@@ -3202,7 +3202,7 @@ const (
 type RawSignResponseData struct {
 	// Any of "hex".
 	Encoding RawSignResponseDataEncoding `json:"encoding" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	Signature Hex `json:"signature" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -6079,7 +6079,7 @@ type TempoAaAuthorizationResp struct {
 	// A quantity value that can be either a hex string starting with '0x' or a
 	// non-negative integer.
 	Nonce QuantityUnionResp `json:"nonce" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	Signature Hex `json:"signature" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -6119,7 +6119,7 @@ type TempoAaAuthorization struct {
 	// A quantity value that can be either a hex string starting with '0x' or a
 	// non-negative integer.
 	Nonce QuantityUnion `json:"nonce,omitzero" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	Signature Hex `json:"signature" api:"required"`
 	paramObj
@@ -6136,7 +6136,7 @@ func (r *TempoAaAuthorization) UnmarshalJSON(data []byte) error {
 // A single call within a Tempo batched transaction.
 type TempoCallResp struct {
 	To string `json:"to" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	Data Hex `json:"data"`
 	// A quantity value that can be either a hex string starting with '0x' or a
@@ -6172,7 +6172,7 @@ func (r TempoCallResp) ToParam() TempoCall {
 // The property To is required.
 type TempoCall struct {
 	To string `json:"to" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	Data param.Opt[Hex] `json:"data,omitzero"`
 	// A quantity value that can be either a hex string starting with '0x' or a
@@ -6191,10 +6191,10 @@ func (r *TempoCall) UnmarshalJSON(data []byte) error {
 
 // A fee payer signature for sponsored Tempo transactions (secp256k1 only).
 type TempoFeePayerSignatureResp struct {
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	R Hex `json:"r" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	S Hex `json:"s" api:"required"`
 	// Any of 0, 1.
@@ -6228,10 +6228,10 @@ func (r TempoFeePayerSignatureResp) ToParam() TempoFeePayerSignature {
 //
 // The properties R, S, YParity are required.
 type TempoFeePayerSignature struct {
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	R Hex `json:"r" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	S Hex `json:"s" api:"required"`
 	// Any of 0, 1.
@@ -7427,7 +7427,7 @@ type UnsignedStandardEthereumTransactionResp struct {
 	// A quantity value that can be either a hex string starting with '0x' or a
 	// non-negative integer.
 	ChainID QuantityUnionResp `json:"chain_id"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	Data Hex    `json:"data"`
 	From string `json:"from"`
@@ -7490,7 +7490,7 @@ func (r UnsignedStandardEthereumTransactionResp) ToParam() UnsignedStandardEther
 // An unsigned standard Ethereum transaction object. Supports EVM transaction types
 // 0, 1, 2, and 4.
 type UnsignedStandardEthereumTransaction struct {
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	Data              param.Opt[Hex]                  `json:"data,omitzero"`
 	From              param.Opt[string]               `json:"from,omitzero"`
@@ -7665,40 +7665,40 @@ func init() {
 
 // An ERC-4337 user operation.
 type UserOperationInputResp struct {
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	CallData Hex `json:"call_data" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	CallGasLimit Hex `json:"call_gas_limit" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	MaxFeePerGas Hex `json:"max_fee_per_gas" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	MaxPriorityFeePerGas Hex `json:"max_priority_fee_per_gas" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	Nonce Hex `json:"nonce" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	PreVerificationGas Hex    `json:"pre_verification_gas" api:"required"`
 	Sender             string `json:"sender" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	VerificationGasLimit Hex    `json:"verification_gas_limit" api:"required"`
 	Factory              string `json:"factory"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	FactoryData Hex    `json:"factory_data"`
 	Paymaster   string `json:"paymaster"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	PaymasterData Hex `json:"paymaster_data"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	PaymasterPostOpGasLimit Hex `json:"paymaster_post_op_gas_limit"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	PaymasterVerificationGasLimit Hex `json:"paymaster_verification_gas_limit"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -7742,40 +7742,40 @@ func (r UserOperationInputResp) ToParam() UserOperationInput {
 // The properties CallData, CallGasLimit, MaxFeePerGas, MaxPriorityFeePerGas,
 // Nonce, PreVerificationGas, Sender, VerificationGasLimit are required.
 type UserOperationInput struct {
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	CallData Hex `json:"call_data" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	CallGasLimit Hex `json:"call_gas_limit" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	MaxFeePerGas Hex `json:"max_fee_per_gas" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	MaxPriorityFeePerGas Hex `json:"max_priority_fee_per_gas" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	Nonce Hex `json:"nonce" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	PreVerificationGas Hex    `json:"pre_verification_gas" api:"required"`
 	Sender             string `json:"sender" api:"required"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	VerificationGasLimit Hex               `json:"verification_gas_limit" api:"required"`
 	Factory              param.Opt[string] `json:"factory,omitzero"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	FactoryData param.Opt[Hex]    `json:"factory_data,omitzero"`
 	Paymaster   param.Opt[string] `json:"paymaster,omitzero"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	PaymasterData param.Opt[Hex] `json:"paymaster_data,omitzero"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	PaymasterPostOpGasLimit param.Opt[Hex] `json:"paymaster_post_op_gas_limit,omitzero"`
-	// A hex-encoded string prefixed with '0x', capped at 100002 characters (50,000
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
 	PaymasterVerificationGasLimit param.Opt[Hex] `json:"paymaster_verification_gas_limit,omitzero"`
 	paramObj

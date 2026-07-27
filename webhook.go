@@ -800,7 +800,7 @@ const (
 type MfaDisabledWebhookPayload struct {
 	// A multi-factor authentication method supported by the app.
 	//
-	// Any of "sms", "totp", "passkey".
+	// Any of "sms", "totp", "passkey", "email".
 	Method MfaMethod `json:"method" api:"required"`
 	// The type of webhook event.
 	//
@@ -835,7 +835,7 @@ const (
 type MfaEnabledWebhookPayload struct {
 	// A multi-factor authentication method supported by the app.
 	//
-	// Any of "sms", "totp", "passkey".
+	// Any of "sms", "totp", "passkey", "email".
 	Method MfaMethod `json:"method" api:"required"`
 	// The type of webhook event.
 	//
