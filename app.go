@@ -238,7 +238,8 @@ type AppResponse struct {
 	// Configuration for funding and on-ramp options.
 	FundingConfig FundingConfigResponseSchema `json:"funding_config"`
 	// Configuration for Telegram authentication.
-	TelegramAuthConfig TelegramAuthConfigSchema `json:"telegram_auth_config"`
+	TelegramAuthConfig          TelegramAuthConfigSchema `json:"telegram_auth_config"`
+	TelegramSeamlessAuthEnabled bool                     `json:"telegram_seamless_auth_enabled"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID                              respjson.Field
@@ -301,6 +302,7 @@ type AppResponse struct {
 		CaptchaSiteKey                  respjson.Field
 		FundingConfig                   respjson.Field
 		TelegramAuthConfig              respjson.Field
+		TelegramSeamlessAuthEnabled     respjson.Field
 		ExtraFields                     map[string]respjson.Field
 		raw                             string
 	} `json:"-"`
