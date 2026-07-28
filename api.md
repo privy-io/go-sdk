@@ -842,6 +842,8 @@ Response Types:
 
 # Yield
 
+# Fiat
+
 # KrakenEmbed
 
 # Swaps

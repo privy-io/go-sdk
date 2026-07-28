@@ -44,6 +44,7 @@ type Client struct {
 	CrossApp        CrossAppService
 	OAuth           OAuthService
 	Yield           YieldService
+	Fiat            FiatService
 	KrakenEmbed     KrakenEmbedService
 	Swaps           SwapService
 }
@@ -101,6 +102,7 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.CrossApp = NewCrossAppService(opts...)
 	r.OAuth = NewOAuthService(opts...)
 	r.Yield = NewYieldService(opts...)
+	r.Fiat = NewFiatService(opts...)
 	r.KrakenEmbed = NewKrakenEmbedService(opts...)
 	r.Swaps = NewSwapService(opts...)
 
