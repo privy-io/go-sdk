@@ -982,9 +982,12 @@ type EthereumSendCallsRpcInputResp struct {
 	ChainType EthereumSendCallsRpcInputChainType `json:"chain_type"`
 	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
-	ExperimentalDataSuffix Hex    `json:"experimental_data_suffix"`
-	Sponsor                bool   `json:"sponsor"`
-	WalletID               string `json:"wallet_id"`
+	ExperimentalDataSuffix Hex  `json:"experimental_data_suffix"`
+	Sponsor                bool `json:"sponsor"`
+	// Options for user-pays gas sponsorship on the RPC endpoint. When provided
+	// alongside `sponsor: true`, controls which token asset the user pays gas with.
+	SponsorOptions RpcSponsorOptionsResp `json:"sponsor_options"`
+	WalletID       string                `json:"wallet_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2                  respjson.Field
@@ -994,6 +997,7 @@ type EthereumSendCallsRpcInputResp struct {
 		ChainType              respjson.Field
 		ExperimentalDataSuffix respjson.Field
 		Sponsor                respjson.Field
+		SponsorOptions         respjson.Field
 		WalletID               respjson.Field
 		ExtraFields            map[string]respjson.Field
 		raw                    string
@@ -1047,6 +1051,9 @@ type EthereumSendCallsRpcInput struct {
 	WalletID               param.Opt[string] `json:"wallet_id,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumSendCallsRpcInputChainType `json:"chain_type,omitzero"`
+	// Options for user-pays gas sponsorship on the RPC endpoint. When provided
+	// alongside `sponsor: true`, controls which token asset the user pays gas with.
+	SponsorOptions RpcSponsorOptions `json:"sponsor_options,omitzero"`
 	paramObj
 }
 
@@ -1164,7 +1171,10 @@ type EthereumSendTransactionRpcInputResp struct {
 	ExperimentalDataSuffix Hex    `json:"experimental_data_suffix"`
 	ReferenceID            string `json:"reference_id"`
 	Sponsor                bool   `json:"sponsor"`
-	WalletID               string `json:"wallet_id"`
+	// Options for user-pays gas sponsorship on the RPC endpoint. When provided
+	// alongside `sponsor: true`, controls which token asset the user pays gas with.
+	SponsorOptions RpcSponsorOptionsResp `json:"sponsor_options"`
+	WalletID       string                `json:"wallet_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2                  respjson.Field
@@ -1175,6 +1185,7 @@ type EthereumSendTransactionRpcInputResp struct {
 		ExperimentalDataSuffix respjson.Field
 		ReferenceID            respjson.Field
 		Sponsor                respjson.Field
+		SponsorOptions         respjson.Field
 		WalletID               respjson.Field
 		ExtraFields            map[string]respjson.Field
 		raw                    string
@@ -1228,6 +1239,9 @@ type EthereumSendTransactionRpcInput struct {
 	WalletID               param.Opt[string] `json:"wallet_id,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumSendTransactionRpcInputChainType `json:"chain_type,omitzero"`
+	// Options for user-pays gas sponsorship on the RPC endpoint. When provided
+	// alongside `sponsor: true`, controls which token asset the user pays gas with.
+	SponsorOptions RpcSponsorOptions `json:"sponsor_options,omitzero"`
 	paramObj
 }
 
@@ -3281,6 +3295,56 @@ const (
 	RelayerFeeTypeRelayer RelayerFeeType = "relayer"
 )
 
+type RpcSponsorAsset = string
+
+// Options for user-pays gas sponsorship on the RPC endpoint. When provided
+// alongside `sponsor: true`, controls which token asset the user pays gas with.
+type RpcSponsorOptionsResp struct {
+	// Token asset identifier for user-pays gas sponsorship. Common values: 'usdc',
+	// 'usdt', 'eurc', 'usdg', 'usdc_e'. Available tokens vary by chain.
+	Asset RpcSponsorAsset `json:"asset" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Asset       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RpcSponsorOptionsResp) RawJSON() string { return r.JSON.raw }
+func (r *RpcSponsorOptionsResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this RpcSponsorOptionsResp to a RpcSponsorOptions.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// RpcSponsorOptions.Overrides()
+func (r RpcSponsorOptionsResp) ToParam() RpcSponsorOptions {
+	return param.Override[RpcSponsorOptions](json.RawMessage(r.RawJSON()))
+}
+
+// Options for user-pays gas sponsorship on the RPC endpoint. When provided
+// alongside `sponsor: true`, controls which token asset the user pays gas with.
+//
+// The property Asset is required.
+type RpcSponsorOptions struct {
+	// Token asset identifier for user-pays gas sponsorship. Common values: 'usdc',
+	// 'usdt', 'eurc', 'usdg', 'usdc_e'. Available tokens vary by chain.
+	Asset RpcSponsorAsset `json:"asset" api:"required"`
+	paramObj
+}
+
+func (r RpcSponsorOptions) MarshalJSON() (data []byte, err error) {
+	type shadow RpcSponsorOptions
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *RpcSponsorOptions) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Input for exporting a wallet (private key or seed phrase) with HPKE encryption.
 type SeedPhraseExportInputResp struct {
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
@@ -3453,7 +3517,10 @@ type SolanaSignAndSendTransactionRpcInputResp struct {
 	OptimisticBroadcast bool                                          `json:"optimistic_broadcast"`
 	ReferenceID         string                                        `json:"reference_id"`
 	Sponsor             bool                                          `json:"sponsor"`
-	WalletID            string                                        `json:"wallet_id"`
+	// Options for user-pays gas sponsorship on the RPC endpoint. When provided
+	// alongside `sponsor: true`, controls which token asset the user pays gas with.
+	SponsorOptions RpcSponsorOptionsResp `json:"sponsor_options"`
+	WalletID       string                `json:"wallet_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2               respjson.Field
@@ -3464,6 +3531,7 @@ type SolanaSignAndSendTransactionRpcInputResp struct {
 		OptimisticBroadcast respjson.Field
 		ReferenceID         respjson.Field
 		Sponsor             respjson.Field
+		SponsorOptions      respjson.Field
 		WalletID            respjson.Field
 		ExtraFields         map[string]respjson.Field
 		raw                 string
@@ -3516,6 +3584,9 @@ type SolanaSignAndSendTransactionRpcInput struct {
 	WalletID            param.Opt[string]                          `json:"wallet_id,omitzero"`
 	// Any of "solana".
 	ChainType SolanaSignAndSendTransactionRpcInputChainType `json:"chain_type,omitzero"`
+	// Options for user-pays gas sponsorship on the RPC endpoint. When provided
+	// alongside `sponsor: true`, controls which token asset the user pays gas with.
+	SponsorOptions RpcSponsorOptions `json:"sponsor_options,omitzero"`
 	paramObj
 }
 
@@ -8334,6 +8405,8 @@ type WalletRpcRequestBodyUnionResp struct {
 	ExperimentalDataSuffix Hex    `json:"experimental_data_suffix"`
 	ReferenceID            string `json:"reference_id"`
 	Sponsor                bool   `json:"sponsor"`
+	// This field is from variant [EthereumSendTransactionRpcInputResp].
+	SponsorOptions RpcSponsorOptionsResp `json:"sponsor_options"`
 	// This field is from variant [EthereumPersonalSignRpcInputResp].
 	SignatureOptions SignatureOptionsResp `json:"signature_options"`
 	// This field is from variant [SolanaSignAndSendTransactionRpcInputResp].
@@ -8350,6 +8423,7 @@ type WalletRpcRequestBodyUnionResp struct {
 		ExperimentalDataSuffix respjson.Field
 		ReferenceID            respjson.Field
 		Sponsor                respjson.Field
+		SponsorOptions         respjson.Field
 		SignatureOptions       respjson.Field
 		OptimisticBroadcast    respjson.Field
 		Network                respjson.Field

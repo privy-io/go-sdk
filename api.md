@@ -53,6 +53,8 @@ Params Types:
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#RawSignInput">RawSignInput</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#RawSignInputParamsUnion">RawSignInputParamsUnion</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#RecipientPublicKey">RecipientPublicKey</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#RpcSponsorAsset">RpcSponsorAsset</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#RpcSponsorOptions">RpcSponsorOptions</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SeedPhraseExportInput">SeedPhraseExportInput</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SignatureOptions">SignatureOptions</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SignatureType">SignatureType</a>
@@ -188,6 +190,8 @@ Response Types:
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#RawWalletAuthenticateResponse">RawWalletAuthenticateResponse</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#RecipientPublicKey">RecipientPublicKey</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#RelayerFee">RelayerFee</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#RpcSponsorAsset">RpcSponsorAsset</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#RpcSponsorOptionsResp">RpcSponsorOptionsResp</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SeedPhraseExportInputResp">SeedPhraseExportInputResp</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SeedPhraseExportResponse">SeedPhraseExportResponse</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SignatureOptionsResp">SignatureOptionsResp</a>

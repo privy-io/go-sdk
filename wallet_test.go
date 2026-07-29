@@ -586,7 +586,10 @@ func TestWalletRpcWithOptionalParams(t *testing.T) {
 					ExperimentalDataSuffix: privyclient.String("string"),
 					ReferenceID:            privyclient.String("x"),
 					Sponsor:                privyclient.Bool(true),
-					WalletID:               privyclient.String("wallet_id"),
+					SponsorOptions: privyclient.RpcSponsorOptions{
+						Asset: "string",
+					},
+					WalletID: privyclient.String("wallet_id"),
 				},
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),

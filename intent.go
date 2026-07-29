@@ -823,6 +823,8 @@ type IntentResponseUnionRequestDetailsBody struct {
 	ReferenceID            string `json:"reference_id"`
 	Sponsor                bool   `json:"sponsor"`
 	// This field is from variant [WalletRpcRequestBodyUnionResp].
+	SponsorOptions RpcSponsorOptionsResp `json:"sponsor_options"`
+	// This field is from variant [WalletRpcRequestBodyUnionResp].
 	SignatureOptions SignatureOptionsResp `json:"signature_options"`
 	// This field is from variant [WalletRpcRequestBodyUnionResp].
 	OptimisticBroadcast bool `json:"optimistic_broadcast"`
@@ -875,6 +877,7 @@ type IntentResponseUnionRequestDetailsBody struct {
 		ExperimentalDataSuffix respjson.Field
 		ReferenceID            respjson.Field
 		Sponsor                respjson.Field
+		SponsorOptions         respjson.Field
 		SignatureOptions       respjson.Field
 		OptimisticBroadcast    respjson.Field
 		Network                respjson.Field
