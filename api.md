@@ -297,6 +297,7 @@ Response Types:
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletBatchCreateResultUnion">WalletBatchCreateResultUnion</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletChainType">WalletChainType</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletCustodian">WalletCustodian</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletEntity">WalletEntity</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletExportResponseBody">WalletExportResponseBody</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletRpcRequestBodyUnionResp">WalletRpcRequestBodyUnionResp</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletRpcResponseUnion">WalletRpcResponseUnion</a>

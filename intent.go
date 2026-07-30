@@ -1182,6 +1182,8 @@ type IntentResponseUnionCurrentResourceData struct {
 	Custody     WalletCustodian `json:"custody"`
 	DisplayName string          `json:"display_name"`
 	// This field is from variant [Wallet].
+	Entity WalletEntity `json:"entity"`
+	// This field is from variant [Wallet].
 	ExternalID string `json:"external_id"`
 	// This field is from variant [Wallet].
 	PublicKey string `json:"public_key"`
@@ -1216,6 +1218,7 @@ type IntentResponseUnionCurrentResourceData struct {
 		AuthorizationThreshold respjson.Field
 		Custody                respjson.Field
 		DisplayName            respjson.Field
+		Entity                 respjson.Field
 		ExternalID             respjson.Field
 		PublicKey              respjson.Field
 		Name                   respjson.Field

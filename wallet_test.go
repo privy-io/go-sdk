@@ -34,7 +34,11 @@ func TestWalletNewWithOptionalParams(t *testing.T) {
 			OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 		}},
 		DisplayName: privyclient.String("display_name"),
-		ExternalID:  privyclient.String("my-order-123"),
+		Entity: privyclient.WalletNewParamsEntity{
+			ID:   "x",
+			Type: "user",
+		},
+		ExternalID: privyclient.String("my-order-123"),
 		Owner: privyclient.OwnerInputUnion{
 			OfOwnerInputUser: &privyclient.OwnerInputUser{
 				UserID: "user_id",

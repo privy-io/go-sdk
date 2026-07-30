@@ -7896,6 +7896,8 @@ type Wallet struct {
 	Custody WalletCustodian `json:"custody"`
 	// A human-readable label for the wallet.
 	DisplayName string `json:"display_name"`
+	// The entity a wallet is attributed to.
+	Entity WalletEntity `json:"entity" api:"nullable"`
 	// A customer-provided identifier for mapping to external systems. Write-once, set
 	// only at creation.
 	ExternalID string `json:"external_id"`
@@ -7917,6 +7919,7 @@ type Wallet struct {
 		AuthorizationThreshold respjson.Field
 		Custody                respjson.Field
 		DisplayName            respjson.Field
+		Entity                 respjson.Field
 		ExternalID             respjson.Field
 		PublicKey              respjson.Field
 		ExtraFields            map[string]respjson.Field
@@ -8277,6 +8280,33 @@ func (r WalletCustodian) RawJSON() string { return r.JSON.raw }
 func (r *WalletCustodian) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// The entity a wallet is attributed to.
+type WalletEntity struct {
+	// The Privy DID of the entity.
+	ID string `json:"id" api:"required"`
+	// Any of "user".
+	Type WalletEntityType `json:"type" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID          respjson.Field
+		Type        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletEntity) RawJSON() string { return r.JSON.raw }
+func (r *WalletEntity) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type WalletEntityType string
+
+const (
+	WalletEntityTypeUser WalletEntityType = "user"
+)
 
 // Request body for exporting a wallet private key.
 //
@@ -9791,6 +9821,8 @@ type WalletNewParams struct {
 	Owner OwnerInputUnion `json:"owner,omitzero"`
 	// Additional signers for the wallet.
 	AdditionalSigners AdditionalSignerInput `json:"additional_signers,omitzero"`
+	// The entity the wallet is attributed to.
+	Entity WalletNewParamsEntity `json:"entity,omitzero"`
 	// An optional list of up to one policy ID to enforce on the wallet.
 	PolicyIDs PolicyInput `json:"policy_ids,omitzero" format:"cuid2"`
 	paramObj
@@ -9802,6 +9834,30 @@ func (r WalletNewParams) MarshalJSON() (data []byte, err error) {
 }
 func (r *WalletNewParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+// The entity the wallet is attributed to.
+//
+// The properties ID, Type are required.
+type WalletNewParamsEntity struct {
+	ID string `json:"id" api:"required"`
+	// Any of "user".
+	Type string `json:"type,omitzero" api:"required"`
+	paramObj
+}
+
+func (r WalletNewParamsEntity) MarshalJSON() (data []byte, err error) {
+	type shadow WalletNewParamsEntity
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *WalletNewParamsEntity) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func init() {
+	apijson.RegisterFieldValidator[WalletNewParamsEntity](
+		"type", "user",
+	)
 }
 
 type WalletUpdateParams struct {
