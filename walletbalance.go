@@ -72,10 +72,10 @@ type WalletBalanceGetResponseBalance struct {
 	// Supported blockchain network names for wallet balance and transaction queries.
 	//
 	// Any of "ethereum", "arbitrum", "avalanche", "base", "tempo", "linea",
-	// "optimism", "polygon", "bsc", "solana", "tron", "zksync_era", "sepolia",
-	// "arbitrum_sepolia", "avalanche_fuji", "base_sepolia", "linea_testnet",
-	// "optimism_sepolia", "polygon_amoy", "solana_devnet", "solana_testnet",
-	// "tron_nile".
+	// "optimism", "polygon", "bsc", "solana", "tron", "zksync_era", "hoodi",
+	// "sepolia", "arbitrum_sepolia", "avalanche_fuji", "base_sepolia",
+	// "linea_testnet", "optimism_sepolia", "polygon_amoy", "solana_devnet",
+	// "solana_testnet", "tron_nile".
 	Chain            WalletAssetChainNameInput `json:"chain" api:"required"`
 	DisplayValues    map[string]string         `json:"display_values" api:"required"`
 	RawValue         string                    `json:"raw_value" api:"required"`

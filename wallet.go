@@ -7990,6 +7990,7 @@ const (
 	WalletAssetChainNameInputSolana          WalletAssetChainNameInput = "solana"
 	WalletAssetChainNameInputTron            WalletAssetChainNameInput = "tron"
 	WalletAssetChainNameInputZksyncEra       WalletAssetChainNameInput = "zksync_era"
+	WalletAssetChainNameInputHoodi           WalletAssetChainNameInput = "hoodi"
 	WalletAssetChainNameInputSepolia         WalletAssetChainNameInput = "sepolia"
 	WalletAssetChainNameInputArbitrumSepolia WalletAssetChainNameInput = "arbitrum_sepolia"
 	WalletAssetChainNameInputAvalancheFuji   WalletAssetChainNameInput = "avalanche_fuji"
