@@ -4,17 +4,33 @@ on:
     branches:
       - main
 
+# The default GITHUB_TOKEN is intentionally not granted write here: release-please runs
+# with the builder-blobby app token minted below, which does all the writing.
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
   release-please:
     if: github.repository == 'privy-io/go-sdk'
     runs-on: ubuntu-latest
-
     steps:
+      # Mint a short-lived builder-blobby installation token scoped to this repo. Go has no
+      # package registry to publish to, but an app token (not the default GITHUB_TOKEN) is
+      # still used so the created Release triggers the stlc-sync back-sync notify (on:
+      # release) and so the version-bump commit — written through the GitHub API and signed
+      # server-side — shows as Verified (builder-blobby[bot]); no GPG key needed.
+      - name: Mint builder-blobby token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.BUILDER_BLOBBY_APP_ID }}
+          private-key: ${{ secrets.BUILDER_BLOBBY_APP_PRIVATE_KEY }}
+          owner: privy-io
+          repositories: go-sdk
+          permission-contents: write
+          permission-pull-requests: write
+
       - uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4.4.1
         id: release
         with:
-          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
