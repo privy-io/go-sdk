@@ -13,6 +13,7 @@ jobs:
   release-please:
     if: github.repository == 'privy-io/go-sdk'
     runs-on: ubuntu-latest
+    environment: builder-blobby-sdk-release-and-sync
     steps:
       # Mint a short-lived builder-blobby installation token scoped to this repo. Go has no
       # package registry to publish to, but an app token (not the default GITHUB_TOKEN) is
