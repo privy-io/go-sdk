@@ -121,6 +121,7 @@ func TestWalletListWithOptionalParams(t *testing.T) {
 		AuthorizationKey: privyclient.String("s=-/fw-L-+N\n"),
 		ChainType:        privyclient.WalletChainTypeEthereum,
 		Cursor:           privyclient.String("x"),
+		EntityID:         privyclient.String("entity_id"),
 		ExternalID:       privyclient.String("external_id"),
 		IncludeArchived:  privyclient.Bool(true),
 		Limit:            privyclient.Float(100),
