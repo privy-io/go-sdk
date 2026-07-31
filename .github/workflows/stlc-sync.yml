@@ -2,8 +2,7 @@ name: Sync SDK repos
 
 # Keeps the staging and production trunks in sync and the config repo's tracking files
 # fresh. Each job self-routes by repo + event, so this one file can live in both repos and
-# only the right job runs. The dispatch jobs are eager-only (the polls cover them) and
-# no-op when their credentials aren't set.
+# only the right job runs. The dispatch jobs are eager-only; scheduled polls cover them.
 on:
   schedule:
     # back-sync poll: a cheap pure-git check, twice hourly.
@@ -78,26 +77,34 @@ jobs:
 
   notify-back-sync:
     # On a published release, tell staging to back-sync now instead of waiting for the
-    # poll. Dispatch-only: it cannot write production or staging contents.
+    # poll. The app token is scoped to staging with the Contents:write permission that
+    # repository_dispatch requires, and this job uses it only for that dispatch.
     runs-on: ${{ vars.STLC_RUNNER || 'ubuntu-latest' }}
     if: >-
       github.repository == 'privy-io/go-sdk' &&
       (github.event_name == 'release' || github.event_name == 'workflow_dispatch')
+    environment: builder-blobby-sdk-release-and-sync
     permissions:
       contents: read
     env:
       STAGING_REPO: privy-io/go-sdk-private
     steps:
+      - name: Mint staging-repo-scoped Builder Blobby token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.BUILDER_BLOBBY_APP_ID }}
+          private-key: ${{ secrets.BUILDER_BLOBBY_APP_PRIVATE_KEY }}
+          owner: privy-io
+          repositories: go-sdk-private
+          permission-contents: write
+
       - name: Dispatch back-sync to staging
         env:
-          DISPATCH_TOKEN: ${{ secrets.STAGING_DISPATCH_TOKEN }}
+          DISPATCH_TOKEN: ${{ steps.app-token.outputs.token }}
           REF_NAME: ${{ github.ref_name }}
         run: |
           set -euo pipefail
-          if [ -z "${DISPATCH_TOKEN:-}" ]; then
-            echo "::notice::STAGING_DISPATCH_TOKEN not configured — skipping the eager back-sync notify. The staging repo's twice-hourly poll covers this."
-            exit 0
-          fi
           payload=$(jq -n --arg ref "$REF_NAME" '{event_type:"prod-released",client_payload:{ref:$ref}}')
           code=$(curl -sS -o /tmp/dispatch.txt -w '%{http_code}' -X POST \
             -H "Authorization: Bearer ${DISPATCH_TOKEN}" \
