@@ -3501,15 +3501,15 @@ const (
 
 // WalletFundsAssetUnion contains all possible properties and values from
 // [WalletFundsNativeTokenAsset], [WalletFundsErc20Asset], [WalletFundsSplAsset],
-// [WalletFundsSacAsset].
+// [WalletFundsSacAsset], [WalletFundsTrc20Asset].
 //
 // Use the [WalletFundsAssetUnion.AsAny] method to switch on the variant.
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 type WalletFundsAssetUnion struct {
-	// This field is a union of [any], [string], [string]
+	// This field is a union of [any], [string], [string], [string]
 	Address WalletFundsAssetUnionAddress `json:"address"`
-	// Any of "native-token", "erc20", "spl", "sac".
+	// Any of "native-token", "erc20", "spl", "sac", "trc20".
 	Type string `json:"type"`
 	// This field is from variant [WalletFundsSplAsset].
 	Mint string `json:"mint"`
@@ -3531,6 +3531,7 @@ func (WalletFundsNativeTokenAsset) implWalletFundsAssetUnion() {}
 func (WalletFundsErc20Asset) implWalletFundsAssetUnion()       {}
 func (WalletFundsSplAsset) implWalletFundsAssetUnion()         {}
 func (WalletFundsSacAsset) implWalletFundsAssetUnion()         {}
+func (WalletFundsTrc20Asset) implWalletFundsAssetUnion()       {}
 
 // Use the following switch statement to find the correct variant
 //
@@ -3539,6 +3540,7 @@ func (WalletFundsSacAsset) implWalletFundsAssetUnion()         {}
 //	case privyclient.WalletFundsErc20Asset:
 //	case privyclient.WalletFundsSplAsset:
 //	case privyclient.WalletFundsSacAsset:
+//	case privyclient.WalletFundsTrc20Asset:
 //	default:
 //	  fmt.Errorf("no variant present")
 //	}
@@ -3552,6 +3554,8 @@ func (u WalletFundsAssetUnion) AsAny() anyWalletFundsAsset {
 		return u.AsSpl()
 	case "sac":
 		return u.AsSac()
+	case "trc20":
+		return u.AsTrc20()
 	}
 	return nil
 }
@@ -3572,6 +3576,11 @@ func (u WalletFundsAssetUnion) AsSpl() (v WalletFundsSplAsset) {
 }
 
 func (u WalletFundsAssetUnion) AsSac() (v WalletFundsSacAsset) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletFundsAssetUnion) AsTrc20() (v WalletFundsTrc20Asset) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -3710,6 +3719,32 @@ type WalletFundsSplAssetType string
 
 const (
 	WalletFundsSplAssetTypeSpl WalletFundsSplAssetType = "spl"
+)
+
+// A Tron TRC-20 token asset.
+type WalletFundsTrc20Asset struct {
+	Address string `json:"address" api:"required"`
+	// Any of "trc20".
+	Type WalletFundsTrc20AssetType `json:"type" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Address     respjson.Field
+		Type        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletFundsTrc20Asset) RawJSON() string { return r.JSON.raw }
+func (r *WalletFundsTrc20Asset) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type WalletFundsTrc20AssetType string
+
+const (
+	WalletFundsTrc20AssetTypeTrc20 WalletFundsTrc20AssetType = "trc20"
 )
 
 // Payload for the wallet.recovered webhook event.
@@ -4838,7 +4873,7 @@ func (r *UnsafeUnwrapWebhookEventUnionRejectedAt) UnmarshalJSON(data []byte) err
 type UnsafeUnwrapWebhookEventUnionAsset struct {
 	// This field will be present if the value is a [string] instead of an object.
 	OfString string `json:",inline"`
-	// This field is a union of [any], [string], [string]
+	// This field is a union of [any], [string], [string], [string]
 	Address UnsafeUnwrapWebhookEventUnionAssetAddress `json:"address"`
 	Type    string                                    `json:"type"`
 	// This field is from variant [WalletFundsAssetUnion].
