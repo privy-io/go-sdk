@@ -22,8 +22,9 @@ jobs:
     if: >-
       github.repository == 'privy-io/go-sdk-private' &&
       (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'repository_dispatch')
+    environment: builder-blobby-sdk-sync-and-seal
     permissions:
-      contents: write
+      contents: read
     concurrency:
       group: stlc-back-sync
       cancel-in-progress: true
@@ -34,6 +35,17 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 0
+          persist-credentials: false
+
+      - name: Mint staging-repo-scoped Builder Blobby token
+        id: staging-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.BUILDER_BLOBBY_APP_ID }}
+          private-key: ${{ secrets.BUILDER_BLOBBY_APP_PRIVATE_KEY }}
+          owner: privy-io
+          repositories: go-sdk-private
+          permission-contents: write
 
       - name: Fetch production main
         env:
@@ -65,6 +77,8 @@ jobs:
 
       - name: Sync production to staging (fast-forward)
         if: steps.diff.outputs.behind == 'true'
+        env:
+          STAGING_REPO_TOKEN: ${{ steps.staging-token.outputs.token }}
         run: |
           # Refuse unless staging is an ancestor of production: otherwise the
           # trunks have forked and a fast-forward would be unsafe.
@@ -72,6 +86,7 @@ jobs:
             echo "::error title=Back-sync blocked::staging main is not an ancestor of production/main."
             exit 1
           fi
+          git remote set-url origin "https://x-access-token:${STAGING_REPO_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git push origin production/main:refs/heads/main
           echo "Fast-forwarded staging/main to production/main."
 
