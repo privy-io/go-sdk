@@ -94,6 +94,8 @@ Params Types:
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TokenOutput">TokenOutput</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TokenTransferDestination">TokenTransferDestination</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TokenTransferSourceUnion">TokenTransferSourceUnion</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TransactionChainNameInput">TransactionChainNameInput</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TransactionTokenAddressInput">TransactionTokenAddressInput</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TransferRequestBody">TransferRequestBody</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TronContractUnion">TronContractUnion</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TronRawDataForSend">TronRawDataForSend</a>
@@ -267,7 +269,10 @@ Response Types:
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TokenOutputResp">TokenOutputResp</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TokenTransferDestinationResp">TokenTransferDestinationResp</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TokenTransferSourceUnionResp">TokenTransferSourceUnionResp</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TransactionDetailUnion">TransactionDetailUnion</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TransferReceivedTransactionDetail">TransferReceivedTransactionDetail</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TransferRequestBodyResp">TransferRequestBodyResp</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TransferSentTransactionDetail">TransferSentTransactionDetail</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TronContractUnionResp">TronContractUnionResp</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TronRawDataForSendResp">TronRawDataForSendResp</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TronRawDataForSignResp">TronRawDataForSignResp</a>
@@ -296,6 +301,7 @@ Response Types:
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletBatchCreateResponse">WalletBatchCreateResponse</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletBatchCreateResultUnion">WalletBatchCreateResultUnion</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletChainType">WalletChainType</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletCreateWalletsWithRecoveryResponse">WalletCreateWalletsWithRecoveryResponse</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletCustodian">WalletCustodian</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletEntity">WalletEntity</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletExportResponseBody">WalletExportResponseBody</a>
@@ -314,6 +320,7 @@ Methods:
 - <code title="post /v1/wallets/{wallet_id}/archive">client.Wallets.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletService.Archive">Archive</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, walletID <a href="https://pkg.go.dev/builtin#string">string</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#Wallet">Wallet</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="post /v1/wallets/authenticate">client.Wallets.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletService.AuthenticateWithJwt">AuthenticateWithJwt</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletAuthenticateWithJwtParams">WalletAuthenticateWithJwtParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletAuthenticateWithJwtResponseUnion">WalletAuthenticateWithJwtResponseUnion</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="post /v1/wallets/batch">client.Wallets.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletService.NewBatch">NewBatch</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletNewBatchParams">WalletNewBatchParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletBatchCreateResponse">WalletBatchCreateResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /v1/wallets_with_recovery">client.Wallets.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletService.NewWalletsWithRecovery">NewWalletsWithRecovery</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletNewWalletsWithRecoveryParams">WalletNewWalletsWithRecoveryParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletCreateWalletsWithRecoveryResponse">WalletCreateWalletsWithRecoveryResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="post /v1/wallets/{wallet_id}/export">client.Wallets.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletService.Export">Export</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, walletID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletExportParams">WalletExportParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletExportResponseBody">WalletExportResponseBody</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="get /v1/wallets/{wallet_id}">client.Wallets.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, walletID <a href="https://pkg.go.dev/builtin#string">string</a>, query <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletGetParams">WalletGetParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#Wallet">Wallet</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="post /v1/wallets/address">client.Wallets.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletService.GetWalletByAddress">GetWalletByAddress</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletGetWalletByAddressParams">WalletGetWalletByAddressParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#Wallet">Wallet</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
@@ -376,6 +383,14 @@ Methods:
 - <code title="post /v1/wallets/{wallet_id}/earn/ethereum/incentive/claim">client.Wallets.Earn.Ethereum.Incentive.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletEarnEthereumIncentiveService.Claim">Claim</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, walletID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletEarnEthereumIncentiveClaimParams">WalletEarnEthereumIncentiveClaimParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EarnIncentiveClaimActionResponse">EarnIncentiveClaimActionResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 ## Transactions
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletTransactionGetResponse">WalletTransactionGetResponse</a>
+
+Methods:
+
+- <code title="get /v1/wallets/{wallet_id}/transactions">client.Wallets.Transactions.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletTransactionService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, walletID <a href="https://pkg.go.dev/builtin#string">string</a>, query <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletTransactionGetParams">WalletTransactionGetParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletTransactionGetResponse">WalletTransactionGetResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 ## Balance
 
@@ -580,6 +595,15 @@ Methods:
 - <code title="patch /v1/policies/{policy_id}/rules/{rule_id}">client.Policies.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#PolicyService.UpdateRule">UpdateRule</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, ruleID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#PolicyUpdateRuleParams">PolicyUpdateRuleParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#PolicyRuleResponse">PolicyRuleResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 # Transactions
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#BlockchainTransactionStatus">BlockchainTransactionStatus</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#Transaction">Transaction</a>
+
+Methods:
+
+- <code title="get /v1/transactions/{transaction_id}">client.Transactions.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TransactionService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, transactionID <a href="https://pkg.go.dev/builtin#string">string</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#Transaction">Transaction</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 # KeyQuorums
 
@@ -847,6 +871,8 @@ Response Types:
 # OAuth
 
 # Yield
+
+# Fiat
 
 # KrakenEmbed
 

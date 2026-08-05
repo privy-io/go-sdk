@@ -176,6 +176,18 @@ func (r *WalletService) NewBatch(ctx context.Context, body WalletNewBatchParams,
 	return res, err
 }
 
+// Create one or more wallets associated with a recovery user, so the user can
+// later regain wallet access via the linked accounts. Deprecated; prefer the
+// standard wallet creation flow combined with a separate recovery setup.
+//
+// Deprecated: deprecated
+func (r *WalletService) NewWalletsWithRecovery(ctx context.Context, body WalletNewWalletsWithRecoveryParams, opts ...option.RequestOption) (res *WalletCreateWalletsWithRecoveryResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "v1/wallets_with_recovery"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return res, err
+}
+
 // Export a wallet's private key
 func (r *WalletService) Export(ctx context.Context, walletID string, params WalletExportParams, opts ...option.RequestOption) (res *WalletExportResponseBody, err error) {
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
@@ -6525,6 +6537,170 @@ func (u *TokenTransferSourceUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
 }
 
+// Chains supported for transaction history queries.
+type TransactionChainNameInput string
+
+const (
+	TransactionChainNameInputEthereum    TransactionChainNameInput = "ethereum"
+	TransactionChainNameInputArbitrum    TransactionChainNameInput = "arbitrum"
+	TransactionChainNameInputAvalanche   TransactionChainNameInput = "avalanche"
+	TransactionChainNameInputBase        TransactionChainNameInput = "base"
+	TransactionChainNameInputBaseSepolia TransactionChainNameInput = "base_sepolia"
+	TransactionChainNameInputBsc         TransactionChainNameInput = "bsc"
+	TransactionChainNameInputTempo       TransactionChainNameInput = "tempo"
+	TransactionChainNameInputLinea       TransactionChainNameInput = "linea"
+	TransactionChainNameInputOptimism    TransactionChainNameInput = "optimism"
+	TransactionChainNameInputPolygon     TransactionChainNameInput = "polygon"
+	TransactionChainNameInputSolana      TransactionChainNameInput = "solana"
+	TransactionChainNameInputSepolia     TransactionChainNameInput = "sepolia"
+)
+
+// TransactionDetailUnion contains all possible properties and values from
+// [TransferSentTransactionDetail], [TransferReceivedTransactionDetail].
+//
+// Use the [TransactionDetailUnion.AsAny] method to switch on the variant.
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type TransactionDetailUnion struct {
+	Asset string `json:"asset"`
+	// This field is from variant [TransferSentTransactionDetail].
+	Chain                WalletAssetChainNameInput `json:"chain"`
+	DisplayValues        string                    `json:"display_values"`
+	RawValue             string                    `json:"raw_value"`
+	RawValueDecimals     float64                   `json:"raw_value_decimals"`
+	Recipient            string                    `json:"recipient"`
+	RecipientPrivyUserID string                    `json:"recipient_privy_user_id"`
+	Sender               string                    `json:"sender"`
+	SenderPrivyUserID    string                    `json:"sender_privy_user_id"`
+	// Any of "transfer_sent", "transfer_received".
+	Type string `json:"type"`
+	JSON struct {
+		Asset                respjson.Field
+		Chain                respjson.Field
+		DisplayValues        respjson.Field
+		RawValue             respjson.Field
+		RawValueDecimals     respjson.Field
+		Recipient            respjson.Field
+		RecipientPrivyUserID respjson.Field
+		Sender               respjson.Field
+		SenderPrivyUserID    respjson.Field
+		Type                 respjson.Field
+		raw                  string
+	} `json:"-"`
+}
+
+// anyTransactionDetail is implemented by each variant of [TransactionDetailUnion]
+// to add type safety for the return type of [TransactionDetailUnion.AsAny]
+type anyTransactionDetail interface {
+	implTransactionDetailUnion()
+}
+
+func (TransferSentTransactionDetail) implTransactionDetailUnion()     {}
+func (TransferReceivedTransactionDetail) implTransactionDetailUnion() {}
+
+// Use the following switch statement to find the correct variant
+//
+//	switch variant := TransactionDetailUnion.AsAny().(type) {
+//	case privyclient.TransferSentTransactionDetail:
+//	case privyclient.TransferReceivedTransactionDetail:
+//	default:
+//	  fmt.Errorf("no variant present")
+//	}
+func (u TransactionDetailUnion) AsAny() anyTransactionDetail {
+	switch u.Type {
+	case "transfer_sent":
+		return u.AsTransferSent()
+	case "transfer_received":
+		return u.AsTransferReceived()
+	}
+	return nil
+}
+
+func (u TransactionDetailUnion) AsTransferSent() (v TransferSentTransactionDetail) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u TransactionDetailUnion) AsTransferReceived() (v TransferReceivedTransactionDetail) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u TransactionDetailUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *TransactionDetailUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type TransactionTokenAddressInput = string
+
+// Details for a received transfer transaction.
+type TransferReceivedTransactionDetail struct {
+	Asset TransferReceivedTransactionDetailAsset `json:"asset" api:"required"`
+	// Supported blockchain network names for wallet balance and transaction queries.
+	//
+	// Any of "ethereum", "arbitrum", "avalanche", "base", "tempo", "linea",
+	// "optimism", "polygon", "bsc", "solana", "tron", "zksync_era", "hoodi",
+	// "sepolia", "arbitrum_sepolia", "avalanche_fuji", "base_sepolia",
+	// "linea_testnet", "optimism_sepolia", "polygon_amoy", "solana_devnet",
+	// "solana_testnet", "tron_nile".
+	Chain                WalletAssetChainNameInput `json:"chain" api:"required"`
+	DisplayValues        map[string]string         `json:"display_values" api:"required"`
+	RawValue             string                    `json:"raw_value" api:"required"`
+	RawValueDecimals     float64                   `json:"raw_value_decimals" api:"required"`
+	Recipient            string                    `json:"recipient" api:"required"`
+	RecipientPrivyUserID string                    `json:"recipient_privy_user_id" api:"required"`
+	Sender               string                    `json:"sender" api:"required"`
+	SenderPrivyUserID    string                    `json:"sender_privy_user_id" api:"required"`
+	// Any of "transfer_received".
+	Type TransferReceivedTransactionDetailType `json:"type" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Asset                respjson.Field
+		Chain                respjson.Field
+		DisplayValues        respjson.Field
+		RawValue             respjson.Field
+		RawValueDecimals     respjson.Field
+		Recipient            respjson.Field
+		RecipientPrivyUserID respjson.Field
+		Sender               respjson.Field
+		SenderPrivyUserID    respjson.Field
+		Type                 respjson.Field
+		ExtraFields          map[string]respjson.Field
+		raw                  string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TransferReceivedTransactionDetail) RawJSON() string { return r.JSON.raw }
+func (r *TransferReceivedTransactionDetail) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type TransferReceivedTransactionDetailAsset string
+
+const (
+	TransferReceivedTransactionDetailAssetUsdc    TransferReceivedTransactionDetailAsset = "usdc"
+	TransferReceivedTransactionDetailAssetUsdcE   TransferReceivedTransactionDetailAsset = "usdc.e"
+	TransferReceivedTransactionDetailAssetEth     TransferReceivedTransactionDetailAsset = "eth"
+	TransferReceivedTransactionDetailAssetAvax    TransferReceivedTransactionDetailAsset = "avax"
+	TransferReceivedTransactionDetailAssetPol     TransferReceivedTransactionDetailAsset = "pol"
+	TransferReceivedTransactionDetailAssetBnb     TransferReceivedTransactionDetailAsset = "bnb"
+	TransferReceivedTransactionDetailAssetUsdt    TransferReceivedTransactionDetailAsset = "usdt"
+	TransferReceivedTransactionDetailAssetEurc    TransferReceivedTransactionDetailAsset = "eurc"
+	TransferReceivedTransactionDetailAssetUsdb    TransferReceivedTransactionDetailAsset = "usdb"
+	TransferReceivedTransactionDetailAssetPathusd TransferReceivedTransactionDetailAsset = "pathusd"
+	TransferReceivedTransactionDetailAssetSol     TransferReceivedTransactionDetailAsset = "sol"
+	TransferReceivedTransactionDetailAssetTrx     TransferReceivedTransactionDetailAsset = "trx"
+)
+
+type TransferReceivedTransactionDetailType string
+
+const (
+	TransferReceivedTransactionDetailTypeTransferReceived TransferReceivedTransactionDetailType = "transfer_received"
+)
+
 // Request body for initiating a sponsored token transfer from an embedded wallet.
 type TransferRequestBodyResp struct {
 	// The destination address for a token transfer. Optionally specify a different
@@ -6607,6 +6783,72 @@ func (r TransferRequestBody) MarshalJSON() (data []byte, err error) {
 func (r *TransferRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// Details for a sent transfer transaction.
+type TransferSentTransactionDetail struct {
+	Asset TransferSentTransactionDetailAsset `json:"asset" api:"required"`
+	// Supported blockchain network names for wallet balance and transaction queries.
+	//
+	// Any of "ethereum", "arbitrum", "avalanche", "base", "tempo", "linea",
+	// "optimism", "polygon", "bsc", "solana", "tron", "zksync_era", "hoodi",
+	// "sepolia", "arbitrum_sepolia", "avalanche_fuji", "base_sepolia",
+	// "linea_testnet", "optimism_sepolia", "polygon_amoy", "solana_devnet",
+	// "solana_testnet", "tron_nile".
+	Chain                WalletAssetChainNameInput `json:"chain" api:"required"`
+	DisplayValues        map[string]string         `json:"display_values" api:"required"`
+	RawValue             string                    `json:"raw_value" api:"required"`
+	RawValueDecimals     float64                   `json:"raw_value_decimals" api:"required"`
+	Recipient            string                    `json:"recipient" api:"required"`
+	RecipientPrivyUserID string                    `json:"recipient_privy_user_id" api:"required"`
+	Sender               string                    `json:"sender" api:"required"`
+	SenderPrivyUserID    string                    `json:"sender_privy_user_id" api:"required"`
+	// Any of "transfer_sent".
+	Type TransferSentTransactionDetailType `json:"type" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Asset                respjson.Field
+		Chain                respjson.Field
+		DisplayValues        respjson.Field
+		RawValue             respjson.Field
+		RawValueDecimals     respjson.Field
+		Recipient            respjson.Field
+		RecipientPrivyUserID respjson.Field
+		Sender               respjson.Field
+		SenderPrivyUserID    respjson.Field
+		Type                 respjson.Field
+		ExtraFields          map[string]respjson.Field
+		raw                  string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TransferSentTransactionDetail) RawJSON() string { return r.JSON.raw }
+func (r *TransferSentTransactionDetail) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type TransferSentTransactionDetailAsset string
+
+const (
+	TransferSentTransactionDetailAssetUsdc    TransferSentTransactionDetailAsset = "usdc"
+	TransferSentTransactionDetailAssetUsdcE   TransferSentTransactionDetailAsset = "usdc.e"
+	TransferSentTransactionDetailAssetEth     TransferSentTransactionDetailAsset = "eth"
+	TransferSentTransactionDetailAssetAvax    TransferSentTransactionDetailAsset = "avax"
+	TransferSentTransactionDetailAssetPol     TransferSentTransactionDetailAsset = "pol"
+	TransferSentTransactionDetailAssetBnb     TransferSentTransactionDetailAsset = "bnb"
+	TransferSentTransactionDetailAssetUsdt    TransferSentTransactionDetailAsset = "usdt"
+	TransferSentTransactionDetailAssetEurc    TransferSentTransactionDetailAsset = "eurc"
+	TransferSentTransactionDetailAssetUsdb    TransferSentTransactionDetailAsset = "usdb"
+	TransferSentTransactionDetailAssetPathusd TransferSentTransactionDetailAsset = "pathusd"
+	TransferSentTransactionDetailAssetSol     TransferSentTransactionDetailAsset = "sol"
+	TransferSentTransactionDetailAssetTrx     TransferSentTransactionDetailAsset = "trx"
+)
+
+type TransferSentTransactionDetailType string
+
+const (
+	TransferSentTransactionDetailTypeTransferSent TransferSentTransactionDetailType = "transfer_sent"
+)
 
 // TronContractUnionResp contains all possible properties and values from
 // [TronTransferContractResp], [TronTriggerSmartContractResp].
@@ -8260,6 +8502,27 @@ const (
 	WalletChainTypeStarknet       WalletChainType = "starknet"
 	WalletChainTypeSpark          WalletChainType = "spark"
 )
+
+// The response from creating wallets with an associated recovery user.
+type WalletCreateWalletsWithRecoveryResponse struct {
+	// The ID of the created user.
+	RecoveryUserID string `json:"recovery_user_id" api:"required"`
+	// The wallets that were created.
+	Wallets []Wallet `json:"wallets" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		RecoveryUserID respjson.Field
+		Wallets        respjson.Field
+		ExtraFields    map[string]respjson.Field
+		raw            string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletCreateWalletsWithRecoveryResponse) RawJSON() string { return r.JSON.raw }
+func (r *WalletCreateWalletsWithRecoveryResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 // Information about the custodian managing this wallet.
 type WalletCustodian struct {
@@ -10039,6 +10302,101 @@ func (r WalletNewBatchParams) MarshalJSON() (data []byte, err error) {
 	return shimjson.Marshal(r.WalletBatchCreateInput)
 }
 func (r *WalletNewBatchParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type WalletNewWalletsWithRecoveryParams struct {
+	PrimarySigner WalletNewWalletsWithRecoveryParamsPrimarySigner `json:"primary_signer,omitzero" api:"required"`
+	RecoveryUser  WalletNewWalletsWithRecoveryParamsRecoveryUser  `json:"recovery_user,omitzero" api:"required"`
+	Wallets       []WalletNewWalletsWithRecoveryParamsWallet      `json:"wallets,omitzero" api:"required"`
+	paramObj
+}
+
+func (r WalletNewWalletsWithRecoveryParams) MarshalJSON() (data []byte, err error) {
+	type shadow WalletNewWalletsWithRecoveryParams
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *WalletNewWalletsWithRecoveryParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The property SubjectID is required.
+type WalletNewWalletsWithRecoveryParamsPrimarySigner struct {
+	// The JWT subject ID of the user.
+	SubjectID string `json:"subject_id" api:"required"`
+	paramObj
+}
+
+func (r WalletNewWalletsWithRecoveryParamsPrimarySigner) MarshalJSON() (data []byte, err error) {
+	type shadow WalletNewWalletsWithRecoveryParamsPrimarySigner
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *WalletNewWalletsWithRecoveryParamsPrimarySigner) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The property LinkedAccounts is required.
+type WalletNewWalletsWithRecoveryParamsRecoveryUser struct {
+	LinkedAccounts []WalletNewWalletsWithRecoveryParamsRecoveryUserLinkedAccountUnion `json:"linked_accounts,omitzero" api:"required"`
+	paramObj
+}
+
+func (r WalletNewWalletsWithRecoveryParamsRecoveryUser) MarshalJSON() (data []byte, err error) {
+	type shadow WalletNewWalletsWithRecoveryParamsRecoveryUser
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *WalletNewWalletsWithRecoveryParamsRecoveryUser) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type WalletNewWalletsWithRecoveryParamsRecoveryUserLinkedAccountUnion struct {
+	OfEmail      *LinkedAccountEmailInput     `json:",omitzero,inline"`
+	OfCustomAuth *LinkedAccountCustomJwtInput `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u WalletNewWalletsWithRecoveryParamsRecoveryUserLinkedAccountUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfEmail, u.OfCustomAuth)
+}
+func (u *WalletNewWalletsWithRecoveryParamsRecoveryUserLinkedAccountUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+func init() {
+	apijson.RegisterUnion[WalletNewWalletsWithRecoveryParamsRecoveryUserLinkedAccountUnion](
+		"type",
+		apijson.Discriminator[LinkedAccountEmailInput]("email"),
+		apijson.Discriminator[LinkedAccountCustomJwtInput]("custom_auth"),
+	)
+}
+
+// The property ChainType is required.
+type WalletNewWalletsWithRecoveryParamsWallet struct {
+	// The wallet chain types.
+	//
+	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
+	// "tron", "bitcoin-segwit", "bitcoin-taproot", "pearl", "near", "ton", "starknet",
+	// "spark".
+	ChainType WalletChainType `json:"chain_type,omitzero" api:"required"`
+	// A human-readable label for the wallet.
+	DisplayName param.Opt[string] `json:"display_name,omitzero"`
+	// A customer-provided identifier for mapping to external systems. URL-safe
+	// characters only ([a-zA-Z0-9_-]), max 64 chars. Write-once: cannot be changed
+	// after creation.
+	ExternalID param.Opt[string] `json:"external_id,omitzero"`
+	// An optional list of up to one policy ID to enforce on the wallet.
+	PolicyIDs PolicyInput `json:"policy_ids,omitzero" format:"cuid2"`
+	paramObj
+}
+
+func (r WalletNewWalletsWithRecoveryParamsWallet) MarshalJSON() (data []byte, err error) {
+	type shadow WalletNewWalletsWithRecoveryParamsWallet
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *WalletNewWalletsWithRecoveryParamsWallet) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
