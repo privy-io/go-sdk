@@ -19,6 +19,7 @@ import (
 type Client struct {
 	Options []option.RequestOption
 	Wallets WalletService
+	Cards   CardService
 	// Operations related to users
 	Users UserService
 	// Operations related to policies
@@ -83,6 +84,7 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r = Client{Options: opts}
 
 	r.Wallets = NewWalletService(opts...)
+	r.Cards = NewCardService(opts...)
 	r.Users = NewUserService(opts...)
 	r.Policies = NewPolicyService(opts...)
 	r.Transactions = NewTransactionService(opts...)

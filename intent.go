@@ -116,6 +116,19 @@ func (r *IntentService) Get(ctx context.Context, intentID string, opts ...option
 	return res, err
 }
 
+// Reject a pending intent, preventing it from being executed. Can be called by the
+// intent creator (via user token) or with the app secret.
+func (r *IntentService) Reject(ctx context.Context, intentID string, opts ...option.RequestOption) (res *IntentResponseUnion, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if intentID == "" {
+		err = errors.New("missing required intent_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/intents/%s/reject", url.PathEscape(intentID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, nil, &res, opts...)
+	return res, err
+}
+
 // Create an intent to execute an RPC method on a wallet. The intent must be
 // authorized by either the wallet owner or signers before it can be executed.
 func (r *IntentService) Rpc(ctx context.Context, walletID string, params IntentRpcParams, opts ...option.RequestOption) (res *RpcIntentResponse, err error) {
