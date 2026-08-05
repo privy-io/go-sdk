@@ -418,7 +418,6 @@ type LinkedAccountUnion struct {
 	// This field is from variant [LinkedAccountEthereumEmbeddedWallet].
 	RecoveryMethod    EmbeddedWalletRecoveryMethod `json:"recovery_method"`
 	WalletIndex       float64                      `json:"wallet_index"`
-	UserCanSign       bool                         `json:"user_can_sign"`
 	PublicKey         string                       `json:"public_key"`
 	Email             string                       `json:"email"`
 	Name              string                       `json:"name"`
@@ -489,7 +488,6 @@ type LinkedAccountUnion struct {
 		Imported           respjson.Field
 		RecoveryMethod     respjson.Field
 		WalletIndex        respjson.Field
-		UserCanSign        respjson.Field
 		PublicKey          respjson.Field
 		Email              respjson.Field
 		Name               respjson.Field
@@ -816,8 +814,6 @@ type LinkedAccountBitcoinSegwitEmbeddedWallet struct {
 	// Any of "privy".
 	WalletClientType LinkedAccountBitcoinSegwitEmbeddedWalletWalletClientType `json:"wallet_client_type" api:"required"`
 	WalletIndex      float64                                                  `json:"wallet_index" api:"required"`
-	// Whether the user can unilaterally sign with this wallet.
-	UserCanSign bool `json:"user_can_sign"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID               respjson.Field
@@ -836,7 +832,6 @@ type LinkedAccountBitcoinSegwitEmbeddedWallet struct {
 		WalletClient     respjson.Field
 		WalletClientType respjson.Field
 		WalletIndex      respjson.Field
-		UserCanSign      respjson.Field
 		ExtraFields      map[string]respjson.Field
 		raw              string
 	} `json:"-"`
@@ -905,8 +900,6 @@ type LinkedAccountBitcoinTaprootEmbeddedWallet struct {
 	// Any of "privy".
 	WalletClientType LinkedAccountBitcoinTaprootEmbeddedWalletWalletClientType `json:"wallet_client_type" api:"required"`
 	WalletIndex      float64                                                   `json:"wallet_index" api:"required"`
-	// Whether the user can unilaterally sign with this wallet.
-	UserCanSign bool `json:"user_can_sign"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID               respjson.Field
@@ -925,7 +918,6 @@ type LinkedAccountBitcoinTaprootEmbeddedWallet struct {
 		WalletClient     respjson.Field
 		WalletClientType respjson.Field
 		WalletIndex      respjson.Field
-		UserCanSign      respjson.Field
 		ExtraFields      map[string]respjson.Field
 		raw              string
 	} `json:"-"`
@@ -1035,8 +1027,6 @@ type LinkedAccountCurveSigningEmbeddedWallet struct {
 	// Any of "privy".
 	WalletClientType LinkedAccountCurveSigningEmbeddedWalletWalletClientType `json:"wallet_client_type" api:"required"`
 	WalletIndex      float64                                                 `json:"wallet_index" api:"required"`
-	// Whether the user can unilaterally sign with this wallet.
-	UserCanSign bool `json:"user_can_sign"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID               respjson.Field
@@ -1055,7 +1045,6 @@ type LinkedAccountCurveSigningEmbeddedWallet struct {
 		WalletClient     respjson.Field
 		WalletClientType respjson.Field
 		WalletIndex      respjson.Field
-		UserCanSign      respjson.Field
 		ExtraFields      map[string]respjson.Field
 		raw              string
 	} `json:"-"`
@@ -1364,8 +1353,6 @@ type LinkedAccountEthereumEmbeddedWallet struct {
 	// Any of "privy".
 	WalletClientType LinkedAccountEthereumEmbeddedWalletWalletClientType `json:"wallet_client_type" api:"required"`
 	WalletIndex      float64                                             `json:"wallet_index" api:"required"`
-	// Whether the user can unilaterally sign with this wallet.
-	UserCanSign bool `json:"user_can_sign"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID               respjson.Field
@@ -1383,7 +1370,6 @@ type LinkedAccountEthereumEmbeddedWallet struct {
 		WalletClient     respjson.Field
 		WalletClientType respjson.Field
 		WalletIndex      respjson.Field
-		UserCanSign      respjson.Field
 		ExtraFields      map[string]respjson.Field
 		raw              string
 	} `json:"-"`
@@ -2108,8 +2094,6 @@ type LinkedAccountSolanaEmbeddedWallet struct {
 	// Any of "privy".
 	WalletClientType LinkedAccountSolanaEmbeddedWalletWalletClientType `json:"wallet_client_type" api:"required"`
 	WalletIndex      float64                                           `json:"wallet_index" api:"required"`
-	// Whether the user can unilaterally sign with this wallet.
-	UserCanSign bool `json:"user_can_sign"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID               respjson.Field
@@ -2128,7 +2112,6 @@ type LinkedAccountSolanaEmbeddedWallet struct {
 		WalletClient     respjson.Field
 		WalletClientType respjson.Field
 		WalletIndex      respjson.Field
-		UserCanSign      respjson.Field
 		ExtraFields      map[string]respjson.Field
 		raw              string
 	} `json:"-"`
