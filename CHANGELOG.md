@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.16.0](https://github.com/privy-io/go-sdk/compare/v0.15.0...v0.16.0) (2026-08-07)
+
+
+### Features
+
+* **api:** api update ([1d0d076](https://github.com/privy-io/go-sdk/commit/1d0d0763dbdf9a6f661ae13d67a2965d9ff42360))
+* **api:** api update ([ec7564f](https://github.com/privy-io/go-sdk/commit/ec7564f8336c119605568b4879deb5da088c7028))
+* **api:** api update ([3e3f22d](https://github.com/privy-io/go-sdk/commit/3e3f22d777b02fe846891feee91e586d520ed069))
+* **api:** api update ([5db6515](https://github.com/privy-io/go-sdk/commit/5db6515f8cbea8bf9bcf5920d535b5bb096b516e))
+* **api:** api update ([64d2777](https://github.com/privy-io/go-sdk/commit/64d2777af70289faccaae2894789c11df548ea8d))
+* **api:** api update ([4d0c26c](https://github.com/privy-io/go-sdk/commit/4d0c26c3e95568a4757e5faec3a4a61f3566ce4c))
+* **api:** api update ([e4d743d](https://github.com/privy-io/go-sdk/commit/e4d743d00e6682c00e06e0154e3ba6c72108dbd3))
+* **api:** api update ([8241345](https://github.com/privy-io/go-sdk/commit/8241345ed99a0ad6ec0336651af8d8eb29c69e7b))
+* **api:** api update ([38999b9](https://github.com/privy-io/go-sdk/commit/38999b91bf91116244679b1ccd891e952369d1b0))
+* **api:** api update ([6cb5b85](https://github.com/privy-io/go-sdk/commit/6cb5b85cb3fdc9dcfa8296d3a1c851d6327a0663))
+* **api:** api update ([5b4e513](https://github.com/privy-io/go-sdk/commit/5b4e51307bb33781af9b70af0a50d5d4034d16cc))
+* **api:** api update ([dd7b7bf](https://github.com/privy-io/go-sdk/commit/dd7b7bff1489b074d4eff02f0457aaf295a2c012))
+* initial stlc build ([f21e267](https://github.com/privy-io/go-sdk/commit/f21e2675b953b4e7dadcfbbaa6833c5305441adb))
+
+
+### Bug Fixes
+
+* **ci:** authenticate staging back-sync with builder blobby ([3c988b6](https://github.com/privy-io/go-sdk/commit/3c988b646ef323c5fda688dc9986b77c03390bbf))
+
 ## 0.15.0 (2026-07-24)
 
 Full Changelog: [v0.14.0...v0.15.0](https://github.com/privy-io/go-sdk/compare/v0.14.0...v0.15.0)
