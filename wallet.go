@@ -122,27 +122,6 @@ func (r *WalletService) SubmitImport(ctx context.Context, body WalletSubmitImpor
 	return res, err
 }
 
-// Transfer tokens from a wallet to a destination address.
-func (r *WalletService) Transfer(ctx context.Context, walletID string, params WalletTransferParams, opts ...option.RequestOption) (res *TransferActionResponse, err error) {
-	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
-		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
-	}
-	if !param.IsOmitted(params.PrivyIdempotencyKey) {
-		opts = append(opts, option.WithHeader("privy-idempotency-key", fmt.Sprintf("%v", params.PrivyIdempotencyKey.Value)))
-	}
-	if !param.IsOmitted(params.PrivyRequestExpiry) {
-		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
-	}
-	opts = slices.Concat(r.Options, opts)
-	if walletID == "" {
-		err = errors.New("missing required wallet_id parameter")
-		return nil, err
-	}
-	path := fmt.Sprintf("v1/wallets/%s/transfer", url.PathEscape(walletID))
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
-	return res, err
-}
-
 // Archives a wallet, preventing it from being used in any write or signing
 // operations. Archived wallets are hidden from list endpoints by default. Returns
 // 404 if the wallet does not exist or is already archived.
@@ -264,6 +243,27 @@ func (r *WalletService) Rpc(ctx context.Context, walletID string, params WalletR
 		return nil, err
 	}
 	path := fmt.Sprintf("v1/wallets/%s/rpc", url.PathEscape(walletID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
+	return res, err
+}
+
+// Transfer tokens from a wallet to a destination address.
+func (r *WalletService) Transfer(ctx context.Context, walletID string, params WalletTransferParams, opts ...option.RequestOption) (res *TransferActionResponse, err error) {
+	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
+		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
+	}
+	if !param.IsOmitted(params.PrivyIdempotencyKey) {
+		opts = append(opts, option.WithHeader("privy-idempotency-key", fmt.Sprintf("%v", params.PrivyIdempotencyKey.Value)))
+	}
+	if !param.IsOmitted(params.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
+	}
+	opts = slices.Concat(r.Options, opts)
+	if walletID == "" {
+		err = errors.New("missing required wallet_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/wallets/%s/transfer", url.PathEscape(walletID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return res, err
 }
@@ -10257,28 +10257,6 @@ func init() {
 	)
 }
 
-type WalletTransferParams struct {
-	// Request body for initiating a sponsored token transfer from an embedded wallet.
-	TransferRequestBody TransferRequestBody
-	// Request authorization signature. If multiple signatures are required, they
-	// should be comma separated.
-	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
-	// Idempotency keys ensure API requests are executed only once within a 24-hour
-	// window.
-	PrivyIdempotencyKey param.Opt[string] `header:"privy-idempotency-key,omitzero" json:"-"`
-	// Request expiry. Value is a Unix timestamp in milliseconds representing the
-	// deadline by which the request must be processed.
-	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
-	paramObj
-}
-
-func (r WalletTransferParams) MarshalJSON() (data []byte, err error) {
-	return shimjson.Marshal(r.TransferRequestBody)
-}
-func (r *WalletTransferParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 type WalletAuthenticateWithJwtParams struct {
 	// Request body for wallet authentication with HPKE-encrypted response.
 	WalletAuthenticateRequestBody WalletAuthenticateRequestBody
@@ -10488,5 +10466,27 @@ func (r WalletRpcParams) MarshalJSON() (data []byte, err error) {
 	return shimjson.Marshal(r.WalletRpcRequestBody)
 }
 func (r *WalletRpcParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type WalletTransferParams struct {
+	// Request body for initiating a sponsored token transfer from an embedded wallet.
+	TransferRequestBody TransferRequestBody
+	// Request authorization signature. If multiple signatures are required, they
+	// should be comma separated.
+	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
+	// Idempotency keys ensure API requests are executed only once within a 24-hour
+	// window.
+	PrivyIdempotencyKey param.Opt[string] `header:"privy-idempotency-key,omitzero" json:"-"`
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
+	paramObj
+}
+
+func (r WalletTransferParams) MarshalJSON() (data []byte, err error) {
+	return shimjson.Marshal(r.TransferRequestBody)
+}
+func (r *WalletTransferParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
