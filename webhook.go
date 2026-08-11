@@ -1283,6 +1283,36 @@ const (
 	UserCreatedWebhookPayloadTypeUserCreated UserCreatedWebhookPayloadType = "user.created"
 )
 
+// Payload for the user.deleted webhook event.
+type UserDeletedWebhookPayload struct {
+	// The type of webhook event.
+	//
+	// Any of "user.deleted".
+	Type UserDeletedWebhookPayloadType `json:"type" api:"required"`
+	// A Privy user object.
+	User User `json:"user" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Type        respjson.Field
+		User        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r UserDeletedWebhookPayload) RawJSON() string { return r.JSON.raw }
+func (r *UserDeletedWebhookPayload) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The type of webhook event.
+type UserDeletedWebhookPayloadType string
+
+const (
+	UserDeletedWebhookPayloadTypeUserDeleted UserDeletedWebhookPayloadType = "user.deleted"
+)
+
 // Payload for the user.linked_account webhook event.
 type UserLinkedAccountWebhookPayload struct {
 	// A linked account for the user.
@@ -4020,14 +4050,14 @@ const (
 // [TransactionExecutionRevertedWebhookPayload], [TransactionFailedWebhookPayload],
 // [TransactionProviderErrorWebhookPayload], [TransactionReplacedWebhookPayload],
 // [TransactionStillPendingWebhookPayload], [UserAuthenticatedWebhookPayload],
-// [UserCreatedWebhookPayload], [UserLinkedAccountWebhookPayload],
-// [UserTransferredAccountWebhookPayload], [UserUnlinkedAccountWebhookPayload],
-// [UserUpdatedAccountWebhookPayload], [UserWalletCreatedWebhookPayload],
-// [UserOperationCompletedWebhookPayload], [WalletArchivedWebhookPayload],
-// [FundsDepositedWebhookPayload], [FundsWithdrawnWebhookPayload],
-// [PrivateKeyExportWebhookPayload], [WalletRecoveredWebhookPayload],
-// [WalletRecoverySetupWebhookPayload], [WalletRestoredWebhookPayload],
-// [WalletActionEarnDepositCreatedWebhookPayload],
+// [UserCreatedWebhookPayload], [UserDeletedWebhookPayload],
+// [UserLinkedAccountWebhookPayload], [UserTransferredAccountWebhookPayload],
+// [UserUnlinkedAccountWebhookPayload], [UserUpdatedAccountWebhookPayload],
+// [UserWalletCreatedWebhookPayload], [UserOperationCompletedWebhookPayload],
+// [WalletArchivedWebhookPayload], [FundsDepositedWebhookPayload],
+// [FundsWithdrawnWebhookPayload], [PrivateKeyExportWebhookPayload],
+// [WalletRecoveredWebhookPayload], [WalletRecoverySetupWebhookPayload],
+// [WalletRestoredWebhookPayload], [WalletActionEarnDepositCreatedWebhookPayload],
 // [WalletActionEarnDepositFailedWebhookPayload],
 // [WalletActionEarnDepositRejectedWebhookPayload],
 // [WalletActionEarnDepositSucceededWebhookPayload],
@@ -4077,13 +4107,13 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	// "transaction.execution_reverted", "transaction.failed",
 	// "transaction.provider_error", "transaction.replaced",
 	// "transaction.still_pending", "user.authenticated", "user.created",
-	// "user.linked_account", "user.transferred_account", "user.unlinked_account",
-	// "user.updated_account", "user.wallet_created", "user_operation.completed",
-	// "wallet.archived", "wallet.funds_deposited", "wallet.funds_withdrawn",
-	// "wallet.private_key_export", "wallet.recovered", "wallet.recovery_setup",
-	// "wallet.restored", "wallet_action.earn_deposit.created",
-	// "wallet_action.earn_deposit.failed", "wallet_action.earn_deposit.rejected",
-	// "wallet_action.earn_deposit.succeeded",
+	// "user.deleted", "user.linked_account", "user.transferred_account",
+	// "user.unlinked_account", "user.updated_account", "user.wallet_created",
+	// "user_operation.completed", "wallet.archived", "wallet.funds_deposited",
+	// "wallet.funds_withdrawn", "wallet.private_key_export", "wallet.recovered",
+	// "wallet.recovery_setup", "wallet.restored",
+	// "wallet_action.earn_deposit.created", "wallet_action.earn_deposit.failed",
+	// "wallet_action.earn_deposit.rejected", "wallet_action.earn_deposit.succeeded",
 	// "wallet_action.earn_fee_collect.created",
 	// "wallet_action.earn_fee_collect.failed",
 	// "wallet_action.earn_fee_collect.rejected",
@@ -4303,6 +4333,7 @@ func (TransactionReplacedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()    
 func (TransactionStillPendingWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                 {}
 func (UserAuthenticatedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                       {}
 func (UserCreatedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                             {}
+func (UserDeletedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                             {}
 func (UserLinkedAccountWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                       {}
 func (UserTransferredAccountWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                  {}
 func (UserUnlinkedAccountWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                     {}
@@ -4363,6 +4394,7 @@ func (YieldWithdrawConfirmedWebhookPayload) implUnsafeUnwrapWebhookEventUnion() 
 //	case privyclient.TransactionStillPendingWebhookPayload:
 //	case privyclient.UserAuthenticatedWebhookPayload:
 //	case privyclient.UserCreatedWebhookPayload:
+//	case privyclient.UserDeletedWebhookPayload:
 //	case privyclient.UserLinkedAccountWebhookPayload:
 //	case privyclient.UserTransferredAccountWebhookPayload:
 //	case privyclient.UserUnlinkedAccountWebhookPayload:
@@ -4440,6 +4472,8 @@ func (u UnsafeUnwrapWebhookEventUnion) AsAny() anyUnsafeUnwrapWebhookEvent {
 		return u.AsUserAuthenticated()
 	case "user.created":
 		return u.AsUserCreated()
+	case "user.deleted":
+		return u.AsUserDeleted()
 	case "user.linked_account":
 		return u.AsUserLinkedAccount()
 	case "user.transferred_account":
@@ -4600,6 +4634,11 @@ func (u UnsafeUnwrapWebhookEventUnion) AsUserAuthenticated() (v UserAuthenticate
 }
 
 func (u UnsafeUnwrapWebhookEventUnion) AsUserCreated() (v UserCreatedWebhookPayload) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u UnsafeUnwrapWebhookEventUnion) AsUserDeleted() (v UserDeletedWebhookPayload) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
