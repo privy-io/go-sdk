@@ -393,6 +393,7 @@ const (
 	CurveSigningChainTypeNear           CurveSigningChainType = "near"
 	CurveSigningChainTypeTon            CurveSigningChainType = "ton"
 	CurveSigningChainTypeStarknet       CurveSigningChainType = "starknet"
+	CurveSigningChainTypeXrpl           CurveSigningChainType = "xrpl"
 )
 
 // Source for a transfer identified by a token contract address (EVM) or mint
@@ -2602,9 +2603,9 @@ type HDInitInput struct {
 	// The address of the wallet to import.
 	Address string `json:"address" api:"required"`
 	// The chain type of the wallet to import. Supports `ethereum`, `solana`,
-	// `stellar`, `tron`, `sui`, and `aptos`.
+	// `stellar`, `tron`, `sui`, `aptos`, and `xrpl`.
 	//
-	// Any of "ethereum", "solana", "stellar", "tron", "sui", "aptos".
+	// Any of "ethereum", "solana", "stellar", "tron", "sui", "aptos", "xrpl".
 	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
 	//
@@ -2642,9 +2643,9 @@ type HDSubmitInput struct {
 	// The address of the wallet to import.
 	Address string `json:"address" api:"required"`
 	// The chain type of the wallet to import. Supports `ethereum`, `solana`,
-	// `stellar`, `tron`, `sui`, and `aptos`.
+	// `stellar`, `tron`, `sui`, `aptos`, and `xrpl`.
 	//
-	// Any of "ethereum", "solana", "stellar", "tron", "sui", "aptos".
+	// Any of "ethereum", "solana", "stellar", "tron", "sui", "aptos", "xrpl".
 	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
 	// The encrypted entropy of the wallet to import.
 	Ciphertext string `json:"ciphertext" api:"required"`
@@ -2927,9 +2928,9 @@ type PrivateKeyInitInput struct {
 	// The address of the wallet to import.
 	Address string `json:"address" api:"required"`
 	// The chain type of the wallet to import. Supports `ethereum`, `solana`,
-	// `stellar`, `tron`, `sui`, and `aptos`.
+	// `stellar`, `tron`, `sui`, `aptos`, and `xrpl`.
 	//
-	// Any of "ethereum", "solana", "stellar", "tron", "sui", "aptos".
+	// Any of "ethereum", "solana", "stellar", "tron", "sui", "aptos", "xrpl".
 	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
 	// The encryption type of the wallet to import. Currently only supports `HPKE`.
 	//
@@ -2962,9 +2963,9 @@ type PrivateKeySubmitInput struct {
 	// The address of the wallet to import.
 	Address string `json:"address" api:"required"`
 	// The chain type of the wallet to import. Supports `ethereum`, `solana`,
-	// `stellar`, `tron`, `sui`, and `aptos`.
+	// `stellar`, `tron`, `sui`, `aptos`, and `xrpl`.
 	//
-	// Any of "ethereum", "solana", "stellar", "tron", "sui", "aptos".
+	// Any of "ethereum", "solana", "stellar", "tron", "sui", "aptos", "xrpl".
 	ChainType WalletImportSupportedChains `json:"chain_type,omitzero" api:"required"`
 	// The encrypted entropy of the wallet to import.
 	Ciphertext string `json:"ciphertext" api:"required"`
@@ -6639,12 +6640,6 @@ type TransactionTokenAddressInput = string
 type TransferReceivedTransactionDetail struct {
 	Asset TransferReceivedTransactionDetailAsset `json:"asset" api:"required"`
 	// Supported blockchain network names for wallet balance and transaction queries.
-	//
-	// Any of "ethereum", "arbitrum", "avalanche", "base", "tempo", "linea",
-	// "optimism", "polygon", "bsc", "solana", "tron", "zksync_era", "hoodi",
-	// "sepolia", "arbitrum_sepolia", "avalanche_fuji", "base_sepolia",
-	// "linea_testnet", "optimism_sepolia", "polygon_amoy", "solana_devnet",
-	// "solana_testnet", "tron_nile".
 	Chain                WalletAssetChainNameInput `json:"chain" api:"required"`
 	DisplayValues        map[string]string         `json:"display_values" api:"required"`
 	RawValue             string                    `json:"raw_value" api:"required"`
@@ -6788,12 +6783,6 @@ func (r *TransferRequestBody) UnmarshalJSON(data []byte) error {
 type TransferSentTransactionDetail struct {
 	Asset TransferSentTransactionDetailAsset `json:"asset" api:"required"`
 	// Supported blockchain network names for wallet balance and transaction queries.
-	//
-	// Any of "ethereum", "arbitrum", "avalanche", "base", "tempo", "linea",
-	// "optimism", "polygon", "bsc", "solana", "tron", "zksync_era", "hoodi",
-	// "sepolia", "arbitrum_sepolia", "avalanche_fuji", "base_sepolia",
-	// "linea_testnet", "optimism_sepolia", "polygon_amoy", "solana_devnet",
-	// "solana_testnet", "tron_nile".
 	Chain                WalletAssetChainNameInput `json:"chain" api:"required"`
 	DisplayValues        map[string]string         `json:"display_values" api:"required"`
 	RawValue             string                    `json:"raw_value" api:"required"`
@@ -8115,7 +8104,7 @@ type Wallet struct {
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
 	// "tron", "bitcoin-segwit", "bitcoin-taproot", "pearl", "near", "ton", "starknet",
-	// "spark".
+	// "xrpl", "spark".
 	ChainType WalletChainType `json:"chain_type" api:"required"`
 	// Unix timestamp of when the wallet was created in milliseconds.
 	CreatedAt float64 `json:"created_at" api:"required"`
@@ -8452,7 +8441,7 @@ type WalletBatchItemInput struct {
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
 	// "tron", "bitcoin-segwit", "bitcoin-taproot", "pearl", "near", "ton", "starknet",
-	// "spark".
+	// "xrpl", "spark".
 	ChainType WalletChainType `json:"chain_type,omitzero" api:"required"`
 	// The key quorum ID to set as the owner of the resource. If you provide this, do
 	// not specify an owner.
@@ -8500,6 +8489,7 @@ const (
 	WalletChainTypeNear           WalletChainType = "near"
 	WalletChainTypeTon            WalletChainType = "ton"
 	WalletChainTypeStarknet       WalletChainType = "starknet"
+	WalletChainTypeXrpl           WalletChainType = "xrpl"
 	WalletChainTypeSpark          WalletChainType = "spark"
 )
 
@@ -8622,7 +8612,7 @@ func (r *WalletExportResponseBody) UnmarshalJSON(data []byte) error {
 }
 
 // The chain type of the wallet to import. Supports `ethereum`, `solana`,
-// `stellar`, `tron`, `sui`, and `aptos`.
+// `stellar`, `tron`, `sui`, `aptos`, and `xrpl`.
 type WalletImportSupportedChains string
 
 const (
@@ -8632,6 +8622,7 @@ const (
 	WalletImportSupportedChainsTron     WalletImportSupportedChains = "tron"
 	WalletImportSupportedChainsSui      WalletImportSupportedChains = "sui"
 	WalletImportSupportedChainsAptos    WalletImportSupportedChains = "aptos"
+	WalletImportSupportedChainsXrpl     WalletImportSupportedChains = "xrpl"
 )
 
 // WalletRpcRequestBodyUnionResp contains all possible properties and values from
@@ -10066,7 +10057,7 @@ type WalletNewParams struct {
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
 	// "tron", "bitcoin-segwit", "bitcoin-taproot", "pearl", "near", "ton", "starknet",
-	// "spark".
+	// "xrpl", "spark".
 	ChainType WalletChainType `json:"chain_type,omitzero" api:"required"`
 	// The key quorum ID to set as the owner of the resource. If you provide this, do
 	// not specify an owner.
@@ -10167,7 +10158,7 @@ type WalletListParams struct {
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
 	// "tron", "bitcoin-segwit", "bitcoin-taproot", "pearl", "near", "ton", "starknet",
-	// "spark".
+	// "xrpl", "spark".
 	ChainType WalletChainType `query:"chain_type,omitzero" json:"-"`
 	paramObj
 }
@@ -10357,7 +10348,7 @@ type WalletNewWalletsWithRecoveryParamsWallet struct {
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
 	// "tron", "bitcoin-segwit", "bitcoin-taproot", "pearl", "near", "ton", "starknet",
-	// "spark".
+	// "xrpl", "spark".
 	ChainType WalletChainType `json:"chain_type,omitzero" api:"required"`
 	// A human-readable label for the wallet.
 	DisplayName param.Opt[string] `json:"display_name,omitzero"`

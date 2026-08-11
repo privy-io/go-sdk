@@ -70,12 +70,6 @@ func (r *WalletBalanceGetResponse) UnmarshalJSON(data []byte) error {
 type WalletBalanceGetResponseBalance struct {
 	Asset WalletBalanceGetResponseBalanceAsset `json:"asset" api:"required"`
 	// Supported blockchain network names for wallet balance and transaction queries.
-	//
-	// Any of "ethereum", "arbitrum", "avalanche", "base", "tempo", "linea",
-	// "optimism", "polygon", "bsc", "solana", "tron", "zksync_era", "hoodi",
-	// "sepolia", "arbitrum_sepolia", "avalanche_fuji", "base_sepolia",
-	// "linea_testnet", "optimism_sepolia", "polygon_amoy", "solana_devnet",
-	// "solana_testnet", "tron_nile".
 	Chain            WalletAssetChainNameInput `json:"chain" api:"required"`
 	DisplayValues    map[string]string         `json:"display_values" api:"required"`
 	RawValue         string                    `json:"raw_value" api:"required"`
@@ -187,11 +181,40 @@ const (
 // Use [param.IsOmitted] to confirm if a field is set.
 type WalletBalanceGetParamsChainUnion struct {
 	// Check if union is this variant with
-	// !param.IsOmitted(union.OfWalletAssetChainNameInput)
-	OfWalletAssetChainNameInput      param.Opt[WalletAssetChainNameInput] `query:",omitzero,inline"`
-	OfWalletAssetChainNameInputArray []WalletAssetChainNameInput          `query:",omitzero,inline"`
+	// !param.IsOmitted(union.OfWalletBalanceGetsChainString)
+	OfWalletBalanceGetsChainString   param.Opt[string]           `query:",omitzero,inline"`
+	OfString                         param.Opt[string]           `query:",omitzero,inline"`
+	OfWalletAssetChainNameInputArray []WalletAssetChainNameInput `query:",omitzero,inline"`
 	paramUnion
 }
+
+type WalletBalanceGetParamsChainString string
+
+const (
+	WalletBalanceGetParamsChainStringEthereum        WalletBalanceGetParamsChainString = "ethereum"
+	WalletBalanceGetParamsChainStringArbitrum        WalletBalanceGetParamsChainString = "arbitrum"
+	WalletBalanceGetParamsChainStringAvalanche       WalletBalanceGetParamsChainString = "avalanche"
+	WalletBalanceGetParamsChainStringBase            WalletBalanceGetParamsChainString = "base"
+	WalletBalanceGetParamsChainStringTempo           WalletBalanceGetParamsChainString = "tempo"
+	WalletBalanceGetParamsChainStringLinea           WalletBalanceGetParamsChainString = "linea"
+	WalletBalanceGetParamsChainStringOptimism        WalletBalanceGetParamsChainString = "optimism"
+	WalletBalanceGetParamsChainStringPolygon         WalletBalanceGetParamsChainString = "polygon"
+	WalletBalanceGetParamsChainStringBsc             WalletBalanceGetParamsChainString = "bsc"
+	WalletBalanceGetParamsChainStringSolana          WalletBalanceGetParamsChainString = "solana"
+	WalletBalanceGetParamsChainStringTron            WalletBalanceGetParamsChainString = "tron"
+	WalletBalanceGetParamsChainStringZksyncEra       WalletBalanceGetParamsChainString = "zksync_era"
+	WalletBalanceGetParamsChainStringHoodi           WalletBalanceGetParamsChainString = "hoodi"
+	WalletBalanceGetParamsChainStringSepolia         WalletBalanceGetParamsChainString = "sepolia"
+	WalletBalanceGetParamsChainStringArbitrumSepolia WalletBalanceGetParamsChainString = "arbitrum_sepolia"
+	WalletBalanceGetParamsChainStringAvalancheFuji   WalletBalanceGetParamsChainString = "avalanche_fuji"
+	WalletBalanceGetParamsChainStringBaseSepolia     WalletBalanceGetParamsChainString = "base_sepolia"
+	WalletBalanceGetParamsChainStringLineaTestnet    WalletBalanceGetParamsChainString = "linea_testnet"
+	WalletBalanceGetParamsChainStringOptimismSepolia WalletBalanceGetParamsChainString = "optimism_sepolia"
+	WalletBalanceGetParamsChainStringPolygonAmoy     WalletBalanceGetParamsChainString = "polygon_amoy"
+	WalletBalanceGetParamsChainStringSolanaDevnet    WalletBalanceGetParamsChainString = "solana_devnet"
+	WalletBalanceGetParamsChainStringSolanaTestnet   WalletBalanceGetParamsChainString = "solana_testnet"
+	WalletBalanceGetParamsChainStringTronNile        WalletBalanceGetParamsChainString = "tron_nile"
+)
 
 // If set, balances are converted to the specified fiat currency. Not supported
 // when `token` is provided.

@@ -108,9 +108,6 @@ func (r *WalletTransactionGetResponseTransaction) UnmarshalJSON(data []byte) err
 
 type WalletTransactionGetParams struct {
 	// Chains supported for transaction history queries.
-	//
-	// Any of "ethereum", "arbitrum", "avalanche", "base", "base_sepolia", "bsc",
-	// "tempo", "linea", "optimism", "polygon", "solana", "sepolia".
 	Chain  TransactionChainNameInput `query:"chain,omitzero" api:"required" json:"-"`
 	Limit  param.Opt[float64]        `query:"limit,omitzero" json:"-"`
 	Cursor param.Opt[string]         `query:"cursor,omitzero" json:"-"`
