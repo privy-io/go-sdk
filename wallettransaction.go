@@ -73,17 +73,22 @@ type WalletTransactionGetResponseTransaction struct {
 	Caip2     string  `json:"caip2" api:"required"`
 	CreatedAt float64 `json:"created_at" api:"required"`
 	// Details of a wallet transaction, varying by transaction type.
-	Details            TransactionDetailUnion `json:"details" api:"required"`
-	PrivyTransactionID string                 `json:"privy_transaction_id" api:"required"`
+	Details TransactionDetailUnion `json:"details" api:"required"`
+	// Privy's ID for the transaction, or `null` if the transaction was not broadcasted
+	// through Privy.
+	PrivyTransactionID string `json:"privy_transaction_id" api:"required"`
 	// Status of a blockchain transaction submitted by Privy.
 	//
 	// Any of "broadcasted", "confirmed", "execution_reverted", "failed", "replaced",
 	// "finalized", "provider_error", "pending".
-	Status            BlockchainTransactionStatus `json:"status" api:"required"`
-	TransactionHash   string                      `json:"transaction_hash" api:"required"`
-	WalletID          string                      `json:"wallet_id" api:"required"`
-	Sponsored         bool                        `json:"sponsored"`
-	UserOperationHash string                      `json:"user_operation_hash"`
+	Status          BlockchainTransactionStatus `json:"status" api:"required"`
+	TransactionHash string                      `json:"transaction_hash" api:"required"`
+	// The wallet whose history this transaction belongs to. The sending wallet for
+	// outbound transactions, including every transaction Privy broadcasted, and the
+	// receiving wallet for inbound transfers.
+	WalletID          string `json:"wallet_id" api:"required"`
+	Sponsored         bool   `json:"sponsored"`
+	UserOperationHash string `json:"user_operation_hash"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2              respjson.Field

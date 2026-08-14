@@ -1220,6 +1220,92 @@ const (
 	TransactionStillPendingWebhookPayloadTypeTransactionStillPending TransactionStillPendingWebhookPayloadType = "transaction.still_pending"
 )
 
+// Payload for the usage.cross_chain_fee.recorded webhook event (Privy fee on a
+// cross-chain transfer or swap).
+type UsageCrossChainFeeRecordedWebhookPayload struct {
+	AmountUsd  string `json:"amount_usd" api:"required"`
+	RecordedAt int64  `json:"recorded_at" api:"required"`
+	SourceID   string `json:"source_id" api:"required"`
+	// The type of wallet action that incurred a usage charge.
+	//
+	// Any of "wallet-action-transfer", "wallet-action-swap".
+	SourceType UsageSourceType `json:"source_type" api:"required"`
+	// The type of webhook event.
+	//
+	// Any of "usage.cross_chain_fee.recorded".
+	Type UsageCrossChainFeeRecordedWebhookPayloadType `json:"type" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		AmountUsd   respjson.Field
+		RecordedAt  respjson.Field
+		SourceID    respjson.Field
+		SourceType  respjson.Field
+		Type        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r UsageCrossChainFeeRecordedWebhookPayload) RawJSON() string { return r.JSON.raw }
+func (r *UsageCrossChainFeeRecordedWebhookPayload) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The type of webhook event.
+type UsageCrossChainFeeRecordedWebhookPayloadType string
+
+const (
+	UsageCrossChainFeeRecordedWebhookPayloadTypeUsageCrossChainFeeRecorded UsageCrossChainFeeRecordedWebhookPayloadType = "usage.cross_chain_fee.recorded"
+)
+
+// Payload for the usage.gas_sponsorship.recorded webhook event (sponsored network
+// gas).
+type UsageGasSponsorshipRecordedWebhookPayload struct {
+	AmountUsd  string `json:"amount_usd" api:"required"`
+	RecordedAt int64  `json:"recorded_at" api:"required"`
+	SourceID   string `json:"source_id" api:"required"`
+	// The type of wallet action that incurred a usage charge.
+	//
+	// Any of "wallet-action-transfer", "wallet-action-swap".
+	SourceType UsageSourceType `json:"source_type" api:"required"`
+	// The type of webhook event.
+	//
+	// Any of "usage.gas_sponsorship.recorded".
+	Type UsageGasSponsorshipRecordedWebhookPayloadType `json:"type" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		AmountUsd   respjson.Field
+		RecordedAt  respjson.Field
+		SourceID    respjson.Field
+		SourceType  respjson.Field
+		Type        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r UsageGasSponsorshipRecordedWebhookPayload) RawJSON() string { return r.JSON.raw }
+func (r *UsageGasSponsorshipRecordedWebhookPayload) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The type of webhook event.
+type UsageGasSponsorshipRecordedWebhookPayloadType string
+
+const (
+	UsageGasSponsorshipRecordedWebhookPayloadTypeUsageGasSponsorshipRecorded UsageGasSponsorshipRecordedWebhookPayloadType = "usage.gas_sponsorship.recorded"
+)
+
+// The type of wallet action that incurred a usage charge.
+type UsageSourceType string
+
+const (
+	UsageSourceTypeWalletActionTransfer UsageSourceType = "wallet-action-transfer"
+	UsageSourceTypeWalletActionSwap     UsageSourceType = "wallet-action-swap"
+)
+
 // Payload for the user.authenticated webhook event.
 type UserAuthenticatedWebhookPayload struct {
 	// A linked account for the user.
@@ -4049,7 +4135,9 @@ const (
 // [TransactionConfirmedWebhookPayload],
 // [TransactionExecutionRevertedWebhookPayload], [TransactionFailedWebhookPayload],
 // [TransactionProviderErrorWebhookPayload], [TransactionReplacedWebhookPayload],
-// [TransactionStillPendingWebhookPayload], [UserAuthenticatedWebhookPayload],
+// [TransactionStillPendingWebhookPayload],
+// [UsageCrossChainFeeRecordedWebhookPayload],
+// [UsageGasSponsorshipRecordedWebhookPayload], [UserAuthenticatedWebhookPayload],
 // [UserCreatedWebhookPayload], [UserDeletedWebhookPayload],
 // [UserLinkedAccountWebhookPayload], [UserTransferredAccountWebhookPayload],
 // [UserUnlinkedAccountWebhookPayload], [UserUpdatedAccountWebhookPayload],
@@ -4106,7 +4194,8 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	// "transaction.broadcasted", "transaction.confirmed",
 	// "transaction.execution_reverted", "transaction.failed",
 	// "transaction.provider_error", "transaction.replaced",
-	// "transaction.still_pending", "user.authenticated", "user.created",
+	// "transaction.still_pending", "usage.cross_chain_fee.recorded",
+	// "usage.gas_sponsorship.recorded", "user.authenticated", "user.created",
 	// "user.deleted", "user.linked_account", "user.transferred_account",
 	// "user.unlinked_account", "user.updated_account", "user.wallet_created",
 	// "user_operation.completed", "wallet.archived", "wallet.funds_deposited",
@@ -4148,6 +4237,11 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	ReferenceID     string                                  `json:"reference_id"`
 	// This field is from variant [TransactionStillPendingWebhookPayload].
 	TransactionRequest UnsignedStandardEthereumTransactionResp `json:"transaction_request"`
+	AmountUsd          string                                  `json:"amount_usd"`
+	RecordedAt         int64                                   `json:"recorded_at"`
+	SourceID           string                                  `json:"source_id"`
+	// This field is from variant [UsageCrossChainFeeRecordedWebhookPayload].
+	SourceType UsageSourceType `json:"source_type"`
 	// This field is from variant [UserAuthenticatedWebhookPayload].
 	Account LinkedAccountUnion `json:"account"`
 	// This field is from variant [UserAuthenticatedWebhookPayload].
@@ -4252,6 +4346,10 @@ type UnsafeUnwrapWebhookEventUnion struct {
 		WalletID             respjson.Field
 		ReferenceID          respjson.Field
 		TransactionRequest   respjson.Field
+		AmountUsd            respjson.Field
+		RecordedAt           respjson.Field
+		SourceID             respjson.Field
+		SourceType           respjson.Field
 		Account              respjson.Field
 		User                 respjson.Field
 		DeletedUser          respjson.Field
@@ -4331,6 +4429,8 @@ func (TransactionFailedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()      
 func (TransactionProviderErrorWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                {}
 func (TransactionReplacedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                     {}
 func (TransactionStillPendingWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                 {}
+func (UsageCrossChainFeeRecordedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()              {}
+func (UsageGasSponsorshipRecordedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()             {}
 func (UserAuthenticatedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                       {}
 func (UserCreatedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                             {}
 func (UserDeletedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                             {}
@@ -4392,6 +4492,8 @@ func (YieldWithdrawConfirmedWebhookPayload) implUnsafeUnwrapWebhookEventUnion() 
 //	case privyclient.TransactionProviderErrorWebhookPayload:
 //	case privyclient.TransactionReplacedWebhookPayload:
 //	case privyclient.TransactionStillPendingWebhookPayload:
+//	case privyclient.UsageCrossChainFeeRecordedWebhookPayload:
+//	case privyclient.UsageGasSponsorshipRecordedWebhookPayload:
 //	case privyclient.UserAuthenticatedWebhookPayload:
 //	case privyclient.UserCreatedWebhookPayload:
 //	case privyclient.UserDeletedWebhookPayload:
@@ -4468,6 +4570,10 @@ func (u UnsafeUnwrapWebhookEventUnion) AsAny() anyUnsafeUnwrapWebhookEvent {
 		return u.AsTransactionReplaced()
 	case "transaction.still_pending":
 		return u.AsTransactionStillPending()
+	case "usage.cross_chain_fee.recorded":
+		return u.AsUsageCrossChainFeeRecorded()
+	case "usage.gas_sponsorship.recorded":
+		return u.AsUsageGasSponsorshipRecorded()
 	case "user.authenticated":
 		return u.AsUserAuthenticated()
 	case "user.created":
@@ -4624,6 +4730,16 @@ func (u UnsafeUnwrapWebhookEventUnion) AsTransactionReplaced() (v TransactionRep
 }
 
 func (u UnsafeUnwrapWebhookEventUnion) AsTransactionStillPending() (v TransactionStillPendingWebhookPayload) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u UnsafeUnwrapWebhookEventUnion) AsUsageCrossChainFeeRecorded() (v UsageCrossChainFeeRecordedWebhookPayload) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u UnsafeUnwrapWebhookEventUnion) AsUsageGasSponsorshipRecorded() (v UsageGasSponsorshipRecordedWebhookPayload) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
