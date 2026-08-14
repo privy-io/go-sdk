@@ -8537,9 +8537,9 @@ func (r *WalletCustodian) UnmarshalJSON(data []byte) error {
 
 // The entity a wallet is attributed to.
 type WalletEntity struct {
-	// The Privy DID of the entity.
+	// The Privy entity ID.
 	ID string `json:"id" api:"required"`
-	// Any of "user".
+	// Any of "user", "organization".
 	Type WalletEntityType `json:"type" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -8559,7 +8559,8 @@ func (r *WalletEntity) UnmarshalJSON(data []byte) error {
 type WalletEntityType string
 
 const (
-	WalletEntityTypeUser WalletEntityType = "user"
+	WalletEntityTypeUser         WalletEntityType = "user"
+	WalletEntityTypeOrganization WalletEntityType = "organization"
 )
 
 // Request body for exporting a wallet private key.
@@ -10096,7 +10097,7 @@ func (r *WalletNewParams) UnmarshalJSON(data []byte) error {
 // The properties ID, Type are required.
 type WalletNewParamsEntity struct {
 	ID string `json:"id" api:"required"`
-	// Any of "user".
+	// Any of "user", "organization".
 	Type string `json:"type,omitzero" api:"required"`
 	paramObj
 }
@@ -10111,7 +10112,7 @@ func (r *WalletNewParamsEntity) UnmarshalJSON(data []byte) error {
 
 func init() {
 	apijson.RegisterFieldValidator[WalletNewParamsEntity](
-		"type", "user",
+		"type", "user", "organization",
 	)
 }
 
