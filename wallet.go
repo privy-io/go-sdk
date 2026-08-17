@@ -8642,8 +8642,8 @@ const (
 // [SparkPayLightningInvoiceRpcInputResp],
 // [SparkSignMessageWithIdentityKeyRpcInputResp], [SparkWithdrawRpcInputResp],
 // [SparkGetWithdrawalFeeQuoteRpcInputResp], [TronSignTransactionRpcInputResp],
-// [TronSendTransactionRpcInputResp], [ExportPrivateKeyRpcInputResp],
-// [ExportSeedPhraseRpcInputResp].
+// [TronSendTransactionRpcInputResp], [XrplSignTransactionRpcInputResp],
+// [ExportPrivateKeyRpcInputResp], [ExportSeedPhraseRpcInputResp].
 //
 // Use the [WalletRpcRequestBodyUnionResp.AsAny] method to switch on the variant.
 //
@@ -8656,8 +8656,8 @@ type WalletRpcRequestBodyUnionResp struct {
 	// "transferTokens", "getStaticDepositAddress", "getClaimStaticDepositQuote",
 	// "claimStaticDeposit", "createLightningInvoice", "payLightningInvoice",
 	// "signMessageWithIdentityKey", "withdraw", "getWithdrawalFeeQuote",
-	// "tron_signTransaction", "tron_sendTransaction", "exportPrivateKey",
-	// "exportSeedPhrase".
+	// "tron_signTransaction", "tron_sendTransaction", "xrpl_signTransaction",
+	// "exportPrivateKey", "exportSeedPhrase".
 	Method string `json:"method"`
 	// This field is a union of [EthereumSignTransactionRpcInputParamsResp],
 	// [EthereumSendTransactionRpcInputParamsResp],
@@ -8679,7 +8679,8 @@ type WalletRpcRequestBodyUnionResp struct {
 	// [SparkWithdrawRpcInputParamsResp],
 	// [SparkGetWithdrawalFeeQuoteRpcInputParamsResp],
 	// [TronSignTransactionRpcInputParamsResp],
-	// [TronSendTransactionRpcInputParamsResp], [PrivateKeyExportInputResp],
+	// [TronSendTransactionRpcInputParamsResp],
+	// [XrplSignTransactionRpcInputParamsResp], [PrivateKeyExportInputResp],
 	// [SeedPhraseExportInputResp]
 	Params    WalletRpcRequestBodyUnionRespParams `json:"params"`
 	Address   string                              `json:"address"`
@@ -8748,6 +8749,7 @@ func (SparkWithdrawRpcInputResp) implWalletRpcRequestBodyUnionResp()            
 func (SparkGetWithdrawalFeeQuoteRpcInputResp) implWalletRpcRequestBodyUnionResp()      {}
 func (TronSignTransactionRpcInputResp) implWalletRpcRequestBodyUnionResp()             {}
 func (TronSendTransactionRpcInputResp) implWalletRpcRequestBodyUnionResp()             {}
+func (XrplSignTransactionRpcInputResp) implWalletRpcRequestBodyUnionResp()             {}
 func (ExportPrivateKeyRpcInputResp) implWalletRpcRequestBodyUnionResp()                {}
 func (ExportSeedPhraseRpcInputResp) implWalletRpcRequestBodyUnionResp()                {}
 
@@ -8778,6 +8780,7 @@ func (ExportSeedPhraseRpcInputResp) implWalletRpcRequestBodyUnionResp()         
 //	case privyclient.SparkGetWithdrawalFeeQuoteRpcInputResp:
 //	case privyclient.TronSignTransactionRpcInputResp:
 //	case privyclient.TronSendTransactionRpcInputResp:
+//	case privyclient.XrplSignTransactionRpcInputResp:
 //	case privyclient.ExportPrivateKeyRpcInputResp:
 //	case privyclient.ExportSeedPhraseRpcInputResp:
 //	default:
@@ -8833,6 +8836,8 @@ func (u WalletRpcRequestBodyUnionResp) AsAny() anyWalletRpcRequestBodyResp {
 		return u.AsTronSignTransaction()
 	case "tron_sendTransaction":
 		return u.AsTronSendTransaction()
+	case "xrpl_signTransaction":
+		return u.AsXrplSignTransaction()
 	case "exportPrivateKey":
 		return u.AsExportPrivateKey()
 	case "exportSeedPhrase":
@@ -8961,6 +8966,11 @@ func (u WalletRpcRequestBodyUnionResp) AsTronSendTransaction() (v TronSendTransa
 	return
 }
 
+func (u WalletRpcRequestBodyUnionResp) AsXrplSignTransaction() (v XrplSignTransactionRpcInputResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
 func (u WalletRpcRequestBodyUnionResp) AsExportPrivateKey() (v ExportPrivateKeyRpcInputResp) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
@@ -8986,7 +8996,7 @@ func (r *WalletRpcRequestBodyUnionResp) UnmarshalJSON(data []byte) error {
 // [WalletRpcRequestBodyUnionResp].
 type WalletRpcRequestBodyUnionRespParams struct {
 	// This field is a union of [UnsignedEthereumTransactionUnionResp], [string],
-	// [string]
+	// [string], [string]
 	Transaction WalletRpcRequestBodyUnionRespParamsTransaction `json:"transaction"`
 	Encoding    string                                         `json:"encoding"`
 	Message     string                                         `json:"message"`
@@ -9382,6 +9392,12 @@ func WalletRpcRequestBodyOfTronSendTransaction(params TronSendTransactionRpcInpu
 	return WalletRpcRequestBodyUnion{OfTronSendTransaction: &tronSendTransaction}
 }
 
+func WalletRpcRequestBodyOfXrplSignTransaction(params XrplSignTransactionRpcInputParams) WalletRpcRequestBodyUnion {
+	var xrplSignTransaction XrplSignTransactionRpcInput
+	xrplSignTransaction.Params = params
+	return WalletRpcRequestBodyUnion{OfXrplSignTransaction: &xrplSignTransaction}
+}
+
 func WalletRpcRequestBodyOfExportPrivateKey(address string, method ExportPrivateKeyRpcInputMethod, params PrivateKeyExportInput) WalletRpcRequestBodyUnion {
 	var exportPrivateKey ExportPrivateKeyRpcInput
 	exportPrivateKey.Address = address
@@ -9426,6 +9442,7 @@ type WalletRpcRequestBodyUnion struct {
 	OfGetWithdrawalFeeQuote      *SparkGetWithdrawalFeeQuoteRpcInput      `json:",omitzero,inline"`
 	OfTronSignTransaction        *TronSignTransactionRpcInput             `json:",omitzero,inline"`
 	OfTronSendTransaction        *TronSendTransactionRpcInput             `json:",omitzero,inline"`
+	OfXrplSignTransaction        *XrplSignTransactionRpcInput             `json:",omitzero,inline"`
 	OfExportPrivateKey           *ExportPrivateKeyRpcInput                `json:",omitzero,inline"`
 	OfExportSeedPhrase           *ExportSeedPhraseRpcInput                `json:",omitzero,inline"`
 	paramUnion
@@ -9456,6 +9473,7 @@ func (u WalletRpcRequestBodyUnion) MarshalJSON() ([]byte, error) {
 		u.OfGetWithdrawalFeeQuote,
 		u.OfTronSignTransaction,
 		u.OfTronSendTransaction,
+		u.OfXrplSignTransaction,
 		u.OfExportPrivateKey,
 		u.OfExportSeedPhrase)
 }
@@ -9490,6 +9508,7 @@ func init() {
 		apijson.Discriminator[SparkGetWithdrawalFeeQuoteRpcInput]("getWithdrawalFeeQuote"),
 		apijson.Discriminator[TronSignTransactionRpcInput]("tron_signTransaction"),
 		apijson.Discriminator[TronSendTransactionRpcInput]("tron_sendTransaction"),
+		apijson.Discriminator[XrplSignTransactionRpcInput]("xrpl_signTransaction"),
 		apijson.Discriminator[ExportPrivateKeyRpcInput]("exportPrivateKey"),
 		apijson.Discriminator[ExportSeedPhraseRpcInput]("exportSeedPhrase"),
 	)
@@ -9509,8 +9528,8 @@ func init() {
 // [SparkPayLightningInvoiceRpcResponse],
 // [SparkSignMessageWithIdentityKeyRpcResponse], [SparkWithdrawRpcResponse],
 // [SparkGetWithdrawalFeeQuoteRpcResponse], [TronSignTransactionRpcResponse],
-// [TronSendTransactionRpcResponse], [ExportPrivateKeyRpcResponse],
-// [ExportSeedPhraseRpcResponse].
+// [TronSendTransactionRpcResponse], [XrplSignTransactionRpcResponse],
+// [ExportPrivateKeyRpcResponse], [ExportSeedPhraseRpcResponse].
 //
 // Use the [WalletRpcResponseUnion.AsAny] method to switch on the variant.
 //
@@ -9532,8 +9551,8 @@ type WalletRpcResponseUnion struct {
 	// [SparkPayLightningInvoiceRpcResponseDataUnion],
 	// [SparkSignMessageWithIdentityKeyRpcResponseData], [SparkCoopExitRequest],
 	// [SparkCoopExitFeeQuote], [TronSignTransactionRpcResponseData],
-	// [TronSendTransactionRpcResponseData], [PrivateKeyExportInputResp],
-	// [SeedPhraseExportResponse]
+	// [TronSendTransactionRpcResponseData], [XrplSignTransactionRpcResponseData],
+	// [PrivateKeyExportInputResp], [SeedPhraseExportResponse]
 	Data WalletRpcResponseUnionData `json:"data"`
 	// Any of "personal_sign", "eth_signTypedData_v4", "eth_signTransaction",
 	// "eth_sendTransaction", "eth_signUserOperation", "eth_sign7702Authorization",
@@ -9542,7 +9561,8 @@ type WalletRpcResponseUnion struct {
 	// "getStaticDepositAddress", "getClaimStaticDepositQuote", "claimStaticDeposit",
 	// "createLightningInvoice", "payLightningInvoice", "signMessageWithIdentityKey",
 	// "withdraw", "getWithdrawalFeeQuote", "tron_signTransaction",
-	// "tron_sendTransaction", "exportPrivateKey", "exportSeedPhrase".
+	// "tron_sendTransaction", "xrpl_signTransaction", "exportPrivateKey",
+	// "exportSeedPhrase".
 	Method string `json:"method"`
 	JSON   struct {
 		Data   respjson.Field
@@ -9581,6 +9601,7 @@ func (SparkWithdrawRpcResponse) implWalletRpcResponseUnion()                   {
 func (SparkGetWithdrawalFeeQuoteRpcResponse) implWalletRpcResponseUnion()      {}
 func (TronSignTransactionRpcResponse) implWalletRpcResponseUnion()             {}
 func (TronSendTransactionRpcResponse) implWalletRpcResponseUnion()             {}
+func (XrplSignTransactionRpcResponse) implWalletRpcResponseUnion()             {}
 func (ExportPrivateKeyRpcResponse) implWalletRpcResponseUnion()                {}
 func (ExportSeedPhraseRpcResponse) implWalletRpcResponseUnion()                {}
 
@@ -9611,6 +9632,7 @@ func (ExportSeedPhraseRpcResponse) implWalletRpcResponseUnion()                {
 //	case privyclient.SparkGetWithdrawalFeeQuoteRpcResponse:
 //	case privyclient.TronSignTransactionRpcResponse:
 //	case privyclient.TronSendTransactionRpcResponse:
+//	case privyclient.XrplSignTransactionRpcResponse:
 //	case privyclient.ExportPrivateKeyRpcResponse:
 //	case privyclient.ExportSeedPhraseRpcResponse:
 //	default:
@@ -9666,6 +9688,8 @@ func (u WalletRpcResponseUnion) AsAny() anyWalletRpcResponse {
 		return u.AsTronSignTransaction()
 	case "tron_sendTransaction":
 		return u.AsTronSendTransaction()
+	case "xrpl_signTransaction":
+		return u.AsXrplSignTransaction()
 	case "exportPrivateKey":
 		return u.AsExportPrivateKey()
 	case "exportSeedPhrase":
@@ -9794,6 +9818,11 @@ func (u WalletRpcResponseUnion) AsTronSendTransaction() (v TronSendTransactionRp
 	return
 }
 
+func (u WalletRpcResponseUnion) AsXrplSignTransaction() (v XrplSignTransactionRpcResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
 func (u WalletRpcResponseUnion) AsExportPrivateKey() (v ExportPrivateKeyRpcResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
@@ -9908,6 +9937,8 @@ type WalletRpcResponseUnionData struct {
 	UserFeeMedium SparkCurrencyAmount `json:"user_fee_medium"`
 	// This field is from variant [SparkCoopExitFeeQuote].
 	UserFeeSlow SparkCurrencyAmount `json:"user_fee_slow"`
+	// This field is from variant [XrplSignTransactionRpcResponseData].
+	TxnSignature string `json:"txn_signature"`
 	// This field is from variant [PrivateKeyExportInputResp].
 	EncryptionType HpkeEncryption `json:"encryption_type"`
 	// This field is from variant [PrivateKeyExportInputResp].
@@ -9970,6 +10001,7 @@ type WalletRpcResponseUnionData struct {
 		UserFeeFast               respjson.Field
 		UserFeeMedium             respjson.Field
 		UserFeeSlow               respjson.Field
+		TxnSignature              respjson.Field
 		EncryptionType            respjson.Field
 		RecipientPublicKey        respjson.Field
 		ExportSeedPhrase          respjson.Field
@@ -10030,6 +10062,173 @@ func (r WalletUpdateRequestBody) MarshalJSON() (data []byte, err error) {
 func (r *WalletUpdateRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// Executes the XRPL `xrpl_signTransaction` RPC to sign a transaction. The caller
+// is responsible for broadcasting.
+type XrplSignTransactionRpcInputResp struct {
+	// Any of "xrpl_signTransaction".
+	Method XrplSignTransactionRpcInputMethod `json:"method" api:"required"`
+	// Parameters for the XRPL `xrpl_signTransaction` RPC.
+	Params XrplSignTransactionRpcInputParamsResp `json:"params" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Method      respjson.Field
+		Params      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r XrplSignTransactionRpcInputResp) RawJSON() string { return r.JSON.raw }
+func (r *XrplSignTransactionRpcInputResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this XrplSignTransactionRpcInputResp to a
+// XrplSignTransactionRpcInput.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// XrplSignTransactionRpcInput.Overrides()
+func (r XrplSignTransactionRpcInputResp) ToParam() XrplSignTransactionRpcInput {
+	return param.Override[XrplSignTransactionRpcInput](json.RawMessage(r.RawJSON()))
+}
+
+type XrplSignTransactionRpcInputMethod string
+
+const (
+	XrplSignTransactionRpcInputMethodXrplSignTransaction XrplSignTransactionRpcInputMethod = "xrpl_signTransaction"
+)
+
+// Executes the XRPL `xrpl_signTransaction` RPC to sign a transaction. The caller
+// is responsible for broadcasting.
+//
+// The properties Method, Params are required.
+type XrplSignTransactionRpcInput struct {
+	// Any of "xrpl_signTransaction".
+	Method XrplSignTransactionRpcInputMethod `json:"method,omitzero" api:"required"`
+	// Parameters for the XRPL `xrpl_signTransaction` RPC.
+	Params XrplSignTransactionRpcInputParams `json:"params,omitzero" api:"required"`
+	paramObj
+}
+
+func (r XrplSignTransactionRpcInput) MarshalJSON() (data []byte, err error) {
+	type shadow XrplSignTransactionRpcInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *XrplSignTransactionRpcInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Parameters for the XRPL `xrpl_signTransaction` RPC.
+type XrplSignTransactionRpcInputParamsResp struct {
+	// Any of "hex".
+	Encoding    XrplSignTransactionRpcInputParamsEncoding `json:"encoding" api:"required"`
+	Transaction string                                    `json:"transaction" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Encoding    respjson.Field
+		Transaction respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r XrplSignTransactionRpcInputParamsResp) RawJSON() string { return r.JSON.raw }
+func (r *XrplSignTransactionRpcInputParamsResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this XrplSignTransactionRpcInputParamsResp to a
+// XrplSignTransactionRpcInputParams.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// XrplSignTransactionRpcInputParams.Overrides()
+func (r XrplSignTransactionRpcInputParamsResp) ToParam() XrplSignTransactionRpcInputParams {
+	return param.Override[XrplSignTransactionRpcInputParams](json.RawMessage(r.RawJSON()))
+}
+
+type XrplSignTransactionRpcInputParamsEncoding string
+
+const (
+	XrplSignTransactionRpcInputParamsEncodingHex XrplSignTransactionRpcInputParamsEncoding = "hex"
+)
+
+// Parameters for the XRPL `xrpl_signTransaction` RPC.
+//
+// The properties Encoding, Transaction are required.
+type XrplSignTransactionRpcInputParams struct {
+	// Any of "hex".
+	Encoding    XrplSignTransactionRpcInputParamsEncoding `json:"encoding,omitzero" api:"required"`
+	Transaction string                                    `json:"transaction" api:"required"`
+	paramObj
+}
+
+func (r XrplSignTransactionRpcInputParams) MarshalJSON() (data []byte, err error) {
+	type shadow XrplSignTransactionRpcInputParams
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *XrplSignTransactionRpcInputParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response to the XRPL `xrpl_signTransaction` RPC.
+type XrplSignTransactionRpcResponse struct {
+	// Data returned by the XRPL `xrpl_signTransaction` RPC.
+	Data XrplSignTransactionRpcResponseData `json:"data" api:"required"`
+	// Any of "xrpl_signTransaction".
+	Method XrplSignTransactionRpcResponseMethod `json:"method" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		Method      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r XrplSignTransactionRpcResponse) RawJSON() string { return r.JSON.raw }
+func (r *XrplSignTransactionRpcResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type XrplSignTransactionRpcResponseMethod string
+
+const (
+	XrplSignTransactionRpcResponseMethodXrplSignTransaction XrplSignTransactionRpcResponseMethod = "xrpl_signTransaction"
+)
+
+// Data returned by the XRPL `xrpl_signTransaction` RPC.
+type XrplSignTransactionRpcResponseData struct {
+	// Any of "hex".
+	Encoding          XrplSignTransactionRpcResponseDataEncoding `json:"encoding" api:"required"`
+	SignedTransaction string                                     `json:"signed_transaction" api:"required"`
+	TxnSignature      string                                     `json:"txn_signature" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Encoding          respjson.Field
+		SignedTransaction respjson.Field
+		TxnSignature      respjson.Field
+		ExtraFields       map[string]respjson.Field
+		raw               string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r XrplSignTransactionRpcResponseData) RawJSON() string { return r.JSON.raw }
+func (r *XrplSignTransactionRpcResponseData) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type XrplSignTransactionRpcResponseDataEncoding string
+
+const (
+	XrplSignTransactionRpcResponseDataEncodingHex XrplSignTransactionRpcResponseDataEncoding = "hex"
+)
 
 type WalletInitImportResponse struct {
 	// The base64-encoded encryption public key to encrypt the wallet entropy with.
