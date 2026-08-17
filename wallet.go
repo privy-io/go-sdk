@@ -2729,8 +2729,8 @@ type Hex = string
 // Source for a transfer identified by a named asset (e.g. "usdc", "eth"). Use this
 // variant for first-class assets maintained by Privy.
 type NamedTokenTransferSourceResp struct {
-	// The asset to transfer. Supported: 'usdc', 'usdb', 'usdt', 'pathusd'
-	// (stablecoins), 'eth' (native Ethereum), 'sol' (native Solana).
+	// The asset to transfer. Supported: 'usdc', 'usdb', 'usdt', 'eurc', 'ousd',
+	// 'pathusd' (stablecoins), 'eth' (native Ethereum), 'sol' (native Solana).
 	Asset string `json:"asset" api:"required"`
 	// The blockchain network on which to perform the transfer. Supported chains
 	// include: 'tempo', 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and their
@@ -2774,8 +2774,8 @@ func (r NamedTokenTransferSourceResp) ToParam() NamedTokenTransferSource {
 //
 // The properties Asset, Chain are required.
 type NamedTokenTransferSource struct {
-	// The asset to transfer. Supported: 'usdc', 'usdb', 'usdt', 'pathusd'
-	// (stablecoins), 'eth' (native Ethereum), 'sol' (native Solana).
+	// The asset to transfer. Supported: 'usdc', 'usdb', 'usdt', 'eurc', 'ousd',
+	// 'pathusd' (stablecoins), 'eth' (native Ethereum), 'sol' (native Solana).
 	Asset string `json:"asset" api:"required"`
 	// The blockchain network on which to perform the transfer. Supported chains
 	// include: 'tempo', 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and their
@@ -6685,6 +6685,7 @@ const (
 	TransferReceivedTransactionDetailAssetUsdt    TransferReceivedTransactionDetailAsset = "usdt"
 	TransferReceivedTransactionDetailAssetEurc    TransferReceivedTransactionDetailAsset = "eurc"
 	TransferReceivedTransactionDetailAssetUsdb    TransferReceivedTransactionDetailAsset = "usdb"
+	TransferReceivedTransactionDetailAssetOusd    TransferReceivedTransactionDetailAsset = "ousd"
 	TransferReceivedTransactionDetailAssetPathusd TransferReceivedTransactionDetailAsset = "pathusd"
 	TransferReceivedTransactionDetailAssetSol     TransferReceivedTransactionDetailAsset = "sol"
 	TransferReceivedTransactionDetailAssetTrx     TransferReceivedTransactionDetailAsset = "trx"
@@ -6828,6 +6829,7 @@ const (
 	TransferSentTransactionDetailAssetUsdt    TransferSentTransactionDetailAsset = "usdt"
 	TransferSentTransactionDetailAssetEurc    TransferSentTransactionDetailAsset = "eurc"
 	TransferSentTransactionDetailAssetUsdb    TransferSentTransactionDetailAsset = "usdb"
+	TransferSentTransactionDetailAssetOusd    TransferSentTransactionDetailAsset = "ousd"
 	TransferSentTransactionDetailAssetPathusd TransferSentTransactionDetailAsset = "pathusd"
 	TransferSentTransactionDetailAssetSol     TransferSentTransactionDetailAsset = "sol"
 	TransferSentTransactionDetailAssetTrx     TransferSentTransactionDetailAsset = "trx"
@@ -8200,6 +8202,7 @@ const (
 	WalletAssetUsdt    WalletAsset = "usdt"
 	WalletAssetEurc    WalletAsset = "eurc"
 	WalletAssetUsdb    WalletAsset = "usdb"
+	WalletAssetOusd    WalletAsset = "ousd"
 	WalletAssetPathusd WalletAsset = "pathusd"
 	WalletAssetSol     WalletAsset = "sol"
 	WalletAssetTrx     WalletAsset = "trx"
