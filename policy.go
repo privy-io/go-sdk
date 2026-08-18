@@ -1084,9 +1084,9 @@ const (
 // [SolanaSystemProgramInstructionConditionResp],
 // [SolanaTokenProgramInstructionConditionResp], [SystemConditionResp],
 // [TronTransactionConditionResp], [TronCalldataConditionResp],
-// [SuiTransactionCommandConditionResp], [SuiTransferObjectsCommandConditionResp],
-// [ActionRequestBodyConditionResp], [AggregationConditionResp],
-// [MessageSigningConditionResp].
+// [XrplTransactionConditionResp], [SuiTransactionCommandConditionResp],
+// [SuiTransferObjectsCommandConditionResp], [ActionRequestBodyConditionResp],
+// [AggregationConditionResp], [MessageSigningConditionResp].
 //
 // Use the [PolicyConditionUnionResp.AsAny] method to switch on the variant.
 //
@@ -1098,8 +1098,9 @@ type PolicyConditionUnionResp struct {
 	// "ethereum_7702_authorization", "tempo_transaction",
 	// "solana_program_instruction", "solana_system_program_instruction",
 	// "solana_token_program_instruction", "system", "tron_transaction",
-	// "tron_trigger_smart_contract_data", "sui_transaction_command",
-	// "sui_transfer_objects_command", "action_request_body", "reference", "message".
+	// "tron_trigger_smart_contract_data", "xrpl_transaction",
+	// "sui_transaction_command", "sui_transfer_objects_command",
+	// "action_request_body", "reference", "message".
 	FieldSource string `json:"field_source"`
 	Operator    string `json:"operator"`
 	// This field is a union of [ConditionValueUnionResp],
@@ -1139,6 +1140,7 @@ func (SolanaTokenProgramInstructionConditionResp) implPolicyConditionUnionResp()
 func (SystemConditionResp) implPolicyConditionUnionResp()                         {}
 func (TronTransactionConditionResp) implPolicyConditionUnionResp()                {}
 func (TronCalldataConditionResp) implPolicyConditionUnionResp()                   {}
+func (XrplTransactionConditionResp) implPolicyConditionUnionResp()                {}
 func (SuiTransactionCommandConditionResp) implPolicyConditionUnionResp()          {}
 func (SuiTransferObjectsCommandConditionResp) implPolicyConditionUnionResp()      {}
 func (ActionRequestBodyConditionResp) implPolicyConditionUnionResp()              {}
@@ -1160,6 +1162,7 @@ func (MessageSigningConditionResp) implPolicyConditionUnionResp()               
 //	case privyclient.SystemConditionResp:
 //	case privyclient.TronTransactionConditionResp:
 //	case privyclient.TronCalldataConditionResp:
+//	case privyclient.XrplTransactionConditionResp:
 //	case privyclient.SuiTransactionCommandConditionResp:
 //	case privyclient.SuiTransferObjectsCommandConditionResp:
 //	case privyclient.ActionRequestBodyConditionResp:
@@ -1194,6 +1197,8 @@ func (u PolicyConditionUnionResp) AsAny() anyPolicyConditionResp {
 		return u.AsTronTransaction()
 	case "tron_trigger_smart_contract_data":
 		return u.AsTronTriggerSmartContractData()
+	case "xrpl_transaction":
+		return u.AsXrplTransaction()
 	case "sui_transaction_command":
 		return u.AsSuiTransactionCommand()
 	case "sui_transfer_objects_command":
@@ -1264,6 +1269,11 @@ func (u PolicyConditionUnionResp) AsTronTransaction() (v TronTransactionConditio
 }
 
 func (u PolicyConditionUnionResp) AsTronTriggerSmartContractData() (v TronCalldataConditionResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyConditionUnionResp) AsXrplTransaction() (v XrplTransactionConditionResp) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -1358,6 +1368,7 @@ type PolicyConditionUnion struct {
 	OfSystem                         *SystemCondition                         `json:",omitzero,inline"`
 	OfTronTransaction                *TronTransactionCondition                `json:",omitzero,inline"`
 	OfTronTriggerSmartContractData   *TronCalldataCondition                   `json:",omitzero,inline"`
+	OfXrplTransaction                *XrplTransactionCondition                `json:",omitzero,inline"`
 	OfSuiTransactionCommand          *SuiTransactionCommandCondition          `json:",omitzero,inline"`
 	OfSuiTransferObjectsCommand      *SuiTransferObjectsCommandCondition      `json:",omitzero,inline"`
 	OfActionRequestBody              *ActionRequestBodyCondition              `json:",omitzero,inline"`
@@ -1379,6 +1390,7 @@ func (u PolicyConditionUnion) MarshalJSON() ([]byte, error) {
 		u.OfSystem,
 		u.OfTronTransaction,
 		u.OfTronTriggerSmartContractData,
+		u.OfXrplTransaction,
 		u.OfSuiTransactionCommand,
 		u.OfSuiTransferObjectsCommand,
 		u.OfActionRequestBody,
@@ -1404,6 +1416,7 @@ func init() {
 		apijson.Discriminator[SystemCondition]("system"),
 		apijson.Discriminator[TronTransactionCondition]("tron_transaction"),
 		apijson.Discriminator[TronCalldataCondition]("tron_trigger_smart_contract_data"),
+		apijson.Discriminator[XrplTransactionCondition]("xrpl_transaction"),
 		apijson.Discriminator[SuiTransactionCommandCondition]("sui_transaction_command"),
 		apijson.Discriminator[SuiTransferObjectsCommandCondition]("sui_transfer_objects_command"),
 		apijson.Discriminator[ActionRequestBodyCondition]("action_request_body"),
@@ -1432,6 +1445,7 @@ const (
 	PolicyMethodSignRawMessageBytes      PolicyMethod = "signRawMessageBytes"
 	PolicyMethodTronSendTransaction      PolicyMethod = "tron_sendTransaction"
 	PolicyMethodTronSignTransaction      PolicyMethod = "tron_signTransaction"
+	PolicyMethodXrplSignTransaction      PolicyMethod = "xrpl_signTransaction"
 	PolicyMethodEarnDeposit              PolicyMethod = "earn_deposit"
 	PolicyMethodEarnWithdraw             PolicyMethod = "earn_withdraw"
 	PolicyMethodTransfer                 PolicyMethod = "transfer"
@@ -1452,7 +1466,7 @@ type PolicyRuleRequestBodyResp struct {
 	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
 	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes",
 	// "signRawMessageBytes", "tron_sendTransaction", "tron_signTransaction",
-	// "earn_deposit", "earn_withdraw", "transfer", "\*".
+	// "xrpl_signTransaction", "earn_deposit", "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod `json:"method" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -1497,7 +1511,7 @@ type PolicyRuleRequestBody struct {
 	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
 	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes",
 	// "signRawMessageBytes", "tron_sendTransaction", "tron_signTransaction",
-	// "earn_deposit", "earn_withdraw", "transfer", "\*".
+	// "xrpl_signTransaction", "earn_deposit", "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod `json:"method,omitzero" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	paramObj
@@ -1527,7 +1541,7 @@ type PolicyRuleResponse struct {
 	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
 	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes",
 	// "signRawMessageBytes", "tron_sendTransaction", "tron_signTransaction",
-	// "earn_deposit", "earn_withdraw", "transfer", "\*".
+	// "xrpl_signTransaction", "earn_deposit", "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod `json:"method" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -2489,6 +2503,143 @@ func (r *TypedDataInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Policy condition evaluated against decoded XRPL transaction fields.
+type XrplTransactionConditionResp struct {
+	// Supported XRPL transaction field paths for policy conditions.
+	//
+	// Any of "TransactionType", "Payment.Destination", "Payment.DestinationTag",
+	// "Payment.Amount.drops", "Payment.Amount.value", "Payment.Amount.currency",
+	// "Payment.Amount.issuer", "Payment.SendMax.drops", "Payment.SendMax.value",
+	// "Payment.SendMax.currency", "Payment.SendMax.issuer",
+	// "Payment.DeliverMin.drops", "Payment.DeliverMin.value",
+	// "Payment.DeliverMin.currency", "Payment.DeliverMin.issuer",
+	// "OfferCreate.TakerPays.drops", "OfferCreate.TakerPays.value",
+	// "OfferCreate.TakerPays.currency", "OfferCreate.TakerPays.issuer",
+	// "OfferCreate.TakerGets.drops", "OfferCreate.TakerGets.value",
+	// "OfferCreate.TakerGets.currency", "OfferCreate.TakerGets.issuer",
+	// "OfferCreate.Expiration", "TrustSet.LimitAmount.value",
+	// "TrustSet.LimitAmount.currency", "TrustSet.LimitAmount.issuer",
+	// "TrustSet.QualityIn", "TrustSet.QualityOut".
+	Field XrplTransactionConditionField `json:"field" api:"required"`
+	// Any of "xrpl_transaction".
+	FieldSource XrplTransactionConditionFieldSource `json:"field_source" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
+	Operator ConditionOperator `json:"operator" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnionResp `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r XrplTransactionConditionResp) RawJSON() string { return r.JSON.raw }
+func (r *XrplTransactionConditionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this XrplTransactionConditionResp to a
+// XrplTransactionCondition.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// XrplTransactionCondition.Overrides()
+func (r XrplTransactionConditionResp) ToParam() XrplTransactionCondition {
+	return param.Override[XrplTransactionCondition](json.RawMessage(r.RawJSON()))
+}
+
+type XrplTransactionConditionFieldSource string
+
+const (
+	XrplTransactionConditionFieldSourceXrplTransaction XrplTransactionConditionFieldSource = "xrpl_transaction"
+)
+
+// Policy condition evaluated against decoded XRPL transaction fields.
+//
+// The properties Field, FieldSource, Operator, Value are required.
+type XrplTransactionCondition struct {
+	// Supported XRPL transaction field paths for policy conditions.
+	//
+	// Any of "TransactionType", "Payment.Destination", "Payment.DestinationTag",
+	// "Payment.Amount.drops", "Payment.Amount.value", "Payment.Amount.currency",
+	// "Payment.Amount.issuer", "Payment.SendMax.drops", "Payment.SendMax.value",
+	// "Payment.SendMax.currency", "Payment.SendMax.issuer",
+	// "Payment.DeliverMin.drops", "Payment.DeliverMin.value",
+	// "Payment.DeliverMin.currency", "Payment.DeliverMin.issuer",
+	// "OfferCreate.TakerPays.drops", "OfferCreate.TakerPays.value",
+	// "OfferCreate.TakerPays.currency", "OfferCreate.TakerPays.issuer",
+	// "OfferCreate.TakerGets.drops", "OfferCreate.TakerGets.value",
+	// "OfferCreate.TakerGets.currency", "OfferCreate.TakerGets.issuer",
+	// "OfferCreate.Expiration", "TrustSet.LimitAmount.value",
+	// "TrustSet.LimitAmount.currency", "TrustSet.LimitAmount.issuer",
+	// "TrustSet.QualityIn", "TrustSet.QualityOut".
+	Field XrplTransactionConditionField `json:"field,omitzero" api:"required"`
+	// Any of "xrpl_transaction".
+	FieldSource XrplTransactionConditionFieldSource `json:"field_source,omitzero" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
+	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnion `json:"value,omitzero" api:"required"`
+	paramObj
+}
+
+func (r XrplTransactionCondition) MarshalJSON() (data []byte, err error) {
+	type shadow XrplTransactionCondition
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *XrplTransactionCondition) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Supported XRPL transaction field paths for policy conditions.
+type XrplTransactionConditionField string
+
+const (
+	XrplTransactionConditionFieldTransactionType              XrplTransactionConditionField = "TransactionType"
+	XrplTransactionConditionFieldPaymentDestination           XrplTransactionConditionField = "Payment.Destination"
+	XrplTransactionConditionFieldPaymentDestinationTag        XrplTransactionConditionField = "Payment.DestinationTag"
+	XrplTransactionConditionFieldPaymentAmountDrops           XrplTransactionConditionField = "Payment.Amount.drops"
+	XrplTransactionConditionFieldPaymentAmountValue           XrplTransactionConditionField = "Payment.Amount.value"
+	XrplTransactionConditionFieldPaymentAmountCurrency        XrplTransactionConditionField = "Payment.Amount.currency"
+	XrplTransactionConditionFieldPaymentAmountIssuer          XrplTransactionConditionField = "Payment.Amount.issuer"
+	XrplTransactionConditionFieldPaymentSendMaxDrops          XrplTransactionConditionField = "Payment.SendMax.drops"
+	XrplTransactionConditionFieldPaymentSendMaxValue          XrplTransactionConditionField = "Payment.SendMax.value"
+	XrplTransactionConditionFieldPaymentSendMaxCurrency       XrplTransactionConditionField = "Payment.SendMax.currency"
+	XrplTransactionConditionFieldPaymentSendMaxIssuer         XrplTransactionConditionField = "Payment.SendMax.issuer"
+	XrplTransactionConditionFieldPaymentDeliverMinDrops       XrplTransactionConditionField = "Payment.DeliverMin.drops"
+	XrplTransactionConditionFieldPaymentDeliverMinValue       XrplTransactionConditionField = "Payment.DeliverMin.value"
+	XrplTransactionConditionFieldPaymentDeliverMinCurrency    XrplTransactionConditionField = "Payment.DeliverMin.currency"
+	XrplTransactionConditionFieldPaymentDeliverMinIssuer      XrplTransactionConditionField = "Payment.DeliverMin.issuer"
+	XrplTransactionConditionFieldOfferCreateTakerPaysDrops    XrplTransactionConditionField = "OfferCreate.TakerPays.drops"
+	XrplTransactionConditionFieldOfferCreateTakerPaysValue    XrplTransactionConditionField = "OfferCreate.TakerPays.value"
+	XrplTransactionConditionFieldOfferCreateTakerPaysCurrency XrplTransactionConditionField = "OfferCreate.TakerPays.currency"
+	XrplTransactionConditionFieldOfferCreateTakerPaysIssuer   XrplTransactionConditionField = "OfferCreate.TakerPays.issuer"
+	XrplTransactionConditionFieldOfferCreateTakerGetsDrops    XrplTransactionConditionField = "OfferCreate.TakerGets.drops"
+	XrplTransactionConditionFieldOfferCreateTakerGetsValue    XrplTransactionConditionField = "OfferCreate.TakerGets.value"
+	XrplTransactionConditionFieldOfferCreateTakerGetsCurrency XrplTransactionConditionField = "OfferCreate.TakerGets.currency"
+	XrplTransactionConditionFieldOfferCreateTakerGetsIssuer   XrplTransactionConditionField = "OfferCreate.TakerGets.issuer"
+	XrplTransactionConditionFieldOfferCreateExpiration        XrplTransactionConditionField = "OfferCreate.Expiration"
+	XrplTransactionConditionFieldTrustSetLimitAmountValue     XrplTransactionConditionField = "TrustSet.LimitAmount.value"
+	XrplTransactionConditionFieldTrustSetLimitAmountCurrency  XrplTransactionConditionField = "TrustSet.LimitAmount.currency"
+	XrplTransactionConditionFieldTrustSetLimitAmountIssuer    XrplTransactionConditionField = "TrustSet.LimitAmount.issuer"
+	XrplTransactionConditionFieldTrustSetQualityIn            XrplTransactionConditionField = "TrustSet.QualityIn"
+	XrplTransactionConditionFieldTrustSetQualityOut           XrplTransactionConditionField = "TrustSet.QualityOut"
+)
+
 type PolicyNewParams struct {
 	// The wallet chain types.
 	//
@@ -2537,7 +2688,7 @@ type PolicyNewParamsRule struct {
 	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
 	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes",
 	// "signRawMessageBytes", "tron_sendTransaction", "tron_signTransaction",
-	// "earn_deposit", "earn_withdraw", "transfer", "\*".
+	// "xrpl_signTransaction", "earn_deposit", "earn_withdraw", "transfer", "\*".
 	Method PolicyMethod      `json:"method,omitzero" api:"required"`
 	Name   string            `json:"name" api:"required"`
 	ID     param.Opt[string] `json:"id,omitzero"`
