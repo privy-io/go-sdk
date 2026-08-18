@@ -167,6 +167,9 @@ type SwapRequestBody struct {
 	Destination SwapDestination `json:"destination,omitzero" api:"required"`
 	// The input side of a swap request, including token and chain.
 	Source SwapSource `json:"source,omitzero" api:"required"`
+	// Unique caller-generated nonce used to prevent replaying a signed wallet action
+	// request. Must be at least 24 characters (e.g. a cuid2 or UUID).
+	Nonce param.Opt[WalletActionNonce] `json:"nonce,omitzero"`
 	// Maximum slippage tolerance in basis points (e.g., 50 for 0.5%).
 	SlippageBps param.Opt[int64] `json:"slippage_bps,omitzero"`
 	// Whether the amount refers to the input token or output token.

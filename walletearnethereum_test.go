@@ -34,6 +34,7 @@ func TestWalletEarnEthereumDepositWithOptionalParams(t *testing.T) {
 			EarnDepositRequestBody: privyclient.EarnDepositRequestBody{
 				VaultID:   "cm7oxq1el000e11o8iwp7d0d0",
 				Amount:    privyclient.String("1.5"),
+				Nonce:     privyclient.String("xxxxxxxxxxxxxxxxxxxxxxxx"),
 				RawAmount: privyclient.String("321669910225"),
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
@@ -71,6 +72,7 @@ func TestWalletEarnEthereumWithdrawWithOptionalParams(t *testing.T) {
 			EarnWithdrawRequestBody: privyclient.EarnWithdrawRequestBody{
 				VaultID:   "cm7oxq1el000e11o8iwp7d0d0",
 				Amount:    privyclient.String("1.5"),
+				Nonce:     privyclient.String("xxxxxxxxxxxxxxxxxxxxxxxx"),
 				RawAmount: privyclient.String("321669910225"),
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),

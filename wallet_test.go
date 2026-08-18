@@ -641,6 +641,7 @@ func TestWalletTransferWithOptionalParams(t *testing.T) {
 					Type:  privyclient.FeeConfigurationTypeTotalFeeBps,
 					Value: 50,
 				},
+				Nonce:       privyclient.String("xxxxxxxxxxxxxxxxxxxxxxxx"),
 				SlippageBps: privyclient.Int(100),
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
