@@ -22,6 +22,8 @@ type Client struct {
 	Cards   CardService
 	// Operations related to users
 	Users UserService
+	// Operations related to organizations
+	Organizations OrganizationService
 	// Operations related to policies
 	Policies PolicyService
 	// Operations related to transactions
@@ -41,7 +43,6 @@ type Client struct {
 	Shared          SharedService
 	Onramps         OnrampService
 	Funding         FundingService
-	Organizations   OrganizationService
 	CrossApp        CrossAppService
 	OAuth           OAuthService
 	Yield           YieldService
@@ -86,6 +87,7 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.Wallets = NewWalletService(opts...)
 	r.Cards = NewCardService(opts...)
 	r.Users = NewUserService(opts...)
+	r.Organizations = NewOrganizationService(opts...)
 	r.Policies = NewPolicyService(opts...)
 	r.Transactions = NewTransactionService(opts...)
 	r.KeyQuorums = NewKeyQuorumService(opts...)
@@ -100,7 +102,6 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.Shared = NewSharedService(opts...)
 	r.Onramps = NewOnrampService(opts...)
 	r.Funding = NewFundingService(opts...)
-	r.Organizations = NewOrganizationService(opts...)
 	r.CrossApp = NewCrossAppService(opts...)
 	r.OAuth = NewOAuthService(opts...)
 	r.Yield = NewYieldService(opts...)

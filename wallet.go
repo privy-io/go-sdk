@@ -136,6 +136,18 @@ func (r *WalletService) Archive(ctx context.Context, walletID string, opts ...op
 	return res, err
 }
 
+// Assign a user or organization to a wallet.
+func (r *WalletService) AssignEntity(ctx context.Context, walletID string, body WalletAssignEntityParams, opts ...option.RequestOption) (res *WalletEntityAssignmentResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if walletID == "" {
+		err = errors.New("missing required wallet_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/wallets/%s/entity", url.PathEscape(walletID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return res, err
+}
+
 // Exchange a user JWT for a session key authorized to act on the user's wallets.
 // Returns the encrypted authorization key and the list of wallets it can access.
 func (r *WalletService) AuthenticateWithJwt(ctx context.Context, body WalletAuthenticateWithJwtParams, opts ...option.RequestOption) (res *WalletAuthenticateWithJwtResponseUnion, err error) {
@@ -394,6 +406,7 @@ const (
 	CurveSigningChainTypeTon            CurveSigningChainType = "ton"
 	CurveSigningChainTypeStarknet       CurveSigningChainType = "starknet"
 	CurveSigningChainTypeXrpl           CurveSigningChainType = "xrpl"
+	CurveSigningChainTypeCanton         CurveSigningChainType = "canton"
 )
 
 // Source for a transfer identified by a token contract address (EVM) or mint
@@ -556,6 +569,8 @@ func (r EncryptedWalletAuthenticateResponse) RawJSON() string { return r.JSON.ra
 func (r *EncryptedWalletAuthenticateResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+type EntityID = string
 
 // Executes the EVM `personal_sign` RPC (EIP-191) to sign a message.
 type EthereumPersonalSignRpcInputResp struct {
@@ -8113,7 +8128,7 @@ type Wallet struct {
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
 	// "tron", "bitcoin-segwit", "bitcoin-taproot", "pearl", "near", "ton", "starknet",
-	// "xrpl", "spark".
+	// "xrpl", "canton", "spark".
 	ChainType WalletChainType `json:"chain_type" api:"required"`
 	// Unix timestamp of when the wallet was created in milliseconds.
 	CreatedAt float64 `json:"created_at" api:"required"`
@@ -8453,7 +8468,7 @@ type WalletBatchItemInput struct {
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
 	// "tron", "bitcoin-segwit", "bitcoin-taproot", "pearl", "near", "ton", "starknet",
-	// "xrpl", "spark".
+	// "xrpl", "canton", "spark".
 	ChainType WalletChainType `json:"chain_type,omitzero" api:"required"`
 	// The key quorum ID to set as the owner of the resource. If you provide this, do
 	// not specify an owner.
@@ -8502,6 +8517,7 @@ const (
 	WalletChainTypeTon            WalletChainType = "ton"
 	WalletChainTypeStarknet       WalletChainType = "starknet"
 	WalletChainTypeXrpl           WalletChainType = "xrpl"
+	WalletChainTypeCanton         WalletChainType = "canton"
 	WalletChainTypeSpark          WalletChainType = "spark"
 )
 
@@ -8549,8 +8565,10 @@ func (r *WalletCustodian) UnmarshalJSON(data []byte) error {
 
 // The entity a wallet is attributed to.
 type WalletEntity struct {
-	// The Privy entity ID.
-	ID string `json:"id" api:"required"`
+	// A Privy entity ID.
+	ID EntityID `json:"id" api:"required"`
+	// The type of entity a wallet is attributed to.
+	//
 	// Any of "user", "organization".
 	Type WalletEntityType `json:"type" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -8568,6 +8586,58 @@ func (r *WalletEntity) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Request body for assigning an entity to a wallet.
+//
+// The properties ID, Type are required.
+type WalletEntityAssignmentRequestBody struct {
+	// A Privy entity ID.
+	ID EntityID `json:"id" api:"required"`
+	// The type of entity a wallet is attributed to.
+	//
+	// Any of "user", "organization".
+	Type WalletEntityType `json:"type,omitzero" api:"required"`
+	paramObj
+}
+
+func (r WalletEntityAssignmentRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow WalletEntityAssignmentRequestBody
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *WalletEntityAssignmentRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The entity assignment for a wallet.
+type WalletEntityAssignmentResponse struct {
+	// Unique wallet entity assignment identifier.
+	ID string `json:"id" api:"required"`
+	// Unix timestamp when the assignment was created.
+	CreatedAt float64 `json:"created_at" api:"required"`
+	// The entity a wallet is attributed to.
+	Entity WalletEntity `json:"entity" api:"required"`
+	// Unix timestamp when the assignment was last updated.
+	UpdatedAt float64 `json:"updated_at" api:"required"`
+	// ID of the assigned wallet.
+	WalletID string `json:"wallet_id" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID          respjson.Field
+		CreatedAt   respjson.Field
+		Entity      respjson.Field
+		UpdatedAt   respjson.Field
+		WalletID    respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletEntityAssignmentResponse) RawJSON() string { return r.JSON.raw }
+func (r *WalletEntityAssignmentResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The type of entity a wallet is attributed to.
 type WalletEntityType string
 
 const (
@@ -10269,7 +10339,7 @@ type WalletNewParams struct {
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
 	// "tron", "bitcoin-segwit", "bitcoin-taproot", "pearl", "near", "ton", "starknet",
-	// "xrpl", "spark".
+	// "xrpl", "canton", "spark".
 	ChainType WalletChainType `json:"chain_type,omitzero" api:"required"`
 	// The key quorum ID to set as the owner of the resource. If you provide this, do
 	// not specify an owner.
@@ -10288,8 +10358,8 @@ type WalletNewParams struct {
 	Owner OwnerInputUnion `json:"owner,omitzero"`
 	// Additional signers for the wallet.
 	AdditionalSigners AdditionalSignerInput `json:"additional_signers,omitzero"`
-	// The entity the wallet is attributed to.
-	Entity WalletNewParamsEntity `json:"entity,omitzero"`
+	// Request body for assigning an entity to a wallet.
+	Entity WalletEntityAssignmentRequestBody `json:"entity,omitzero"`
 	// An optional list of up to one policy ID to enforce on the wallet.
 	PolicyIDs PolicyInput `json:"policy_ids,omitzero" format:"cuid2"`
 	paramObj
@@ -10301,30 +10371,6 @@ func (r WalletNewParams) MarshalJSON() (data []byte, err error) {
 }
 func (r *WalletNewParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
-}
-
-// The entity the wallet is attributed to.
-//
-// The properties ID, Type are required.
-type WalletNewParamsEntity struct {
-	ID string `json:"id" api:"required"`
-	// Any of "user", "organization".
-	Type string `json:"type,omitzero" api:"required"`
-	paramObj
-}
-
-func (r WalletNewParamsEntity) MarshalJSON() (data []byte, err error) {
-	type shadow WalletNewParamsEntity
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *WalletNewParamsEntity) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func init() {
-	apijson.RegisterFieldValidator[WalletNewParamsEntity](
-		"type", "user", "organization",
-	)
 }
 
 type WalletUpdateParams struct {
@@ -10370,7 +10416,7 @@ type WalletListParams struct {
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
 	// "tron", "bitcoin-segwit", "bitcoin-taproot", "pearl", "near", "ton", "starknet",
-	// "xrpl", "spark".
+	// "xrpl", "canton", "spark".
 	ChainType WalletChainType `query:"chain_type,omitzero" json:"-"`
 	paramObj
 }
@@ -10458,6 +10504,19 @@ func init() {
 		apijson.Discriminator[HDSubmitInput]("hd"),
 		apijson.Discriminator[PrivateKeySubmitInput]("private-key"),
 	)
+}
+
+type WalletAssignEntityParams struct {
+	// Request body for assigning an entity to a wallet.
+	WalletEntityAssignmentRequestBody WalletEntityAssignmentRequestBody
+	paramObj
+}
+
+func (r WalletAssignEntityParams) MarshalJSON() (data []byte, err error) {
+	return shimjson.Marshal(r.WalletEntityAssignmentRequestBody)
+}
+func (r *WalletAssignEntityParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
 type WalletAuthenticateWithJwtParams struct {
@@ -10560,7 +10619,7 @@ type WalletNewWalletsWithRecoveryParamsWallet struct {
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
 	// "tron", "bitcoin-segwit", "bitcoin-taproot", "pearl", "near", "ton", "starknet",
-	// "xrpl", "spark".
+	// "xrpl", "canton", "spark".
 	ChainType WalletChainType `json:"chain_type,omitzero" api:"required"`
 	// A human-readable label for the wallet.
 	DisplayName param.Opt[string] `json:"display_name,omitzero"`

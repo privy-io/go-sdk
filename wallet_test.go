@@ -34,9 +34,9 @@ func TestWalletNewWithOptionalParams(t *testing.T) {
 			OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 		}},
 		DisplayName: privyclient.String("display_name"),
-		Entity: privyclient.WalletNewParamsEntity{
-			ID:   "x",
-			Type: "user",
+		Entity: privyclient.WalletEntityAssignmentRequestBody{
+			ID:   "jorpjo4rfxj62nx1itt8y1zt",
+			Type: privyclient.WalletEntityTypeUser,
 		},
 		ExternalID: privyclient.String("my-order-123"),
 		Owner: privyclient.OwnerInputUnion{
@@ -235,6 +235,39 @@ func TestWalletArchive(t *testing.T) {
 		option.WithAppSecret("My App Secret"),
 	)
 	_, err := client.Wallets.Archive(context.TODO(), "wallet_id")
+	if err != nil {
+		var apierr *privyclient.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestWalletAssignEntity(t *testing.T) {
+	t.Skip("Mock server tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := privyclient.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAppID("My App ID"),
+		option.WithAppSecret("My App Secret"),
+	)
+	_, err := client.Wallets.AssignEntity(
+		context.TODO(),
+		"wallet_id",
+		privyclient.WalletAssignEntityParams{
+			WalletEntityAssignmentRequestBody: privyclient.WalletEntityAssignmentRequestBody{
+				ID:   "jorpjo4rfxj62nx1itt8y1zt",
+				Type: privyclient.WalletEntityTypeUser,
+			},
+		},
+	)
 	if err != nil {
 		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
