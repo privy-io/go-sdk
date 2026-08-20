@@ -202,7 +202,7 @@ type WalletCreationInput struct {
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
 	// "tron", "bitcoin-segwit", "bitcoin-taproot", "pearl", "near", "ton", "starknet",
-	// "xrpl", "canton", "spark".
+	// "xrpl", "spark".
 	ChainType WalletChainType `json:"chain_type,omitzero" api:"required"`
 	// Create a smart wallet with this wallet as the signer. Only supported for wallets
 	// with `chain_type: "ethereum"`.
