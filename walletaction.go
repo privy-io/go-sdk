@@ -676,6 +676,67 @@ func (r *FailureReason) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// A payout wallet action. Crypto is sent on-chain to a liquidation address that
+// offramps to the destination bank account.
+type PayoutResponse struct {
+	// The ID of the wallet action.
+	ID string `json:"id" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// The destination bank account for a payout.
+	Destination PayoutDestination `json:"destination" api:"required"`
+	// The Privy API environment.
+	//
+	// Any of "sandbox", "production".
+	Environment Environment `json:"environment" api:"required"`
+	// Supported fiat orchestration providers.
+	//
+	// Any of "bridge".
+	Provider OrchestrationProvider `json:"provider" api:"required"`
+	// The source crypto asset, chain, and amount for a payout.
+	Source PayoutSource `json:"source" api:"required"`
+	// Status of a wallet action.
+	//
+	// Any of "pending", "succeeded", "rejected", "failed".
+	Status WalletActionStatus `json:"status" api:"required"`
+	// Any of "payout".
+	Type PayoutResponseType `json:"type" api:"required"`
+	// The ID of the wallet involved in the action.
+	WalletID string `json:"wallet_id" api:"required"`
+	// A description of why a wallet action (or a step within a wallet action) failed.
+	FailureReason FailureReason `json:"failure_reason"`
+	// The steps of the wallet action. Only returned if `?include=steps` is provided.
+	Steps []WalletActionStepUnion `json:"steps"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID            respjson.Field
+		CreatedAt     respjson.Field
+		Destination   respjson.Field
+		Environment   respjson.Field
+		Provider      respjson.Field
+		Source        respjson.Field
+		Status        respjson.Field
+		Type          respjson.Field
+		WalletID      respjson.Field
+		FailureReason respjson.Field
+		Steps         respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PayoutResponse) RawJSON() string { return r.JSON.raw }
+func (r *PayoutResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type PayoutResponseType string
+
+const (
+	PayoutResponseTypePayout PayoutResponseType = "payout"
+)
+
 // A wallet action step consisting of an SVM (Solana) transaction.
 type SvmTransactionWalletActionStep struct {
 	// CAIP-2 chain identifier for the Solana network.
@@ -978,7 +1039,7 @@ const (
 // WalletActionResponseUnion contains all possible properties and values from
 // [SwapActionResponse], [TransferActionResponse], [EarnDepositActionResponse],
 // [EarnWithdrawActionResponse], [EarnIncentiveClaimActionResponse],
-// [EarnFeeCollectActionResponse].
+// [EarnFeeCollectActionResponse], [PayoutResponse].
 //
 // Use the [WalletActionResponseUnion.AsAny] method to switch on the variant.
 //
@@ -998,7 +1059,7 @@ type WalletActionResponseUnion struct {
 	// This field is from variant [SwapActionResponse].
 	Status WalletActionStatus `json:"status"`
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
-	// "earn_incentive_claim", "earn_fee_collect".
+	// "earn_incentive_claim", "earn_fee_collect", "payout".
 	Type               string `json:"type"`
 	WalletID           string `json:"wallet_id"`
 	DestinationAddress string `json:"destination_address"`
@@ -1043,7 +1104,15 @@ type WalletActionResponseUnion struct {
 	Chain string `json:"chain"`
 	// This field is from variant [EarnIncentiveClaimActionResponse].
 	Rewards []EarnIncetiveClaimRewardEntry `json:"rewards"`
-	JSON    struct {
+	// This field is from variant [PayoutResponse].
+	Destination PayoutDestination `json:"destination"`
+	// This field is from variant [PayoutResponse].
+	Environment Environment `json:"environment"`
+	// This field is from variant [PayoutResponse].
+	Provider OrchestrationProvider `json:"provider"`
+	// This field is from variant [PayoutResponse].
+	Source PayoutSource `json:"source"`
+	JSON   struct {
 		ID                  respjson.Field
 		Caip2               respjson.Field
 		CreatedAt           respjson.Field
@@ -1081,6 +1150,10 @@ type WalletActionResponseUnion struct {
 		Decimals            respjson.Field
 		Chain               respjson.Field
 		Rewards             respjson.Field
+		Destination         respjson.Field
+		Environment         respjson.Field
+		Provider            respjson.Field
+		Source              respjson.Field
 		raw                 string
 	} `json:"-"`
 }
@@ -1098,6 +1171,7 @@ func (EarnDepositActionResponse) implWalletActionResponseUnion()        {}
 func (EarnWithdrawActionResponse) implWalletActionResponseUnion()       {}
 func (EarnIncentiveClaimActionResponse) implWalletActionResponseUnion() {}
 func (EarnFeeCollectActionResponse) implWalletActionResponseUnion()     {}
+func (PayoutResponse) implWalletActionResponseUnion()                   {}
 
 // Use the following switch statement to find the correct variant
 //
@@ -1108,6 +1182,7 @@ func (EarnFeeCollectActionResponse) implWalletActionResponseUnion()     {}
 //	case privyclient.EarnWithdrawActionResponse:
 //	case privyclient.EarnIncentiveClaimActionResponse:
 //	case privyclient.EarnFeeCollectActionResponse:
+//	case privyclient.PayoutResponse:
 //	default:
 //	  fmt.Errorf("no variant present")
 //	}
@@ -1125,6 +1200,8 @@ func (u WalletActionResponseUnion) AsAny() anyWalletActionResponse {
 		return u.AsEarnIncentiveClaim()
 	case "earn_fee_collect":
 		return u.AsEarnFeeCollect()
+	case "payout":
+		return u.AsPayout()
 	}
 	return nil
 }
@@ -1155,6 +1232,11 @@ func (u WalletActionResponseUnion) AsEarnIncentiveClaim() (v EarnIncentiveClaimA
 }
 
 func (u WalletActionResponseUnion) AsEarnFeeCollect() (v EarnFeeCollectActionResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletActionResponseUnion) AsPayout() (v PayoutResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -1316,6 +1398,7 @@ const (
 	WalletActionTypeEarnWithdraw       WalletActionType = "earn_withdraw"
 	WalletActionTypeEarnIncentiveClaim WalletActionType = "earn_incentive_claim"
 	WalletActionTypeEarnFeeCollect     WalletActionType = "earn_fee_collect"
+	WalletActionTypePayout             WalletActionType = "payout"
 )
 
 type WalletActionGetParams struct {

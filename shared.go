@@ -30,7 +30,22 @@ func NewSharedService(opts ...option.RequestOption) (r SharedService) {
 	return
 }
 
+// The Privy API environment.
+type Environment string
+
+const (
+	EnvironmentSandbox    Environment = "sandbox"
+	EnvironmentProduction Environment = "production"
+)
+
 type KeyQuorumID = string
+
+// Supported fiat orchestration providers.
+type OrchestrationProvider string
+
+const (
+	OrchestrationProviderBridge OrchestrationProvider = "bridge"
+)
 
 type OwnerIDInput = string
 

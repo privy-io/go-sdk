@@ -33,22 +33,23 @@ type Client struct {
 	// Operations related to authorization intents for wallet actions
 	Intents IntentService
 	// Operations related to app settings and allowlist management
-	Apps            AppService
-	Webhooks        WebhookService
-	Accounts        AccountService
-	Aggregations    AggregationService
-	EmbeddedWallets EmbeddedWalletService
-	Analytics       AnalyticsService
-	ClientAuth      ClientAuthService
-	Shared          SharedService
-	Onramps         OnrampService
-	Funding         FundingService
-	CrossApp        CrossAppService
-	OAuth           OAuthService
-	Yield           YieldService
-	Fiat            FiatService
-	KrakenEmbed     KrakenEmbedService
-	Swaps           SwapService
+	Apps              AppService
+	Webhooks          WebhookService
+	Accounts          AccountService
+	Aggregations      AggregationService
+	EmbeddedWallets   EmbeddedWalletService
+	Analytics         AnalyticsService
+	ClientAuth        ClientAuthService
+	WalletAutomations WalletAutomationService
+	Shared            SharedService
+	Fiat              FiatService
+	Onramps           OnrampService
+	Funding           FundingService
+	CrossApp          CrossAppService
+	OAuth             OAuthService
+	Yield             YieldService
+	KrakenEmbed       KrakenEmbedService
+	Swaps             SwapService
 }
 
 // DefaultClientOptions read from the environment (PRIVY_APP_ID, PRIVY_APP_SECRET,
@@ -99,13 +100,14 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.EmbeddedWallets = NewEmbeddedWalletService(opts...)
 	r.Analytics = NewAnalyticsService(opts...)
 	r.ClientAuth = NewClientAuthService(opts...)
+	r.WalletAutomations = NewWalletAutomationService(opts...)
 	r.Shared = NewSharedService(opts...)
+	r.Fiat = NewFiatService(opts...)
 	r.Onramps = NewOnrampService(opts...)
 	r.Funding = NewFundingService(opts...)
 	r.CrossApp = NewCrossAppService(opts...)
 	r.OAuth = NewOAuthService(opts...)
 	r.Yield = NewYieldService(opts...)
-	r.Fiat = NewFiatService(opts...)
 	r.KrakenEmbed = NewKrakenEmbedService(opts...)
 	r.Swaps = NewSwapService(opts...)
 

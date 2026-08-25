@@ -37,7 +37,8 @@ type WalletService struct {
 	// Operations related to wallets
 	Balance WalletBalanceService
 	// Operations for swapping tokens within wallets
-	Swap WalletSwapService
+	Swap            WalletSwapService
+	DepositAccounts WalletDepositAccountService
 }
 
 // NewWalletService generates a new service that applies the given options to each
@@ -51,6 +52,7 @@ func NewWalletService(opts ...option.RequestOption) (r WalletService) {
 	r.Transactions = NewWalletTransactionService(opts...)
 	r.Balance = NewWalletBalanceService(opts...)
 	r.Swap = NewWalletSwapService(opts...)
+	r.DepositAccounts = NewWalletDepositAccountService(opts...)
 	return
 }
 
@@ -388,6 +390,124 @@ const (
 	AmountTypeExactInput  AmountType = "exact_input"
 	AmountTypeExactOutput AmountType = "exact_output"
 )
+
+func CreateCryptoDepositAccountRequestBodyOfCreateCryptoDepositAccountWithConfigRequestBody(depositConfigID string) CreateCryptoDepositAccountRequestBodyUnion {
+	var variant CreateCryptoDepositAccountWithConfigRequestBody
+	variant.DepositConfigID = depositConfigID
+	return CreateCryptoDepositAccountRequestBodyUnion{OfCreateCryptoDepositAccountWithConfigRequestBody: &variant}
+}
+
+func CreateCryptoDepositAccountRequestBodyOfCreateCryptoDepositAccountWithRouteRequestBody[
+	T AutomationAssetFilterAll | AutomationAssetFilterInputInclude | AutomationAssetFilterInputExclude,
+](destination AutomationDestinationAssetInput, source T) CreateCryptoDepositAccountRequestBodyUnion {
+	var variant CreateCryptoDepositAccountWithRouteRequestBody
+	variant.Destination = destination
+	switch v := any(source).(type) {
+	case AutomationAssetFilterAll:
+		variant.Source.OfAll = &v
+	case AutomationAssetFilterInputInclude:
+		variant.Source.OfInclude = &v
+	case AutomationAssetFilterInputExclude:
+		variant.Source.OfExclude = &v
+	}
+	return CreateCryptoDepositAccountRequestBodyUnion{OfCreateCryptoDepositAccountWithRouteRequestBody: &variant}
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type CreateCryptoDepositAccountRequestBodyUnion struct {
+	OfCreateCryptoDepositAccountWithConfigRequestBody *CreateCryptoDepositAccountWithConfigRequestBody `json:",omitzero,inline"`
+	OfCreateCryptoDepositAccountWithRouteRequestBody  *CreateCryptoDepositAccountWithRouteRequestBody  `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u CreateCryptoDepositAccountRequestBodyUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfCreateCryptoDepositAccountWithConfigRequestBody, u.OfCreateCryptoDepositAccountWithRouteRequestBody)
+}
+func (u *CreateCryptoDepositAccountRequestBodyUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+// Response returned after creating a crypto deposit account.
+type CreateCryptoDepositAccountResponse struct {
+	DepositAddresses []CryptoDepositAddressRoute `json:"deposit_addresses" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		DepositAddresses respjson.Field
+		ExtraFields      map[string]respjson.Field
+		raw              string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r CreateCryptoDepositAccountResponse) RawJSON() string { return r.JSON.raw }
+func (r *CreateCryptoDepositAccountResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Creates a crypto deposit account from an existing deposit configuration.
+//
+// The property DepositConfigID is required.
+type CreateCryptoDepositAccountWithConfigRequestBody struct {
+	DepositConfigID string `json:"deposit_config_id" api:"required"`
+	paramObj
+}
+
+func (r CreateCryptoDepositAccountWithConfigRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow CreateCryptoDepositAccountWithConfigRequestBody
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *CreateCryptoDepositAccountWithConfigRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Creates a crypto deposit account from an inline source and destination.
+//
+// The properties Destination, Source are required.
+type CreateCryptoDepositAccountWithRouteRequestBody struct {
+	// A destination asset spec accepting either raw identifiers (asset_address, caip2)
+	// or human-readable aliases (asset, chain). Exactly one of asset_address or asset
+	// must be provided; exactly one of caip2 or chain must be provided.
+	Destination AutomationDestinationAssetInput `json:"destination,omitzero" api:"required"`
+	// Which assets to include/exclude for an automation trigger (input form with alias
+	// support).
+	Source AutomationAssetFilterInputUnion `json:"source,omitzero" api:"required"`
+	paramObj
+}
+
+func (r CreateCryptoDepositAccountWithRouteRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow CreateCryptoDepositAccountWithRouteRequestBody
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *CreateCryptoDepositAccountWithRouteRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// One deposit address and the source/destination route it accepts.
+type CryptoDepositAddressRoute struct {
+	DepositAddress string `json:"deposit_address" api:"required"`
+	// Destination asset identified by contract address on a specific chain (CAIP-2).
+	Destination AutomationDestinationAssetResp `json:"destination" api:"required"`
+	// Which assets to include/exclude for an automation trigger.
+	Source   AutomationAssetFilterUnion `json:"source" api:"required"`
+	WalletID string                     `json:"wallet_id" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		DepositAddress respjson.Field
+		Destination    respjson.Field
+		Source         respjson.Field
+		WalletID       respjson.Field
+		ExtraFields    map[string]respjson.Field
+		raw            string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r CryptoDepositAddressRoute) RawJSON() string { return r.JSON.raw }
+func (r *CryptoDepositAddressRoute) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 // The wallet chain types that support curve-based signing.
 type CurveSigningChainType string
