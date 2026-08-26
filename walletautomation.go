@@ -3,12 +3,9 @@
 package privyclient
 
 import (
-	"encoding/json"
-
 	"github.com/privy-io/go-sdk/internal/apijson"
 	"github.com/privy-io/go-sdk/option"
 	"github.com/privy-io/go-sdk/packages/param"
-	"github.com/privy-io/go-sdk/packages/respjson"
 )
 
 // WalletAutomationService contains methods and other services that help with
@@ -30,112 +27,6 @@ func NewWalletAutomationService(opts ...option.RequestOption) (r WalletAutomatio
 	return
 }
 
-// AutomationAssetFilterUnion contains all possible properties and values from
-// [AutomationAssetFilterAllResp], [AutomationAssetFilterInclude],
-// [AutomationAssetFilterExclude].
-//
-// Use the [AutomationAssetFilterUnion.AsAny] method to switch on the variant.
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-type AutomationAssetFilterUnion struct {
-	// Any of "all", "include", "exclude".
-	Mode   string                    `json:"mode"`
-	Values []AutomationAssetSpecResp `json:"values"`
-	JSON   struct {
-		Mode   respjson.Field
-		Values respjson.Field
-		raw    string
-	} `json:"-"`
-}
-
-// anyAutomationAssetFilter is implemented by each variant of
-// [AutomationAssetFilterUnion] to add type safety for the return type of
-// [AutomationAssetFilterUnion.AsAny]
-type anyAutomationAssetFilter interface {
-	implAutomationAssetFilterUnion()
-}
-
-func (AutomationAssetFilterAllResp) implAutomationAssetFilterUnion() {}
-func (AutomationAssetFilterInclude) implAutomationAssetFilterUnion() {}
-func (AutomationAssetFilterExclude) implAutomationAssetFilterUnion() {}
-
-// Use the following switch statement to find the correct variant
-//
-//	switch variant := AutomationAssetFilterUnion.AsAny().(type) {
-//	case privyclient.AutomationAssetFilterAllResp:
-//	case privyclient.AutomationAssetFilterInclude:
-//	case privyclient.AutomationAssetFilterExclude:
-//	default:
-//	  fmt.Errorf("no variant present")
-//	}
-func (u AutomationAssetFilterUnion) AsAny() anyAutomationAssetFilter {
-	switch u.Mode {
-	case "all":
-		return u.AsAll()
-	case "include":
-		return u.AsInclude()
-	case "exclude":
-		return u.AsExclude()
-	}
-	return nil
-}
-
-func (u AutomationAssetFilterUnion) AsAll() (v AutomationAssetFilterAllResp) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u AutomationAssetFilterUnion) AsInclude() (v AutomationAssetFilterInclude) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u AutomationAssetFilterUnion) AsExclude() (v AutomationAssetFilterExclude) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u AutomationAssetFilterUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *AutomationAssetFilterUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Match all assets.
-type AutomationAssetFilterAllResp struct {
-	// Any of "all".
-	Mode AutomationAssetFilterAllMode `json:"mode" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Mode        respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AutomationAssetFilterAllResp) RawJSON() string { return r.JSON.raw }
-func (r *AutomationAssetFilterAllResp) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// ToParam converts this AutomationAssetFilterAllResp to a
-// AutomationAssetFilterAll.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// AutomationAssetFilterAll.Overrides()
-func (r AutomationAssetFilterAllResp) ToParam() AutomationAssetFilterAll {
-	return param.Override[AutomationAssetFilterAll](json.RawMessage(r.RawJSON()))
-}
-
-type AutomationAssetFilterAllMode string
-
-const (
-	AutomationAssetFilterAllModeAll AutomationAssetFilterAllMode = "all"
-)
-
 // Match all assets.
 //
 // The property Mode is required.
@@ -153,56 +44,10 @@ func (r *AutomationAssetFilterAll) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Match all assets except the specified ones.
-type AutomationAssetFilterExclude struct {
-	// Any of "exclude".
-	Mode   AutomationAssetFilterExcludeMode `json:"mode" api:"required"`
-	Values []AutomationAssetSpecResp        `json:"values" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Mode        respjson.Field
-		Values      respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AutomationAssetFilterExclude) RawJSON() string { return r.JSON.raw }
-func (r *AutomationAssetFilterExclude) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type AutomationAssetFilterExcludeMode string
+type AutomationAssetFilterAllMode string
 
 const (
-	AutomationAssetFilterExcludeModeExclude AutomationAssetFilterExcludeMode = "exclude"
-)
-
-// Match only the specified assets.
-type AutomationAssetFilterInclude struct {
-	// Any of "include".
-	Mode   AutomationAssetFilterIncludeMode `json:"mode" api:"required"`
-	Values []AutomationAssetSpecResp        `json:"values" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Mode        respjson.Field
-		Values      respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AutomationAssetFilterInclude) RawJSON() string { return r.JSON.raw }
-func (r *AutomationAssetFilterInclude) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type AutomationAssetFilterIncludeMode string
-
-const (
-	AutomationAssetFilterIncludeModeInclude AutomationAssetFilterIncludeMode = "include"
+	AutomationAssetFilterAllModeAll AutomationAssetFilterAllMode = "all"
 )
 
 func AutomationAssetFilterInputOfAll(mode AutomationAssetFilterAllMode) AutomationAssetFilterInputUnion {
@@ -298,34 +143,6 @@ const (
 )
 
 // An asset identified by contract address, scoped to a chain via CAIP-2.
-type AutomationAssetSpecResp struct {
-	AssetAddress string `json:"asset_address" api:"required"`
-	Caip2        string `json:"caip2" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		AssetAddress respjson.Field
-		Caip2        respjson.Field
-		ExtraFields  map[string]respjson.Field
-		raw          string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AutomationAssetSpecResp) RawJSON() string { return r.JSON.raw }
-func (r *AutomationAssetSpecResp) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// ToParam converts this AutomationAssetSpecResp to a AutomationAssetSpec.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// AutomationAssetSpec.Overrides()
-func (r AutomationAssetSpecResp) ToParam() AutomationAssetSpec {
-	return param.Override[AutomationAssetSpec](json.RawMessage(r.RawJSON()))
-}
-
-// An asset identified by contract address, scoped to a chain via CAIP-2.
 //
 // The properties AssetAddress, Caip2 are required.
 type AutomationAssetSpec struct {
@@ -357,35 +174,6 @@ func (r AutomationAssetSpecInput) MarshalJSON() (data []byte, err error) {
 		MarshalJSON bool `json:"-"` // Prevent inheriting [json.Marshaler] from the embedded field
 	}
 	return param.MarshalObject(r, shadow{&r, false})
-}
-
-// Destination asset identified by contract address on a specific chain (CAIP-2).
-type AutomationDestinationAssetResp struct {
-	AssetAddress string `json:"asset_address" api:"required"`
-	Caip2        string `json:"caip2" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		AssetAddress respjson.Field
-		Caip2        respjson.Field
-		ExtraFields  map[string]respjson.Field
-		raw          string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AutomationDestinationAssetResp) RawJSON() string { return r.JSON.raw }
-func (r *AutomationDestinationAssetResp) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// ToParam converts this AutomationDestinationAssetResp to a
-// AutomationDestinationAsset.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// AutomationDestinationAsset.Overrides()
-func (r AutomationDestinationAssetResp) ToParam() AutomationDestinationAsset {
-	return param.Override[AutomationDestinationAsset](json.RawMessage(r.RawJSON()))
 }
 
 // Destination asset identified by contract address on a specific chain (CAIP-2).

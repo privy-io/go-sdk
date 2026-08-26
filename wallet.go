@@ -487,11 +487,13 @@ func (r *CreateCryptoDepositAccountWithRouteRequestBody) UnmarshalJSON(data []by
 // One deposit address and the source/destination route it accepts.
 type CryptoDepositAddressRoute struct {
 	DepositAddress string `json:"deposit_address" api:"required"`
-	// Destination asset identified by contract address on a specific chain (CAIP-2).
-	Destination AutomationDestinationAssetResp `json:"destination" api:"required"`
-	// Which assets to include/exclude for an automation trigger.
-	Source   AutomationAssetFilterUnion `json:"source" api:"required"`
-	WalletID string                     `json:"wallet_id" api:"required"`
+	// An asset on a chain. Uses a human-readable alias (usdc, base) when one is on
+	// file, otherwise the raw asset address and CAIP-2.
+	Destination CryptoDepositAsset `json:"destination" api:"required"`
+	// Which assets a deposit address accepts. Asset and chain use human-readable
+	// aliases when known.
+	Source   CryptoDepositAssetFilterUnion `json:"source" api:"required"`
+	WalletID string                        `json:"wallet_id" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		DepositAddress respjson.Field
@@ -508,6 +510,177 @@ func (r CryptoDepositAddressRoute) RawJSON() string { return r.JSON.raw }
 func (r *CryptoDepositAddressRoute) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// An asset on a chain. Uses a human-readable alias (usdc, base) when one is on
+// file, otherwise the raw asset address and CAIP-2.
+type CryptoDepositAsset struct {
+	// Known alias (usdc) or raw asset address.
+	Asset string `json:"asset" api:"required"`
+	// Known alias (base) or CAIP-2.
+	Chain string `json:"chain" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Asset       respjson.Field
+		Chain       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r CryptoDepositAsset) RawJSON() string { return r.JSON.raw }
+func (r *CryptoDepositAsset) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// CryptoDepositAssetFilterUnion contains all possible properties and values from
+// [CryptoDepositAssetFilterAll], [CryptoDepositAssetFilterInclude],
+// [CryptoDepositAssetFilterExclude].
+//
+// Use the [CryptoDepositAssetFilterUnion.AsAny] method to switch on the variant.
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type CryptoDepositAssetFilterUnion struct {
+	// Any of "all", "include", "exclude".
+	Mode   string               `json:"mode"`
+	Values []CryptoDepositAsset `json:"values"`
+	JSON   struct {
+		Mode   respjson.Field
+		Values respjson.Field
+		raw    string
+	} `json:"-"`
+}
+
+// anyCryptoDepositAssetFilter is implemented by each variant of
+// [CryptoDepositAssetFilterUnion] to add type safety for the return type of
+// [CryptoDepositAssetFilterUnion.AsAny]
+type anyCryptoDepositAssetFilter interface {
+	implCryptoDepositAssetFilterUnion()
+}
+
+func (CryptoDepositAssetFilterAll) implCryptoDepositAssetFilterUnion()     {}
+func (CryptoDepositAssetFilterInclude) implCryptoDepositAssetFilterUnion() {}
+func (CryptoDepositAssetFilterExclude) implCryptoDepositAssetFilterUnion() {}
+
+// Use the following switch statement to find the correct variant
+//
+//	switch variant := CryptoDepositAssetFilterUnion.AsAny().(type) {
+//	case privyclient.CryptoDepositAssetFilterAll:
+//	case privyclient.CryptoDepositAssetFilterInclude:
+//	case privyclient.CryptoDepositAssetFilterExclude:
+//	default:
+//	  fmt.Errorf("no variant present")
+//	}
+func (u CryptoDepositAssetFilterUnion) AsAny() anyCryptoDepositAssetFilter {
+	switch u.Mode {
+	case "all":
+		return u.AsAll()
+	case "include":
+		return u.AsInclude()
+	case "exclude":
+		return u.AsExclude()
+	}
+	return nil
+}
+
+func (u CryptoDepositAssetFilterUnion) AsAll() (v CryptoDepositAssetFilterAll) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u CryptoDepositAssetFilterUnion) AsInclude() (v CryptoDepositAssetFilterInclude) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u CryptoDepositAssetFilterUnion) AsExclude() (v CryptoDepositAssetFilterExclude) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u CryptoDepositAssetFilterUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *CryptoDepositAssetFilterUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Match all assets.
+type CryptoDepositAssetFilterAll struct {
+	// Any of "all".
+	Mode CryptoDepositAssetFilterAllMode `json:"mode" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Mode        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r CryptoDepositAssetFilterAll) RawJSON() string { return r.JSON.raw }
+func (r *CryptoDepositAssetFilterAll) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type CryptoDepositAssetFilterAllMode string
+
+const (
+	CryptoDepositAssetFilterAllModeAll CryptoDepositAssetFilterAllMode = "all"
+)
+
+// Match all assets except the specified ones, using human-readable aliases when
+// known.
+type CryptoDepositAssetFilterExclude struct {
+	// Any of "exclude".
+	Mode   CryptoDepositAssetFilterExcludeMode `json:"mode" api:"required"`
+	Values []CryptoDepositAsset                `json:"values" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Mode        respjson.Field
+		Values      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r CryptoDepositAssetFilterExclude) RawJSON() string { return r.JSON.raw }
+func (r *CryptoDepositAssetFilterExclude) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type CryptoDepositAssetFilterExcludeMode string
+
+const (
+	CryptoDepositAssetFilterExcludeModeExclude CryptoDepositAssetFilterExcludeMode = "exclude"
+)
+
+// Match only the specified assets, using human-readable aliases when known.
+type CryptoDepositAssetFilterInclude struct {
+	// Any of "include".
+	Mode   CryptoDepositAssetFilterIncludeMode `json:"mode" api:"required"`
+	Values []CryptoDepositAsset                `json:"values" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Mode        respjson.Field
+		Values      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r CryptoDepositAssetFilterInclude) RawJSON() string { return r.JSON.raw }
+func (r *CryptoDepositAssetFilterInclude) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type CryptoDepositAssetFilterIncludeMode string
+
+const (
+	CryptoDepositAssetFilterIncludeModeInclude CryptoDepositAssetFilterIncludeMode = "include"
+)
 
 // The wallet chain types that support curve-based signing.
 type CurveSigningChainType string
@@ -8355,29 +8528,31 @@ const (
 type WalletAssetChainNameInput string
 
 const (
-	WalletAssetChainNameInputEthereum        WalletAssetChainNameInput = "ethereum"
-	WalletAssetChainNameInputArbitrum        WalletAssetChainNameInput = "arbitrum"
-	WalletAssetChainNameInputAvalanche       WalletAssetChainNameInput = "avalanche"
-	WalletAssetChainNameInputBase            WalletAssetChainNameInput = "base"
-	WalletAssetChainNameInputTempo           WalletAssetChainNameInput = "tempo"
-	WalletAssetChainNameInputLinea           WalletAssetChainNameInput = "linea"
-	WalletAssetChainNameInputOptimism        WalletAssetChainNameInput = "optimism"
-	WalletAssetChainNameInputPolygon         WalletAssetChainNameInput = "polygon"
-	WalletAssetChainNameInputBsc             WalletAssetChainNameInput = "bsc"
-	WalletAssetChainNameInputSolana          WalletAssetChainNameInput = "solana"
-	WalletAssetChainNameInputTron            WalletAssetChainNameInput = "tron"
-	WalletAssetChainNameInputZksyncEra       WalletAssetChainNameInput = "zksync_era"
-	WalletAssetChainNameInputHoodi           WalletAssetChainNameInput = "hoodi"
-	WalletAssetChainNameInputSepolia         WalletAssetChainNameInput = "sepolia"
-	WalletAssetChainNameInputArbitrumSepolia WalletAssetChainNameInput = "arbitrum_sepolia"
-	WalletAssetChainNameInputAvalancheFuji   WalletAssetChainNameInput = "avalanche_fuji"
-	WalletAssetChainNameInputBaseSepolia     WalletAssetChainNameInput = "base_sepolia"
-	WalletAssetChainNameInputLineaTestnet    WalletAssetChainNameInput = "linea_testnet"
-	WalletAssetChainNameInputOptimismSepolia WalletAssetChainNameInput = "optimism_sepolia"
-	WalletAssetChainNameInputPolygonAmoy     WalletAssetChainNameInput = "polygon_amoy"
-	WalletAssetChainNameInputSolanaDevnet    WalletAssetChainNameInput = "solana_devnet"
-	WalletAssetChainNameInputSolanaTestnet   WalletAssetChainNameInput = "solana_testnet"
-	WalletAssetChainNameInputTronNile        WalletAssetChainNameInput = "tron_nile"
+	WalletAssetChainNameInputEthereum         WalletAssetChainNameInput = "ethereum"
+	WalletAssetChainNameInputArbitrum         WalletAssetChainNameInput = "arbitrum"
+	WalletAssetChainNameInputAvalanche        WalletAssetChainNameInput = "avalanche"
+	WalletAssetChainNameInputBase             WalletAssetChainNameInput = "base"
+	WalletAssetChainNameInputTempo            WalletAssetChainNameInput = "tempo"
+	WalletAssetChainNameInputLinea            WalletAssetChainNameInput = "linea"
+	WalletAssetChainNameInputOptimism         WalletAssetChainNameInput = "optimism"
+	WalletAssetChainNameInputPolygon          WalletAssetChainNameInput = "polygon"
+	WalletAssetChainNameInputBsc              WalletAssetChainNameInput = "bsc"
+	WalletAssetChainNameInputSolana           WalletAssetChainNameInput = "solana"
+	WalletAssetChainNameInputTron             WalletAssetChainNameInput = "tron"
+	WalletAssetChainNameInputZksyncEra        WalletAssetChainNameInput = "zksync_era"
+	WalletAssetChainNameInputRobinhood        WalletAssetChainNameInput = "robinhood"
+	WalletAssetChainNameInputHoodi            WalletAssetChainNameInput = "hoodi"
+	WalletAssetChainNameInputSepolia          WalletAssetChainNameInput = "sepolia"
+	WalletAssetChainNameInputArbitrumSepolia  WalletAssetChainNameInput = "arbitrum_sepolia"
+	WalletAssetChainNameInputAvalancheFuji    WalletAssetChainNameInput = "avalanche_fuji"
+	WalletAssetChainNameInputBaseSepolia      WalletAssetChainNameInput = "base_sepolia"
+	WalletAssetChainNameInputLineaTestnet     WalletAssetChainNameInput = "linea_testnet"
+	WalletAssetChainNameInputOptimismSepolia  WalletAssetChainNameInput = "optimism_sepolia"
+	WalletAssetChainNameInputPolygonAmoy      WalletAssetChainNameInput = "polygon_amoy"
+	WalletAssetChainNameInputSolanaDevnet     WalletAssetChainNameInput = "solana_devnet"
+	WalletAssetChainNameInputSolanaTestnet    WalletAssetChainNameInput = "solana_testnet"
+	WalletAssetChainNameInputTronNile         WalletAssetChainNameInput = "tron_nile"
+	WalletAssetChainNameInputRobinhoodTestnet WalletAssetChainNameInput = "robinhood_testnet"
 )
 
 // Request body for wallet authentication with HPKE-encrypted response.
