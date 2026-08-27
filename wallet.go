@@ -398,16 +398,16 @@ func CreateCryptoDepositAccountRequestBodyOfCreateCryptoDepositAccountWithConfig
 }
 
 func CreateCryptoDepositAccountRequestBodyOfCreateCryptoDepositAccountWithRouteRequestBody[
-	T AutomationAssetFilterAll | AutomationAssetFilterInputInclude | AutomationAssetFilterInputExclude,
-](destination AutomationDestinationAssetInput, source T) CreateCryptoDepositAccountRequestBodyUnion {
+	T CryptoDepositAssetFilterAll | CryptoDepositAssetFilterInclude | CryptoDepositAssetFilterExclude,
+](destination CryptoDepositAsset, source T) CreateCryptoDepositAccountRequestBodyUnion {
 	var variant CreateCryptoDepositAccountWithRouteRequestBody
 	variant.Destination = destination
 	switch v := any(source).(type) {
-	case AutomationAssetFilterAll:
+	case CryptoDepositAssetFilterAll:
 		variant.Source.OfAll = &v
-	case AutomationAssetFilterInputInclude:
+	case CryptoDepositAssetFilterInclude:
 		variant.Source.OfInclude = &v
-	case AutomationAssetFilterInputExclude:
+	case CryptoDepositAssetFilterExclude:
 		variant.Source.OfExclude = &v
 	}
 	return CreateCryptoDepositAccountRequestBodyUnion{OfCreateCryptoDepositAccountWithRouteRequestBody: &variant}
@@ -466,13 +466,12 @@ func (r *CreateCryptoDepositAccountWithConfigRequestBody) UnmarshalJSON(data []b
 //
 // The properties Destination, Source are required.
 type CreateCryptoDepositAccountWithRouteRequestBody struct {
-	// A destination asset spec accepting either raw identifiers (asset_address, caip2)
-	// or human-readable aliases (asset, chain). Exactly one of asset_address or asset
-	// must be provided; exactly one of caip2 or chain must be provided.
-	Destination AutomationDestinationAssetInput `json:"destination,omitzero" api:"required"`
-	// Which assets to include/exclude for an automation trigger (input form with alias
-	// support).
-	Source AutomationAssetFilterInputUnion `json:"source,omitzero" api:"required"`
+	// An asset on a chain. Uses a human-readable alias (usdc, base) when one is on
+	// file, otherwise the raw asset address and CAIP-2.
+	Destination CryptoDepositAsset `json:"destination,omitzero" api:"required"`
+	// Which assets a deposit address accepts. Asset and chain use human-readable
+	// aliases when known.
+	Source CryptoDepositAssetFilterUnion `json:"source,omitzero" api:"required"`
 	paramObj
 }
 
@@ -489,11 +488,11 @@ type CryptoDepositAddressRoute struct {
 	DepositAddress string `json:"deposit_address" api:"required"`
 	// An asset on a chain. Uses a human-readable alias (usdc, base) when one is on
 	// file, otherwise the raw asset address and CAIP-2.
-	Destination CryptoDepositAsset `json:"destination" api:"required"`
+	Destination CryptoDepositAssetResp `json:"destination" api:"required"`
 	// Which assets a deposit address accepts. Asset and chain use human-readable
 	// aliases when known.
-	Source   CryptoDepositAssetFilterUnion `json:"source" api:"required"`
-	WalletID string                        `json:"wallet_id" api:"required"`
+	Source   CryptoDepositAssetFilterUnionResp `json:"source" api:"required"`
+	WalletID string                            `json:"wallet_id" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		DepositAddress respjson.Field
@@ -513,11 +512,12 @@ func (r *CryptoDepositAddressRoute) UnmarshalJSON(data []byte) error {
 
 // An asset on a chain. Uses a human-readable alias (usdc, base) when one is on
 // file, otherwise the raw asset address and CAIP-2.
-type CryptoDepositAsset struct {
+type CryptoDepositAssetResp struct {
 	// Known alias (usdc) or raw asset address.
 	Asset string `json:"asset" api:"required"`
-	// Known alias (base) or CAIP-2.
-	Chain string `json:"chain" api:"required"`
+	// Known alias (base) or CAIP-2. Omit on a source value to match every supported
+	// chain for that asset.
+	Chain string `json:"chain"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Asset       respjson.Field
@@ -528,22 +528,53 @@ type CryptoDepositAsset struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r CryptoDepositAsset) RawJSON() string { return r.JSON.raw }
+func (r CryptoDepositAssetResp) RawJSON() string { return r.JSON.raw }
+func (r *CryptoDepositAssetResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this CryptoDepositAssetResp to a CryptoDepositAsset.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// CryptoDepositAsset.Overrides()
+func (r CryptoDepositAssetResp) ToParam() CryptoDepositAsset {
+	return param.Override[CryptoDepositAsset](json.RawMessage(r.RawJSON()))
+}
+
+// An asset on a chain. Uses a human-readable alias (usdc, base) when one is on
+// file, otherwise the raw asset address and CAIP-2.
+//
+// The property Asset is required.
+type CryptoDepositAsset struct {
+	// Known alias (usdc) or raw asset address.
+	Asset string `json:"asset" api:"required"`
+	// Known alias (base) or CAIP-2. Omit on a source value to match every supported
+	// chain for that asset.
+	Chain param.Opt[string] `json:"chain,omitzero"`
+	paramObj
+}
+
+func (r CryptoDepositAsset) MarshalJSON() (data []byte, err error) {
+	type shadow CryptoDepositAsset
+	return param.MarshalObject(r, (*shadow)(&r))
+}
 func (r *CryptoDepositAsset) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// CryptoDepositAssetFilterUnion contains all possible properties and values from
-// [CryptoDepositAssetFilterAll], [CryptoDepositAssetFilterInclude],
-// [CryptoDepositAssetFilterExclude].
+// CryptoDepositAssetFilterUnionResp contains all possible properties and values
+// from [CryptoDepositAssetFilterAllResp], [CryptoDepositAssetFilterIncludeResp],
+// [CryptoDepositAssetFilterExcludeResp].
 //
-// Use the [CryptoDepositAssetFilterUnion.AsAny] method to switch on the variant.
+// Use the [CryptoDepositAssetFilterUnionResp.AsAny] method to switch on the
+// variant.
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
-type CryptoDepositAssetFilterUnion struct {
+type CryptoDepositAssetFilterUnionResp struct {
 	// Any of "all", "include", "exclude".
-	Mode   string               `json:"mode"`
-	Values []CryptoDepositAsset `json:"values"`
+	Mode   string                   `json:"mode"`
+	Values []CryptoDepositAssetResp `json:"values"`
 	JSON   struct {
 		Mode   respjson.Field
 		Values respjson.Field
@@ -551,27 +582,27 @@ type CryptoDepositAssetFilterUnion struct {
 	} `json:"-"`
 }
 
-// anyCryptoDepositAssetFilter is implemented by each variant of
-// [CryptoDepositAssetFilterUnion] to add type safety for the return type of
-// [CryptoDepositAssetFilterUnion.AsAny]
-type anyCryptoDepositAssetFilter interface {
-	implCryptoDepositAssetFilterUnion()
+// anyCryptoDepositAssetFilterResp is implemented by each variant of
+// [CryptoDepositAssetFilterUnionResp] to add type safety for the return type of
+// [CryptoDepositAssetFilterUnionResp.AsAny]
+type anyCryptoDepositAssetFilterResp interface {
+	implCryptoDepositAssetFilterUnionResp()
 }
 
-func (CryptoDepositAssetFilterAll) implCryptoDepositAssetFilterUnion()     {}
-func (CryptoDepositAssetFilterInclude) implCryptoDepositAssetFilterUnion() {}
-func (CryptoDepositAssetFilterExclude) implCryptoDepositAssetFilterUnion() {}
+func (CryptoDepositAssetFilterAllResp) implCryptoDepositAssetFilterUnionResp()     {}
+func (CryptoDepositAssetFilterIncludeResp) implCryptoDepositAssetFilterUnionResp() {}
+func (CryptoDepositAssetFilterExcludeResp) implCryptoDepositAssetFilterUnionResp() {}
 
 // Use the following switch statement to find the correct variant
 //
-//	switch variant := CryptoDepositAssetFilterUnion.AsAny().(type) {
-//	case privyclient.CryptoDepositAssetFilterAll:
-//	case privyclient.CryptoDepositAssetFilterInclude:
-//	case privyclient.CryptoDepositAssetFilterExclude:
+//	switch variant := CryptoDepositAssetFilterUnionResp.AsAny().(type) {
+//	case privyclient.CryptoDepositAssetFilterAllResp:
+//	case privyclient.CryptoDepositAssetFilterIncludeResp:
+//	case privyclient.CryptoDepositAssetFilterExcludeResp:
 //	default:
 //	  fmt.Errorf("no variant present")
 //	}
-func (u CryptoDepositAssetFilterUnion) AsAny() anyCryptoDepositAssetFilter {
+func (u CryptoDepositAssetFilterUnionResp) AsAny() anyCryptoDepositAssetFilterResp {
 	switch u.Mode {
 	case "all":
 		return u.AsAll()
@@ -583,30 +614,84 @@ func (u CryptoDepositAssetFilterUnion) AsAny() anyCryptoDepositAssetFilter {
 	return nil
 }
 
-func (u CryptoDepositAssetFilterUnion) AsAll() (v CryptoDepositAssetFilterAll) {
+func (u CryptoDepositAssetFilterUnionResp) AsAll() (v CryptoDepositAssetFilterAllResp) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u CryptoDepositAssetFilterUnion) AsInclude() (v CryptoDepositAssetFilterInclude) {
+func (u CryptoDepositAssetFilterUnionResp) AsInclude() (v CryptoDepositAssetFilterIncludeResp) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u CryptoDepositAssetFilterUnion) AsExclude() (v CryptoDepositAssetFilterExclude) {
+func (u CryptoDepositAssetFilterUnionResp) AsExclude() (v CryptoDepositAssetFilterExcludeResp) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
 // Returns the unmodified JSON received from the API
-func (u CryptoDepositAssetFilterUnion) RawJSON() string { return u.JSON.raw }
+func (u CryptoDepositAssetFilterUnionResp) RawJSON() string { return u.JSON.raw }
 
-func (r *CryptoDepositAssetFilterUnion) UnmarshalJSON(data []byte) error {
+func (r *CryptoDepositAssetFilterUnionResp) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// ToParam converts this CryptoDepositAssetFilterUnionResp to a
+// CryptoDepositAssetFilterUnion.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// CryptoDepositAssetFilterUnion.Overrides()
+func (r CryptoDepositAssetFilterUnionResp) ToParam() CryptoDepositAssetFilterUnion {
+	return param.Override[CryptoDepositAssetFilterUnion](json.RawMessage(r.RawJSON()))
+}
+
+func CryptoDepositAssetFilterOfAll(mode CryptoDepositAssetFilterAllMode) CryptoDepositAssetFilterUnion {
+	var all CryptoDepositAssetFilterAll
+	all.Mode = mode
+	return CryptoDepositAssetFilterUnion{OfAll: &all}
+}
+
+func CryptoDepositAssetFilterOfInclude(values []CryptoDepositAsset) CryptoDepositAssetFilterUnion {
+	var include CryptoDepositAssetFilterInclude
+	include.Values = values
+	return CryptoDepositAssetFilterUnion{OfInclude: &include}
+}
+
+func CryptoDepositAssetFilterOfExclude(values []CryptoDepositAsset) CryptoDepositAssetFilterUnion {
+	var exclude CryptoDepositAssetFilterExclude
+	exclude.Values = values
+	return CryptoDepositAssetFilterUnion{OfExclude: &exclude}
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type CryptoDepositAssetFilterUnion struct {
+	OfAll     *CryptoDepositAssetFilterAll     `json:",omitzero,inline"`
+	OfInclude *CryptoDepositAssetFilterInclude `json:",omitzero,inline"`
+	OfExclude *CryptoDepositAssetFilterExclude `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u CryptoDepositAssetFilterUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfAll, u.OfInclude, u.OfExclude)
+}
+func (u *CryptoDepositAssetFilterUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+func init() {
+	apijson.RegisterUnion[CryptoDepositAssetFilterUnion](
+		"mode",
+		apijson.Discriminator[CryptoDepositAssetFilterAll]("all"),
+		apijson.Discriminator[CryptoDepositAssetFilterInclude]("include"),
+		apijson.Discriminator[CryptoDepositAssetFilterExclude]("exclude"),
+	)
+}
+
 // Match all assets.
-type CryptoDepositAssetFilterAll struct {
+type CryptoDepositAssetFilterAllResp struct {
 	// Any of "all".
 	Mode CryptoDepositAssetFilterAllMode `json:"mode" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -618,9 +703,19 @@ type CryptoDepositAssetFilterAll struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r CryptoDepositAssetFilterAll) RawJSON() string { return r.JSON.raw }
-func (r *CryptoDepositAssetFilterAll) UnmarshalJSON(data []byte) error {
+func (r CryptoDepositAssetFilterAllResp) RawJSON() string { return r.JSON.raw }
+func (r *CryptoDepositAssetFilterAllResp) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this CryptoDepositAssetFilterAllResp to a
+// CryptoDepositAssetFilterAll.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// CryptoDepositAssetFilterAll.Overrides()
+func (r CryptoDepositAssetFilterAllResp) ToParam() CryptoDepositAssetFilterAll {
+	return param.Override[CryptoDepositAssetFilterAll](json.RawMessage(r.RawJSON()))
 }
 
 type CryptoDepositAssetFilterAllMode string
@@ -629,12 +724,29 @@ const (
 	CryptoDepositAssetFilterAllModeAll CryptoDepositAssetFilterAllMode = "all"
 )
 
+// Match all assets.
+//
+// The property Mode is required.
+type CryptoDepositAssetFilterAll struct {
+	// Any of "all".
+	Mode CryptoDepositAssetFilterAllMode `json:"mode,omitzero" api:"required"`
+	paramObj
+}
+
+func (r CryptoDepositAssetFilterAll) MarshalJSON() (data []byte, err error) {
+	type shadow CryptoDepositAssetFilterAll
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *CryptoDepositAssetFilterAll) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Match all assets except the specified ones, using human-readable aliases when
 // known.
-type CryptoDepositAssetFilterExclude struct {
+type CryptoDepositAssetFilterExcludeResp struct {
 	// Any of "exclude".
 	Mode   CryptoDepositAssetFilterExcludeMode `json:"mode" api:"required"`
-	Values []CryptoDepositAsset                `json:"values" api:"required"`
+	Values []CryptoDepositAssetResp            `json:"values" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Mode        respjson.Field
@@ -645,9 +757,19 @@ type CryptoDepositAssetFilterExclude struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r CryptoDepositAssetFilterExclude) RawJSON() string { return r.JSON.raw }
-func (r *CryptoDepositAssetFilterExclude) UnmarshalJSON(data []byte) error {
+func (r CryptoDepositAssetFilterExcludeResp) RawJSON() string { return r.JSON.raw }
+func (r *CryptoDepositAssetFilterExcludeResp) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this CryptoDepositAssetFilterExcludeResp to a
+// CryptoDepositAssetFilterExclude.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// CryptoDepositAssetFilterExclude.Overrides()
+func (r CryptoDepositAssetFilterExcludeResp) ToParam() CryptoDepositAssetFilterExclude {
+	return param.Override[CryptoDepositAssetFilterExclude](json.RawMessage(r.RawJSON()))
 }
 
 type CryptoDepositAssetFilterExcludeMode string
@@ -656,11 +778,30 @@ const (
 	CryptoDepositAssetFilterExcludeModeExclude CryptoDepositAssetFilterExcludeMode = "exclude"
 )
 
+// Match all assets except the specified ones, using human-readable aliases when
+// known.
+//
+// The properties Mode, Values are required.
+type CryptoDepositAssetFilterExclude struct {
+	// Any of "exclude".
+	Mode   CryptoDepositAssetFilterExcludeMode `json:"mode,omitzero" api:"required"`
+	Values []CryptoDepositAsset                `json:"values,omitzero" api:"required"`
+	paramObj
+}
+
+func (r CryptoDepositAssetFilterExclude) MarshalJSON() (data []byte, err error) {
+	type shadow CryptoDepositAssetFilterExclude
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *CryptoDepositAssetFilterExclude) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Match only the specified assets, using human-readable aliases when known.
-type CryptoDepositAssetFilterInclude struct {
+type CryptoDepositAssetFilterIncludeResp struct {
 	// Any of "include".
 	Mode   CryptoDepositAssetFilterIncludeMode `json:"mode" api:"required"`
-	Values []CryptoDepositAsset                `json:"values" api:"required"`
+	Values []CryptoDepositAssetResp            `json:"values" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Mode        respjson.Field
@@ -671,9 +812,19 @@ type CryptoDepositAssetFilterInclude struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r CryptoDepositAssetFilterInclude) RawJSON() string { return r.JSON.raw }
-func (r *CryptoDepositAssetFilterInclude) UnmarshalJSON(data []byte) error {
+func (r CryptoDepositAssetFilterIncludeResp) RawJSON() string { return r.JSON.raw }
+func (r *CryptoDepositAssetFilterIncludeResp) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this CryptoDepositAssetFilterIncludeResp to a
+// CryptoDepositAssetFilterInclude.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// CryptoDepositAssetFilterInclude.Overrides()
+func (r CryptoDepositAssetFilterIncludeResp) ToParam() CryptoDepositAssetFilterInclude {
+	return param.Override[CryptoDepositAssetFilterInclude](json.RawMessage(r.RawJSON()))
 }
 
 type CryptoDepositAssetFilterIncludeMode string
@@ -681,6 +832,24 @@ type CryptoDepositAssetFilterIncludeMode string
 const (
 	CryptoDepositAssetFilterIncludeModeInclude CryptoDepositAssetFilterIncludeMode = "include"
 )
+
+// Match only the specified assets, using human-readable aliases when known.
+//
+// The properties Mode, Values are required.
+type CryptoDepositAssetFilterInclude struct {
+	// Any of "include".
+	Mode   CryptoDepositAssetFilterIncludeMode `json:"mode,omitzero" api:"required"`
+	Values []CryptoDepositAsset                `json:"values,omitzero" api:"required"`
+	paramObj
+}
+
+func (r CryptoDepositAssetFilterInclude) MarshalJSON() (data []byte, err error) {
+	type shadow CryptoDepositAssetFilterInclude
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *CryptoDepositAssetFilterInclude) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 // The wallet chain types that support curve-based signing.
 type CurveSigningChainType string

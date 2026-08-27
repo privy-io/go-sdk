@@ -61,6 +61,68 @@ func (r *WalletActionService) Get(ctx context.Context, actionID string, params W
 	return res, err
 }
 
+// Vault details for an Aave earn vault, including fee visibility.
+type AaveVaultDetails struct {
+	// Vault identifier.
+	ID string `json:"id" api:"required"`
+	// EVM address of the vault admin wallet.
+	AdminWalletAddress string `json:"admin_wallet_address" api:"required"`
+	// Privy wallet ID of the vault admin.
+	AdminWalletID string `json:"admin_wallet_id" api:"required"`
+	// Annual percentage yield earned by the app from fee wrapper fees, in basis
+	// points.
+	AppApy float64 `json:"app_apy" api:"required"`
+	// Asset metadata for an earn vault position.
+	Asset EarnAsset `json:"asset" api:"required"`
+	// Fees available to collect, in smallest unit of the underlying asset.
+	AvailableFees string `json:"available_fees" api:"required"`
+	// Available liquidity in USD.
+	AvailableLiquidityUsd float64 `json:"available_liquidity_usd" api:"required"`
+	// CAIP-2 chain identifier (e.g. "eip155:4217" for Tempo, "eip155:8453" for Base).
+	Caip2 string `json:"caip2" api:"required"`
+	// Human-readable vault name from the yield provider.
+	Name string `json:"name" api:"required"`
+	// Any of "aave".
+	Provider AaveVaultDetailsProvider `json:"provider" api:"required"`
+	// Total value locked in USD.
+	TvlUsd float64 `json:"tvl_usd" api:"required"`
+	// Annual percentage yield available to the user, after fees and excluding rewards,
+	// in basis points (e.g. 500 for 5%). 1 basis point = 0.01%.
+	UserApy float64 `json:"user_apy" api:"required"`
+	// Onchain vault contract address.
+	VaultAddress string `json:"vault_address" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID                    respjson.Field
+		AdminWalletAddress    respjson.Field
+		AdminWalletID         respjson.Field
+		AppApy                respjson.Field
+		Asset                 respjson.Field
+		AvailableFees         respjson.Field
+		AvailableLiquidityUsd respjson.Field
+		Caip2                 respjson.Field
+		Name                  respjson.Field
+		Provider              respjson.Field
+		TvlUsd                respjson.Field
+		UserApy               respjson.Field
+		VaultAddress          respjson.Field
+		ExtraFields           map[string]respjson.Field
+		raw                   string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AaveVaultDetails) RawJSON() string { return r.JSON.raw }
+func (r *AaveVaultDetails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type AaveVaultDetailsProvider string
+
+const (
+	AaveVaultDetailsProviderAave AaveVaultDetailsProvider = "aave"
+)
+
 // A wallet action step representing a transaction executed by a custodian (e.g.
 // Bridge).
 type CustodianTransactionWalletActionStep struct {
@@ -235,6 +297,30 @@ const (
 	EvmWalletActionStepStatusReplaced  EvmWalletActionStepStatus = "replaced"
 	EvmWalletActionStepStatusAbandoned EvmWalletActionStepStatus = "abandoned"
 )
+
+// Asset metadata for an earn vault position.
+type EarnAsset struct {
+	// Token contract address.
+	Address string `json:"address" api:"required"`
+	// Number of decimals for the asset (e.g. 6 for USDC).
+	Decimals int64 `json:"decimals" api:"required"`
+	// Lowercase token symbol (e.g. "usdc").
+	Symbol string `json:"symbol" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Address     respjson.Field
+		Decimals    respjson.Field
+		Symbol      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EarnAsset) RawJSON() string { return r.JSON.raw }
+func (r *EarnAsset) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 // Response for an earn deposit action.
 type EarnDepositActionResponse struct {
@@ -610,6 +696,145 @@ func (r *EarnWithdrawRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// A wallet's position in an earn vault.
+type EthereumEarnPositionResponse struct {
+	// Asset metadata for an earn vault position.
+	Asset EarnAsset `json:"asset" api:"required"`
+	// Current asset value in the vault (realtime from ERC-4626), in smallest unit.
+	AssetsInVault string `json:"assets_in_vault" api:"required"`
+	// Current vault shares held (realtime from ERC-4626).
+	SharesInVault string `json:"shares_in_vault" api:"required"`
+	// Total amount deposited into the vault, in smallest unit.
+	TotalDeposited string `json:"total_deposited" api:"required"`
+	// Total amount withdrawn from the vault, in smallest unit.
+	TotalWithdrawn string `json:"total_withdrawn" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Asset          respjson.Field
+		AssetsInVault  respjson.Field
+		SharesInVault  respjson.Field
+		TotalDeposited respjson.Field
+		TotalWithdrawn respjson.Field
+		ExtraFields    map[string]respjson.Field
+		raw            string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EthereumEarnPositionResponse) RawJSON() string { return r.JSON.raw }
+func (r *EthereumEarnPositionResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// EthereumEarnVaultDetailsResponseUnion contains all possible properties and
+// values from [AaveVaultDetails], [MorphoVaultDetails], [TempoVaultDetails],
+// [VedaVaultDetails].
+//
+// Use the [EthereumEarnVaultDetailsResponseUnion.AsAny] method to switch on the
+// variant.
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type EthereumEarnVaultDetailsResponseUnion struct {
+	ID                 string  `json:"id"`
+	AdminWalletAddress string  `json:"admin_wallet_address"`
+	AdminWalletID      string  `json:"admin_wallet_id"`
+	AppApy             float64 `json:"app_apy"`
+	// This field is from variant [AaveVaultDetails].
+	Asset EarnAsset `json:"asset"`
+	// This field is from variant [AaveVaultDetails].
+	AvailableFees         string  `json:"available_fees"`
+	AvailableLiquidityUsd float64 `json:"available_liquidity_usd"`
+	Caip2                 string  `json:"caip2"`
+	Name                  string  `json:"name"`
+	// Any of "aave", "morpho", "tempo", "veda".
+	Provider     string  `json:"provider"`
+	TvlUsd       float64 `json:"tvl_usd"`
+	UserApy      float64 `json:"user_apy"`
+	VaultAddress string  `json:"vault_address"`
+	// This field is from variant [MorphoVaultDetails].
+	TotalRewardsApr float64 `json:"total_rewards_apr"`
+	JSON            struct {
+		ID                    respjson.Field
+		AdminWalletAddress    respjson.Field
+		AdminWalletID         respjson.Field
+		AppApy                respjson.Field
+		Asset                 respjson.Field
+		AvailableFees         respjson.Field
+		AvailableLiquidityUsd respjson.Field
+		Caip2                 respjson.Field
+		Name                  respjson.Field
+		Provider              respjson.Field
+		TvlUsd                respjson.Field
+		UserApy               respjson.Field
+		VaultAddress          respjson.Field
+		TotalRewardsApr       respjson.Field
+		raw                   string
+	} `json:"-"`
+}
+
+// anyEthereumEarnVaultDetailsResponse is implemented by each variant of
+// [EthereumEarnVaultDetailsResponseUnion] to add type safety for the return type
+// of [EthereumEarnVaultDetailsResponseUnion.AsAny]
+type anyEthereumEarnVaultDetailsResponse interface {
+	implEthereumEarnVaultDetailsResponseUnion()
+}
+
+func (AaveVaultDetails) implEthereumEarnVaultDetailsResponseUnion()   {}
+func (MorphoVaultDetails) implEthereumEarnVaultDetailsResponseUnion() {}
+func (TempoVaultDetails) implEthereumEarnVaultDetailsResponseUnion()  {}
+func (VedaVaultDetails) implEthereumEarnVaultDetailsResponseUnion()   {}
+
+// Use the following switch statement to find the correct variant
+//
+//	switch variant := EthereumEarnVaultDetailsResponseUnion.AsAny().(type) {
+//	case privyclient.AaveVaultDetails:
+//	case privyclient.MorphoVaultDetails:
+//	case privyclient.TempoVaultDetails:
+//	case privyclient.VedaVaultDetails:
+//	default:
+//	  fmt.Errorf("no variant present")
+//	}
+func (u EthereumEarnVaultDetailsResponseUnion) AsAny() anyEthereumEarnVaultDetailsResponse {
+	switch u.Provider {
+	case "aave":
+		return u.AsAave()
+	case "morpho":
+		return u.AsMorpho()
+	case "tempo":
+		return u.AsTempo()
+	case "veda":
+		return u.AsVeda()
+	}
+	return nil
+}
+
+func (u EthereumEarnVaultDetailsResponseUnion) AsAave() (v AaveVaultDetails) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumEarnVaultDetailsResponseUnion) AsMorpho() (v MorphoVaultDetails) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumEarnVaultDetailsResponseUnion) AsTempo() (v TempoVaultDetails) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u EthereumEarnVaultDetailsResponseUnion) AsVeda() (v VedaVaultDetails) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u EthereumEarnVaultDetailsResponseUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *EthereumEarnVaultDetailsResponseUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // A wallet action step representing a cross-chain/cross-asset fill by an external
 // provider.
 type ExternalTransactionWalletActionStep struct {
@@ -675,6 +900,68 @@ func (r FailureReason) RawJSON() string { return r.JSON.raw }
 func (r *FailureReason) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// Vault details for a Morpho earn vault.
+type MorphoVaultDetails struct {
+	// Vault identifier.
+	ID string `json:"id" api:"required"`
+	// EVM address of the vault admin wallet.
+	AdminWalletAddress string `json:"admin_wallet_address" api:"required"`
+	// Privy wallet ID of the vault admin.
+	AdminWalletID string `json:"admin_wallet_id" api:"required"`
+	// Annual percentage yield earned by the app from fee wrapper fees, in basis
+	// points.
+	AppApy float64 `json:"app_apy" api:"required"`
+	// Asset metadata for an earn vault position.
+	Asset EarnAsset `json:"asset" api:"required"`
+	// Available liquidity in USD.
+	AvailableLiquidityUsd float64 `json:"available_liquidity_usd" api:"required"`
+	// CAIP-2 chain identifier (e.g. "eip155:4217" for Tempo, "eip155:8453" for Base).
+	Caip2 string `json:"caip2" api:"required"`
+	// Human-readable vault name from the yield provider.
+	Name string `json:"name" api:"required"`
+	// Any of "morpho".
+	Provider MorphoVaultDetailsProvider `json:"provider" api:"required"`
+	// Total rewards annual percentage rate in basis points.
+	TotalRewardsApr float64 `json:"total_rewards_apr" api:"required"`
+	// Total value locked in USD.
+	TvlUsd float64 `json:"tvl_usd" api:"required"`
+	// Annual percentage yield available to the user, after fees and excluding rewards,
+	// in basis points (e.g. 500 for 5%). 1 basis point = 0.01%.
+	UserApy float64 `json:"user_apy" api:"required"`
+	// Onchain vault contract address.
+	VaultAddress string `json:"vault_address" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID                    respjson.Field
+		AdminWalletAddress    respjson.Field
+		AdminWalletID         respjson.Field
+		AppApy                respjson.Field
+		Asset                 respjson.Field
+		AvailableLiquidityUsd respjson.Field
+		Caip2                 respjson.Field
+		Name                  respjson.Field
+		Provider              respjson.Field
+		TotalRewardsApr       respjson.Field
+		TvlUsd                respjson.Field
+		UserApy               respjson.Field
+		VaultAddress          respjson.Field
+		ExtraFields           map[string]respjson.Field
+		raw                   string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r MorphoVaultDetails) RawJSON() string { return r.JSON.raw }
+func (r *MorphoVaultDetails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type MorphoVaultDetailsProvider string
+
+const (
+	MorphoVaultDetailsProviderMorpho MorphoVaultDetailsProvider = "morpho"
+)
 
 // A payout wallet action. Crypto is sent on-chain to a liquidation address that
 // offramps to the destination bank account.
@@ -931,6 +1218,65 @@ const (
 	TvmWalletActionStepStatusFailed    TvmWalletActionStepStatus = "failed"
 )
 
+// Vault details for a Tempo earn vault.
+type TempoVaultDetails struct {
+	// Vault identifier.
+	ID string `json:"id" api:"required"`
+	// EVM address of the vault admin wallet.
+	AdminWalletAddress string `json:"admin_wallet_address" api:"required"`
+	// Privy wallet ID of the vault admin.
+	AdminWalletID string `json:"admin_wallet_id" api:"required"`
+	// Annual percentage yield earned by the app from fee wrapper fees, in basis
+	// points.
+	AppApy float64 `json:"app_apy" api:"required"`
+	// Asset metadata for an earn vault position.
+	Asset EarnAsset `json:"asset" api:"required"`
+	// Available liquidity in USD.
+	AvailableLiquidityUsd float64 `json:"available_liquidity_usd" api:"required"`
+	// CAIP-2 chain identifier (e.g. "eip155:4217" for Tempo, "eip155:8453" for Base).
+	Caip2 string `json:"caip2" api:"required"`
+	// Human-readable vault name from the yield provider.
+	Name string `json:"name" api:"required"`
+	// Any of "tempo".
+	Provider TempoVaultDetailsProvider `json:"provider" api:"required"`
+	// Total value locked in USD.
+	TvlUsd float64 `json:"tvl_usd" api:"required"`
+	// Annual percentage yield available to the user, after fees and excluding rewards,
+	// in basis points (e.g. 500 for 5%). 1 basis point = 0.01%.
+	UserApy float64 `json:"user_apy" api:"required"`
+	// Onchain vault contract address.
+	VaultAddress string `json:"vault_address" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID                    respjson.Field
+		AdminWalletAddress    respjson.Field
+		AdminWalletID         respjson.Field
+		AppApy                respjson.Field
+		Asset                 respjson.Field
+		AvailableLiquidityUsd respjson.Field
+		Caip2                 respjson.Field
+		Name                  respjson.Field
+		Provider              respjson.Field
+		TvlUsd                respjson.Field
+		UserApy               respjson.Field
+		VaultAddress          respjson.Field
+		ExtraFields           map[string]respjson.Field
+		raw                   string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TempoVaultDetails) RawJSON() string { return r.JSON.raw }
+func (r *TempoVaultDetails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type TempoVaultDetailsProvider string
+
+const (
+	TempoVaultDetailsProviderTempo TempoVaultDetailsProvider = "tempo"
+)
+
 // Response for a transfer action.
 type TransferActionResponse struct {
 	// The ID of the wallet action.
@@ -1027,6 +1373,65 @@ type TransferActionResponseType string
 
 const (
 	TransferActionResponseTypeTransfer TransferActionResponseType = "transfer"
+)
+
+// Vault details for a Veda (BoringVault) earn vault.
+type VedaVaultDetails struct {
+	// Vault identifier.
+	ID string `json:"id" api:"required"`
+	// EVM address of the vault admin wallet.
+	AdminWalletAddress string `json:"admin_wallet_address" api:"required"`
+	// Privy wallet ID of the vault admin.
+	AdminWalletID string `json:"admin_wallet_id" api:"required"`
+	// Annual percentage yield earned by the app from fee wrapper fees, in basis
+	// points.
+	AppApy float64 `json:"app_apy" api:"required"`
+	// Asset metadata for an earn vault position.
+	Asset EarnAsset `json:"asset" api:"required"`
+	// Available liquidity in USD.
+	AvailableLiquidityUsd float64 `json:"available_liquidity_usd" api:"required"`
+	// CAIP-2 chain identifier (e.g. "eip155:4217" for Tempo, "eip155:8453" for Base).
+	Caip2 string `json:"caip2" api:"required"`
+	// Human-readable vault name from the yield provider.
+	Name string `json:"name" api:"required"`
+	// Any of "veda".
+	Provider VedaVaultDetailsProvider `json:"provider" api:"required"`
+	// Total value locked in USD.
+	TvlUsd float64 `json:"tvl_usd" api:"required"`
+	// Annual percentage yield available to the user, after fees and excluding rewards,
+	// in basis points (e.g. 500 for 5%). 1 basis point = 0.01%.
+	UserApy float64 `json:"user_apy" api:"required"`
+	// Onchain vault contract address.
+	VaultAddress string `json:"vault_address" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID                    respjson.Field
+		AdminWalletAddress    respjson.Field
+		AdminWalletID         respjson.Field
+		AppApy                respjson.Field
+		Asset                 respjson.Field
+		AvailableLiquidityUsd respjson.Field
+		Caip2                 respjson.Field
+		Name                  respjson.Field
+		Provider              respjson.Field
+		TvlUsd                respjson.Field
+		UserApy               respjson.Field
+		VaultAddress          respjson.Field
+		ExtraFields           map[string]respjson.Field
+		raw                   string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r VedaVaultDetails) RawJSON() string { return r.JSON.raw }
+func (r *VedaVaultDetails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type VedaVaultDetailsProvider string
+
+const (
+	VedaVaultDetailsProviderVeda VedaVaultDetailsProvider = "veda"
 )
 
 // Expandable relations to include on a wallet action response.

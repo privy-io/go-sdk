@@ -11,6 +11,7 @@ import (
 	"slices"
 
 	"github.com/privy-io/go-sdk/internal/apijson"
+	"github.com/privy-io/go-sdk/internal/apiquery"
 	shimjson "github.com/privy-io/go-sdk/internal/encoding/json"
 	"github.com/privy-io/go-sdk/internal/requestconfig"
 	"github.com/privy-io/go-sdk/option"
@@ -62,6 +63,32 @@ func (r *WalletEarnEthereumService) Deposit(ctx context.Context, walletID string
 	return res, err
 }
 
+// Retrieve detailed information about an earn vault, including current APY and
+// liquidity.
+func (r *WalletEarnEthereumService) VaultDetails(ctx context.Context, vaultID string, opts ...option.RequestOption) (res *EthereumEarnVaultDetailsResponseUnion, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if vaultID == "" {
+		err = errors.New("missing required vault_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/earn/ethereum/vaults/%s", url.PathEscape(vaultID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return res, err
+}
+
+// Retrieve a wallet's current position in a specific earn vault, including
+// deposit/withdraw totals and current onchain vault shares.
+func (r *WalletEarnEthereumService) VaultPosition(ctx context.Context, walletID string, query WalletEarnEthereumVaultPositionParams, opts ...option.RequestOption) (res *EthereumEarnPositionResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if walletID == "" {
+		err = errors.New("missing required wallet_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/wallets/%s/earn/ethereum/vaults", url.PathEscape(walletID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	return res, err
+}
+
 // Withdraw assets from an ERC-4626 vault.
 func (r *WalletEarnEthereumService) Withdraw(ctx context.Context, walletID string, params WalletEarnEthereumWithdrawParams, opts ...option.RequestOption) (res *EarnWithdrawActionResponse, err error) {
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
@@ -104,6 +131,23 @@ func (r WalletEarnEthereumDepositParams) MarshalJSON() (data []byte, err error) 
 }
 func (r *WalletEarnEthereumDepositParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+type WalletEarnEthereumVaultPositionParams struct {
+	// The vault ID to get position for.
+	VaultID string `query:"vault_id" api:"required" json:"-"`
+	// Include archived wallets in lookup. Defaults to false.
+	IncludeArchived param.Opt[bool] `query:"include_archived,omitzero" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [WalletEarnEthereumVaultPositionParams]'s query parameters
+// as `url.Values`.
+func (r WalletEarnEthereumVaultPositionParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }
 
 type WalletEarnEthereumWithdrawParams struct {

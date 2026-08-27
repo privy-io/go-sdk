@@ -205,18 +205,20 @@ type AppResponse struct {
 	IconURL                         string          `json:"icon_url" api:"required"`
 	InstagramOAuth                  bool            `json:"instagram_oauth" api:"required"`
 	LegacyWalletUiConfig            bool            `json:"legacy_wallet_ui_config" api:"required"`
-	LineOAuth                       bool            `json:"line_oauth" api:"required"`
-	LinkedinOAuth                   bool            `json:"linkedin_oauth" api:"required"`
-	LogoURL                         string          `json:"logo_url" api:"required"`
-	MaxLinkedWalletsPerUser         float64         `json:"max_linked_wallets_per_user" api:"required"`
-	MergeAccountsByEmail            bool            `json:"merge_accounts_by_email" api:"required"`
-	MfaMethods                      []MfaMethod     `json:"mfa_methods" api:"required"`
-	Name                            string          `json:"name" api:"required"`
-	PasskeyAuth                     bool            `json:"passkey_auth" api:"required"`
-	PasskeysForSignupEnabled        bool            `json:"passkeys_for_signup_enabled" api:"required"`
-	PrivacyPolicyURL                string          `json:"privacy_policy_url" api:"required"`
-	RequireUsersAcceptTerms         bool            `json:"require_users_accept_terms" api:"required"`
-	ShowWalletLoginFirst            bool            `json:"show_wallet_login_first" api:"required"`
+	// The legal name of the company that operates the app.
+	LegalName                string      `json:"legal_name" api:"required"`
+	LineOAuth                bool        `json:"line_oauth" api:"required"`
+	LinkedinOAuth            bool        `json:"linkedin_oauth" api:"required"`
+	LogoURL                  string      `json:"logo_url" api:"required"`
+	MaxLinkedWalletsPerUser  float64     `json:"max_linked_wallets_per_user" api:"required"`
+	MergeAccountsByEmail     bool        `json:"merge_accounts_by_email" api:"required"`
+	MfaMethods               []MfaMethod `json:"mfa_methods" api:"required"`
+	Name                     string      `json:"name" api:"required"`
+	PasskeyAuth              bool        `json:"passkey_auth" api:"required"`
+	PasskeysForSignupEnabled bool        `json:"passkeys_for_signup_enabled" api:"required"`
+	PrivacyPolicyURL         string      `json:"privacy_policy_url" api:"required"`
+	RequireUsersAcceptTerms  bool        `json:"require_users_accept_terms" api:"required"`
+	ShowWalletLoginFirst     bool        `json:"show_wallet_login_first" api:"required"`
 	// The configuration object for smart wallets.
 	SmartWalletConfig           SmartWalletConfigurationUnion `json:"smart_wallet_config" api:"required"`
 	SMSAuth                     bool                          `json:"sms_auth" api:"required"`
@@ -271,6 +273,7 @@ type AppResponse struct {
 		IconURL                         respjson.Field
 		InstagramOAuth                  respjson.Field
 		LegacyWalletUiConfig            respjson.Field
+		LegalName                       respjson.Field
 		LineOAuth                       respjson.Field
 		LinkedinOAuth                   respjson.Field
 		LogoURL                         respjson.Field
