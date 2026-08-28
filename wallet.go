@@ -431,12 +431,12 @@ func (u *CreateCryptoDepositAccountRequestBodyUnion) UnmarshalJSON(data []byte) 
 
 // Response returned after creating a crypto deposit account.
 type CreateCryptoDepositAccountResponse struct {
-	DepositAddresses []CryptoDepositAddressRoute `json:"deposit_addresses" api:"required"`
+	DepositAccounts []CryptoDepositAddressRoute `json:"deposit_accounts" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		DepositAddresses respjson.Field
-		ExtraFields      map[string]respjson.Field
-		raw              string
+		DepositAccounts respjson.Field
+		ExtraFields     map[string]respjson.Field
+		raw             string
 	} `json:"-"`
 }
 
