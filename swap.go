@@ -170,6 +170,8 @@ type SwapRequestBody struct {
 	// Unique caller-generated nonce used to prevent replaying a signed wallet action
 	// request. Must be at least 24 characters (e.g. a cuid2 or UUID).
 	Nonce param.Opt[WalletActionNonce] `json:"nonce,omitzero"`
+	// Developer-provided identifier for this request. Must be unique per app.
+	ReferenceID param.Opt[string] `json:"reference_id,omitzero"`
 	// Maximum slippage tolerance in basis points (e.g., 50 for 0.5%).
 	SlippageBps param.Opt[int64] `json:"slippage_bps,omitzero"`
 	// Whether the amount refers to the input token or output token.

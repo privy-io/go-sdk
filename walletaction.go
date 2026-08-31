@@ -359,6 +359,8 @@ type EarnDepositActionResponse struct {
 	Decimals int64 `json:"decimals"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// The steps of the wallet action. Only returned if `?include=steps` is provided.
 	Steps []WalletActionStepUnion `json:"steps"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -378,6 +380,7 @@ type EarnDepositActionResponse struct {
 		Asset         respjson.Field
 		Decimals      respjson.Field
 		FailureReason respjson.Field
+		ReferenceID   respjson.Field
 		Steps         respjson.Field
 		ExtraFields   map[string]respjson.Field
 		raw           string
@@ -412,6 +415,8 @@ type EarnDepositRequestBody struct {
 	// Amount in smallest unit to deposit (e.g. "1500000" for 1.5 USDC with 6
 	// decimals). Exactly one of `amount` or `raw_amount` must be provided.
 	RawAmount param.Opt[string] `json:"raw_amount,omitzero"`
+	// Developer-provided identifier for this request. Must be unique per app.
+	ReferenceID param.Opt[string] `json:"reference_id,omitzero"`
 	paramObj
 }
 
@@ -460,6 +465,8 @@ type EarnFeeCollectActionResponse struct {
 	Decimals int64 `json:"decimals"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// The steps of the wallet action. Only returned if `?include=steps` is provided.
 	Steps []WalletActionStepUnion `json:"steps"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -478,6 +485,7 @@ type EarnFeeCollectActionResponse struct {
 		Asset         respjson.Field
 		Decimals      respjson.Field
 		FailureReason respjson.Field
+		ReferenceID   respjson.Field
 		Steps         respjson.Field
 		ExtraFields   map[string]respjson.Field
 		raw           string
@@ -516,6 +524,8 @@ type EarnIncentiveClaimActionResponse struct {
 	WalletID string `json:"wallet_id" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// The steps of the wallet action. Only returned if `?include=steps` is provided.
 	Steps []WalletActionStepUnion `json:"steps"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -528,6 +538,7 @@ type EarnIncentiveClaimActionResponse struct {
 		Type          respjson.Field
 		WalletID      respjson.Field
 		FailureReason respjson.Field
+		ReferenceID   respjson.Field
 		Steps         respjson.Field
 		ExtraFields   map[string]respjson.Field
 		raw           string
@@ -557,6 +568,8 @@ type EarnIncentiveClaimRequestBody struct {
 	// Unique caller-generated nonce used to prevent replaying a signed wallet action
 	// request. Must be at least 24 characters (e.g. a cuid2 or UUID).
 	Nonce param.Opt[WalletActionNonce] `json:"nonce,omitzero"`
+	// Developer-provided identifier for this request. Must be unique per app.
+	ReferenceID param.Opt[string] `json:"reference_id,omitzero"`
 	paramObj
 }
 
@@ -632,6 +645,8 @@ type EarnWithdrawActionResponse struct {
 	Decimals int64 `json:"decimals"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// The steps of the wallet action. Only returned if `?include=steps` is provided.
 	Steps []WalletActionStepUnion `json:"steps"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -651,6 +666,7 @@ type EarnWithdrawActionResponse struct {
 		Asset         respjson.Field
 		Decimals      respjson.Field
 		FailureReason respjson.Field
+		ReferenceID   respjson.Field
 		Steps         respjson.Field
 		ExtraFields   map[string]respjson.Field
 		raw           string
@@ -685,6 +701,8 @@ type EarnWithdrawRequestBody struct {
 	// Amount in smallest unit to withdraw (e.g. "1500000" for 1.5 USDC with 6
 	// decimals). Exactly one of `amount` or `raw_amount` must be provided.
 	RawAmount param.Opt[string] `json:"raw_amount,omitzero"`
+	// Developer-provided identifier for this request. Must be unique per app.
+	ReferenceID param.Opt[string] `json:"reference_id,omitzero"`
 	paramObj
 }
 
@@ -992,6 +1010,8 @@ type PayoutResponse struct {
 	WalletID string `json:"wallet_id" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// The steps of the wallet action. Only returned if `?include=steps` is provided.
 	Steps []WalletActionStepUnion `json:"steps"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -1006,6 +1026,7 @@ type PayoutResponse struct {
 		Type          respjson.Field
 		WalletID      respjson.Field
 		FailureReason respjson.Field
+		ReferenceID   respjson.Field
 		Steps         respjson.Field
 		ExtraFields   map[string]respjson.Field
 		raw           string
@@ -1127,6 +1148,8 @@ type SwapActionResponse struct {
 	// Gas cost for a blockchain action. Includes both raw base-unit amount and a
 	// human-readable decimal string, plus the gas token symbol.
 	Gas Gas `json:"gas" api:"nullable"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// The steps of the wallet action. Only returned if `?include=steps` is provided.
 	Steps []WalletActionStepUnion `json:"steps"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -1148,6 +1171,7 @@ type SwapActionResponse struct {
 		FailureReason      respjson.Field
 		Fees               respjson.Field
 		Gas                respjson.Field
+		ReferenceID        respjson.Field
 		Steps              respjson.Field
 		ExtraFields        map[string]respjson.Field
 		raw                string
@@ -1321,6 +1345,8 @@ type TransferActionResponse struct {
 	// Gas cost for a blockchain action. Includes both raw base-unit amount and a
 	// human-readable decimal string, plus the gas token symbol.
 	Gas Gas `json:"gas" api:"nullable"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// Decimal amount sent on the source chain (e.g. "1.5"). For exact_output
 	// cross-chain transfers, null until fill confirmation.
 	SourceAmount string `json:"source_amount"`
@@ -1353,6 +1379,7 @@ type TransferActionResponse struct {
 		FailureReason       respjson.Field
 		Fees                respjson.Field
 		Gas                 respjson.Field
+		ReferenceID         respjson.Field
 		SourceAmount        respjson.Field
 		SourceAsset         respjson.Field
 		SourceAssetAddress  respjson.Field
@@ -1477,8 +1504,9 @@ type WalletActionResponseUnion struct {
 	FailureReason FailureReason      `json:"failure_reason"`
 	Fees          []FeeLineItemUnion `json:"fees"`
 	// This field is from variant [SwapActionResponse].
-	Gas   Gas                     `json:"gas"`
-	Steps []WalletActionStepUnion `json:"steps"`
+	Gas         Gas                     `json:"gas"`
+	ReferenceID string                  `json:"reference_id"`
+	Steps       []WalletActionStepUnion `json:"steps"`
 	// This field is from variant [TransferActionResponse].
 	DestinationAmount string `json:"destination_amount"`
 	// This field is from variant [TransferActionResponse].
@@ -1535,6 +1563,7 @@ type WalletActionResponseUnion struct {
 		FailureReason       respjson.Field
 		Fees                respjson.Field
 		Gas                 respjson.Field
+		ReferenceID         respjson.Field
 		Steps               respjson.Field
 		DestinationAmount   respjson.Field
 		SourceChain         respjson.Field

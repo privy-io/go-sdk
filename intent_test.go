@@ -290,6 +290,7 @@ func TestIntentTransferWithOptionalParams(t *testing.T) {
 					Value: 50,
 				},
 				Nonce:       privyclient.String("xxxxxxxxxxxxxxxxxxxxxxxx"),
+				ReferenceID: privyclient.String("x"),
 				SlippageBps: privyclient.Int(0),
 			},
 			PrivyRequestExpiry: privyclient.String("privy-request-expiry"),

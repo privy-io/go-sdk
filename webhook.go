@@ -1971,6 +1971,8 @@ type WalletActionEarnDepositCreatedWebhookPayload struct {
 	// Number of decimals for the underlying asset (e.g. 6 for USDC, 18 for ETH). Only
 	// present when the token is known in the asset registry.
 	Decimals int64 `json:"decimals"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType     respjson.Field
@@ -1987,6 +1989,7 @@ type WalletActionEarnDepositCreatedWebhookPayload struct {
 		Amount         respjson.Field
 		Asset          respjson.Field
 		Decimals       respjson.Field
+		ReferenceID    respjson.Field
 		ExtraFields    map[string]respjson.Field
 		raw            string
 	} `json:"-"`
@@ -2059,6 +2062,8 @@ type WalletActionEarnDepositFailedWebhookPayload struct {
 	// Number of decimals for the underlying asset (e.g. 6 for USDC, 18 for ETH). Only
 	// present when the token is known in the asset registry.
 	Decimals int64 `json:"decimals"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType     respjson.Field
@@ -2078,6 +2083,7 @@ type WalletActionEarnDepositFailedWebhookPayload struct {
 		Amount         respjson.Field
 		Asset          respjson.Field
 		Decimals       respjson.Field
+		ReferenceID    respjson.Field
 		ExtraFields    map[string]respjson.Field
 		raw            string
 	} `json:"-"`
@@ -2149,6 +2155,8 @@ type WalletActionEarnDepositRejectedWebhookPayload struct {
 	// Number of decimals for the underlying asset (e.g. 6 for USDC, 18 for ETH). Only
 	// present when the token is known in the asset registry.
 	Decimals int64 `json:"decimals"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType     respjson.Field
@@ -2168,6 +2176,7 @@ type WalletActionEarnDepositRejectedWebhookPayload struct {
 		Amount         respjson.Field
 		Asset          respjson.Field
 		Decimals       respjson.Field
+		ReferenceID    respjson.Field
 		ExtraFields    map[string]respjson.Field
 		raw            string
 	} `json:"-"`
@@ -2239,6 +2248,8 @@ type WalletActionEarnDepositSucceededWebhookPayload struct {
 	// Number of decimals for the underlying asset (e.g. 6 for USDC, 18 for ETH). Only
 	// present when the token is known in the asset registry.
 	Decimals int64 `json:"decimals"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType     respjson.Field
@@ -2258,6 +2269,7 @@ type WalletActionEarnDepositSucceededWebhookPayload struct {
 		Amount         respjson.Field
 		Asset          respjson.Field
 		Decimals       respjson.Field
+		ReferenceID    respjson.Field
 		ExtraFields    map[string]respjson.Field
 		raw            string
 	} `json:"-"`
@@ -2323,6 +2335,8 @@ type WalletActionEarnFeeCollectCreatedWebhookPayload struct {
 	// Number of decimals for the underlying asset (e.g. 6 for USDC, 18 for ETH). Only
 	// present when the token is known in the asset registry.
 	Decimals int64 `json:"decimals"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType     respjson.Field
@@ -2339,6 +2353,7 @@ type WalletActionEarnFeeCollectCreatedWebhookPayload struct {
 		Amount         respjson.Field
 		Asset          respjson.Field
 		Decimals       respjson.Field
+		ReferenceID    respjson.Field
 		ExtraFields    map[string]respjson.Field
 		raw            string
 	} `json:"-"`
@@ -2411,6 +2426,8 @@ type WalletActionEarnFeeCollectFailedWebhookPayload struct {
 	// Number of decimals for the underlying asset (e.g. 6 for USDC, 18 for ETH). Only
 	// present when the token is known in the asset registry.
 	Decimals int64 `json:"decimals"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType     respjson.Field
@@ -2430,6 +2447,7 @@ type WalletActionEarnFeeCollectFailedWebhookPayload struct {
 		Amount         respjson.Field
 		Asset          respjson.Field
 		Decimals       respjson.Field
+		ReferenceID    respjson.Field
 		ExtraFields    map[string]respjson.Field
 		raw            string
 	} `json:"-"`
@@ -2501,6 +2519,8 @@ type WalletActionEarnFeeCollectRejectedWebhookPayload struct {
 	// Number of decimals for the underlying asset (e.g. 6 for USDC, 18 for ETH). Only
 	// present when the token is known in the asset registry.
 	Decimals int64 `json:"decimals"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType     respjson.Field
@@ -2520,6 +2540,7 @@ type WalletActionEarnFeeCollectRejectedWebhookPayload struct {
 		Amount         respjson.Field
 		Asset          respjson.Field
 		Decimals       respjson.Field
+		ReferenceID    respjson.Field
 		ExtraFields    map[string]respjson.Field
 		raw            string
 	} `json:"-"`
@@ -2589,6 +2610,8 @@ type WalletActionEarnFeeCollectSucceededWebhookPayload struct {
 	// Number of decimals for the underlying asset (e.g. 6 for USDC, 18 for ETH). Only
 	// present when the token is known in the asset registry.
 	Decimals int64 `json:"decimals"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType     respjson.Field
@@ -2607,6 +2630,7 @@ type WalletActionEarnFeeCollectSucceededWebhookPayload struct {
 		Amount         respjson.Field
 		Asset          respjson.Field
 		Decimals       respjson.Field
+		ReferenceID    respjson.Field
 		ExtraFields    map[string]respjson.Field
 		raw            string
 	} `json:"-"`
@@ -2657,6 +2681,8 @@ type WalletActionEarnIncentiveClaimCreatedWebhookPayload struct {
 	WalletActionID string `json:"wallet_action_id" api:"required"`
 	// The ID of the wallet involved in the action.
 	WalletID string `json:"wallet_id" api:"required"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType     respjson.Field
@@ -2667,6 +2693,7 @@ type WalletActionEarnIncentiveClaimCreatedWebhookPayload struct {
 		Type           respjson.Field
 		WalletActionID respjson.Field
 		WalletID       respjson.Field
+		ReferenceID    respjson.Field
 		ExtraFields    map[string]respjson.Field
 		raw            string
 	} `json:"-"`
@@ -2724,6 +2751,8 @@ type WalletActionEarnIncentiveClaimFailedWebhookPayload struct {
 	WalletActionID string `json:"wallet_action_id" api:"required"`
 	// The ID of the wallet involved in the action.
 	WalletID string `json:"wallet_id" api:"required"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType     respjson.Field
@@ -2737,6 +2766,7 @@ type WalletActionEarnIncentiveClaimFailedWebhookPayload struct {
 		Type           respjson.Field
 		WalletActionID respjson.Field
 		WalletID       respjson.Field
+		ReferenceID    respjson.Field
 		ExtraFields    map[string]respjson.Field
 		raw            string
 	} `json:"-"`
@@ -2793,6 +2823,8 @@ type WalletActionEarnIncentiveClaimRejectedWebhookPayload struct {
 	WalletActionID string `json:"wallet_action_id" api:"required"`
 	// The ID of the wallet involved in the action.
 	WalletID string `json:"wallet_id" api:"required"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType     respjson.Field
@@ -2806,6 +2838,7 @@ type WalletActionEarnIncentiveClaimRejectedWebhookPayload struct {
 		Type           respjson.Field
 		WalletActionID respjson.Field
 		WalletID       respjson.Field
+		ReferenceID    respjson.Field
 		ExtraFields    map[string]respjson.Field
 		raw            string
 	} `json:"-"`
@@ -2860,6 +2893,8 @@ type WalletActionEarnIncentiveClaimSucceededWebhookPayload struct {
 	WalletActionID string `json:"wallet_action_id" api:"required"`
 	// The ID of the wallet involved in the action.
 	WalletID string `json:"wallet_id" api:"required"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType     respjson.Field
@@ -2872,6 +2907,7 @@ type WalletActionEarnIncentiveClaimSucceededWebhookPayload struct {
 		Type           respjson.Field
 		WalletActionID respjson.Field
 		WalletID       respjson.Field
+		ReferenceID    respjson.Field
 		ExtraFields    map[string]respjson.Field
 		raw            string
 	} `json:"-"`
@@ -2937,6 +2973,8 @@ type WalletActionEarnWithdrawCreatedWebhookPayload struct {
 	// Number of decimals for the underlying asset (e.g. 6 for USDC, 18 for ETH). Only
 	// present when the token is known in the asset registry.
 	Decimals int64 `json:"decimals"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType     respjson.Field
@@ -2953,6 +2991,7 @@ type WalletActionEarnWithdrawCreatedWebhookPayload struct {
 		Amount         respjson.Field
 		Asset          respjson.Field
 		Decimals       respjson.Field
+		ReferenceID    respjson.Field
 		ExtraFields    map[string]respjson.Field
 		raw            string
 	} `json:"-"`
@@ -3025,6 +3064,8 @@ type WalletActionEarnWithdrawFailedWebhookPayload struct {
 	// Number of decimals for the underlying asset (e.g. 6 for USDC, 18 for ETH). Only
 	// present when the token is known in the asset registry.
 	Decimals int64 `json:"decimals"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType     respjson.Field
@@ -3044,6 +3085,7 @@ type WalletActionEarnWithdrawFailedWebhookPayload struct {
 		Amount         respjson.Field
 		Asset          respjson.Field
 		Decimals       respjson.Field
+		ReferenceID    respjson.Field
 		ExtraFields    map[string]respjson.Field
 		raw            string
 	} `json:"-"`
@@ -3115,6 +3157,8 @@ type WalletActionEarnWithdrawRejectedWebhookPayload struct {
 	// Number of decimals for the underlying asset (e.g. 6 for USDC, 18 for ETH). Only
 	// present when the token is known in the asset registry.
 	Decimals int64 `json:"decimals"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType     respjson.Field
@@ -3134,6 +3178,7 @@ type WalletActionEarnWithdrawRejectedWebhookPayload struct {
 		Amount         respjson.Field
 		Asset          respjson.Field
 		Decimals       respjson.Field
+		ReferenceID    respjson.Field
 		ExtraFields    map[string]respjson.Field
 		raw            string
 	} `json:"-"`
@@ -3205,6 +3250,8 @@ type WalletActionEarnWithdrawSucceededWebhookPayload struct {
 	// Number of decimals for the underlying asset (e.g. 6 for USDC, 18 for ETH). Only
 	// present when the token is known in the asset registry.
 	Decimals int64 `json:"decimals"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType     respjson.Field
@@ -3224,6 +3271,7 @@ type WalletActionEarnWithdrawSucceededWebhookPayload struct {
 		Amount         respjson.Field
 		Asset          respjson.Field
 		Decimals       respjson.Field
+		ReferenceID    respjson.Field
 		ExtraFields    map[string]respjson.Field
 		raw            string
 	} `json:"-"`
@@ -3290,6 +3338,8 @@ type WalletActionPayoutCreatedWebhookPayload struct {
 	WalletActionID string `json:"wallet_action_id" api:"required"`
 	// The ID of the wallet involved in the action.
 	WalletID string `json:"wallet_id" api:"required"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType               respjson.Field
@@ -3306,6 +3356,7 @@ type WalletActionPayoutCreatedWebhookPayload struct {
 		Type                     respjson.Field
 		WalletActionID           respjson.Field
 		WalletID                 respjson.Field
+		ReferenceID              respjson.Field
 		ExtraFields              map[string]respjson.Field
 		raw                      string
 	} `json:"-"`
@@ -3379,6 +3430,8 @@ type WalletActionPayoutFailedWebhookPayload struct {
 	WalletActionID string `json:"wallet_action_id" api:"required"`
 	// The ID of the wallet involved in the action.
 	WalletID string `json:"wallet_id" api:"required"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType               respjson.Field
@@ -3398,6 +3451,7 @@ type WalletActionPayoutFailedWebhookPayload struct {
 		Type                     respjson.Field
 		WalletActionID           respjson.Field
 		WalletID                 respjson.Field
+		ReferenceID              respjson.Field
 		ExtraFields              map[string]respjson.Field
 		raw                      string
 	} `json:"-"`
@@ -3470,6 +3524,8 @@ type WalletActionPayoutRejectedWebhookPayload struct {
 	WalletActionID string `json:"wallet_action_id" api:"required"`
 	// The ID of the wallet involved in the action.
 	WalletID string `json:"wallet_id" api:"required"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType               respjson.Field
@@ -3489,6 +3545,7 @@ type WalletActionPayoutRejectedWebhookPayload struct {
 		Type                     respjson.Field
 		WalletActionID           respjson.Field
 		WalletID                 respjson.Field
+		ReferenceID              respjson.Field
 		ExtraFields              map[string]respjson.Field
 		raw                      string
 	} `json:"-"`
@@ -3559,6 +3616,8 @@ type WalletActionPayoutSucceededWebhookPayload struct {
 	WalletActionID string `json:"wallet_action_id" api:"required"`
 	// The ID of the wallet involved in the action.
 	WalletID string `json:"wallet_id" api:"required"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType               respjson.Field
@@ -3577,6 +3636,7 @@ type WalletActionPayoutSucceededWebhookPayload struct {
 		Type                     respjson.Field
 		WalletActionID           respjson.Field
 		WalletID                 respjson.Field
+		ReferenceID              respjson.Field
 		ExtraFields              map[string]respjson.Field
 		raw                      string
 	} `json:"-"`
@@ -3631,6 +3691,8 @@ type WalletActionSwapCreatedWebhookPayload struct {
 	WalletActionID string `json:"wallet_action_id" api:"required"`
 	// The ID of the wallet involved in the action.
 	WalletID string `json:"wallet_id" api:"required"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType     respjson.Field
@@ -3643,6 +3705,7 @@ type WalletActionSwapCreatedWebhookPayload struct {
 		Type           respjson.Field
 		WalletActionID respjson.Field
 		WalletID       respjson.Field
+		ReferenceID    respjson.Field
 		ExtraFields    map[string]respjson.Field
 		raw            string
 	} `json:"-"`
@@ -3704,6 +3767,8 @@ type WalletActionSwapFailedWebhookPayload struct {
 	WalletActionID string `json:"wallet_action_id" api:"required"`
 	// The ID of the wallet involved in the action.
 	WalletID string `json:"wallet_id" api:"required"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType     respjson.Field
@@ -3719,6 +3784,7 @@ type WalletActionSwapFailedWebhookPayload struct {
 		Type           respjson.Field
 		WalletActionID respjson.Field
 		WalletID       respjson.Field
+		ReferenceID    respjson.Field
 		ExtraFields    map[string]respjson.Field
 		raw            string
 	} `json:"-"`
@@ -3779,6 +3845,8 @@ type WalletActionSwapRejectedWebhookPayload struct {
 	WalletActionID string `json:"wallet_action_id" api:"required"`
 	// The ID of the wallet involved in the action.
 	WalletID string `json:"wallet_id" api:"required"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType     respjson.Field
@@ -3794,6 +3862,7 @@ type WalletActionSwapRejectedWebhookPayload struct {
 		Type           respjson.Field
 		WalletActionID respjson.Field
 		WalletID       respjson.Field
+		ReferenceID    respjson.Field
 		ExtraFields    map[string]respjson.Field
 		raw            string
 	} `json:"-"`
@@ -3855,6 +3924,8 @@ type WalletActionSwapSucceededWebhookPayload struct {
 	WalletActionID string `json:"wallet_action_id" api:"required"`
 	// The ID of the wallet involved in the action.
 	WalletID string `json:"wallet_id" api:"required"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ActionType     respjson.Field
@@ -3870,6 +3941,7 @@ type WalletActionSwapSucceededWebhookPayload struct {
 		Type           respjson.Field
 		WalletActionID respjson.Field
 		WalletID       respjson.Field
+		ReferenceID    respjson.Field
 		ExtraFields    map[string]respjson.Field
 		raw            string
 	} `json:"-"`
@@ -3920,6 +3992,8 @@ type WalletActionTransferCreatedWebhookPayload struct {
 	WalletActionID string `json:"wallet_action_id" api:"required"`
 	// The ID of the wallet involved in the action.
 	WalletID string `json:"wallet_id" api:"required"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// Decimal amount sent on the source chain (e.g. "1.5"). Omitted for exact_output
 	// cross-chain transfers until the source amount is determined.
 	SourceAmount string `json:"source_amount"`
@@ -3942,6 +4016,7 @@ type WalletActionTransferCreatedWebhookPayload struct {
 		Type                respjson.Field
 		WalletActionID      respjson.Field
 		WalletID            respjson.Field
+		ReferenceID         respjson.Field
 		SourceAmount        respjson.Field
 		SourceAsset         respjson.Field
 		SourceAssetAddress  respjson.Field
@@ -4003,6 +4078,8 @@ type WalletActionTransferFailedWebhookPayload struct {
 	WalletActionID string `json:"wallet_action_id" api:"required"`
 	// The ID of the wallet involved in the action.
 	WalletID string `json:"wallet_id" api:"required"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// Decimal amount sent on the source chain (e.g. "1.5"). Omitted for exact_output
 	// cross-chain transfers until the source amount is determined.
 	SourceAmount string `json:"source_amount"`
@@ -4028,6 +4105,7 @@ type WalletActionTransferFailedWebhookPayload struct {
 		Type                respjson.Field
 		WalletActionID      respjson.Field
 		WalletID            respjson.Field
+		ReferenceID         respjson.Field
 		SourceAmount        respjson.Field
 		SourceAsset         respjson.Field
 		SourceAssetAddress  respjson.Field
@@ -4088,6 +4166,8 @@ type WalletActionTransferRejectedWebhookPayload struct {
 	WalletActionID string `json:"wallet_action_id" api:"required"`
 	// The ID of the wallet involved in the action.
 	WalletID string `json:"wallet_id" api:"required"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// Decimal amount sent on the source chain (e.g. "1.5"). Omitted for exact_output
 	// cross-chain transfers until the source amount is determined.
 	SourceAmount string `json:"source_amount"`
@@ -4113,6 +4193,7 @@ type WalletActionTransferRejectedWebhookPayload struct {
 		Type                respjson.Field
 		WalletActionID      respjson.Field
 		WalletID            respjson.Field
+		ReferenceID         respjson.Field
 		SourceAmount        respjson.Field
 		SourceAsset         respjson.Field
 		SourceAssetAddress  respjson.Field
@@ -4171,6 +4252,8 @@ type WalletActionTransferSucceededWebhookPayload struct {
 	WalletActionID string `json:"wallet_action_id" api:"required"`
 	// The ID of the wallet involved in the action.
 	WalletID string `json:"wallet_id" api:"required"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
 	// Decimal amount sent on the source chain (e.g. "1.5"). Omitted for exact_output
 	// cross-chain transfers until the source amount is determined.
 	SourceAmount string `json:"source_amount"`
@@ -4195,6 +4278,7 @@ type WalletActionTransferSucceededWebhookPayload struct {
 		Type                respjson.Field
 		WalletActionID      respjson.Field
 		WalletID            respjson.Field
+		ReferenceID         respjson.Field
 		SourceAmount        respjson.Field
 		SourceAsset         respjson.Field
 		SourceAssetAddress  respjson.Field

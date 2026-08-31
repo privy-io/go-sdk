@@ -391,6 +391,167 @@ const (
 	AmountTypeExactOutput AmountType = "exact_output"
 )
 
+type AptosBcsHex = string
+
+// Executes the Aptos `aptos_signTransaction` RPC to sign a legacy single-signer
+// Ed25519 RawTransaction. The caller is responsible for broadcasting.
+type AptosSignTransactionRpcInputResp struct {
+	// Any of "aptos_signTransaction".
+	Method AptosSignTransactionRpcInputMethod `json:"method" api:"required"`
+	// Parameters for the Aptos `aptos_signTransaction` RPC.
+	Params AptosSignTransactionRpcInputParamsResp `json:"params" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Method      respjson.Field
+		Params      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AptosSignTransactionRpcInputResp) RawJSON() string { return r.JSON.raw }
+func (r *AptosSignTransactionRpcInputResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this AptosSignTransactionRpcInputResp to a
+// AptosSignTransactionRpcInput.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// AptosSignTransactionRpcInput.Overrides()
+func (r AptosSignTransactionRpcInputResp) ToParam() AptosSignTransactionRpcInput {
+	return param.Override[AptosSignTransactionRpcInput](json.RawMessage(r.RawJSON()))
+}
+
+type AptosSignTransactionRpcInputMethod string
+
+const (
+	AptosSignTransactionRpcInputMethodAptosSignTransaction AptosSignTransactionRpcInputMethod = "aptos_signTransaction"
+)
+
+// Executes the Aptos `aptos_signTransaction` RPC to sign a legacy single-signer
+// Ed25519 RawTransaction. The caller is responsible for broadcasting.
+//
+// The properties Method, Params are required.
+type AptosSignTransactionRpcInput struct {
+	// Any of "aptos_signTransaction".
+	Method AptosSignTransactionRpcInputMethod `json:"method,omitzero" api:"required"`
+	// Parameters for the Aptos `aptos_signTransaction` RPC.
+	Params AptosSignTransactionRpcInputParams `json:"params,omitzero" api:"required"`
+	paramObj
+}
+
+func (r AptosSignTransactionRpcInput) MarshalJSON() (data []byte, err error) {
+	type shadow AptosSignTransactionRpcInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *AptosSignTransactionRpcInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Parameters for the Aptos `aptos_signTransaction` RPC.
+type AptosSignTransactionRpcInputParamsResp struct {
+	// A non-empty, 0x-prefixed, even-length BCS hex string.
+	Transaction AptosBcsHex `json:"transaction" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Transaction respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AptosSignTransactionRpcInputParamsResp) RawJSON() string { return r.JSON.raw }
+func (r *AptosSignTransactionRpcInputParamsResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this AptosSignTransactionRpcInputParamsResp to a
+// AptosSignTransactionRpcInputParams.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// AptosSignTransactionRpcInputParams.Overrides()
+func (r AptosSignTransactionRpcInputParamsResp) ToParam() AptosSignTransactionRpcInputParams {
+	return param.Override[AptosSignTransactionRpcInputParams](json.RawMessage(r.RawJSON()))
+}
+
+// Parameters for the Aptos `aptos_signTransaction` RPC.
+//
+// The property Transaction is required.
+type AptosSignTransactionRpcInputParams struct {
+	// A non-empty, 0x-prefixed, even-length BCS hex string.
+	Transaction AptosBcsHex `json:"transaction" api:"required"`
+	paramObj
+}
+
+func (r AptosSignTransactionRpcInputParams) MarshalJSON() (data []byte, err error) {
+	type shadow AptosSignTransactionRpcInputParams
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *AptosSignTransactionRpcInputParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response to the Aptos `aptos_signTransaction` RPC.
+type AptosSignTransactionRpcResponse struct {
+	// Data returned by the Aptos `aptos_signTransaction` RPC.
+	Data AptosSignTransactionRpcResponseData `json:"data" api:"required"`
+	// Any of "aptos_signTransaction".
+	Method AptosSignTransactionRpcResponseMethod `json:"method" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		Method      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AptosSignTransactionRpcResponse) RawJSON() string { return r.JSON.raw }
+func (r *AptosSignTransactionRpcResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type AptosSignTransactionRpcResponseMethod string
+
+const (
+	AptosSignTransactionRpcResponseMethodAptosSignTransaction AptosSignTransactionRpcResponseMethod = "aptos_signTransaction"
+)
+
+// Data returned by the Aptos `aptos_signTransaction` RPC.
+type AptosSignTransactionRpcResponseData struct {
+	// Any of "hex".
+	Encoding AptosSignTransactionRpcResponseDataEncoding `json:"encoding" api:"required"`
+	// A non-empty, 0x-prefixed, even-length BCS legacy Ed25519 SignedTransaction.
+	SignedTransaction AptosSignedTransactionBcsHex `json:"signed_transaction" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Encoding          respjson.Field
+		SignedTransaction respjson.Field
+		ExtraFields       map[string]respjson.Field
+		raw               string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AptosSignTransactionRpcResponseData) RawJSON() string { return r.JSON.raw }
+func (r *AptosSignTransactionRpcResponseData) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type AptosSignTransactionRpcResponseDataEncoding string
+
+const (
+	AptosSignTransactionRpcResponseDataEncodingHex AptosSignTransactionRpcResponseDataEncoding = "hex"
+)
+
+type AptosSignedTransactionBcsHex = string
+
 func CreateCryptoDepositAccountRequestBodyOfCreateCryptoDepositAccountWithConfigRequestBody(depositConfigID string) CreateCryptoDepositAccountRequestBodyUnion {
 	var variant CreateCryptoDepositAccountWithConfigRequestBody
 	variant.DepositConfigID = depositConfigID
@@ -1657,9 +1818,10 @@ type EthereumSendTransactionRpcInputResp struct {
 	ChainType EthereumSendTransactionRpcInputChainType `json:"chain_type"`
 	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
-	ExperimentalDataSuffix Hex    `json:"experimental_data_suffix"`
-	ReferenceID            string `json:"reference_id"`
-	Sponsor                bool   `json:"sponsor"`
+	ExperimentalDataSuffix Hex `json:"experimental_data_suffix"`
+	// Developer-provided identifier for this request. Must be unique per app.
+	ReferenceID string `json:"reference_id"`
+	Sponsor     bool   `json:"sponsor"`
 	// Options for user-pays gas sponsorship on the RPC endpoint. When provided
 	// alongside `sponsor: true`, controls which token asset the user pays gas with.
 	SponsorOptions RpcSponsorOptionsResp `json:"sponsor_options"`
@@ -1722,10 +1884,11 @@ type EthereumSendTransactionRpcInput struct {
 	Address param.Opt[string]                     `json:"address,omitzero"`
 	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
-	ExperimentalDataSuffix param.Opt[Hex]    `json:"experimental_data_suffix,omitzero"`
-	ReferenceID            param.Opt[string] `json:"reference_id,omitzero"`
-	Sponsor                param.Opt[bool]   `json:"sponsor,omitzero"`
-	WalletID               param.Opt[string] `json:"wallet_id,omitzero"`
+	ExperimentalDataSuffix param.Opt[Hex] `json:"experimental_data_suffix,omitzero"`
+	// Developer-provided identifier for this request. Must be unique per app.
+	ReferenceID param.Opt[string] `json:"reference_id,omitzero"`
+	Sponsor     param.Opt[bool]   `json:"sponsor,omitzero"`
+	WalletID    param.Opt[string] `json:"wallet_id,omitzero"`
 	// Any of "ethereum".
 	ChainType EthereumSendTransactionRpcInputChainType `json:"chain_type,omitzero"`
 	// Options for user-pays gas sponsorship on the RPC endpoint. When provided
@@ -1819,8 +1982,9 @@ const (
 // Data returned by the EVM `eth_sendTransaction` RPC.
 type EthereumSendTransactionRpcResponseData struct {
 	// A valid CAIP-2 chain ID (e.g. 'eip155:4217' for Tempo, 'eip155:1' for Ethereum).
-	Caip2         Caip2  `json:"caip2" api:"required"`
-	Hash          string `json:"hash" api:"required"`
+	Caip2 Caip2  `json:"caip2" api:"required"`
+	Hash  string `json:"hash" api:"required"`
+	// Developer-provided reference ID, if one was included in the request.
 	ReferenceID   string `json:"reference_id" api:"nullable"`
 	TransactionID string `json:"transaction_id"`
 	// An unsigned Ethereum transaction object. Supports standard EVM transaction types
@@ -4004,8 +4168,9 @@ type SolanaSignAndSendTransactionRpcInputResp struct {
 	// Any of "solana".
 	ChainType           SolanaSignAndSendTransactionRpcInputChainType `json:"chain_type"`
 	OptimisticBroadcast bool                                          `json:"optimistic_broadcast"`
-	ReferenceID         string                                        `json:"reference_id"`
-	Sponsor             bool                                          `json:"sponsor"`
+	// Developer-provided identifier for this request. Must be unique per app.
+	ReferenceID string `json:"reference_id"`
+	Sponsor     bool   `json:"sponsor"`
 	// Options for user-pays gas sponsorship on the RPC endpoint. When provided
 	// alongside `sponsor: true`, controls which token asset the user pays gas with.
 	SponsorOptions RpcSponsorOptionsResp `json:"sponsor_options"`
@@ -4068,9 +4233,10 @@ type SolanaSignAndSendTransactionRpcInput struct {
 	Params              SolanaSignAndSendTransactionRpcInputParams `json:"params,omitzero" api:"required"`
 	Address             param.Opt[string]                          `json:"address,omitzero"`
 	OptimisticBroadcast param.Opt[bool]                            `json:"optimistic_broadcast,omitzero"`
-	ReferenceID         param.Opt[string]                          `json:"reference_id,omitzero"`
-	Sponsor             param.Opt[bool]                            `json:"sponsor,omitzero"`
-	WalletID            param.Opt[string]                          `json:"wallet_id,omitzero"`
+	// Developer-provided identifier for this request. Must be unique per app.
+	ReferenceID param.Opt[string] `json:"reference_id,omitzero"`
+	Sponsor     param.Opt[bool]   `json:"sponsor,omitzero"`
+	WalletID    param.Opt[string] `json:"wallet_id,omitzero"`
 	// Any of "solana".
 	ChainType SolanaSignAndSendTransactionRpcInputChainType `json:"chain_type,omitzero"`
 	// Options for user-pays gas sponsorship on the RPC endpoint. When provided
@@ -4171,8 +4337,9 @@ const (
 // Data returned by the SVM `signAndSendTransaction` RPC.
 type SolanaSignAndSendTransactionRpcResponseData struct {
 	// A valid CAIP-2 chain ID (e.g. 'eip155:4217' for Tempo, 'eip155:1' for Ethereum).
-	Caip2             Caip2  `json:"caip2" api:"required"`
-	Hash              string `json:"hash" api:"required"`
+	Caip2 Caip2  `json:"caip2" api:"required"`
+	Hash  string `json:"hash" api:"required"`
+	// Developer-provided reference ID, if one was included in the request.
 	ReferenceID       string `json:"reference_id" api:"nullable"`
 	SignedTransaction string `json:"signed_transaction"`
 	TransactionID     string `json:"transaction_id"`
@@ -7194,6 +7361,8 @@ type TransferRequestBodyResp struct {
 	// Unique caller-generated nonce used to prevent replaying a signed wallet action
 	// request. Must be at least 24 characters (e.g. a cuid2 or UUID).
 	Nonce WalletActionNonce `json:"nonce"`
+	// Developer-provided identifier for this request. Must be unique per app.
+	ReferenceID string `json:"reference_id"`
 	// Maximum allowed slippage in basis points (1 bps = 0.01%). Only applicable for
 	// cross-chain or cross-asset transfers; omit to use the provider default.
 	SlippageBps int64 `json:"slippage_bps"`
@@ -7205,6 +7374,7 @@ type TransferRequestBodyResp struct {
 		AmountType       respjson.Field
 		FeeConfiguration respjson.Field
 		Nonce            respjson.Field
+		ReferenceID      respjson.Field
 		SlippageBps      respjson.Field
 		ExtraFields      map[string]respjson.Field
 		raw              string
@@ -7243,6 +7413,8 @@ type TransferRequestBody struct {
 	// Unique caller-generated nonce used to prevent replaying a signed wallet action
 	// request. Must be at least 24 characters (e.g. a cuid2 or UUID).
 	Nonce param.Opt[WalletActionNonce] `json:"nonce,omitzero"`
+	// Developer-provided identifier for this request. Must be unique per app.
+	ReferenceID param.Opt[string] `json:"reference_id,omitzero"`
 	// Maximum allowed slippage in basis points (1 bps = 0.01%). Only applicable for
 	// cross-chain or cross-asset transfers; omit to use the provider default.
 	SlippageBps param.Opt[int64] `json:"slippage_bps,omitzero"`
@@ -9176,10 +9348,10 @@ const (
 // [EthereumSecp256k1SignRpcInputResp],
 // [EthereumSign7702AuthorizationRpcInputResp],
 // [EthereumSignUserOperationRpcInputResp], [EthereumSendCallsRpcInputResp],
-// [SolanaSignTransactionRpcInputResp], [SolanaSignAndSendTransactionRpcInputResp],
-// [SolanaSignMessageRpcInputResp], [SparkTransferRpcInputResp],
-// [SparkGetBalanceRpcInputResp], [SparkTransferTokensRpcInputResp],
-// [SparkGetStaticDepositAddressRpcInputResp],
+// [AptosSignTransactionRpcInputResp], [SolanaSignTransactionRpcInputResp],
+// [SolanaSignAndSendTransactionRpcInputResp], [SolanaSignMessageRpcInputResp],
+// [SparkTransferRpcInputResp], [SparkGetBalanceRpcInputResp],
+// [SparkTransferTokensRpcInputResp], [SparkGetStaticDepositAddressRpcInputResp],
 // [SparkGetClaimStaticDepositQuoteRpcInputResp],
 // [SparkClaimStaticDepositRpcInputResp],
 // [SparkCreateLightningInvoiceRpcInputResp],
@@ -9195,13 +9367,13 @@ const (
 type WalletRpcRequestBodyUnionResp struct {
 	// Any of "eth_signTransaction", "eth_sendTransaction", "personal_sign",
 	// "eth_signTypedData_v4", "secp256k1_sign", "eth_sign7702Authorization",
-	// "eth_signUserOperation", "wallet_sendCalls", "signTransaction",
-	// "signAndSendTransaction", "signMessage", "transfer", "getBalance",
-	// "transferTokens", "getStaticDepositAddress", "getClaimStaticDepositQuote",
-	// "claimStaticDeposit", "createLightningInvoice", "payLightningInvoice",
-	// "signMessageWithIdentityKey", "withdraw", "getWithdrawalFeeQuote",
-	// "tron_signTransaction", "tron_sendTransaction", "xrpl_signTransaction",
-	// "exportPrivateKey", "exportSeedPhrase".
+	// "eth_signUserOperation", "wallet_sendCalls", "aptos_signTransaction",
+	// "signTransaction", "signAndSendTransaction", "signMessage", "transfer",
+	// "getBalance", "transferTokens", "getStaticDepositAddress",
+	// "getClaimStaticDepositQuote", "claimStaticDeposit", "createLightningInvoice",
+	// "payLightningInvoice", "signMessageWithIdentityKey", "withdraw",
+	// "getWithdrawalFeeQuote", "tron_signTransaction", "tron_sendTransaction",
+	// "xrpl_signTransaction", "exportPrivateKey", "exportSeedPhrase".
 	Method string `json:"method"`
 	// This field is a union of [EthereumSignTransactionRpcInputParamsResp],
 	// [EthereumSendTransactionRpcInputParamsResp],
@@ -9210,7 +9382,7 @@ type WalletRpcRequestBodyUnionResp struct {
 	// [EthereumSecp256k1SignRpcInputParamsResp],
 	// [EthereumSign7702AuthorizationRpcInputParamsResp],
 	// [EthereumSignUserOperationRpcInputParamsResp],
-	// [EthereumSendCallsRpcInputParamsResp],
+	// [EthereumSendCallsRpcInputParamsResp], [AptosSignTransactionRpcInputParamsResp],
 	// [SolanaSignTransactionRpcInputParamsResp],
 	// [SolanaSignAndSendTransactionRpcInputParamsResp],
 	// [SolanaSignMessageRpcInputParamsResp], [SparkTransferRpcInputParamsResp],
@@ -9277,6 +9449,7 @@ func (EthereumSecp256k1SignRpcInputResp) implWalletRpcRequestBodyUnionResp()    
 func (EthereumSign7702AuthorizationRpcInputResp) implWalletRpcRequestBodyUnionResp()   {}
 func (EthereumSignUserOperationRpcInputResp) implWalletRpcRequestBodyUnionResp()       {}
 func (EthereumSendCallsRpcInputResp) implWalletRpcRequestBodyUnionResp()               {}
+func (AptosSignTransactionRpcInputResp) implWalletRpcRequestBodyUnionResp()            {}
 func (SolanaSignTransactionRpcInputResp) implWalletRpcRequestBodyUnionResp()           {}
 func (SolanaSignAndSendTransactionRpcInputResp) implWalletRpcRequestBodyUnionResp()    {}
 func (SolanaSignMessageRpcInputResp) implWalletRpcRequestBodyUnionResp()               {}
@@ -9308,6 +9481,7 @@ func (ExportSeedPhraseRpcInputResp) implWalletRpcRequestBodyUnionResp()         
 //	case privyclient.EthereumSign7702AuthorizationRpcInputResp:
 //	case privyclient.EthereumSignUserOperationRpcInputResp:
 //	case privyclient.EthereumSendCallsRpcInputResp:
+//	case privyclient.AptosSignTransactionRpcInputResp:
 //	case privyclient.SolanaSignTransactionRpcInputResp:
 //	case privyclient.SolanaSignAndSendTransactionRpcInputResp:
 //	case privyclient.SolanaSignMessageRpcInputResp:
@@ -9348,6 +9522,8 @@ func (u WalletRpcRequestBodyUnionResp) AsAny() anyWalletRpcRequestBodyResp {
 		return u.AsEthSignUserOperation()
 	case "wallet_sendCalls":
 		return u.AsWalletSendCalls()
+	case "aptos_signTransaction":
+		return u.AsAptosSignTransaction()
 	case "signTransaction":
 		return u.AsSignTransaction()
 	case "signAndSendTransaction":
@@ -9426,6 +9602,11 @@ func (u WalletRpcRequestBodyUnionResp) AsEthSignUserOperation() (v EthereumSignU
 }
 
 func (u WalletRpcRequestBodyUnionResp) AsWalletSendCalls() (v EthereumSendCallsRpcInputResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletRpcRequestBodyUnionResp) AsAptosSignTransaction() (v AptosSignTransactionRpcInputResp) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -9539,8 +9720,8 @@ func (r *WalletRpcRequestBodyUnionResp) UnmarshalJSON(data []byte) error {
 // For type safety it is recommended to directly use a variant of the
 // [WalletRpcRequestBodyUnionResp].
 type WalletRpcRequestBodyUnionRespParams struct {
-	// This field is a union of [UnsignedEthereumTransactionUnionResp], [string],
-	// [string], [string]
+	// This field is a union of [UnsignedEthereumTransactionUnionResp], [AptosBcsHex],
+	// [string], [string], [string]
 	Transaction WalletRpcRequestBodyUnionRespParamsTransaction `json:"transaction"`
 	Encoding    string                                         `json:"encoding"`
 	Message     string                                         `json:"message"`
@@ -9676,8 +9857,8 @@ func (r *WalletRpcRequestBodyUnionRespParams) UnmarshalJSON(data []byte) error {
 // If the underlying value is not a json object, one of the following properties
 // will be valid: OfString]
 type WalletRpcRequestBodyUnionRespParamsTransaction struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
+	// This field will be present if the value is a [AptosBcsHex] instead of an object.
+	OfString AptosBcsHex `json:",inline"`
 	// This field is from variant [UnsignedEthereumTransactionUnionResp].
 	AuthorizationList []EthereumSign7702AuthorizationResp `json:"authorization_list"`
 	// This field is from variant [UnsignedEthereumTransactionUnionResp].
@@ -9838,6 +10019,12 @@ func WalletRpcRequestBodyOfWalletSendCalls(caip2 Caip2, method EthereumSendCalls
 	return WalletRpcRequestBodyUnion{OfWalletSendCalls: &walletSendCalls}
 }
 
+func WalletRpcRequestBodyOfAptosSignTransaction(params AptosSignTransactionRpcInputParams) WalletRpcRequestBodyUnion {
+	var aptosSignTransaction AptosSignTransactionRpcInput
+	aptosSignTransaction.Params = params
+	return WalletRpcRequestBodyUnion{OfAptosSignTransaction: &aptosSignTransaction}
+}
+
 func WalletRpcRequestBodyOfSignTransaction(params SolanaSignTransactionRpcInputParams) WalletRpcRequestBodyUnion {
 	var signTransaction SolanaSignTransactionRpcInput
 	signTransaction.Params = params
@@ -9970,6 +10157,7 @@ type WalletRpcRequestBodyUnion struct {
 	OfEthSign7702Authorization   *EthereumSign7702AuthorizationRpcInput   `json:",omitzero,inline"`
 	OfEthSignUserOperation       *EthereumSignUserOperationRpcInput       `json:",omitzero,inline"`
 	OfWalletSendCalls            *EthereumSendCallsRpcInput               `json:",omitzero,inline"`
+	OfAptosSignTransaction       *AptosSignTransactionRpcInput            `json:",omitzero,inline"`
 	OfSignTransaction            *SolanaSignTransactionRpcInput           `json:",omitzero,inline"`
 	OfSignAndSendTransaction     *SolanaSignAndSendTransactionRpcInput    `json:",omitzero,inline"`
 	OfSignMessage                *SolanaSignMessageRpcInput               `json:",omitzero,inline"`
@@ -10001,6 +10189,7 @@ func (u WalletRpcRequestBodyUnion) MarshalJSON() ([]byte, error) {
 		u.OfEthSign7702Authorization,
 		u.OfEthSignUserOperation,
 		u.OfWalletSendCalls,
+		u.OfAptosSignTransaction,
 		u.OfSignTransaction,
 		u.OfSignAndSendTransaction,
 		u.OfSignMessage,
@@ -10036,6 +10225,7 @@ func init() {
 		apijson.Discriminator[EthereumSign7702AuthorizationRpcInput]("eth_sign7702Authorization"),
 		apijson.Discriminator[EthereumSignUserOperationRpcInput]("eth_signUserOperation"),
 		apijson.Discriminator[EthereumSendCallsRpcInput]("wallet_sendCalls"),
+		apijson.Discriminator[AptosSignTransactionRpcInput]("aptos_signTransaction"),
 		apijson.Discriminator[SolanaSignTransactionRpcInput]("signTransaction"),
 		apijson.Discriminator[SolanaSignAndSendTransactionRpcInput]("signAndSendTransaction"),
 		apijson.Discriminator[SolanaSignMessageRpcInput]("signMessage"),
@@ -10063,10 +10253,11 @@ func init() {
 // [EthereumSignTransactionRpcResponse], [EthereumSendTransactionRpcResponse],
 // [EthereumSignUserOperationRpcResponse],
 // [EthereumSign7702AuthorizationRpcResponse], [EthereumSecp256k1SignRpcResponse],
-// [EthereumSendCallsRpcResponse], [SolanaSignMessageRpcResponse],
-// [SolanaSignTransactionRpcResponse], [SolanaSignAndSendTransactionRpcResponse],
-// [SparkTransferRpcResponse], [SparkGetBalanceRpcResponse],
-// [SparkTransferTokensRpcResponse], [SparkGetStaticDepositAddressRpcResponse],
+// [EthereumSendCallsRpcResponse], [AptosSignTransactionRpcResponse],
+// [SolanaSignMessageRpcResponse], [SolanaSignTransactionRpcResponse],
+// [SolanaSignAndSendTransactionRpcResponse], [SparkTransferRpcResponse],
+// [SparkGetBalanceRpcResponse], [SparkTransferTokensRpcResponse],
+// [SparkGetStaticDepositAddressRpcResponse],
 // [SparkGetClaimStaticDepositQuoteRpcResponse],
 // [SparkClaimStaticDepositRpcResponse], [SparkCreateLightningInvoiceRpcResponse],
 // [SparkPayLightningInvoiceRpcResponse],
@@ -10086,7 +10277,8 @@ type WalletRpcResponseUnion struct {
 	// [EthereumSignUserOperationRpcResponseData],
 	// [EthereumSign7702AuthorizationRpcResponseData],
 	// [EthereumSecp256k1SignRpcResponseData], [EthereumSendCallsRpcResponseData],
-	// [SolanaSignMessageRpcResponseData], [SolanaSignTransactionRpcResponseData],
+	// [AptosSignTransactionRpcResponseData], [SolanaSignMessageRpcResponseData],
+	// [SolanaSignTransactionRpcResponseData],
 	// [SolanaSignAndSendTransactionRpcResponseData], [SparkTransfer], [SparkBalance],
 	// [SparkTransferTokensRpcResponseData],
 	// [SparkGetStaticDepositAddressRpcResponseData],
@@ -10100,13 +10292,13 @@ type WalletRpcResponseUnion struct {
 	Data WalletRpcResponseUnionData `json:"data"`
 	// Any of "personal_sign", "eth_signTypedData_v4", "eth_signTransaction",
 	// "eth_sendTransaction", "eth_signUserOperation", "eth_sign7702Authorization",
-	// "secp256k1_sign", "wallet_sendCalls", "signMessage", "signTransaction",
-	// "signAndSendTransaction", "transfer", "getBalance", "transferTokens",
-	// "getStaticDepositAddress", "getClaimStaticDepositQuote", "claimStaticDeposit",
-	// "createLightningInvoice", "payLightningInvoice", "signMessageWithIdentityKey",
-	// "withdraw", "getWithdrawalFeeQuote", "tron_signTransaction",
-	// "tron_sendTransaction", "xrpl_signTransaction", "exportPrivateKey",
-	// "exportSeedPhrase".
+	// "secp256k1_sign", "wallet_sendCalls", "aptos_signTransaction", "signMessage",
+	// "signTransaction", "signAndSendTransaction", "transfer", "getBalance",
+	// "transferTokens", "getStaticDepositAddress", "getClaimStaticDepositQuote",
+	// "claimStaticDeposit", "createLightningInvoice", "payLightningInvoice",
+	// "signMessageWithIdentityKey", "withdraw", "getWithdrawalFeeQuote",
+	// "tron_signTransaction", "tron_sendTransaction", "xrpl_signTransaction",
+	// "exportPrivateKey", "exportSeedPhrase".
 	Method string `json:"method"`
 	JSON   struct {
 		Data   respjson.Field
@@ -10129,6 +10321,7 @@ func (EthereumSignUserOperationRpcResponse) implWalletRpcResponseUnion()       {
 func (EthereumSign7702AuthorizationRpcResponse) implWalletRpcResponseUnion()   {}
 func (EthereumSecp256k1SignRpcResponse) implWalletRpcResponseUnion()           {}
 func (EthereumSendCallsRpcResponse) implWalletRpcResponseUnion()               {}
+func (AptosSignTransactionRpcResponse) implWalletRpcResponseUnion()            {}
 func (SolanaSignMessageRpcResponse) implWalletRpcResponseUnion()               {}
 func (SolanaSignTransactionRpcResponse) implWalletRpcResponseUnion()           {}
 func (SolanaSignAndSendTransactionRpcResponse) implWalletRpcResponseUnion()    {}
@@ -10160,6 +10353,7 @@ func (ExportSeedPhraseRpcResponse) implWalletRpcResponseUnion()                {
 //	case privyclient.EthereumSign7702AuthorizationRpcResponse:
 //	case privyclient.EthereumSecp256k1SignRpcResponse:
 //	case privyclient.EthereumSendCallsRpcResponse:
+//	case privyclient.AptosSignTransactionRpcResponse:
 //	case privyclient.SolanaSignMessageRpcResponse:
 //	case privyclient.SolanaSignTransactionRpcResponse:
 //	case privyclient.SolanaSignAndSendTransactionRpcResponse:
@@ -10200,6 +10394,8 @@ func (u WalletRpcResponseUnion) AsAny() anyWalletRpcResponse {
 		return u.AsSecp256k1Sign()
 	case "wallet_sendCalls":
 		return u.AsWalletSendCalls()
+	case "aptos_signTransaction":
+		return u.AsAptosSignTransaction()
 	case "signMessage":
 		return u.AsSignMessage()
 	case "signTransaction":
@@ -10278,6 +10474,11 @@ func (u WalletRpcResponseUnion) AsSecp256k1Sign() (v EthereumSecp256k1SignRpcRes
 }
 
 func (u WalletRpcResponseUnion) AsWalletSendCalls() (v EthereumSendCallsRpcResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletRpcResponseUnion) AsAptosSignTransaction() (v AptosSignTransactionRpcResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }

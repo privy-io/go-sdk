@@ -72,12 +72,13 @@ type Transaction struct {
 	//
 	// Any of "broadcasted", "confirmed", "execution_reverted", "failed", "replaced",
 	// "finalized", "provider_error", "pending".
-	Status            BlockchainTransactionStatus `json:"status" api:"required"`
-	TransactionHash   string                      `json:"transaction_hash" api:"required"`
-	WalletID          string                      `json:"wallet_id" api:"required"`
-	ReferenceID       string                      `json:"reference_id" api:"nullable"`
-	Sponsored         bool                        `json:"sponsored"`
-	UserOperationHash string                      `json:"user_operation_hash"`
+	Status          BlockchainTransactionStatus `json:"status" api:"required"`
+	TransactionHash string                      `json:"transaction_hash" api:"required"`
+	WalletID        string                      `json:"wallet_id" api:"required"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID       string `json:"reference_id" api:"nullable"`
+	Sponsored         bool   `json:"sponsored"`
+	UserOperationHash string `json:"user_operation_hash"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID                respjson.Field

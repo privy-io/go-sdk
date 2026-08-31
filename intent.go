@@ -810,7 +810,7 @@ type IntentResponseUnionRequestDetailsBody struct {
 	// [EthereumSecp256k1SignRpcInputParamsResp],
 	// [EthereumSign7702AuthorizationRpcInputParamsResp],
 	// [EthereumSignUserOperationRpcInputParamsResp],
-	// [EthereumSendCallsRpcInputParamsResp],
+	// [EthereumSendCallsRpcInputParamsResp], [AptosSignTransactionRpcInputParamsResp],
 	// [SolanaSignTransactionRpcInputParamsResp],
 	// [SolanaSignAndSendTransactionRpcInputParamsResp],
 	// [SolanaSignMessageRpcInputParamsResp], [SparkTransferRpcInputParamsResp],
@@ -933,8 +933,8 @@ func (r *IntentResponseUnionRequestDetailsBody) UnmarshalJSON(data []byte) error
 // For type safety it is recommended to directly use a variant of the
 // [IntentResponseUnion].
 type IntentResponseUnionRequestDetailsBodyParams struct {
-	// This field is a union of [UnsignedEthereumTransactionUnionResp], [string],
-	// [string], [string]
+	// This field is a union of [UnsignedEthereumTransactionUnionResp], [AptosBcsHex],
+	// [string], [string], [string]
 	Transaction IntentResponseUnionRequestDetailsBodyParamsTransaction `json:"transaction"`
 	Encoding    string                                                 `json:"encoding"`
 	Message     string                                                 `json:"message"`
@@ -1070,8 +1070,8 @@ func (r *IntentResponseUnionRequestDetailsBodyParams) UnmarshalJSON(data []byte)
 // If the underlying value is not a json object, one of the following properties
 // will be valid: OfString]
 type IntentResponseUnionRequestDetailsBodyParamsTransaction struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
+	// This field will be present if the value is a [AptosBcsHex] instead of an object.
+	OfString AptosBcsHex `json:",inline"`
 	// This field is from variant [UnsignedEthereumTransactionUnionResp].
 	AuthorizationList []EthereumSign7702AuthorizationResp `json:"authorization_list"`
 	// This field is from variant [UnsignedEthereumTransactionUnionResp].

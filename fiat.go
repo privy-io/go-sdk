@@ -1044,14 +1044,14 @@ func (r *KyxVerificationStatusDetail) UnmarshalJSON(data []byte) error {
 
 // A list of external fiat accounts linked to a user.
 type ListExternalFiatAccountsResponse struct {
-	Accounts   []ExternalFiatAccount `json:"accounts" api:"required"`
-	NextCursor string                `json:"next_cursor" api:"required"`
+	ExternalFiatAccounts []ExternalFiatAccount `json:"external_fiat_accounts" api:"required"`
+	NextCursor           string                `json:"next_cursor" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		Accounts    respjson.Field
-		NextCursor  respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
+		ExternalFiatAccounts respjson.Field
+		NextCursor           respjson.Field
+		ExtraFields          map[string]respjson.Field
+		raw                  string
 	} `json:"-"`
 }
 
@@ -1063,14 +1063,14 @@ func (r *ListExternalFiatAccountsResponse) UnmarshalJSON(data []byte) error {
 
 // A list of fiat deposit accounts linked to a wallet.
 type ListFiatDepositAccountsResponse struct {
-	DepositAccounts []FiatDepositAccount `json:"deposit_accounts" api:"required"`
-	NextCursor      string               `json:"next_cursor" api:"required"`
+	FiatDepositAccounts []FiatDepositAccount `json:"fiat_deposit_accounts" api:"required"`
+	NextCursor          string               `json:"next_cursor" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		DepositAccounts respjson.Field
-		NextCursor      respjson.Field
-		ExtraFields     map[string]respjson.Field
-		raw             string
+		FiatDepositAccounts respjson.Field
+		NextCursor          respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
 	} `json:"-"`
 }
 
@@ -1082,14 +1082,14 @@ func (r *ListFiatDepositAccountsResponse) UnmarshalJSON(data []byte) error {
 
 // A list of external fiat accounts linked to an organization.
 type ListOrganizationExternalFiatAccountsResponse struct {
-	Accounts   []OrganizationExternalFiatAccount `json:"accounts" api:"required"`
-	NextCursor string                            `json:"next_cursor" api:"required"`
+	ExternalFiatAccounts []OrganizationExternalFiatAccount `json:"external_fiat_accounts" api:"required"`
+	NextCursor           string                            `json:"next_cursor" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		Accounts    respjson.Field
-		NextCursor  respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
+		ExternalFiatAccounts respjson.Field
+		NextCursor           respjson.Field
+		ExtraFields          map[string]respjson.Field
+		raw                  string
 	} `json:"-"`
 }
 

@@ -32,10 +32,11 @@ func TestWalletEarnEthereumDepositWithOptionalParams(t *testing.T) {
 		"wallet_id",
 		privyclient.WalletEarnEthereumDepositParams{
 			EarnDepositRequestBody: privyclient.EarnDepositRequestBody{
-				VaultID:   "cm7oxq1el000e11o8iwp7d0d0",
-				Amount:    privyclient.String("1.5"),
-				Nonce:     privyclient.String("xxxxxxxxxxxxxxxxxxxxxxxx"),
-				RawAmount: privyclient.String("321669910225"),
+				VaultID:     "cm7oxq1el000e11o8iwp7d0d0",
+				Amount:      privyclient.String("1.5"),
+				Nonce:       privyclient.String("xxxxxxxxxxxxxxxxxxxxxxxx"),
+				RawAmount:   privyclient.String("321669910225"),
+				ReferenceID: privyclient.String("x"),
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
 			PrivyIdempotencyKey:         privyclient.String("privy-idempotency-key"),
@@ -125,10 +126,11 @@ func TestWalletEarnEthereumWithdrawWithOptionalParams(t *testing.T) {
 		"wallet_id",
 		privyclient.WalletEarnEthereumWithdrawParams{
 			EarnWithdrawRequestBody: privyclient.EarnWithdrawRequestBody{
-				VaultID:   "cm7oxq1el000e11o8iwp7d0d0",
-				Amount:    privyclient.String("1.5"),
-				Nonce:     privyclient.String("xxxxxxxxxxxxxxxxxxxxxxxx"),
-				RawAmount: privyclient.String("321669910225"),
+				VaultID:     "cm7oxq1el000e11o8iwp7d0d0",
+				Amount:      privyclient.String("1.5"),
+				Nonce:       privyclient.String("xxxxxxxxxxxxxxxxxxxxxxxx"),
+				RawAmount:   privyclient.String("321669910225"),
+				ReferenceID: privyclient.String("x"),
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
 			PrivyIdempotencyKey:         privyclient.String("privy-idempotency-key"),

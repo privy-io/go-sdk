@@ -32,8 +32,9 @@ func TestWalletEarnEthereumIncentiveClaimWithOptionalParams(t *testing.T) {
 		"wallet_id",
 		privyclient.WalletEarnEthereumIncentiveClaimParams{
 			EarnIncentiveClaimRequestBody: privyclient.EarnIncentiveClaimRequestBody{
-				Chain: "base",
-				Nonce: privyclient.String("xxxxxxxxxxxxxxxxxxxxxxxx"),
+				Chain:       "base",
+				Nonce:       privyclient.String("xxxxxxxxxxxxxxxxxxxxxxxx"),
+				ReferenceID: privyclient.String("x"),
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
 			PrivyIdempotencyKey:         privyclient.String("privy-idempotency-key"),
