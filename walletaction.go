@@ -1248,7 +1248,8 @@ type TempoVaultDetails struct {
 	ID string `json:"id" api:"required"`
 	// EVM address of the vault admin wallet.
 	AdminWalletAddress string `json:"admin_wallet_address" api:"required"`
-	// Privy wallet ID of the vault admin.
+	// Privy wallet ID of the vault admin, or null when the Tempo vault admin is not
+	// Privy-managed.
 	AdminWalletID string `json:"admin_wallet_id" api:"required"`
 	// Annual percentage yield earned by the app from fee wrapper fees, in basis
 	// points.

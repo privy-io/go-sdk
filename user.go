@@ -32,9 +32,9 @@ import (
 type UserService struct {
 	Options []option.RequestOption
 	// Operations related to fiat onramping and offramping
-	KYC UserKYCService
-	// Operations related to fiat onramping and offramping
 	ExternalFiatAccounts UserExternalFiatAccountService
+	// Operations related to fiat onramping and offramping
+	KYC UserKYCService
 }
 
 // NewUserService generates a new service that applies the given options to each
@@ -43,8 +43,8 @@ type UserService struct {
 func NewUserService(opts ...option.RequestOption) (r UserService) {
 	r = UserService{}
 	r.Options = opts
-	r.KYC = NewUserKYCService(opts...)
 	r.ExternalFiatAccounts = NewUserExternalFiatAccountService(opts...)
+	r.KYC = NewUserKYCService(opts...)
 	return
 }
 

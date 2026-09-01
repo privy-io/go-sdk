@@ -824,7 +824,8 @@ type IntentResponseUnionRequestDetailsBody struct {
 	// [SparkGetWithdrawalFeeQuoteRpcInputParamsResp],
 	// [TronSignTransactionRpcInputParamsResp],
 	// [TronSendTransactionRpcInputParamsResp],
-	// [XrplSignTransactionRpcInputParamsResp], [PrivateKeyExportInputResp],
+	// [XrplSignTransactionRpcInputParamsResp],
+	// [NearSignTransactionRpcRequestBodyParamsResp], [PrivateKeyExportInputResp],
 	// [SeedPhraseExportInputResp]
 	Params    IntentResponseUnionRequestDetailsBodyParams `json:"params"`
 	Address   string                                      `json:"address"`
@@ -934,7 +935,7 @@ func (r *IntentResponseUnionRequestDetailsBody) UnmarshalJSON(data []byte) error
 // [IntentResponseUnion].
 type IntentResponseUnionRequestDetailsBodyParams struct {
 	// This field is a union of [UnsignedEthereumTransactionUnionResp], [AptosBcsHex],
-	// [string], [string], [string]
+	// [string], [string], [string], [NearUnsignedTransactionBorshBase64]
 	Transaction IntentResponseUnionRequestDetailsBodyParamsTransaction `json:"transaction"`
 	Encoding    string                                                 `json:"encoding"`
 	Message     string                                                 `json:"message"`

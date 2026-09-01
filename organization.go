@@ -31,9 +31,9 @@ import (
 type OrganizationService struct {
 	Options []option.RequestOption
 	// Operations related to fiat onramping and offramping
-	KYB OrganizationKYBService
-	// Operations related to fiat onramping and offramping
 	ExternalFiatAccounts OrganizationExternalFiatAccountService
+	// Operations related to fiat onramping and offramping
+	KYB OrganizationKYBService
 }
 
 // NewOrganizationService generates a new service that applies the given options to
@@ -42,8 +42,8 @@ type OrganizationService struct {
 func NewOrganizationService(opts ...option.RequestOption) (r OrganizationService) {
 	r = OrganizationService{}
 	r.Options = opts
-	r.KYB = NewOrganizationKYBService(opts...)
 	r.ExternalFiatAccounts = NewOrganizationExternalFiatAccountService(opts...)
+	r.KYB = NewOrganizationKYBService(opts...)
 	return
 }
 

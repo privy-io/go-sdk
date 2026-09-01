@@ -26,12 +26,12 @@ func TestManualPagination(t *testing.T) {
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	page, err := client.Wallets.List(context.TODO(), privyclient.WalletListParams{})
+	page, err := client.Intents.List(context.TODO(), privyclient.IntentListParams{})
 	if err != nil {
 		t.Fatalf("err should be nil: %s", err.Error())
 	}
-	for _, wallet := range page.Data {
-		t.Logf("%+v\n", wallet.ID)
+	for _, intent := range page.Data {
+		t.Logf("%+v\n", intent)
 	}
 	// The mock server isn't going to give us real pagination
 	page, err = page.GetNextPage()
@@ -39,8 +39,8 @@ func TestManualPagination(t *testing.T) {
 		t.Fatalf("err should be nil: %s", err.Error())
 	}
 	if page != nil {
-		for _, wallet := range page.Data {
-			t.Logf("%+v\n", wallet.ID)
+		for _, intent := range page.Data {
+			t.Logf("%+v\n", intent)
 		}
 	}
 }

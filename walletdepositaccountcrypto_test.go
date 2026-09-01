@@ -32,8 +32,9 @@ func TestWalletDepositAccountCryptoNewWithOptionalParams(t *testing.T) {
 		"wallet_id",
 		privyclient.WalletDepositAccountCryptoNewParams{
 			CreateCryptoDepositAccountRequestBody: privyclient.CreateCryptoDepositAccountRequestBodyUnion{
-				OfCreateCryptoDepositAccountWithConfigRequestBody: &privyclient.CreateCryptoDepositAccountWithConfigRequestBody{
+				OfDepositConfig: &privyclient.CreateCryptoDepositAccountWithConfigRequestBody{
 					DepositConfigID: "clg2rvssg025ny5fmul5m95fn",
+					Type:            privyclient.CreateCryptoDepositAccountWithConfigRequestBodyTypeDepositConfig,
 				},
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),

@@ -486,11 +486,11 @@ This library provides some conveniences for working with paginated list endpoint
 You can use `.ListAutoPaging()` methods to iterate through items across all pages:
 
 ```go
-iter := client.Wallets.ListAutoPaging(context.TODO(), privyclient.WalletListParams{})
+iter := client.Intents.ListAutoPaging(context.TODO(), privyclient.IntentListParams{})
 // Automatically fetches more pages as needed.
 for iter.Next() {
- wallet := iter.Current()
- fmt.Printf("%+v\n", wallet)
+	intentResponse := iter.Current()
+	fmt.Printf("%+v\n", intentResponse)
 }
 if err := iter.Err(); err != nil {
  panic(err.Error())
@@ -501,12 +501,12 @@ Or you can use simple `.List()` methods to fetch a single page and receive a sta
 with additional helper methods like `.GetNextPage()`, e.g.:
 
 ```go
-page, err := client.Wallets.List(context.TODO(), privyclient.WalletListParams{})
+page, err := client.Intents.List(context.TODO(), privyclient.IntentListParams{})
 for page != nil {
- for _, wallet := range page.Data {
-  fmt.Printf("%+v\n", wallet)
- }
- page, err = page.GetNextPage()
+	for _, intent := range page.Data {
+		fmt.Printf("%+v\n", intent)
+	}
+	page, err = page.GetNextPage()
 }
 if err != nil {
  panic(err.Error())

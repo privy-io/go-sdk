@@ -31,14 +31,14 @@ type WalletService struct {
 	Options []option.RequestOption
 	// Operations related to wallet actions
 	Actions WalletActionService
-	Earn    WalletEarnService
+	// Operations related to wallets
+	Balance         WalletBalanceService
+	DepositAccounts WalletDepositAccountService
+	Earn            WalletEarnService
+	// Operations for swapping tokens within wallets
+	Swap WalletSwapService
 	// Operations related to wallets
 	Transactions WalletTransactionService
-	// Operations related to wallets
-	Balance WalletBalanceService
-	// Operations for swapping tokens within wallets
-	Swap            WalletSwapService
-	DepositAccounts WalletDepositAccountService
 }
 
 // NewWalletService generates a new service that applies the given options to each
@@ -48,11 +48,11 @@ func NewWalletService(opts ...option.RequestOption) (r WalletService) {
 	r = WalletService{}
 	r.Options = opts
 	r.Actions = NewWalletActionService(opts...)
-	r.Earn = NewWalletEarnService(opts...)
-	r.Transactions = NewWalletTransactionService(opts...)
 	r.Balance = NewWalletBalanceService(opts...)
-	r.Swap = NewWalletSwapService(opts...)
 	r.DepositAccounts = NewWalletDepositAccountService(opts...)
+	r.Earn = NewWalletEarnService(opts...)
+	r.Swap = NewWalletSwapService(opts...)
+	r.Transactions = NewWalletTransactionService(opts...)
 	return
 }
 
@@ -552,42 +552,51 @@ const (
 
 type AptosSignedTransactionBcsHex = string
 
-func CreateCryptoDepositAccountRequestBodyOfCreateCryptoDepositAccountWithConfigRequestBody(depositConfigID string) CreateCryptoDepositAccountRequestBodyUnion {
-	var variant CreateCryptoDepositAccountWithConfigRequestBody
-	variant.DepositConfigID = depositConfigID
-	return CreateCryptoDepositAccountRequestBodyUnion{OfCreateCryptoDepositAccountWithConfigRequestBody: &variant}
+func CreateCryptoDepositAccountRequestBodyOfDepositConfig(depositConfigID string) CreateCryptoDepositAccountRequestBodyUnion {
+	var depositConfig CreateCryptoDepositAccountWithConfigRequestBody
+	depositConfig.DepositConfigID = depositConfigID
+	return CreateCryptoDepositAccountRequestBodyUnion{OfDepositConfig: &depositConfig}
 }
 
-func CreateCryptoDepositAccountRequestBodyOfCreateCryptoDepositAccountWithRouteRequestBody[
+func CreateCryptoDepositAccountRequestBodyOfInlineRoute[
 	T CryptoDepositAssetFilterAll | CryptoDepositAssetFilterInclude | CryptoDepositAssetFilterExclude,
-](destination CryptoDepositAsset, source T) CreateCryptoDepositAccountRequestBodyUnion {
-	var variant CreateCryptoDepositAccountWithRouteRequestBody
-	variant.Destination = destination
+](destination CryptoDepositAsset, source T, type_ CreateCryptoDepositAccountWithRouteRequestBodyType) CreateCryptoDepositAccountRequestBodyUnion {
+	var inlineRoute CreateCryptoDepositAccountWithRouteRequestBody
+	inlineRoute.Destination = destination
 	switch v := any(source).(type) {
 	case CryptoDepositAssetFilterAll:
-		variant.Source.OfAll = &v
+		inlineRoute.Source.OfAll = &v
 	case CryptoDepositAssetFilterInclude:
-		variant.Source.OfInclude = &v
+		inlineRoute.Source.OfInclude = &v
 	case CryptoDepositAssetFilterExclude:
-		variant.Source.OfExclude = &v
+		inlineRoute.Source.OfExclude = &v
 	}
-	return CreateCryptoDepositAccountRequestBodyUnion{OfCreateCryptoDepositAccountWithRouteRequestBody: &variant}
+	inlineRoute.Type = type_
+	return CreateCryptoDepositAccountRequestBodyUnion{OfInlineRoute: &inlineRoute}
 }
 
 // Only one field can be non-zero.
 //
 // Use [param.IsOmitted] to confirm if a field is set.
 type CreateCryptoDepositAccountRequestBodyUnion struct {
-	OfCreateCryptoDepositAccountWithConfigRequestBody *CreateCryptoDepositAccountWithConfigRequestBody `json:",omitzero,inline"`
-	OfCreateCryptoDepositAccountWithRouteRequestBody  *CreateCryptoDepositAccountWithRouteRequestBody  `json:",omitzero,inline"`
+	OfDepositConfig *CreateCryptoDepositAccountWithConfigRequestBody `json:",omitzero,inline"`
+	OfInlineRoute   *CreateCryptoDepositAccountWithRouteRequestBody  `json:",omitzero,inline"`
 	paramUnion
 }
 
 func (u CreateCryptoDepositAccountRequestBodyUnion) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfCreateCryptoDepositAccountWithConfigRequestBody, u.OfCreateCryptoDepositAccountWithRouteRequestBody)
+	return param.MarshalUnion(u, u.OfDepositConfig, u.OfInlineRoute)
 }
 func (u *CreateCryptoDepositAccountRequestBodyUnion) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, u)
+}
+
+func init() {
+	apijson.RegisterUnion[CreateCryptoDepositAccountRequestBodyUnion](
+		"type",
+		apijson.Discriminator[CreateCryptoDepositAccountWithConfigRequestBody]("deposit_config"),
+		apijson.Discriminator[CreateCryptoDepositAccountWithRouteRequestBody]("inline_route"),
+	)
 }
 
 // Response returned after creating a crypto deposit account.
@@ -609,9 +618,11 @@ func (r *CreateCryptoDepositAccountResponse) UnmarshalJSON(data []byte) error {
 
 // Creates a crypto deposit account from an existing deposit configuration.
 //
-// The property DepositConfigID is required.
+// The properties DepositConfigID, Type are required.
 type CreateCryptoDepositAccountWithConfigRequestBody struct {
 	DepositConfigID string `json:"deposit_config_id" api:"required"`
+	// Any of "deposit_config".
+	Type CreateCryptoDepositAccountWithConfigRequestBodyType `json:"type,omitzero" api:"required"`
 	paramObj
 }
 
@@ -623,9 +634,15 @@ func (r *CreateCryptoDepositAccountWithConfigRequestBody) UnmarshalJSON(data []b
 	return apijson.UnmarshalRoot(data, r)
 }
 
+type CreateCryptoDepositAccountWithConfigRequestBodyType string
+
+const (
+	CreateCryptoDepositAccountWithConfigRequestBodyTypeDepositConfig CreateCryptoDepositAccountWithConfigRequestBodyType = "deposit_config"
+)
+
 // Creates a crypto deposit account from an inline source and destination.
 //
-// The properties Destination, Source are required.
+// The properties Destination, Source, Type are required.
 type CreateCryptoDepositAccountWithRouteRequestBody struct {
 	// An asset on a chain. Uses a human-readable alias (usdc, base) when one is on
 	// file, otherwise the raw asset address and CAIP-2.
@@ -633,6 +650,8 @@ type CreateCryptoDepositAccountWithRouteRequestBody struct {
 	// Which assets a deposit address accepts. Asset and chain use human-readable
 	// aliases when known.
 	Source CryptoDepositAssetFilterUnion `json:"source,omitzero" api:"required"`
+	// Any of "inline_route".
+	Type CreateCryptoDepositAccountWithRouteRequestBodyType `json:"type,omitzero" api:"required"`
 	paramObj
 }
 
@@ -643,6 +662,12 @@ func (r CreateCryptoDepositAccountWithRouteRequestBody) MarshalJSON() (data []by
 func (r *CreateCryptoDepositAccountWithRouteRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+type CreateCryptoDepositAccountWithRouteRequestBodyType string
+
+const (
+	CreateCryptoDepositAccountWithRouteRequestBodyTypeInlineRoute CreateCryptoDepositAccountWithRouteRequestBodyType = "inline_route"
+)
 
 // One deposit address and the source/destination route it accepts.
 type CryptoDepositAddressRoute struct {
@@ -3438,6 +3463,167 @@ func (r NamedTokenTransferSource) MarshalJSON() (data []byte, err error) {
 func (r *NamedTokenTransferSource) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// Executes the NEAR `near_signTransaction` RPC to sign a transaction. The caller
+// is responsible for broadcasting.
+type NearSignTransactionRpcRequestBodyResp struct {
+	// Any of "near_signTransaction".
+	Method NearSignTransactionRpcRequestBodyMethod `json:"method" api:"required"`
+	// Parameters for the NEAR `near_signTransaction` RPC.
+	Params NearSignTransactionRpcRequestBodyParamsResp `json:"params" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Method      respjson.Field
+		Params      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r NearSignTransactionRpcRequestBodyResp) RawJSON() string { return r.JSON.raw }
+func (r *NearSignTransactionRpcRequestBodyResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this NearSignTransactionRpcRequestBodyResp to a
+// NearSignTransactionRpcRequestBody.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// NearSignTransactionRpcRequestBody.Overrides()
+func (r NearSignTransactionRpcRequestBodyResp) ToParam() NearSignTransactionRpcRequestBody {
+	return param.Override[NearSignTransactionRpcRequestBody](json.RawMessage(r.RawJSON()))
+}
+
+type NearSignTransactionRpcRequestBodyMethod string
+
+const (
+	NearSignTransactionRpcRequestBodyMethodNearSignTransaction NearSignTransactionRpcRequestBodyMethod = "near_signTransaction"
+)
+
+// Executes the NEAR `near_signTransaction` RPC to sign a transaction. The caller
+// is responsible for broadcasting.
+//
+// The properties Method, Params are required.
+type NearSignTransactionRpcRequestBody struct {
+	// Any of "near_signTransaction".
+	Method NearSignTransactionRpcRequestBodyMethod `json:"method,omitzero" api:"required"`
+	// Parameters for the NEAR `near_signTransaction` RPC.
+	Params NearSignTransactionRpcRequestBodyParams `json:"params,omitzero" api:"required"`
+	paramObj
+}
+
+func (r NearSignTransactionRpcRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow NearSignTransactionRpcRequestBody
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *NearSignTransactionRpcRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Parameters for the NEAR `near_signTransaction` RPC.
+type NearSignTransactionRpcRequestBodyParamsResp struct {
+	// A non-empty, base64-encoded Borsh NEAR Transaction.
+	Transaction NearUnsignedTransactionBorshBase64 `json:"transaction" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Transaction respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r NearSignTransactionRpcRequestBodyParamsResp) RawJSON() string { return r.JSON.raw }
+func (r *NearSignTransactionRpcRequestBodyParamsResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this NearSignTransactionRpcRequestBodyParamsResp to a
+// NearSignTransactionRpcRequestBodyParams.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// NearSignTransactionRpcRequestBodyParams.Overrides()
+func (r NearSignTransactionRpcRequestBodyParamsResp) ToParam() NearSignTransactionRpcRequestBodyParams {
+	return param.Override[NearSignTransactionRpcRequestBodyParams](json.RawMessage(r.RawJSON()))
+}
+
+// Parameters for the NEAR `near_signTransaction` RPC.
+//
+// The property Transaction is required.
+type NearSignTransactionRpcRequestBodyParams struct {
+	// A non-empty, base64-encoded Borsh NEAR Transaction.
+	Transaction NearUnsignedTransactionBorshBase64 `json:"transaction" api:"required"`
+	paramObj
+}
+
+func (r NearSignTransactionRpcRequestBodyParams) MarshalJSON() (data []byte, err error) {
+	type shadow NearSignTransactionRpcRequestBodyParams
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *NearSignTransactionRpcRequestBodyParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response to the NEAR `near_signTransaction` RPC.
+type NearSignTransactionRpcResponse struct {
+	// Data returned by the NEAR `near_signTransaction` RPC.
+	Data NearSignTransactionRpcResponseData `json:"data" api:"required"`
+	// Any of "near_signTransaction".
+	Method NearSignTransactionRpcResponseMethod `json:"method" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		Method      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r NearSignTransactionRpcResponse) RawJSON() string { return r.JSON.raw }
+func (r *NearSignTransactionRpcResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type NearSignTransactionRpcResponseMethod string
+
+const (
+	NearSignTransactionRpcResponseMethodNearSignTransaction NearSignTransactionRpcResponseMethod = "near_signTransaction"
+)
+
+// Data returned by the NEAR `near_signTransaction` RPC.
+type NearSignTransactionRpcResponseData struct {
+	// Any of "base64".
+	Encoding NearSignTransactionRpcResponseDataEncoding `json:"encoding" api:"required"`
+	// A non-empty, base64-encoded NEAR Ed25519 SignedTransaction.
+	SignedTransaction NearSignedTransactionBorshBase64 `json:"signed_transaction" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Encoding          respjson.Field
+		SignedTransaction respjson.Field
+		ExtraFields       map[string]respjson.Field
+		raw               string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r NearSignTransactionRpcResponseData) RawJSON() string { return r.JSON.raw }
+func (r *NearSignTransactionRpcResponseData) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type NearSignTransactionRpcResponseDataEncoding string
+
+const (
+	NearSignTransactionRpcResponseDataEncodingBase64 NearSignTransactionRpcResponseDataEncoding = "base64"
+)
+
+type NearSignedTransactionBorshBase64 = string
+
+type NearUnsignedTransactionBorshBase64 = string
 
 // A Spark token output with its previous transaction data.
 type OutputWithPreviousTransactionDataResp struct {
@@ -9359,7 +9545,8 @@ const (
 // [SparkSignMessageWithIdentityKeyRpcInputResp], [SparkWithdrawRpcInputResp],
 // [SparkGetWithdrawalFeeQuoteRpcInputResp], [TronSignTransactionRpcInputResp],
 // [TronSendTransactionRpcInputResp], [XrplSignTransactionRpcInputResp],
-// [ExportPrivateKeyRpcInputResp], [ExportSeedPhraseRpcInputResp].
+// [NearSignTransactionRpcRequestBodyResp], [ExportPrivateKeyRpcInputResp],
+// [ExportSeedPhraseRpcInputResp].
 //
 // Use the [WalletRpcRequestBodyUnionResp.AsAny] method to switch on the variant.
 //
@@ -9373,7 +9560,8 @@ type WalletRpcRequestBodyUnionResp struct {
 	// "getClaimStaticDepositQuote", "claimStaticDeposit", "createLightningInvoice",
 	// "payLightningInvoice", "signMessageWithIdentityKey", "withdraw",
 	// "getWithdrawalFeeQuote", "tron_signTransaction", "tron_sendTransaction",
-	// "xrpl_signTransaction", "exportPrivateKey", "exportSeedPhrase".
+	// "xrpl_signTransaction", "near_signTransaction", "exportPrivateKey",
+	// "exportSeedPhrase".
 	Method string `json:"method"`
 	// This field is a union of [EthereumSignTransactionRpcInputParamsResp],
 	// [EthereumSendTransactionRpcInputParamsResp],
@@ -9396,7 +9584,8 @@ type WalletRpcRequestBodyUnionResp struct {
 	// [SparkGetWithdrawalFeeQuoteRpcInputParamsResp],
 	// [TronSignTransactionRpcInputParamsResp],
 	// [TronSendTransactionRpcInputParamsResp],
-	// [XrplSignTransactionRpcInputParamsResp], [PrivateKeyExportInputResp],
+	// [XrplSignTransactionRpcInputParamsResp],
+	// [NearSignTransactionRpcRequestBodyParamsResp], [PrivateKeyExportInputResp],
 	// [SeedPhraseExportInputResp]
 	Params    WalletRpcRequestBodyUnionRespParams `json:"params"`
 	Address   string                              `json:"address"`
@@ -9467,6 +9656,7 @@ func (SparkGetWithdrawalFeeQuoteRpcInputResp) implWalletRpcRequestBodyUnionResp(
 func (TronSignTransactionRpcInputResp) implWalletRpcRequestBodyUnionResp()             {}
 func (TronSendTransactionRpcInputResp) implWalletRpcRequestBodyUnionResp()             {}
 func (XrplSignTransactionRpcInputResp) implWalletRpcRequestBodyUnionResp()             {}
+func (NearSignTransactionRpcRequestBodyResp) implWalletRpcRequestBodyUnionResp()       {}
 func (ExportPrivateKeyRpcInputResp) implWalletRpcRequestBodyUnionResp()                {}
 func (ExportSeedPhraseRpcInputResp) implWalletRpcRequestBodyUnionResp()                {}
 
@@ -9499,6 +9689,7 @@ func (ExportSeedPhraseRpcInputResp) implWalletRpcRequestBodyUnionResp()         
 //	case privyclient.TronSignTransactionRpcInputResp:
 //	case privyclient.TronSendTransactionRpcInputResp:
 //	case privyclient.XrplSignTransactionRpcInputResp:
+//	case privyclient.NearSignTransactionRpcRequestBodyResp:
 //	case privyclient.ExportPrivateKeyRpcInputResp:
 //	case privyclient.ExportSeedPhraseRpcInputResp:
 //	default:
@@ -9558,6 +9749,8 @@ func (u WalletRpcRequestBodyUnionResp) AsAny() anyWalletRpcRequestBodyResp {
 		return u.AsTronSendTransaction()
 	case "xrpl_signTransaction":
 		return u.AsXrplSignTransaction()
+	case "near_signTransaction":
+		return u.AsNearSignTransaction()
 	case "exportPrivateKey":
 		return u.AsExportPrivateKey()
 	case "exportSeedPhrase":
@@ -9696,6 +9889,11 @@ func (u WalletRpcRequestBodyUnionResp) AsXrplSignTransaction() (v XrplSignTransa
 	return
 }
 
+func (u WalletRpcRequestBodyUnionResp) AsNearSignTransaction() (v NearSignTransactionRpcRequestBodyResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
 func (u WalletRpcRequestBodyUnionResp) AsExportPrivateKey() (v ExportPrivateKeyRpcInputResp) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
@@ -9721,7 +9919,7 @@ func (r *WalletRpcRequestBodyUnionResp) UnmarshalJSON(data []byte) error {
 // [WalletRpcRequestBodyUnionResp].
 type WalletRpcRequestBodyUnionRespParams struct {
 	// This field is a union of [UnsignedEthereumTransactionUnionResp], [AptosBcsHex],
-	// [string], [string], [string]
+	// [string], [string], [string], [NearUnsignedTransactionBorshBase64]
 	Transaction WalletRpcRequestBodyUnionRespParamsTransaction `json:"transaction"`
 	Encoding    string                                         `json:"encoding"`
 	Message     string                                         `json:"message"`
@@ -10129,6 +10327,12 @@ func WalletRpcRequestBodyOfXrplSignTransaction(params XrplSignTransactionRpcInpu
 	return WalletRpcRequestBodyUnion{OfXrplSignTransaction: &xrplSignTransaction}
 }
 
+func WalletRpcRequestBodyOfNearSignTransaction(params NearSignTransactionRpcRequestBodyParams) WalletRpcRequestBodyUnion {
+	var nearSignTransaction NearSignTransactionRpcRequestBody
+	nearSignTransaction.Params = params
+	return WalletRpcRequestBodyUnion{OfNearSignTransaction: &nearSignTransaction}
+}
+
 func WalletRpcRequestBodyOfExportPrivateKey(address string, method ExportPrivateKeyRpcInputMethod, params PrivateKeyExportInput) WalletRpcRequestBodyUnion {
 	var exportPrivateKey ExportPrivateKeyRpcInput
 	exportPrivateKey.Address = address
@@ -10175,6 +10379,7 @@ type WalletRpcRequestBodyUnion struct {
 	OfTronSignTransaction        *TronSignTransactionRpcInput             `json:",omitzero,inline"`
 	OfTronSendTransaction        *TronSendTransactionRpcInput             `json:",omitzero,inline"`
 	OfXrplSignTransaction        *XrplSignTransactionRpcInput             `json:",omitzero,inline"`
+	OfNearSignTransaction        *NearSignTransactionRpcRequestBody       `json:",omitzero,inline"`
 	OfExportPrivateKey           *ExportPrivateKeyRpcInput                `json:",omitzero,inline"`
 	OfExportSeedPhrase           *ExportSeedPhraseRpcInput                `json:",omitzero,inline"`
 	paramUnion
@@ -10207,6 +10412,7 @@ func (u WalletRpcRequestBodyUnion) MarshalJSON() ([]byte, error) {
 		u.OfTronSignTransaction,
 		u.OfTronSendTransaction,
 		u.OfXrplSignTransaction,
+		u.OfNearSignTransaction,
 		u.OfExportPrivateKey,
 		u.OfExportSeedPhrase)
 }
@@ -10243,6 +10449,7 @@ func init() {
 		apijson.Discriminator[TronSignTransactionRpcInput]("tron_signTransaction"),
 		apijson.Discriminator[TronSendTransactionRpcInput]("tron_sendTransaction"),
 		apijson.Discriminator[XrplSignTransactionRpcInput]("xrpl_signTransaction"),
+		apijson.Discriminator[NearSignTransactionRpcRequestBody]("near_signTransaction"),
 		apijson.Discriminator[ExportPrivateKeyRpcInput]("exportPrivateKey"),
 		apijson.Discriminator[ExportSeedPhraseRpcInput]("exportSeedPhrase"),
 	)
@@ -10264,7 +10471,8 @@ func init() {
 // [SparkSignMessageWithIdentityKeyRpcResponse], [SparkWithdrawRpcResponse],
 // [SparkGetWithdrawalFeeQuoteRpcResponse], [TronSignTransactionRpcResponse],
 // [TronSendTransactionRpcResponse], [XrplSignTransactionRpcResponse],
-// [ExportPrivateKeyRpcResponse], [ExportSeedPhraseRpcResponse].
+// [NearSignTransactionRpcResponse], [ExportPrivateKeyRpcResponse],
+// [ExportSeedPhraseRpcResponse].
 //
 // Use the [WalletRpcResponseUnion.AsAny] method to switch on the variant.
 //
@@ -10288,7 +10496,8 @@ type WalletRpcResponseUnion struct {
 	// [SparkSignMessageWithIdentityKeyRpcResponseData], [SparkCoopExitRequest],
 	// [SparkCoopExitFeeQuote], [TronSignTransactionRpcResponseData],
 	// [TronSendTransactionRpcResponseData], [XrplSignTransactionRpcResponseData],
-	// [PrivateKeyExportInputResp], [SeedPhraseExportResponse]
+	// [NearSignTransactionRpcResponseData], [PrivateKeyExportInputResp],
+	// [SeedPhraseExportResponse]
 	Data WalletRpcResponseUnionData `json:"data"`
 	// Any of "personal_sign", "eth_signTypedData_v4", "eth_signTransaction",
 	// "eth_sendTransaction", "eth_signUserOperation", "eth_sign7702Authorization",
@@ -10298,7 +10507,7 @@ type WalletRpcResponseUnion struct {
 	// "claimStaticDeposit", "createLightningInvoice", "payLightningInvoice",
 	// "signMessageWithIdentityKey", "withdraw", "getWithdrawalFeeQuote",
 	// "tron_signTransaction", "tron_sendTransaction", "xrpl_signTransaction",
-	// "exportPrivateKey", "exportSeedPhrase".
+	// "near_signTransaction", "exportPrivateKey", "exportSeedPhrase".
 	Method string `json:"method"`
 	JSON   struct {
 		Data   respjson.Field
@@ -10339,6 +10548,7 @@ func (SparkGetWithdrawalFeeQuoteRpcResponse) implWalletRpcResponseUnion()      {
 func (TronSignTransactionRpcResponse) implWalletRpcResponseUnion()             {}
 func (TronSendTransactionRpcResponse) implWalletRpcResponseUnion()             {}
 func (XrplSignTransactionRpcResponse) implWalletRpcResponseUnion()             {}
+func (NearSignTransactionRpcResponse) implWalletRpcResponseUnion()             {}
 func (ExportPrivateKeyRpcResponse) implWalletRpcResponseUnion()                {}
 func (ExportSeedPhraseRpcResponse) implWalletRpcResponseUnion()                {}
 
@@ -10371,6 +10581,7 @@ func (ExportSeedPhraseRpcResponse) implWalletRpcResponseUnion()                {
 //	case privyclient.TronSignTransactionRpcResponse:
 //	case privyclient.TronSendTransactionRpcResponse:
 //	case privyclient.XrplSignTransactionRpcResponse:
+//	case privyclient.NearSignTransactionRpcResponse:
 //	case privyclient.ExportPrivateKeyRpcResponse:
 //	case privyclient.ExportSeedPhraseRpcResponse:
 //	default:
@@ -10430,6 +10641,8 @@ func (u WalletRpcResponseUnion) AsAny() anyWalletRpcResponse {
 		return u.AsTronSendTransaction()
 	case "xrpl_signTransaction":
 		return u.AsXrplSignTransaction()
+	case "near_signTransaction":
+		return u.AsNearSignTransaction()
 	case "exportPrivateKey":
 		return u.AsExportPrivateKey()
 	case "exportSeedPhrase":
@@ -10564,6 +10777,11 @@ func (u WalletRpcResponseUnion) AsTronSendTransaction() (v TronSendTransactionRp
 }
 
 func (u WalletRpcResponseUnion) AsXrplSignTransaction() (v XrplSignTransactionRpcResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletRpcResponseUnion) AsNearSignTransaction() (v NearSignTransactionRpcResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }

@@ -18,22 +18,22 @@ import (
 // directly, and instead use the [NewClient] method instead.
 type Client struct {
 	Options []option.RequestOption
-	Wallets WalletService
-	Cards   CardService
-	// Operations related to users
-	Users UserService
+	// Operations related to app settings and allowlist management
+	Apps  AppService
+	Cards CardService
+	// Operations related to authorization intents for wallet actions
+	Intents IntentService
+	// Operations related to key quorums
+	KeyQuorums KeyQuorumService
 	// Operations related to organizations
 	Organizations OrganizationService
 	// Operations related to policies
 	Policies PolicyService
 	// Operations related to transactions
 	Transactions TransactionService
-	// Operations related to key quorums
-	KeyQuorums KeyQuorumService
-	// Operations related to authorization intents for wallet actions
-	Intents IntentService
-	// Operations related to app settings and allowlist management
-	Apps              AppService
+	// Operations related to users
+	Users             UserService
+	Wallets           WalletService
 	Webhooks          WebhookService
 	Accounts          AccountService
 	Aggregations      AggregationService
@@ -49,6 +49,7 @@ type Client struct {
 	OAuth             OAuthService
 	Yield             YieldService
 	KrakenEmbed       KrakenEmbedService
+	Actions           ActionService
 	Swaps             SwapService
 }
 
@@ -85,15 +86,15 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 
 	r = Client{Options: opts}
 
-	r.Wallets = NewWalletService(opts...)
+	r.Apps = NewAppService(opts...)
 	r.Cards = NewCardService(opts...)
-	r.Users = NewUserService(opts...)
+	r.Intents = NewIntentService(opts...)
+	r.KeyQuorums = NewKeyQuorumService(opts...)
 	r.Organizations = NewOrganizationService(opts...)
 	r.Policies = NewPolicyService(opts...)
 	r.Transactions = NewTransactionService(opts...)
-	r.KeyQuorums = NewKeyQuorumService(opts...)
-	r.Intents = NewIntentService(opts...)
-	r.Apps = NewAppService(opts...)
+	r.Users = NewUserService(opts...)
+	r.Wallets = NewWalletService(opts...)
 	r.Webhooks = NewWebhookService(opts...)
 	r.Accounts = NewAccountService(opts...)
 	r.Aggregations = NewAggregationService(opts...)
@@ -109,6 +110,7 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.OAuth = NewOAuthService(opts...)
 	r.Yield = NewYieldService(opts...)
 	r.KrakenEmbed = NewKrakenEmbedService(opts...)
+	r.Actions = NewActionService(opts...)
 	r.Swaps = NewSwapService(opts...)
 
 	return

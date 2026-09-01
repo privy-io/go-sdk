@@ -26,11 +26,11 @@ func TestAutoPagination(t *testing.T) {
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	iter := client.Wallets.ListAutoPaging(context.TODO(), privyclient.WalletListParams{})
+	iter := client.Intents.ListAutoPaging(context.TODO(), privyclient.IntentListParams{})
 	// The mock server isn't going to give us real pagination
 	for i := 0; i < 3 && iter.Next(); i++ {
-		wallet := iter.Current()
-		t.Logf("%+v\n", wallet.ID)
+		intent := iter.Current()
+		t.Logf("%+v\n", intent)
 	}
 	if err := iter.Err(); err != nil {
 		t.Fatalf("err should be nil: %s", err.Error())

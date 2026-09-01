@@ -541,15 +541,15 @@ func (r *DepositStartedDestination) UnmarshalJSON(data []byte) error {
 type DepositStartedSource struct {
 	// The fiat amount deposited.
 	Amount string `json:"amount" api:"required"`
-	// Supported fiat currencies.
+	// Fiat currencies a deposit account can receive deposits in.
 	//
-	// Any of "usd", "eur".
-	Currency FiatCurrency `json:"currency" api:"required"`
-	// Supported fiat payment rails.
-	//
-	// Any of "sepa", "ach_push", "wire", "fednow", "faster_payments".
-	PaymentRail FiatPaymentRail `json:"payment_rail"`
-	SenderName  string          `json:"sender_name"`
+	// Any of "usd", "eur", "gbp", "brl", "mxn", "cop".
+	Currency FiatDepositCurrency `json:"currency" api:"required"`
+	// The payment rail the deposit arrived on. Known values include "sepa",
+	// "ach_push", "wire", "fednow", "faster_payments", "pix", "spei", but the provider
+	// may return others.
+	PaymentRail string `json:"payment_rail"`
+	SenderName  string `json:"sender_name"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Amount      respjson.Field
@@ -566,6 +566,18 @@ func (r DepositStartedSource) RawJSON() string { return r.JSON.raw }
 func (r *DepositStartedSource) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// Fiat currencies a deposit account can receive deposits in.
+type FiatDepositCurrency string
+
+const (
+	FiatDepositCurrencyUsd FiatDepositCurrency = "usd"
+	FiatDepositCurrencyEur FiatDepositCurrency = "eur"
+	FiatDepositCurrencyGbp FiatDepositCurrency = "gbp"
+	FiatDepositCurrencyBrl FiatDepositCurrency = "brl"
+	FiatDepositCurrencyMxn FiatDepositCurrency = "mxn"
+	FiatDepositCurrencyCop FiatDepositCurrency = "cop"
+)
 
 // Payload for the wallet.funds_deposited webhook event.
 type FundsDepositedWebhookPayload struct {

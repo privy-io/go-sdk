@@ -429,14 +429,6 @@ const (
 	ExternalFiatAccountUsDataTypeUs ExternalFiatAccountUsDataType = "us"
 )
 
-// Supported fiat currencies.
-type FiatCurrency string
-
-const (
-	FiatCurrencyUsd FiatCurrency = "usd"
-	FiatCurrencyEur FiatCurrency = "eur"
-)
-
 // A Bridge fiat deposit account linked to a wallet.
 type FiatDepositAccount struct {
 	ID        string `json:"id" api:"required"`
@@ -632,17 +624,6 @@ func (r FiatDepositInstructions) RawJSON() string { return r.JSON.raw }
 func (r *FiatDepositInstructions) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-// Supported fiat payment rails.
-type FiatPaymentRail string
-
-const (
-	FiatPaymentRailSepa           FiatPaymentRail = "sepa"
-	FiatPaymentRailACHPush        FiatPaymentRail = "ach_push"
-	FiatPaymentRailWire           FiatPaymentRail = "wire"
-	FiatPaymentRailFednow         FiatPaymentRail = "fednow"
-	FiatPaymentRailFasterPayments FiatPaymentRail = "faster_payments"
-)
 
 // Request body for initiating a hosted KYB flow for an organization.
 //
