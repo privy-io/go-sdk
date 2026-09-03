@@ -35,6 +35,7 @@ type WalletService struct {
 	Balance         WalletBalanceService
 	DepositAccounts WalletDepositAccountService
 	Earn            WalletEarnService
+	Payout          WalletPayoutService
 	// Operations for swapping tokens within wallets
 	Swap WalletSwapService
 	// Operations related to wallets
@@ -51,6 +52,7 @@ func NewWalletService(opts ...option.RequestOption) (r WalletService) {
 	r.Balance = NewWalletBalanceService(opts...)
 	r.DepositAccounts = NewWalletDepositAccountService(opts...)
 	r.Earn = NewWalletEarnService(opts...)
+	r.Payout = NewWalletPayoutService(opts...)
 	r.Swap = NewWalletSwapService(opts...)
 	r.Transactions = NewWalletTransactionService(opts...)
 	return
@@ -9068,6 +9070,7 @@ const (
 	WalletAssetChainNameInputTron             WalletAssetChainNameInput = "tron"
 	WalletAssetChainNameInputZksyncEra        WalletAssetChainNameInput = "zksync_era"
 	WalletAssetChainNameInputRobinhood        WalletAssetChainNameInput = "robinhood"
+	WalletAssetChainNameInputTempoTestnet     WalletAssetChainNameInput = "tempo_testnet"
 	WalletAssetChainNameInputHoodi            WalletAssetChainNameInput = "hoodi"
 	WalletAssetChainNameInputSepolia          WalletAssetChainNameInput = "sepolia"
 	WalletAssetChainNameInputArbitrumSepolia  WalletAssetChainNameInput = "arbitrum_sepolia"
@@ -9076,6 +9079,7 @@ const (
 	WalletAssetChainNameInputLineaTestnet     WalletAssetChainNameInput = "linea_testnet"
 	WalletAssetChainNameInputOptimismSepolia  WalletAssetChainNameInput = "optimism_sepolia"
 	WalletAssetChainNameInputPolygonAmoy      WalletAssetChainNameInput = "polygon_amoy"
+	WalletAssetChainNameInputBscTestnet       WalletAssetChainNameInput = "bsc_testnet"
 	WalletAssetChainNameInputSolanaDevnet     WalletAssetChainNameInput = "solana_devnet"
 	WalletAssetChainNameInputSolanaTestnet    WalletAssetChainNameInput = "solana_testnet"
 	WalletAssetChainNameInputTronNile         WalletAssetChainNameInput = "tron_nile"
@@ -9305,6 +9309,8 @@ type WalletBatchItemInput struct {
 	Owner OwnerInputUnion `json:"owner,omitzero"`
 	// Additional signers for the wallet.
 	AdditionalSigners AdditionalSignerInput `json:"additional_signers,omitzero"`
+	// Request body for assigning an entity to a wallet.
+	Entity WalletEntityAssignmentRequestBody `json:"entity,omitzero"`
 	// List of policy IDs for policies that should be enforced on the wallet.
 	// Currently, only one policy is supported per wallet.
 	PolicyIDs []string `json:"policy_ids,omitzero"`
@@ -11350,6 +11356,8 @@ type WalletSubmitImportParams struct {
 	Owner OwnerInputUnion `json:"owner,omitzero"`
 	// Additional signers for the wallet.
 	AdditionalSigners AdditionalSignerInput `json:"additional_signers,omitzero"`
+	// Request body for assigning an entity to a wallet.
+	Entity WalletEntityAssignmentRequestBody `json:"entity,omitzero"`
 	// An optional list of up to one policy ID to enforce on the wallet.
 	PolicyIDs PolicyInput `json:"policy_ids,omitzero" format:"cuid2"`
 	paramObj

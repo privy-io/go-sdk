@@ -117,6 +117,25 @@ func (r *CreateFiatDepositAccountSource) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Request body for initiating a payout (crypto to fiat offramp) from a wallet.
+//
+// The properties Destination, Source are required.
+type CreatePayoutRequestBody struct {
+	// The destination bank account for a payout.
+	Destination PayoutDestination `json:"destination,omitzero" api:"required"`
+	// The source crypto asset, chain, and amount for a payout.
+	Source PayoutSource `json:"source,omitzero" api:"required"`
+	paramObj
+}
+
+func (r CreatePayoutRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow CreatePayoutRequestBody
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *CreatePayoutRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // A Bridge external fiat account linked to a user.
 type ExternalFiatAccount struct {
 	ID               string `json:"id" api:"required"`
@@ -1147,7 +1166,7 @@ func (r *OrganizationExternalFiatAccountResponse) UnmarshalJSON(data []byte) err
 }
 
 // The destination bank account for a payout.
-type PayoutDestination struct {
+type PayoutDestinationResp struct {
 	// The ID of a previously registered external fiat account to pay out to.
 	FiatAccountID string `json:"fiat_account_id" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -1159,13 +1178,39 @@ type PayoutDestination struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r PayoutDestination) RawJSON() string { return r.JSON.raw }
+func (r PayoutDestinationResp) RawJSON() string { return r.JSON.raw }
+func (r *PayoutDestinationResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this PayoutDestinationResp to a PayoutDestination.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// PayoutDestination.Overrides()
+func (r PayoutDestinationResp) ToParam() PayoutDestination {
+	return param.Override[PayoutDestination](json.RawMessage(r.RawJSON()))
+}
+
+// The destination bank account for a payout.
+//
+// The property FiatAccountID is required.
+type PayoutDestination struct {
+	// The ID of a previously registered external fiat account to pay out to.
+	FiatAccountID string `json:"fiat_account_id" api:"required"`
+	paramObj
+}
+
+func (r PayoutDestination) MarshalJSON() (data []byte, err error) {
+	type shadow PayoutDestination
+	return param.MarshalObject(r, (*shadow)(&r))
+}
 func (r *PayoutDestination) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 // The source crypto asset, chain, and amount for a payout.
-type PayoutSource struct {
+type PayoutSourceResp struct {
 	// Amount to offramp, in the asset's standard units (e.g. "100.00").
 	Amount string `json:"amount" api:"required"`
 	// Source crypto asset (e.g. "usdc").
@@ -1183,7 +1228,37 @@ type PayoutSource struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r PayoutSource) RawJSON() string { return r.JSON.raw }
+func (r PayoutSourceResp) RawJSON() string { return r.JSON.raw }
+func (r *PayoutSourceResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this PayoutSourceResp to a PayoutSource.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// PayoutSource.Overrides()
+func (r PayoutSourceResp) ToParam() PayoutSource {
+	return param.Override[PayoutSource](json.RawMessage(r.RawJSON()))
+}
+
+// The source crypto asset, chain, and amount for a payout.
+//
+// The properties Amount, Asset, Chain are required.
+type PayoutSource struct {
+	// Amount to offramp, in the asset's standard units (e.g. "100.00").
+	Amount string `json:"amount" api:"required"`
+	// Source crypto asset (e.g. "usdc").
+	Asset string `json:"asset" api:"required"`
+	// Source chain (e.g. "base").
+	Chain string `json:"chain" api:"required"`
+	paramObj
+}
+
+func (r PayoutSource) MarshalJSON() (data []byte, err error) {
+	type shadow PayoutSource
+	return param.MarshalObject(r, (*shadow)(&r))
+}
 func (r *PayoutSource) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }

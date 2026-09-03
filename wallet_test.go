@@ -202,7 +202,11 @@ func TestWalletSubmitImportWithOptionalParams(t *testing.T) {
 			OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 		}},
 		DisplayName: privyclient.String("display_name"),
-		ExternalID:  privyclient.String("external_id"),
+		Entity: privyclient.WalletEntityAssignmentRequestBody{
+			ID:   "jorpjo4rfxj62nx1itt8y1zt",
+			Type: privyclient.WalletEntityTypeUser,
+		},
+		ExternalID: privyclient.String("external_id"),
 		Owner: privyclient.OwnerInputUnion{
 			OfOwnerInputUser: &privyclient.OwnerInputUser{
 				UserID: "user_id",
@@ -330,7 +334,11 @@ func TestWalletNewBatch(t *testing.T) {
 					OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 				}},
 				DisplayName: privyclient.String("display_name"),
-				ExternalID:  privyclient.String("external_id"),
+				Entity: privyclient.WalletEntityAssignmentRequestBody{
+					ID:   "jorpjo4rfxj62nx1itt8y1zt",
+					Type: privyclient.WalletEntityTypeUser,
+				},
+				ExternalID: privyclient.String("external_id"),
 				Owner: privyclient.OwnerInputUnion{
 					OfOwnerInputUser: &privyclient.OwnerInputUser{
 						UserID: "user_id",
@@ -345,7 +353,11 @@ func TestWalletNewBatch(t *testing.T) {
 					OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 				}},
 				DisplayName: privyclient.String("display_name"),
-				ExternalID:  privyclient.String("external_id"),
+				Entity: privyclient.WalletEntityAssignmentRequestBody{
+					ID:   "jorpjo4rfxj62nx1itt8y1zt",
+					Type: privyclient.WalletEntityTypeUser,
+				},
+				ExternalID: privyclient.String("external_id"),
 				Owner: privyclient.OwnerInputUnion{
 					OfOwnerInputUser: &privyclient.OwnerInputUser{
 						UserID: "user_id",

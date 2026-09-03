@@ -989,7 +989,7 @@ type PayoutResponse struct {
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// The destination bank account for a payout.
-	Destination PayoutDestination `json:"destination" api:"required"`
+	Destination PayoutDestinationResp `json:"destination" api:"required"`
 	// The Privy API environment.
 	//
 	// Any of "sandbox", "production".
@@ -999,7 +999,7 @@ type PayoutResponse struct {
 	// Any of "bridge".
 	Provider OrchestrationProvider `json:"provider" api:"required"`
 	// The source crypto asset, chain, and amount for a payout.
-	Source PayoutSource `json:"source" api:"required"`
+	Source PayoutSourceResp `json:"source" api:"required"`
 	// Status of a wallet action.
 	//
 	// Any of "pending", "succeeded", "rejected", "failed".
@@ -1539,13 +1539,13 @@ type WalletActionResponseUnion struct {
 	// This field is from variant [EarnIncentiveClaimActionResponse].
 	Rewards []EarnIncetiveClaimRewardEntry `json:"rewards"`
 	// This field is from variant [PayoutResponse].
-	Destination PayoutDestination `json:"destination"`
+	Destination PayoutDestinationResp `json:"destination"`
 	// This field is from variant [PayoutResponse].
 	Environment Environment `json:"environment"`
 	// This field is from variant [PayoutResponse].
 	Provider OrchestrationProvider `json:"provider"`
 	// This field is from variant [PayoutResponse].
-	Source PayoutSource `json:"source"`
+	Source PayoutSourceResp `json:"source"`
 	JSON   struct {
 		ID                  respjson.Field
 		Caip2               respjson.Field

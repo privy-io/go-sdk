@@ -42,8 +42,11 @@ func NewIntentService(opts ...option.RequestOption) (r IntentService) {
 	return
 }
 
-// List intents for an app. Returns a paginated list of intents with their current
-// status and details.
+// List intents for an app. Returns a paginated list with each intent's current
+// status and details. Requests authenticated with an app secret can retrieve all
+// intents for the app. Requests authenticated with a user token return only
+// intents that the authenticated user created, must approve, or has signed. Query
+// parameters only narrow this scoped result set.
 func (r *IntentService) List(ctx context.Context, query IntentListParams, opts ...option.RequestOption) (res *pagination.Cursor[IntentResponseUnion], err error) {
 	var raw *http.Response
 	opts = slices.Concat(r.Options, opts)
@@ -61,8 +64,11 @@ func (r *IntentService) List(ctx context.Context, query IntentListParams, opts .
 	return res, nil
 }
 
-// List intents for an app. Returns a paginated list of intents with their current
-// status and details.
+// List intents for an app. Returns a paginated list with each intent's current
+// status and details. Requests authenticated with an app secret can retrieve all
+// intents for the app. Requests authenticated with a user token return only
+// intents that the authenticated user created, must approve, or has signed. Query
+// parameters only narrow this scoped result set.
 func (r *IntentService) ListAutoPaging(ctx context.Context, query IntentListParams, opts ...option.RequestOption) *pagination.CursorAutoPager[IntentResponseUnion] {
 	return pagination.NewCursorAutoPager(r.List(ctx, query, opts...))
 }
@@ -103,8 +109,11 @@ func (r *IntentService) DeletePolicyRule(ctx context.Context, ruleID string, par
 	return res, err
 }
 
-// Retrieve an intent by ID. Returns the intent details including its current
-// status, authorization details, and execution result if applicable.
+// Retrieve an intent by ID. Returns its current status, authorization details, and
+// execution result when applicable. Requests authenticated with an app secret can
+// retrieve any intent for the app. Requests authenticated with a user token can
+// retrieve only intents that the authenticated user created, must approve, or has
+// signed. Unrelated intents return a 404 response.
 func (r *IntentService) Get(ctx context.Context, intentID string, opts ...option.RequestOption) (res *IntentResponseUnion, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if intentID == "" {
@@ -1907,11 +1916,16 @@ func (r *WalletIntentResponseRequestDetailsBody) UnmarshalJSON(data []byte) erro
 }
 
 type IntentListParams struct {
-	Limit           param.Opt[float64] `query:"limit,omitzero" json:"-"`
-	CreatedByID     param.Opt[string]  `query:"created_by_id,omitzero" json:"-"`
-	Cursor          param.Opt[string]  `query:"cursor,omitzero" json:"-"`
-	PendingMemberID param.Opt[string]  `query:"pending_member_id,omitzero" json:"-"`
-	ResourceID      param.Opt[string]  `query:"resource_id,omitzero" json:"-"`
+	Limit param.Opt[float64] `query:"limit,omitzero" json:"-"`
+	// Filter by creator user ID. For user-token requests, Privy uses the authenticated
+	// user ID to scope intent visibility. This filter only narrows that scoped result.
+	CreatedByID param.Opt[string] `query:"created_by_id,omitzero" json:"-"`
+	Cursor      param.Opt[string] `query:"cursor,omitzero" json:"-"`
+	// Filter by a user whose approval is still pending. For user-token requests, Privy
+	// uses the authenticated user ID to scope intent visibility. This filter only
+	// narrows that scoped result.
+	PendingMemberID param.Opt[string] `query:"pending_member_id,omitzero" json:"-"`
+	ResourceID      param.Opt[string] `query:"resource_id,omitzero" json:"-"`
 	// Any of "true", "false".
 	CurrentUserHasSigned IntentListParamsCurrentUserHasSigned `query:"current_user_has_signed,omitzero" json:"-"`
 	// Type of intent.
