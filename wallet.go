@@ -8974,8 +8974,9 @@ type Wallet struct {
 	DisplayName string `json:"display_name"`
 	// The entity a wallet is attributed to.
 	Entity WalletEntity `json:"entity" api:"nullable"`
-	// A customer-provided identifier for mapping to external systems. Write-once, set
-	// only at creation.
+	// A customer-provided identifier for mapping to external systems. URL-safe
+	// characters only ([a-zA-Z0-9_-]), max 64 chars. Write-once: cannot be changed
+	// once set.
 	ExternalID string `json:"external_id"`
 	// The compressed, raw public key for the wallet along the chain cryptographic
 	// curve.
@@ -11013,6 +11014,10 @@ type WalletUpdateRequestBody struct {
 	// The key quorum ID to set as the owner of the resource. If you provide this, do
 	// not specify an owner.
 	OwnerID param.Opt[OwnerIDInput] `json:"owner_id,omitzero" format:"cuid2"`
+	// A customer-provided identifier for mapping to external systems. URL-safe
+	// characters only ([a-zA-Z0-9_-]), max 64 chars. Write-once: cannot be changed
+	// once set.
+	ExternalID param.Opt[string] `json:"external_id,omitzero"`
 	// The owner of the resource, specified as a Privy user ID, a P-256 public key, or
 	// null to remove the current owner.
 	Owner OwnerInputUnion `json:"owner,omitzero"`

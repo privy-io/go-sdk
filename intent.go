@@ -875,6 +875,8 @@ type IntentResponseUnionRequestDetailsBody struct {
 	AuthorizationThreshold float64  `json:"authorization_threshold"`
 	DisplayName            string   `json:"display_name"`
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
+	ExternalID string `json:"external_id"`
+	// This field is from variant [WalletIntentResponseRequestDetailsBody].
 	Owner OwnerInputUnionResp `json:"owner"`
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
 	OwnerID OwnerIDInput `json:"owner_id"`
@@ -918,6 +920,7 @@ type IntentResponseUnionRequestDetailsBody struct {
 		AuthorizationKeyIDs    respjson.Field
 		AuthorizationThreshold respjson.Field
 		DisplayName            respjson.Field
+		ExternalID             respjson.Field
 		Owner                  respjson.Field
 		OwnerID                respjson.Field
 		PolicyIDs              respjson.Field
@@ -1887,6 +1890,7 @@ type WalletIntentResponseRequestDetailsBody struct {
 	AuthorizationKeyIDs    []string                  `json:"authorization_key_ids"`
 	AuthorizationThreshold float64                   `json:"authorization_threshold"`
 	DisplayName            string                    `json:"display_name" api:"nullable"`
+	ExternalID             string                    `json:"external_id"`
 	// The owner of the resource, specified as a Privy user ID, a P-256 public key, or
 	// null to remove the current owner.
 	Owner OwnerInputUnionResp `json:"owner" api:"nullable"`
@@ -1901,6 +1905,7 @@ type WalletIntentResponseRequestDetailsBody struct {
 		AuthorizationKeyIDs    respjson.Field
 		AuthorizationThreshold respjson.Field
 		DisplayName            respjson.Field
+		ExternalID             respjson.Field
 		Owner                  respjson.Field
 		OwnerID                respjson.Field
 		PolicyIDs              respjson.Field

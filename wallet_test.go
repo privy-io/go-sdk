@@ -81,6 +81,7 @@ func TestWalletUpdateWithOptionalParams(t *testing.T) {
 					OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 				}},
 				DisplayName: privyclient.String("display_name"),
+				ExternalID:  privyclient.String("external_id"),
 				Owner: privyclient.OwnerInputUnion{
 					OfOwnerInputUser: &privyclient.OwnerInputUser{
 						UserID: "user_id",
