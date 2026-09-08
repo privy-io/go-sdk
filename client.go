@@ -32,7 +32,9 @@ type Client struct {
 	// Operations related to transactions
 	Transactions TransactionService
 	// Operations related to users
-	Users             UserService
+	Users UserService
+	// Operations related to wallet automations
+	WalletAutomations WalletAutomationService
 	Wallets           WalletService
 	Webhooks          WebhookService
 	Accounts          AccountService
@@ -40,7 +42,6 @@ type Client struct {
 	EmbeddedWallets   EmbeddedWalletService
 	Analytics         AnalyticsService
 	ClientAuth        ClientAuthService
-	WalletAutomations WalletAutomationService
 	Shared            SharedService
 	Fiat              FiatService
 	Onramps           OnrampService
@@ -94,6 +95,7 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.Policies = NewPolicyService(opts...)
 	r.Transactions = NewTransactionService(opts...)
 	r.Users = NewUserService(opts...)
+	r.WalletAutomations = NewWalletAutomationService(opts...)
 	r.Wallets = NewWalletService(opts...)
 	r.Webhooks = NewWebhookService(opts...)
 	r.Accounts = NewAccountService(opts...)
@@ -101,7 +103,6 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.EmbeddedWallets = NewEmbeddedWalletService(opts...)
 	r.Analytics = NewAnalyticsService(opts...)
 	r.ClientAuth = NewClientAuthService(opts...)
-	r.WalletAutomations = NewWalletAutomationService(opts...)
 	r.Shared = NewSharedService(opts...)
 	r.Fiat = NewFiatService(opts...)
 	r.Onramps = NewOnrampService(opts...)

@@ -9071,6 +9071,8 @@ const (
 	WalletAssetChainNameInputTron             WalletAssetChainNameInput = "tron"
 	WalletAssetChainNameInputZksyncEra        WalletAssetChainNameInput = "zksync_era"
 	WalletAssetChainNameInputRobinhood        WalletAssetChainNameInput = "robinhood"
+	WalletAssetChainNameInputHyperevm         WalletAssetChainNameInput = "hyperevm"
+	WalletAssetChainNameInputHypercore        WalletAssetChainNameInput = "hypercore"
 	WalletAssetChainNameInputTempoTestnet     WalletAssetChainNameInput = "tempo_testnet"
 	WalletAssetChainNameInputHoodi            WalletAssetChainNameInput = "hoodi"
 	WalletAssetChainNameInputSepolia          WalletAssetChainNameInput = "sepolia"

@@ -375,6 +375,24 @@ Methods:
 - <code title="post /v1/users/{user_id}/kyc/links">client.Users.KYC.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserKYCService.InitiateLinks">InitiateLinks</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, userID <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserKYCInitiateLinksParams">UserKYCInitiateLinksParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#KYCStatusResponse">KYCStatusResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="post /v1/users/{user_id}/kyc/tos">client.Users.KYC.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserKYCService.InitiateTos">InitiateTos</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, userID <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserKYCInitiateTosParams">UserKYCInitiateTosParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#KyxTosResponse">KyxTosResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
+# WalletAutomations
+
+Params Types:
+
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletAutomationReindexCaip2">WalletAutomationReindexCaip2</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletAutomationReindexRequestBody">WalletAutomationReindexRequestBody</a>
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletAutomationReindexAssetResult">WalletAutomationReindexAssetResult</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletAutomationReindexAssetStatus">WalletAutomationReindexAssetStatus</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletAutomationReindexCaip2">WalletAutomationReindexCaip2</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletAutomationReindexResponse">WalletAutomationReindexResponse</a>
+
+Methods:
+
+- <code title="post /v1/wallet_automations/reindex">client.WalletAutomations.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletAutomationService.Reindex">Reindex</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletAutomationReindexParams">WalletAutomationReindexParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletAutomationReindexResponse">WalletAutomationReindexResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
 # Wallets
 
 Params Types:
@@ -955,6 +973,7 @@ Response Types:
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletArchivedWebhookPayload">WalletArchivedWebhookPayload</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletAutomationSubmittedWebhookPayload">WalletAutomationSubmittedWebhookPayload</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletFundsAssetUnion">WalletFundsAssetUnion</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletFundsBtknAsset">WalletFundsBtknAsset</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletFundsErc20Asset">WalletFundsErc20Asset</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletFundsNativeTokenAsset">WalletFundsNativeTokenAsset</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletFundsSacAsset">WalletFundsSacAsset</a>
@@ -1006,8 +1025,6 @@ Params Types:
 Response Types:
 
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#CustomOAuthProviderID">CustomOAuthProviderID</a>
-
-# WalletAutomations
 
 # Shared
 

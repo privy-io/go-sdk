@@ -4410,7 +4410,7 @@ const (
 
 // WalletFundsAssetUnion contains all possible properties and values from
 // [WalletFundsNativeTokenAsset], [WalletFundsErc20Asset], [WalletFundsSplAsset],
-// [WalletFundsSacAsset], [WalletFundsTrc20Asset].
+// [WalletFundsSacAsset], [WalletFundsTrc20Asset], [WalletFundsBtknAsset].
 //
 // Use the [WalletFundsAssetUnion.AsAny] method to switch on the variant.
 //
@@ -4418,15 +4418,18 @@ const (
 type WalletFundsAssetUnion struct {
 	// This field is a union of [any], [string], [string], [string]
 	Address WalletFundsAssetUnionAddress `json:"address"`
-	// Any of "native-token", "erc20", "spl", "sac", "trc20".
+	// Any of "native-token", "erc20", "spl", "sac", "trc20", "btkn".
 	Type string `json:"type"`
 	// This field is from variant [WalletFundsSplAsset].
 	Mint string `json:"mint"`
-	JSON struct {
-		Address respjson.Field
-		Type    respjson.Field
-		Mint    respjson.Field
-		raw     string
+	// This field is from variant [WalletFundsBtknAsset].
+	Identifier string `json:"identifier"`
+	JSON       struct {
+		Address    respjson.Field
+		Type       respjson.Field
+		Mint       respjson.Field
+		Identifier respjson.Field
+		raw        string
 	} `json:"-"`
 }
 
@@ -4441,6 +4444,7 @@ func (WalletFundsErc20Asset) implWalletFundsAssetUnion()       {}
 func (WalletFundsSplAsset) implWalletFundsAssetUnion()         {}
 func (WalletFundsSacAsset) implWalletFundsAssetUnion()         {}
 func (WalletFundsTrc20Asset) implWalletFundsAssetUnion()       {}
+func (WalletFundsBtknAsset) implWalletFundsAssetUnion()        {}
 
 // Use the following switch statement to find the correct variant
 //
@@ -4450,6 +4454,7 @@ func (WalletFundsTrc20Asset) implWalletFundsAssetUnion()       {}
 //	case privyclient.WalletFundsSplAsset:
 //	case privyclient.WalletFundsSacAsset:
 //	case privyclient.WalletFundsTrc20Asset:
+//	case privyclient.WalletFundsBtknAsset:
 //	default:
 //	  fmt.Errorf("no variant present")
 //	}
@@ -4465,6 +4470,8 @@ func (u WalletFundsAssetUnion) AsAny() anyWalletFundsAsset {
 		return u.AsSac()
 	case "trc20":
 		return u.AsTrc20()
+	case "btkn":
+		return u.AsBtkn()
 	}
 	return nil
 }
@@ -4490,6 +4497,11 @@ func (u WalletFundsAssetUnion) AsSac() (v WalletFundsSacAsset) {
 }
 
 func (u WalletFundsAssetUnion) AsTrc20() (v WalletFundsTrc20Asset) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletFundsAssetUnion) AsBtkn() (v WalletFundsBtknAsset) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -4525,6 +4537,32 @@ type WalletFundsAssetUnionAddress struct {
 func (r *WalletFundsAssetUnionAddress) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// A token issued on Spark, identified by its BTKN identifier.
+type WalletFundsBtknAsset struct {
+	Identifier string `json:"identifier" api:"required"`
+	// Any of "btkn".
+	Type WalletFundsBtknAssetType `json:"type" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Identifier  respjson.Field
+		Type        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletFundsBtknAsset) RawJSON() string { return r.JSON.raw }
+func (r *WalletFundsBtknAsset) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type WalletFundsBtknAssetType string
+
+const (
+	WalletFundsBtknAssetTypeBtkn WalletFundsBtknAssetType = "btkn"
+)
 
 // An ERC-20 token asset.
 type WalletFundsErc20Asset struct {
@@ -6323,12 +6361,15 @@ type UnsafeUnwrapWebhookEventUnionAsset struct {
 	Type    string                                    `json:"type"`
 	// This field is from variant [WalletFundsAssetUnion].
 	Mint string `json:"mint"`
-	JSON struct {
-		OfString respjson.Field
-		Address  respjson.Field
-		Type     respjson.Field
-		Mint     respjson.Field
-		raw      string
+	// This field is from variant [WalletFundsAssetUnion].
+	Identifier string `json:"identifier"`
+	JSON       struct {
+		OfString   respjson.Field
+		Address    respjson.Field
+		Type       respjson.Field
+		Mint       respjson.Field
+		Identifier respjson.Field
+		raw        string
 	} `json:"-"`
 }
 
