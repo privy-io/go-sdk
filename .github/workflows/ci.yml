@@ -91,7 +91,7 @@ jobs:
     needs: [build, lint, test]
     if: ${{ failure() && (github.ref_name == 'next' || github.ref_name == 'main') && github.event_name == 'push' }}
     steps:
-      - name: Notify server-sdk-errors on Slack
+      - name: Notify Slack of CI failure
         uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_SERVER_SDK_ERRORS }}
