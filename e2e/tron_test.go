@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/btcsuite/btcd/btcec/v2/ecdsa"
+	"github.com/btcsuite/btcd/btcutil/base58"
 	. "github.com/privy-io/go-sdk"
 )
 
@@ -67,6 +68,34 @@ func verifyTronSignature(t *testing.T, signedTransactionHex, expectedPublicKeyHe
 	}
 }
 
+// tronAddressHex converts a Tron Base58Check address to its hex representation.
+func tronAddressHex(t *testing.T, address string) string {
+	t.Helper()
+
+	payload, prefix, err := base58.CheckDecode(address)
+	if err != nil {
+		t.Fatalf("failed to decode Tron address: %v", err)
+	}
+	if prefix != 0x41 {
+		t.Fatalf("unexpected Tron address prefix 0x%x", prefix)
+	}
+	if len(payload) != 20 {
+		t.Fatalf("unexpected Tron address payload length %d", len(payload))
+	}
+
+	return hex.EncodeToString(append([]byte{prefix}, payload...))
+}
+
+func TestTronAddressHex(t *testing.T) {
+	payload := make([]byte, 20)
+	payload[len(payload)-1] = 1
+	address := base58.CheckEncode(payload, 0x41)
+
+	if got, want := tronAddressHex(t, address), "410000000000000000000000000000000000000001"; got != want {
+		t.Errorf("expected Tron hex address %s, got %s", want, got)
+	}
+}
+
 // tronTransferRawData builds a minimal TronRawDataForSign for a TRX transfer.
 func tronTransferRawData(ownerAddressHex string) TronRawDataForSign {
 	now := time.Now().UnixMilli()
@@ -97,13 +126,9 @@ func TestWallets_Tron(t *testing.T) {
 		for _, wallet := range wallets {
 			wallet := wallet
 			t.Run(wallet.name, func(t *testing.T) {
-				// wallet.Address is base58check (T...), but TronTransferContract
-				// requires hex (41...). The wallet's PublicKey is the compressed
-				// secp256k1 public key in hex; the server derives the address from
-				// it. For the owner_address we use a known placeholder so the
-				// raw_data is structurally valid — the server signs whatever we
-				// provide.
-				rawData := tronTransferRawData("410000000000000000000000000000000000000001")
+				// TronTransferContract requires the signing wallet's owner address
+				// in hex form rather than the Base58Check form returned by the API.
+				rawData := tronTransferRawData(tronAddressHex(t, wallet.address))
 
 				data, err := client.Wallets.Tron.SignTransaction(ctx, wallet.id,
 					TronSignTransactionRpcInputParams{
