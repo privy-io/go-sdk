@@ -9071,6 +9071,11 @@ const (
 	WalletAssetChainNameInputTron             WalletAssetChainNameInput = "tron"
 	WalletAssetChainNameInputZksyncEra        WalletAssetChainNameInput = "zksync_era"
 	WalletAssetChainNameInputRobinhood        WalletAssetChainNameInput = "robinhood"
+	WalletAssetChainNameInputUnichain         WalletAssetChainNameInput = "unichain"
+	WalletAssetChainNameInputWorldchain       WalletAssetChainNameInput = "worldchain"
+	WalletAssetChainNameInputInk              WalletAssetChainNameInput = "ink"
+	WalletAssetChainNameInputSoneium          WalletAssetChainNameInput = "soneium"
+	WalletAssetChainNameInputMegaeth          WalletAssetChainNameInput = "megaeth"
 	WalletAssetChainNameInputHyperevm         WalletAssetChainNameInput = "hyperevm"
 	WalletAssetChainNameInputHypercore        WalletAssetChainNameInput = "hypercore"
 	WalletAssetChainNameInputTempoTestnet     WalletAssetChainNameInput = "tempo_testnet"
@@ -9087,6 +9092,7 @@ const (
 	WalletAssetChainNameInputSolanaTestnet    WalletAssetChainNameInput = "solana_testnet"
 	WalletAssetChainNameInputTronNile         WalletAssetChainNameInput = "tron_nile"
 	WalletAssetChainNameInputRobinhoodTestnet WalletAssetChainNameInput = "robinhood_testnet"
+	WalletAssetChainNameInputInkSepolia       WalletAssetChainNameInput = "ink_sepolia"
 )
 
 // Request body for wallet authentication with HPKE-encrypted response.

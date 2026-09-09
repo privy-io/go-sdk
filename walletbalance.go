@@ -206,6 +206,11 @@ const (
 	WalletBalanceGetParamsChainStringTron             WalletBalanceGetParamsChainString = "tron"
 	WalletBalanceGetParamsChainStringZksyncEra        WalletBalanceGetParamsChainString = "zksync_era"
 	WalletBalanceGetParamsChainStringRobinhood        WalletBalanceGetParamsChainString = "robinhood"
+	WalletBalanceGetParamsChainStringUnichain         WalletBalanceGetParamsChainString = "unichain"
+	WalletBalanceGetParamsChainStringWorldchain       WalletBalanceGetParamsChainString = "worldchain"
+	WalletBalanceGetParamsChainStringInk              WalletBalanceGetParamsChainString = "ink"
+	WalletBalanceGetParamsChainStringSoneium          WalletBalanceGetParamsChainString = "soneium"
+	WalletBalanceGetParamsChainStringMegaeth          WalletBalanceGetParamsChainString = "megaeth"
 	WalletBalanceGetParamsChainStringHyperevm         WalletBalanceGetParamsChainString = "hyperevm"
 	WalletBalanceGetParamsChainStringHypercore        WalletBalanceGetParamsChainString = "hypercore"
 	WalletBalanceGetParamsChainStringTempoTestnet     WalletBalanceGetParamsChainString = "tempo_testnet"
@@ -222,6 +227,7 @@ const (
 	WalletBalanceGetParamsChainStringSolanaTestnet    WalletBalanceGetParamsChainString = "solana_testnet"
 	WalletBalanceGetParamsChainStringTronNile         WalletBalanceGetParamsChainString = "tron_nile"
 	WalletBalanceGetParamsChainStringRobinhoodTestnet WalletBalanceGetParamsChainString = "robinhood_testnet"
+	WalletBalanceGetParamsChainStringInkSepolia       WalletBalanceGetParamsChainString = "ink_sepolia"
 )
 
 // If set, balances are converted to the specified fiat currency. Not supported

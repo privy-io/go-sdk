@@ -608,6 +608,40 @@ func (r *EarnIncetiveClaimRewardEntry) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// An APY allocation within a vault position.
+type EarnPositionApyAllocation struct {
+	// Net APY in basis points, rounded to the nearest integer.
+	ApyBps int64 `json:"apy_bps" api:"required"`
+	// Allocated assets in the smallest unit of the underlying asset.
+	AssetsInVault string `json:"assets_in_vault" api:"required"`
+	// Whether an APY allocation earns the base or boosted rate.
+	//
+	// Any of "boost", "base".
+	Type EarnPositionApyType `json:"type" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ApyBps        respjson.Field
+		AssetsInVault respjson.Field
+		Type          respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EarnPositionApyAllocation) RawJSON() string { return r.JSON.raw }
+func (r *EarnPositionApyAllocation) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Whether an APY allocation earns the base or boosted rate.
+type EarnPositionApyType string
+
+const (
+	EarnPositionApyTypeBoost EarnPositionApyType = "boost"
+	EarnPositionApyTypeBase  EarnPositionApyType = "base"
+)
+
 // Response for an earn withdraw action.
 type EarnWithdrawActionResponse struct {
 	// The ID of the wallet action.
@@ -726,6 +760,11 @@ type EthereumEarnPositionResponse struct {
 	TotalDeposited string `json:"total_deposited" api:"required"`
 	// Total amount withdrawn from the vault, in smallest unit.
 	TotalWithdrawn string `json:"total_withdrawn" api:"required"`
+	// Vault APY allocations by origin, returned together with apy_bps when available.
+	ApyAllocation []EarnPositionApyAllocation `json:"apy_allocation"`
+	// Wallet-specific net APY in basis points, rounded to the nearest integer.
+	// Returned together with apy_allocation when available.
+	ApyBps int64 `json:"apy_bps"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Asset          respjson.Field
@@ -733,6 +772,8 @@ type EthereumEarnPositionResponse struct {
 		SharesInVault  respjson.Field
 		TotalDeposited respjson.Field
 		TotalWithdrawn respjson.Field
+		ApyAllocation  respjson.Field
+		ApyBps         respjson.Field
 		ExtraFields    map[string]respjson.Field
 		raw            string
 	} `json:"-"`
