@@ -46,6 +46,7 @@ jobs:
           owner: privy-io
           repositories: go-sdk-private
           permission-contents: write
+          permission-workflows: write
 
       - name: Fetch production main
         env:
