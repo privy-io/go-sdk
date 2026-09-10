@@ -608,6 +608,7 @@ Response Types:
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#FeeLineItemUnion">FeeLineItemUnion</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#FirstClassChainType">FirstClassChainType</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#Gas">Gas</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#GetCryptoDepositAccountOrderResponse">GetCryptoDepositAccountOrderResponse</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#HpkeEncryption">HpkeEncryption</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#Hex">Hex</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#NamedTokenTransferSourceResp">NamedTokenTransferSourceResp</a>
@@ -837,6 +838,12 @@ Methods:
 Methods:
 
 - <code title="post /v1/wallets/{wallet_id}/deposit_accounts/crypto">client.Wallets.DepositAccounts.Crypto.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletDepositAccountCryptoService.New">New</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, walletID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletDepositAccountCryptoNewParams">WalletDepositAccountCryptoNewParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#CreateCryptoDepositAccountResponse">CreateCryptoDepositAccountResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
+#### Orders
+
+Methods:
+
+- <code title="get /v1/wallets/{wallet_id}/deposit_accounts/crypto/orders/{order_id}">client.Wallets.DepositAccounts.Crypto.Orders.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletDepositAccountCryptoOrderService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, orderID <a href="https://pkg.go.dev/builtin#string">string</a>, query <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#WalletDepositAccountCryptoOrderGetParams">WalletDepositAccountCryptoOrderGetParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#GetCryptoDepositAccountOrderResponse">GetCryptoDepositAccountOrderResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 ### Fiat
 

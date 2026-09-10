@@ -3262,6 +3262,30 @@ func (r *GetByWalletAddressRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// A crypto deposit-account sweep identified by its wallet action ID. Status is the
+// wallet-action status.
+type GetCryptoDepositAccountOrderResponse struct {
+	// Wallet action ID of the deposit sweep.
+	ID string `json:"id" api:"required" format:"uuid"`
+	// Status of a wallet action.
+	//
+	// Any of "pending", "succeeded", "rejected", "failed".
+	Status WalletActionStatus `json:"status" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID          respjson.Field
+		Status      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r GetCryptoDepositAccountOrderResponse) RawJSON() string { return r.JSON.raw }
+func (r *GetCryptoDepositAccountOrderResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // The input for HD wallets.
 //
 // The properties Address, ChainType, EncryptionType, EntropyType, Index are

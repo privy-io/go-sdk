@@ -27,6 +27,8 @@ import (
 // the [NewWalletDepositAccountCryptoService] method instead.
 type WalletDepositAccountCryptoService struct {
 	Options []option.RequestOption
+	// Operations related to wallets
+	Orders WalletDepositAccountCryptoOrderService
 }
 
 // NewWalletDepositAccountCryptoService generates a new service that applies the
@@ -35,6 +37,7 @@ type WalletDepositAccountCryptoService struct {
 func NewWalletDepositAccountCryptoService(opts ...option.RequestOption) (r WalletDepositAccountCryptoService) {
 	r = WalletDepositAccountCryptoService{}
 	r.Options = opts
+	r.Orders = NewWalletDepositAccountCryptoOrderService(opts...)
 	return
 }
 

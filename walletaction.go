@@ -192,16 +192,19 @@ type EvmTransactionWalletActionStep struct {
 	// Whether this step has reached on-chain finality. Absent until finality is
 	// confirmed.
 	Finalized bool `json:"finalized"`
+	// Amount charged in USD for gas sponsorship on this step.
+	GasCreditsChargedUsd string `json:"gas_credits_charged_usd"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		Caip2           respjson.Field
-		Status          respjson.Field
-		TransactionHash respjson.Field
-		Type            respjson.Field
-		FailureReason   respjson.Field
-		Finalized       respjson.Field
-		ExtraFields     map[string]respjson.Field
-		raw             string
+		Caip2                respjson.Field
+		Status               respjson.Field
+		TransactionHash      respjson.Field
+		Type                 respjson.Field
+		FailureReason        respjson.Field
+		Finalized            respjson.Field
+		GasCreditsChargedUsd respjson.Field
+		ExtraFields          map[string]respjson.Field
+		raw                  string
 	} `json:"-"`
 }
 
@@ -1751,15 +1754,15 @@ type WalletActionStepUnion struct {
 	// "tvm_transaction", "external_transaction", "custodian_transaction".
 	Type string `json:"type"`
 	// This field is from variant [EvmTransactionWalletActionStep].
-	FailureReason FailureReason `json:"failure_reason"`
-	Finalized     bool          `json:"finalized"`
+	FailureReason        FailureReason `json:"failure_reason"`
+	Finalized            bool          `json:"finalized"`
+	GasCreditsChargedUsd string        `json:"gas_credits_charged_usd"`
 	// This field is from variant [EvmUserOperationWalletActionStep].
 	BundleTransactionHash string `json:"bundle_transaction_hash"`
 	// This field is from variant [EvmUserOperationWalletActionStep].
 	EntrypointVersion EvmUserOperationEntrypointVersion `json:"entrypoint_version"`
 	// This field is from variant [EvmUserOperationWalletActionStep].
-	UserOperationHash    string `json:"user_operation_hash"`
-	GasCreditsChargedUsd string `json:"gas_credits_charged_usd"`
+	UserOperationHash string `json:"user_operation_hash"`
 	// This field is from variant [SvmTransactionWalletActionStep].
 	TransactionSignature string `json:"transaction_signature"`
 	// This field is from variant [TvmTransactionWalletActionStep].
@@ -1773,10 +1776,10 @@ type WalletActionStepUnion struct {
 		Type                  respjson.Field
 		FailureReason         respjson.Field
 		Finalized             respjson.Field
+		GasCreditsChargedUsd  respjson.Field
 		BundleTransactionHash respjson.Field
 		EntrypointVersion     respjson.Field
 		UserOperationHash     respjson.Field
-		GasCreditsChargedUsd  respjson.Field
 		TransactionSignature  respjson.Field
 		TransactionID         respjson.Field
 		Custodian             respjson.Field
