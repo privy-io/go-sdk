@@ -1172,9 +1172,7 @@ type SwapActionResponse struct {
 	Type SwapActionResponseType `json:"type" api:"required"`
 	// The ID of the wallet involved in the action.
 	WalletID string `json:"wallet_id" api:"required"`
-	// Recipient address on the destination chain. Present for cross-chain swaps. May
-	// differ from the source wallet address when swapping between chain types (e.g.
-	// EVM to Solana).
+	// Recipient address for the swap.
 	DestinationAddress string `json:"destination_address"`
 	// Destination chain CAIP-2 identifier. Present for cross-chain swaps.
 	DestinationCaip2 string `json:"destination_caip2"`
