@@ -37,8 +37,9 @@ type SwapDestination struct {
 	// CAIP-2 chain identifier for the destination. Defaults to source chain if
 	// omitted. Specify a different chain for cross-chain swaps.
 	Caip2 param.Opt[string] `json:"caip2,omitzero"`
-	// Address to receive the output tokens. Required for swaps between different
-	// address types and for same-asset transfers.
+	// Address to receive the output tokens. Defaults to the swapping wallet address.
+	// Required when swapping between chains with different address types (e.g. EVM to
+	// Solana) and for same-asset transfers.
 	DestinationAddress param.Opt[string] `json:"destination_address,omitzero"`
 	paramObj
 }
