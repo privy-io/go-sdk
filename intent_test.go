@@ -278,8 +278,8 @@ func TestIntentTransferWithOptionalParams(t *testing.T) {
 				},
 				Source: privyclient.TokenTransferSourceUnion{
 					OfNamedTokenTransferSource: &privyclient.NamedTokenTransferSource{
-						Asset:  "usdc",
-						Chain:  "base",
+						Asset:  "ousd",
+						Chain:  "tempo",
 						Amount: privyclient.String("10.5"),
 					},
 				},

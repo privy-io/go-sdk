@@ -33,8 +33,9 @@ func TestWalletDepositAccountCryptoNewWithOptionalParams(t *testing.T) {
 		privyclient.WalletDepositAccountCryptoNewParams{
 			CreateCryptoDepositAccountRequestBody: privyclient.CreateCryptoDepositAccountRequestBodyUnion{
 				OfDepositConfig: &privyclient.CreateCryptoDepositAccountWithConfigRequestBody{
-					DepositConfigID: "clg2rvssg025ny5fmul5m95fn",
-					Type:            privyclient.CreateCryptoDepositAccountWithConfigRequestBodyTypeDepositConfig,
+					DepositConfigID:        "clg2rvssg025ny5fmul5m95fn",
+					Type:                   privyclient.CreateCryptoDepositAccountWithConfigRequestBodyTypeDepositConfig,
+					DepositAddressStrategy: privyclient.CryptoDepositAddressStrategyDedicated,
 				},
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
@@ -42,6 +43,61 @@ func TestWalletDepositAccountCryptoNewWithOptionalParams(t *testing.T) {
 			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
 		},
 	)
+	if err != nil {
+		var apierr *privyclient.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestWalletDepositAccountCryptoListWithOptionalParams(t *testing.T) {
+	t.Skip("Mock server tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := privyclient.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAppID("My App ID"),
+		option.WithAppSecret("My App Secret"),
+	)
+	_, err := client.Wallets.DepositAccounts.Crypto.List(
+		context.TODO(),
+		"wallet_id",
+		privyclient.WalletDepositAccountCryptoListParams{
+			Cursor: privyclient.String("x"),
+			Limit:  privyclient.Int(1),
+		},
+	)
+	if err != nil {
+		var apierr *privyclient.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestWalletDepositAccountCryptoGetConfig(t *testing.T) {
+	t.Skip("Mock server tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := privyclient.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAppID("My App ID"),
+		option.WithAppSecret("My App Secret"),
+	)
+	_, err := client.Wallets.DepositAccounts.Crypto.GetConfig(context.TODO())
 	if err != nil {
 		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {

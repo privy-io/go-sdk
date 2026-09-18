@@ -11,9 +11,11 @@ import (
 	"slices"
 
 	"github.com/privy-io/go-sdk/internal/apijson"
+	"github.com/privy-io/go-sdk/internal/apiquery"
 	shimjson "github.com/privy-io/go-sdk/internal/encoding/json"
 	"github.com/privy-io/go-sdk/internal/requestconfig"
 	"github.com/privy-io/go-sdk/option"
+	"github.com/privy-io/go-sdk/packages/pagination"
 	"github.com/privy-io/go-sdk/packages/param"
 )
 
@@ -41,10 +43,7 @@ func NewWalletDepositAccountCryptoService(opts ...option.RequestOption) (r Walle
 	return
 }
 
-// Creates deposit source wallets and attaches them to a sweep into the path
-// wallet. Requires a dest-owner privy-authorization-signature. Accepts a
-// dest-owner user JWT or an app secret (app-secret callers use the dest owner).
-// JWT-only requests 401 when the app requires an app secret for wallet actions.
+// Creates deposit source wallets that sweep into the path wallet.
 func (r *WalletDepositAccountCryptoService) New(ctx context.Context, walletID string, params WalletDepositAccountCryptoNewParams, opts ...option.RequestOption) (res *CreateCryptoDepositAccountResponse, err error) {
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
 		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
@@ -62,6 +61,44 @@ func (r *WalletDepositAccountCryptoService) New(ctx context.Context, walletID st
 	}
 	path := fmt.Sprintf("v1/wallets/%s/deposit_accounts/crypto", url.PathEscape(walletID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
+	return res, err
+}
+
+// Returns active crypto deposit accounts that sweep into the path wallet. Requires
+// an app secret or a JWT for a wallet signer, plus `privy-app-id`.
+func (r *WalletDepositAccountCryptoService) List(ctx context.Context, walletID string, query WalletDepositAccountCryptoListParams, opts ...option.RequestOption) (res *pagination.Cursor[CryptoDepositAddressRoute], err error) {
+	var raw *http.Response
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
+	if walletID == "" {
+		err = errors.New("missing required wallet_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/wallets/%s/deposit_accounts/crypto", url.PathEscape(walletID))
+	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
+	if err != nil {
+		return nil, err
+	}
+	err = cfg.Execute()
+	if err != nil {
+		return nil, err
+	}
+	res.SetPageConfig(cfg, raw)
+	return res, nil
+}
+
+// Returns active crypto deposit accounts that sweep into the path wallet. Requires
+// an app secret or a JWT for a wallet signer, plus `privy-app-id`.
+func (r *WalletDepositAccountCryptoService) ListAutoPaging(ctx context.Context, walletID string, query WalletDepositAccountCryptoListParams, opts ...option.RequestOption) *pagination.CursorAutoPager[CryptoDepositAddressRoute] {
+	return pagination.NewCursorAutoPager(r.List(ctx, walletID, query, opts...))
+}
+
+// Returns the tokens and chains a user can send from when creating a crypto
+// deposit account.
+func (r *WalletDepositAccountCryptoService) GetConfig(ctx context.Context, opts ...option.RequestOption) (res *CryptoDepositAccountConfigResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "v1/deposit_accounts/crypto/config"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return res, err
 }
 
@@ -85,4 +122,19 @@ func (r WalletDepositAccountCryptoNewParams) MarshalJSON() (data []byte, err err
 }
 func (r *WalletDepositAccountCryptoNewParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+type WalletDepositAccountCryptoListParams struct {
+	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
+	Limit  param.Opt[int64]  `query:"limit,omitzero" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [WalletDepositAccountCryptoListParams]'s query parameters as
+// `url.Values`.
+func (r WalletDepositAccountCryptoListParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }

@@ -38,6 +38,8 @@ const (
 	EnvironmentProduction Environment = "production"
 )
 
+type EvmCaip2 = string
+
 type KeyQuorumID = string
 
 // Supported fiat orchestration providers.
@@ -223,5 +225,13 @@ func (r SuccessResponse) RawJSON() string { return r.JSON.raw }
 func (r *SuccessResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// Tron CAIP-2 chain identifier. Supported values: "tron:mainnet", "tron:nile".
+type TronCaip2 string
+
+const (
+	TronCaip2TronMainnet TronCaip2 = "tron:mainnet"
+	TronCaip2TronNile    TronCaip2 = "tron:nile"
+)
 
 type TronHexAddress = string

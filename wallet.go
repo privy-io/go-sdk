@@ -554,6 +554,28 @@ const (
 
 type AptosSignedTransactionBcsHex = string
 
+// A summary of an automation attached to a wallet.
+type AttachedWalletAutomation struct {
+	// ID of the automation.
+	ID string `json:"id" api:"required"`
+	// Whether this attachment is currently active — true only if both the attachment
+	// and the underlying automation are enabled.
+	Enabled bool `json:"enabled" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID          respjson.Field
+		Enabled     respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AttachedWalletAutomation) RawJSON() string { return r.JSON.raw }
+func (r *AttachedWalletAutomation) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 func CreateCryptoDepositAccountRequestBodyOfDepositConfig(depositConfigID string) CreateCryptoDepositAccountRequestBodyUnion {
 	var depositConfig CreateCryptoDepositAccountWithConfigRequestBody
 	depositConfig.DepositConfigID = depositConfigID
@@ -625,6 +647,11 @@ type CreateCryptoDepositAccountWithConfigRequestBody struct {
 	DepositConfigID string `json:"deposit_config_id" api:"required"`
 	// Any of "deposit_config".
 	Type CreateCryptoDepositAccountWithConfigRequestBodyType `json:"type,omitzero" api:"required"`
+	// How deposit source wallets are chosen. Omission uses `dedicated`. Destination
+	// reuse applies only to the destination's own chain type.
+	//
+	// Any of "dedicated", "prefer_destination", "require_destination".
+	DepositAddressStrategy CryptoDepositAddressStrategy `json:"deposit_address_strategy,omitzero"`
 	paramObj
 }
 
@@ -646,7 +673,7 @@ const (
 //
 // The properties Destination, Source, Type are required.
 type CreateCryptoDepositAccountWithRouteRequestBody struct {
-	// An asset on a chain. Uses a human-readable alias (usdc, base) when one is on
+	// An asset on a chain. Uses a human-readable alias (usdc, tempo) when one is on
 	// file, otherwise the raw asset address and CAIP-2.
 	Destination CryptoDepositAsset `json:"destination,omitzero" api:"required"`
 	// Which assets a deposit address accepts. Asset and chain use human-readable
@@ -654,6 +681,11 @@ type CreateCryptoDepositAccountWithRouteRequestBody struct {
 	Source CryptoDepositAssetFilterUnion `json:"source,omitzero" api:"required"`
 	// Any of "inline_route".
 	Type CreateCryptoDepositAccountWithRouteRequestBodyType `json:"type,omitzero" api:"required"`
+	// How deposit source wallets are chosen. Omission uses `dedicated`. Destination
+	// reuse applies only to the destination's own chain type.
+	//
+	// Any of "dedicated", "prefer_destination", "require_destination".
+	DepositAddressStrategy CryptoDepositAddressStrategy `json:"deposit_address_strategy,omitzero"`
 	paramObj
 }
 
@@ -671,10 +703,112 @@ const (
 	CreateCryptoDepositAccountWithRouteRequestBodyTypeInlineRoute CreateCryptoDepositAccountWithRouteRequestBodyType = "inline_route"
 )
 
+type CryptoDepositAccountCaip2 = string
+
+// Chain metadata for rendering the crypto deposit-account source picker.
+type CryptoDepositAccountChain struct {
+	// EVM CAIP-2 chain identifier (e.g. "eip155:4217" for Tempo, "eip155:1" for
+	// Ethereum).
+	Caip2 CryptoDepositAccountCaip2 `json:"caip2" api:"required"`
+	// Numeric chain id used by some clients as an alias.
+	ChainID     int64  `json:"chain_id" api:"required"`
+	DisplayName string `json:"display_name" api:"required"`
+	// URL of the chain icon.
+	IconURL string `json:"icon_url" api:"required"`
+	// Execution VM, e.g. evm or svm.
+	VmType string `json:"vm_type" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Caip2       respjson.Field
+		ChainID     respjson.Field
+		DisplayName respjson.Field
+		IconURL     respjson.Field
+		VmType      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r CryptoDepositAccountChain) RawJSON() string { return r.JSON.raw }
+func (r *CryptoDepositAccountChain) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Source-token catalog for crypto deposit accounts. Only automation-sweepable,
+// gas-sponsored mainnets.
+type CryptoDepositAccountConfigResponse struct {
+	Chains     map[string]CryptoDepositAccountChain `json:"chains" api:"required"`
+	Currencies []CryptoDepositAccountSourceCurrency `json:"currencies" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Chains      respjson.Field
+		Currencies  respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r CryptoDepositAccountConfigResponse) RawJSON() string { return r.JSON.raw }
+func (r *CryptoDepositAccountConfigResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A token contract on one source chain in the crypto deposit-account catalog.
+type CryptoDepositAccountSourceChain struct {
+	// Token contract or native asset address on this chain.
+	Address string `json:"address" api:"required"`
+	// EVM CAIP-2 chain identifier (e.g. "eip155:4217" for Tempo, "eip155:1" for
+	// Ethereum).
+	Caip2 CryptoDepositAccountCaip2 `json:"caip2" api:"required"`
+	// Token decimals on this chain.
+	Decimals int64 `json:"decimals" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Address     respjson.Field
+		Caip2       respjson.Field
+		Decimals    respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r CryptoDepositAccountSourceChain) RawJSON() string { return r.JSON.raw }
+func (r *CryptoDepositAccountSourceChain) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A source token in the crypto deposit-account catalog, with the chains it can be
+// sent from.
+type CryptoDepositAccountSourceCurrency struct {
+	Chains []CryptoDepositAccountSourceChain `json:"chains" api:"required"`
+	// URL of the token logo.
+	LogoUri string `json:"logo_uri" api:"required"`
+	Name    string `json:"name" api:"required"`
+	Symbol  string `json:"symbol" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Chains      respjson.Field
+		LogoUri     respjson.Field
+		Name        respjson.Field
+		Symbol      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r CryptoDepositAccountSourceCurrency) RawJSON() string { return r.JSON.raw }
+func (r *CryptoDepositAccountSourceCurrency) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // One deposit address and the source/destination route it accepts.
 type CryptoDepositAddressRoute struct {
 	DepositAddress string `json:"deposit_address" api:"required"`
-	// An asset on a chain. Uses a human-readable alias (usdc, base) when one is on
+	// An asset on a chain. Uses a human-readable alias (usdc, tempo) when one is on
 	// file, otherwise the raw asset address and CAIP-2.
 	Destination CryptoDepositAssetResp `json:"destination" api:"required"`
 	// Which assets a deposit address accepts. Asset and chain use human-readable
@@ -698,7 +832,17 @@ func (r *CryptoDepositAddressRoute) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// An asset on a chain. Uses a human-readable alias (usdc, base) when one is on
+// How deposit source wallets are chosen. Omission uses `dedicated`. Destination
+// reuse applies only to the destination's own chain type.
+type CryptoDepositAddressStrategy string
+
+const (
+	CryptoDepositAddressStrategyDedicated          CryptoDepositAddressStrategy = "dedicated"
+	CryptoDepositAddressStrategyPreferDestination  CryptoDepositAddressStrategy = "prefer_destination"
+	CryptoDepositAddressStrategyRequireDestination CryptoDepositAddressStrategy = "require_destination"
+)
+
+// An asset on a chain. Uses a human-readable alias (usdc, tempo) when one is on
 // file, otherwise the raw asset address and CAIP-2.
 type CryptoDepositAssetResp struct {
 	// Known alias (usdc) or raw asset address.
@@ -730,7 +874,7 @@ func (r CryptoDepositAssetResp) ToParam() CryptoDepositAsset {
 	return param.Override[CryptoDepositAsset](json.RawMessage(r.RawJSON()))
 }
 
-// An asset on a chain. Uses a human-readable alias (usdc, base) when one is on
+// An asset on a chain. Uses a human-readable alias (usdc, tempo) when one is on
 // file, otherwise the raw asset address and CAIP-2.
 //
 // The property Asset is required.
@@ -1056,6 +1200,15 @@ const (
 	CurveSigningChainTypeTon            CurveSigningChainType = "ton"
 	CurveSigningChainTypeStarknet       CurveSigningChainType = "starknet"
 	CurveSigningChainTypeXrpl           CurveSigningChainType = "xrpl"
+)
+
+// The chain of the custodial wallet.
+type CustodialWalletChain string
+
+const (
+	CustodialWalletChainBase   CustodialWalletChain = "base"
+	CustodialWalletChainSolana CustodialWalletChain = "solana"
+	CustodialWalletChainTempo  CustodialWalletChain = "tempo"
 )
 
 // Source for a transfer identified by a token contract address (EVM) or mint
@@ -3416,6 +3569,25 @@ func (r *HpkeImportConfig) UnmarshalJSON(data []byte) error {
 }
 
 type Hex = string
+
+// A page of active crypto deposit accounts for a destination wallet.
+type ListCryptoDepositAccountsResponse struct {
+	Data       []CryptoDepositAddressRoute `json:"data" api:"required"`
+	NextCursor string                      `json:"next_cursor" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		NextCursor  respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ListCryptoDepositAccountsResponse) RawJSON() string { return r.JSON.raw }
+func (r *ListCryptoDepositAccountsResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 // Source for a transfer identified by a named asset (e.g. "usdc", "eth"). Use this
 // variant for first-class assets maintained by Privy.
@@ -7409,6 +7581,7 @@ const (
 	TransactionChainNameInputPolygon     TransactionChainNameInput = "polygon"
 	TransactionChainNameInputSolana      TransactionChainNameInput = "solana"
 	TransactionChainNameInputSepolia     TransactionChainNameInput = "sepolia"
+	TransactionChainNameInputArc         TransactionChainNameInput = "arc"
 )
 
 // TransactionDetailUnion contains all possible properties and values from
@@ -8992,6 +9165,12 @@ type Wallet struct {
 	ArchivedAt float64 `json:"archived_at" api:"nullable"`
 	// The number of keys that must sign for an action to be valid.
 	AuthorizationThreshold float64 `json:"authorization_threshold"`
+	// Automations attached to the wallet, including disabled ones.
+	Automations []AttachedWalletAutomation `json:"automations"`
+	// The chain of the custodial wallet.
+	//
+	// Any of "base", "solana", "tempo".
+	Chain CustodialWalletChain `json:"chain"`
 	// Information about the custodian managing this wallet.
 	Custody WalletCustodian `json:"custody"`
 	// A human-readable label for the wallet.
@@ -9018,6 +9197,8 @@ type Wallet struct {
 		PolicyIDs              respjson.Field
 		ArchivedAt             respjson.Field
 		AuthorizationThreshold respjson.Field
+		Automations            respjson.Field
+		Chain                  respjson.Field
 		Custody                respjson.Field
 		DisplayName            respjson.Field
 		Entity                 respjson.Field
@@ -9102,6 +9283,7 @@ const (
 	WalletAssetChainNameInputMegaeth          WalletAssetChainNameInput = "megaeth"
 	WalletAssetChainNameInputHyperevm         WalletAssetChainNameInput = "hyperevm"
 	WalletAssetChainNameInputHypercore        WalletAssetChainNameInput = "hypercore"
+	WalletAssetChainNameInputArc              WalletAssetChainNameInput = "arc"
 	WalletAssetChainNameInputTempoTestnet     WalletAssetChainNameInput = "tempo_testnet"
 	WalletAssetChainNameInputHoodi            WalletAssetChainNameInput = "hoodi"
 	WalletAssetChainNameInputSepolia          WalletAssetChainNameInput = "sepolia"

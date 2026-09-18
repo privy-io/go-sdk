@@ -74,6 +74,20 @@ func (r *OrganizationKYBService) InitiateTos(ctx context.Context, organizationID
 	return res, err
 }
 
+// Submits KYB verification data for the organization. Safe to call more than once:
+// the first call creates the provider customer and later calls update it, so a
+// partial submission can be completed incrementally.
+func (r *OrganizationKYBService) Submit(ctx context.Context, organizationID string, body OrganizationKYBSubmitParams, opts ...option.RequestOption) (res *KYBStatusResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if organizationID == "" {
+		err = errors.New("missing required organization_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/organizations/%s/kyb/submit", url.PathEscape(organizationID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return res, err
+}
+
 type OrganizationKYBInitiateLinksParams struct {
 	// Request body for initiating a hosted KYB flow for an organization.
 	KYBLinksRequestBody KYBLinksRequestBody
@@ -97,5 +111,18 @@ func (r OrganizationKYBInitiateTosParams) MarshalJSON() (data []byte, err error)
 	return shimjson.Marshal(r.KYBTosRequestBody)
 }
 func (r *OrganizationKYBInitiateTosParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type OrganizationKYBSubmitParams struct {
+	// Request body for headless KYB data submission.
+	KYBSubmitRequestBody KYBSubmitRequestBody
+	paramObj
+}
+
+func (r OrganizationKYBSubmitParams) MarshalJSON() (data []byte, err error) {
+	return shimjson.Marshal(r.KYBSubmitRequestBody)
+}
+func (r *OrganizationKYBSubmitParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }

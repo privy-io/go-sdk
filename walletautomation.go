@@ -51,18 +51,19 @@ func (r *WalletAutomationService) Reindex(ctx context.Context, body WalletAutoma
 type WalletAutomationReindexAssetResult struct {
 	// Asset contract address; the native asset uses `native`.
 	AssetAddress string `json:"asset_address" api:"required"`
-	// EVM CAIP-2 chain identifier (e.g. "eip155:4217" for Tempo, "eip155:1" for
-	// Ethereum).
-	Caip2 WalletAutomationReindexCaip2 `json:"caip2" api:"required"`
+	// An EVM, Solana, or Tron CAIP-2 chain identifier supported by wallet automation
+	// reindex.
+	Caip2 TronCaip2 `json:"caip2" api:"required"`
 	// ID of the in-flight execution blocking a re-trigger. Populated only when
 	// `status` is `skipped_existing_execution`; `null` otherwise.
 	ExistingExecutionID string `json:"existing_execution_id" api:"required"`
-	// On-chain balance in base units. Populated when `status` is `triggered` or
-	// `skipped_zero_balance`; `null` otherwise. For example, 1 USDC is `1000000`.
+	// On-chain balance in base units. Populated when `status` is `submitted` or
+	// `skipped_zero_balance`; `null` otherwise. For example, 1 OUSD is `1000000`.
 	RawBalance string `json:"raw_balance" api:"required"`
 	// Outcome of checking a single asset during a wallet automation reindex. One of
-	// `triggered`, `skipped_zero_balance`, `skipped_no_match`,
-	// `skipped_existing_execution`, or `failed`.
+	// `submitted`, `skipped_zero_balance`, `skipped_no_match`,
+	// `skipped_existing_execution`, or `failed`. `submitted` confirms that an
+	// execution was enqueued.
 	Status WalletAutomationReindexAssetStatus `json:"status" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -84,8 +85,6 @@ func (r *WalletAutomationReindexAssetResult) UnmarshalJSON(data []byte) error {
 
 type WalletAutomationReindexAssetStatus = string
 
-type WalletAutomationReindexCaip2 = string
-
 // Request body for re-checking a wallet against its wallet automations. Identify
 // the wallet by wallet_id or deposit_address (at least one is required). If both
 // are provided, wallet_id takes precedence and deposit_address must match that
@@ -97,9 +96,6 @@ type WalletAutomationReindexCaip2 = string
 type WalletAutomationReindexRequestBody struct {
 	// Asset contract address to check; the native asset uses `native`.
 	AssetAddress string `json:"asset_address" api:"required"`
-	// EVM CAIP-2 chain identifier (e.g. "eip155:4217" for Tempo, "eip155:1" for
-	// Ethereum).
-	Caip2 param.Opt[WalletAutomationReindexCaip2] `json:"caip2,omitzero"`
 	// Human-readable chain name to check. Specify exactly one of `caip2` or `chain`.
 	Chain param.Opt[string] `json:"chain,omitzero"`
 	// On-chain deposit address of the wallet to reindex. Must match the resolved
@@ -108,6 +104,9 @@ type WalletAutomationReindexRequestBody struct {
 	// Privy wallet ID to reindex. Takes precedence over `deposit_address` when both
 	// are supplied.
 	WalletID param.Opt[string] `json:"wallet_id,omitzero"`
+	// An EVM, Solana, or Tron CAIP-2 chain identifier supported by wallet automation
+	// reindex.
+	Caip2 TronCaip2 `json:"caip2,omitzero"`
 	paramObj
 }
 

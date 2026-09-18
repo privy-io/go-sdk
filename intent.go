@@ -1209,6 +1209,10 @@ type IntentResponseUnionCurrentResourceData struct {
 	ArchivedAt             float64 `json:"archived_at"`
 	AuthorizationThreshold float64 `json:"authorization_threshold"`
 	// This field is from variant [Wallet].
+	Automations []AttachedWalletAutomation `json:"automations"`
+	// This field is from variant [Wallet].
+	Chain CustodialWalletChain `json:"chain"`
+	// This field is from variant [Wallet].
 	Custody     WalletCustodian `json:"custody"`
 	DisplayName string          `json:"display_name"`
 	// This field is from variant [Wallet].
@@ -1246,6 +1250,8 @@ type IntentResponseUnionCurrentResourceData struct {
 		PolicyIDs              respjson.Field
 		ArchivedAt             respjson.Field
 		AuthorizationThreshold respjson.Field
+		Automations            respjson.Field
+		Chain                  respjson.Field
 		Custody                respjson.Field
 		DisplayName            respjson.Field
 		Entity                 respjson.Field

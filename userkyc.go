@@ -74,6 +74,23 @@ func (r *UserKYCService) InitiateTos(ctx context.Context, userID string, body Us
 	return res, err
 }
 
+// Submits KYC verification data for the user. Safe to call more than once: the
+// first call creates the provider customer and later calls update it, so a partial
+// submission can be completed incrementally. The first submission must carry
+// enough to begin verification — name, date of birth, residential address and at
+// least one identifying document; later calls may send only the fields that
+// change.
+func (r *UserKYCService) Submit(ctx context.Context, userID string, body UserKYCSubmitParams, opts ...option.RequestOption) (res *KYCStatusResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if userID == "" {
+		err = errors.New("missing required user_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/users/%s/kyc/submit", url.PathEscape(userID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return res, err
+}
+
 type UserKYCInitiateLinksParams struct {
 	// Request body for initiating a hosted KYC flow.
 	KYCLinksRequestBody KYCLinksRequestBody
@@ -97,5 +114,18 @@ func (r UserKYCInitiateTosParams) MarshalJSON() (data []byte, err error) {
 	return shimjson.Marshal(r.KyxTosRequestBody)
 }
 func (r *UserKYCInitiateTosParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type UserKYCSubmitParams struct {
+	// Request body for headless KYC data submission.
+	KYCSubmitRequestBody KYCSubmitRequestBody
+	paramObj
+}
+
+func (r UserKYCSubmitParams) MarshalJSON() (data []byte, err error) {
+	return shimjson.Marshal(r.KYCSubmitRequestBody)
+}
+func (r *UserKYCSubmitParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }

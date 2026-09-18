@@ -671,13 +671,13 @@ func TestWalletTransferWithOptionalParams(t *testing.T) {
 			TransferRequestBody: privyclient.TransferRequestBody{
 				Destination: privyclient.TokenTransferDestination{
 					Address: "0xB00F0759DbeeF5E543Cc3E3B07A6442F5f3928a2",
-					Asset:   privyclient.String("usdc"),
-					Chain:   privyclient.String("base"),
+					Asset:   privyclient.String("ousd"),
+					Chain:   privyclient.String("tempo"),
 				},
 				Source: privyclient.TokenTransferSourceUnion{
 					OfNamedTokenTransferSource: &privyclient.NamedTokenTransferSource{
 						Asset:  "usdc",
-						Chain:  "base",
+						Chain:  "tempo",
 						Amount: privyclient.String("10.5"),
 					},
 				},

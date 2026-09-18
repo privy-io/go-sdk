@@ -32,7 +32,7 @@ func TestWalletEarnEthereumIncentiveClaimWithOptionalParams(t *testing.T) {
 		"wallet_id",
 		privyclient.WalletEarnEthereumIncentiveClaimParams{
 			EarnIncentiveClaimRequestBody: privyclient.EarnIncentiveClaimRequestBody{
-				Chain:       "base",
+				Chain:       "tempo",
 				Nonce:       privyclient.String("xxxxxxxxxxxxxxxxxxxxxxxx"),
 				ReferenceID: privyclient.String("x"),
 			},

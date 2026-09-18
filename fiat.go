@@ -644,6 +644,122 @@ func (r *FiatDepositInstructions) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+type KYBAccountPurpose = string
+
+// A beneficial owner, control person, or signer associated with the business. At
+// least one of has_ownership, has_control, or is_signer must be true, and the
+// business must have at least one control person and one signer.
+//
+// The properties DateOfBirth, Email, FirstName, HasControl, HasOwnership,
+// IdentifyingInformation, IsSigner, LastName, ResidentialAddress are required.
+type KYBAssociatedPerson struct {
+	// Date of birth in YYYY-MM-DD format. Must be 18 years or older.
+	DateOfBirth string `json:"date_of_birth" api:"required"`
+	// Email address.
+	Email string `json:"email" api:"required" format:"email"`
+	// Legal first name.
+	FirstName string `json:"first_name" api:"required"`
+	// Whether this person is a control person.
+	HasControl bool `json:"has_control" api:"required"`
+	// Whether this person owns 25% or more of the business.
+	HasOwnership bool `json:"has_ownership" api:"required"`
+	// Identifying documents for this person.
+	IdentifyingInformation []VerificationDocument `json:"identifying_information,omitzero" api:"required"`
+	// Whether this person is a signer for the business.
+	IsSigner bool `json:"is_signer" api:"required"`
+	// Legal last name.
+	LastName string `json:"last_name" api:"required"`
+	// A postal address used in KYC and KYB data submission.
+	ResidentialAddress VerificationAddress `json:"residential_address,omitzero" api:"required"`
+	// Whether this person is a director.
+	IsDirector param.Opt[bool] `json:"is_director,omitzero"`
+	// Legal middle name.
+	MiddleName param.Opt[string] `json:"middle_name,omitzero"`
+	// Percentage of the business this person owns.
+	OwnershipPercentage param.Opt[int64] `json:"ownership_percentage,omitzero"`
+	// Phone number in E.164 format.
+	Phone param.Opt[string] `json:"phone,omitzero"`
+	// Date the relationship with the business was established, in YYYY-MM-DD format.
+	RelationshipEstablishedAt param.Opt[string] `json:"relationship_established_at,omitzero"`
+	// Job title. Required when has_control is true.
+	Title param.Opt[string] `json:"title,omitzero"`
+	// Latin-1 transliteration of the first name. Required for non-Latin-1 names.
+	TransliteratedFirstName param.Opt[string] `json:"transliterated_first_name,omitzero"`
+	// Latin-1 transliteration of the last name. Required for non-Latin-1 names.
+	TransliteratedLastName param.Opt[string] `json:"transliterated_last_name,omitzero"`
+	// Latin-1 transliteration of the middle name. Required for non-Latin-1 names.
+	TransliteratedMiddleName param.Opt[string] `json:"transliterated_middle_name,omitzero"`
+	// Supporting documents for this person, such as proof of address.
+	Documents []KYBIndividualDocument `json:"documents,omitzero"`
+	// ISO 3166-1 alpha-3 codes for all nationalities held.
+	Nationalities []string `json:"nationalities,omitzero"`
+	// Place of birth for an associated person.
+	PlaceOfBirth KYBPlaceOfBirth `json:"place_of_birth,omitzero"`
+	// A postal address used in KYC and KYB data submission.
+	TransliteratedResidentialAddress VerificationAddress `json:"transliterated_residential_address,omitzero"`
+	paramObj
+}
+
+func (r KYBAssociatedPerson) MarshalJSON() (data []byte, err error) {
+	type shadow KYBAssociatedPerson
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *KYBAssociatedPerson) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A supporting document for business verification.
+//
+// The properties File, Purposes are required.
+type KYBBusinessDocument struct {
+	// Base64-encoded data URI of the document.
+	File string `json:"file" api:"required"`
+	// What this document evidences. Supports multiple purposes per file.
+	Purposes []KYBDocumentPurpose `json:"purposes,omitzero" api:"required"`
+	// Document description. Required when "other" is one of the purposes.
+	Description param.Opt[string] `json:"description,omitzero"`
+	paramObj
+}
+
+func (r KYBBusinessDocument) MarshalJSON() (data []byte, err error) {
+	type shadow KYBBusinessDocument
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *KYBBusinessDocument) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type KYBBusinessType = string
+
+type KYBDocumentPurpose = string
+
+type KYBEstimatedAnnualRevenue = string
+
+type KYBHighRiskActivity = string
+
+// A supporting document for an associated person.
+//
+// The properties File, Purposes are required.
+type KYBIndividualDocument struct {
+	// Base64-encoded data URI of the document.
+	File string `json:"file" api:"required"`
+	// What this document evidences. Supports multiple purposes per file.
+	Purposes []KYBIndividualDocumentPurpose `json:"purposes,omitzero" api:"required"`
+	// Document description. Required when "other" is one of the purposes.
+	Description param.Opt[string] `json:"description,omitzero"`
+	paramObj
+}
+
+func (r KYBIndividualDocument) MarshalJSON() (data []byte, err error) {
+	type shadow KYBIndividualDocument
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *KYBIndividualDocument) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type KYBIndividualDocumentPurpose = string
+
 // Request body for initiating a hosted KYB flow for an organization.
 //
 // The properties Email, Provider are required.
@@ -676,6 +792,72 @@ func (r KYBLinksRequestBody) MarshalJSON() (data []byte, err error) {
 func (r *KYBLinksRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// Place of birth for an associated person.
+//
+// The property Country is required.
+type KYBPlaceOfBirth struct {
+	// ISO 3166-1 alpha-3 country code.
+	Country string `json:"country" api:"required"`
+	// City of birth.
+	City param.Opt[string] `json:"city,omitzero"`
+	paramObj
+}
+
+func (r KYBPlaceOfBirth) MarshalJSON() (data []byte, err error) {
+	type shadow KYBPlaceOfBirth
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *KYBPlaceOfBirth) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A public exchange listing for the business.
+//
+// The properties MarketIdentifierCode, StockNumber, Ticker are required.
+type KYBPubliclyTradedListing struct {
+	// ISO 10383 market identifier code of the listing venue.
+	MarketIdentifierCode string `json:"market_identifier_code" api:"required"`
+	// ISIN with dashes removed.
+	StockNumber string `json:"stock_number" api:"required"`
+	// Exchange ticker symbol.
+	Ticker string `json:"ticker" api:"required"`
+	paramObj
+}
+
+func (r KYBPubliclyTradedListing) MarshalJSON() (data []byte, err error) {
+	type shadow KYBPubliclyTradedListing
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *KYBPubliclyTradedListing) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Details of the regulated activity a business is licensed to perform.
+//
+// The properties LicenseNumber, PrimaryRegulatoryAuthorityCountry,
+// PrimaryRegulatoryAuthorityName, RegulatedActivitiesDescription are required.
+type KYBRegulatedActivity struct {
+	// License number issued by the regulator.
+	LicenseNumber string `json:"license_number" api:"required"`
+	// ISO 3166-1 alpha-3 country code of the primary regulator.
+	PrimaryRegulatoryAuthorityCountry string `json:"primary_regulatory_authority_country" api:"required"`
+	// Name of the primary regulator.
+	PrimaryRegulatoryAuthorityName string `json:"primary_regulatory_authority_name" api:"required"`
+	// Description of the regulated activities performed.
+	RegulatedActivitiesDescription string `json:"regulated_activities_description" api:"required"`
+	paramObj
+}
+
+func (r KYBRegulatedActivity) MarshalJSON() (data []byte, err error) {
+	type shadow KYBRegulatedActivity
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *KYBRegulatedActivity) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type KYBSourceOfFunds = string
 
 // List of KYB status snapshots, one per configured provider/environment.
 type KYBStatusListResponse struct {
@@ -738,6 +920,145 @@ type KYBStatusResponse struct {
 // Returns the unmodified JSON received from the API
 func (r KYBStatusResponse) RawJSON() string { return r.JSON.raw }
 func (r *KYBStatusResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// KYB verification data for headless submission. Fields are individually optional
+// because the provider accepts partial submissions and grants endorsements once
+// enough data has arrived; a partial submission can be completed by calling the
+// endpoint again.
+type KYBSubmitData struct {
+	// Primary purpose the business will use the account for. Passthrough to the
+	// provider. See the
+	// [Bridge customer API reference](https://apidocs.bridge.xyz/platform/customers/customers/api)
+	// for accepted values.
+	AccountPurpose param.Opt[KYBAccountPurpose] `json:"account_purpose,omitzero"`
+	// Free-text purpose. Required when account_purpose is "other".
+	AccountPurposeOther param.Opt[string] `json:"account_purpose_other,omitzero"`
+	// Whether the business moves funds on behalf of third parties.
+	ActingAsIntermediary param.Opt[bool] `json:"acting_as_intermediary,omitzero"`
+	// Short summary of what the business does.
+	BusinessDescription param.Opt[string] `json:"business_description,omitzero"`
+	// Registered legal name as filed with government authorities.
+	BusinessLegalName param.Opt[string] `json:"business_legal_name,omitzero"`
+	// Public trading name (DBA), if different from the legal name.
+	BusinessTradeName param.Opt[string] `json:"business_trade_name,omitzero"`
+	// Legal structure of the business. Passthrough to the provider. See the
+	// [Bridge customer API reference](https://apidocs.bridge.xyz/platform/customers/customers/api)
+	// for accepted values.
+	BusinessType param.Opt[KYBBusinessType] `json:"business_type,omitzero"`
+	// Description of the AML and sanctions screening controls in place.
+	ComplianceScreeningExplanation param.Opt[string] `json:"compliance_screening_explanation,omitzero"`
+	// Whether the business conducts money services.
+	ConductsMoneyServices param.Opt[bool] `json:"conducts_money_services,omitzero"`
+	// Description of the money services conducted.
+	ConductsMoneyServicesDescription param.Opt[string] `json:"conducts_money_services_description,omitzero"`
+	// Whether money services are conducted through the provider. Requires a
+	// flow_of_funds document when true.
+	ConductsMoneyServicesUsingBridge param.Opt[bool] `json:"conducts_money_services_using_bridge,omitzero"`
+	// Primary business email address.
+	Email param.Opt[string] `json:"email,omitzero" format:"email"`
+	// Estimated annual revenue of the business, in USD buckets. Passthrough to the
+	// provider. See the
+	// [Bridge customer API reference](https://apidocs.bridge.xyz/platform/customers/customers/api)
+	// for accepted values.
+	EstimatedAnnualRevenueUsd param.Opt[KYBEstimatedAnnualRevenue] `json:"estimated_annual_revenue_usd,omitzero"`
+	// Expected monthly payment volume in USD. Required for high-risk businesses.
+	ExpectedMonthlyPaymentsUsd param.Opt[int64] `json:"expected_monthly_payments_usd,omitzero"`
+	// Whether the business is tax-registered outside its country of incorporation.
+	HasForeignTaxRegistration param.Opt[bool] `json:"has_foreign_tax_registration,omitzero"`
+	// Whether an intermediate entity owner holds 25% or more of the business.
+	HasMaterialIntermediaryOwnership param.Opt[bool] `json:"has_material_intermediary_ownership,omitzero"`
+	// Explanation of the high-risk activities. Required unless the only value is
+	// "none_of_the_above".
+	HighRiskActivitiesExplanation param.Opt[string] `json:"high_risk_activities_explanation,omitzero"`
+	// Date of incorporation in YYYY-MM-DD format.
+	IncorporationDate param.Opt[string] `json:"incorporation_date,omitzero"`
+	// Whether the business is a decentralized autonomous organization.
+	IsDao param.Opt[bool] `json:"is_dao,omitzero"`
+	// Whether the business operates in prohibited jurisdictions.
+	OperatesInProhibitedCountries param.Opt[bool] `json:"operates_in_prohibited_countries,omitzero"`
+	// Ownership percentage at which a person is treated as a beneficial owner.
+	OwnershipThreshold param.Opt[int64] `json:"ownership_threshold,omitzero"`
+	// Business phone number in E.164 format.
+	Phone param.Opt[string] `json:"phone,omitzero"`
+	// Primary website. If omitted, a proof_of_nature_of_business document is required.
+	PrimaryWebsite param.Opt[string] `json:"primary_website,omitzero"`
+	// Primary source of the funds the business will transact with. Passthrough to the
+	// provider. See the
+	// [Bridge customer API reference](https://apidocs.bridge.xyz/platform/customers/customers/api)
+	// for accepted values.
+	SourceOfFunds param.Opt[KYBSourceOfFunds] `json:"source_of_funds,omitzero"`
+	// Free-text detail on the source of funds. Required for high-risk businesses.
+	SourceOfFundsDescription param.Opt[string] `json:"source_of_funds_description,omitzero"`
+	// Latin-1 transliteration of the legal name. Required for non-Latin-1 names.
+	TransliteratedBusinessLegalName param.Opt[string] `json:"transliterated_business_legal_name,omitzero"`
+	// Latin-1 transliteration of the trade name. Required for non-Latin-1 names.
+	TransliteratedBusinessTradeName param.Opt[string] `json:"transliterated_business_trade_name,omitzero"`
+	// Beneficial owners, control persons, and signers.
+	AssociatedPersons []KYBAssociatedPerson `json:"associated_persons,omitzero"`
+	// 2022 NAICS codes describing the industries the business operates in.
+	BusinessIndustry []string `json:"business_industry,omitzero"`
+	// Supporting documents for verification.
+	Documents []KYBBusinessDocument `json:"documents,omitzero"`
+	// High-risk activities the business engages in.
+	HighRiskActivities []KYBHighRiskActivity `json:"high_risk_activities,omitzero"`
+	// Business tax and registration identifiers.
+	IdentifyingInformation []VerificationDocument `json:"identifying_information,omitzero"`
+	// Additional websites and social handles.
+	OtherWebsites []string `json:"other_websites,omitzero"`
+	// A postal address used in KYC and KYB data submission.
+	PhysicalAddress VerificationAddress `json:"physical_address,omitzero"`
+	// Public exchange listings for the business.
+	PubliclyTradedListings []KYBPubliclyTradedListing `json:"publicly_traded_listings,omitzero"`
+	// A postal address used in KYC and KYB data submission.
+	RegisteredAddress VerificationAddress `json:"registered_address,omitzero"`
+	// Details of the regulated activity a business is licensed to perform.
+	RegulatedActivity KYBRegulatedActivity `json:"regulated_activity,omitzero"`
+	// A postal address used in KYC and KYB data submission.
+	TransliteratedPhysicalAddress VerificationAddress `json:"transliterated_physical_address,omitzero"`
+	// A postal address used in KYC and KYB data submission.
+	TransliteratedRegisteredAddress VerificationAddress `json:"transliterated_registered_address,omitzero"`
+	paramObj
+}
+
+func (r KYBSubmitData) MarshalJSON() (data []byte, err error) {
+	type shadow KYBSubmitData
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *KYBSubmitData) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Request body for headless KYB data submission.
+//
+// The properties Data, Provider are required.
+type KYBSubmitRequestBody struct {
+	// KYB verification data for headless submission. Fields are individually optional
+	// because the provider accepts partial submissions and grants endorsements once
+	// enough data has arrived; a partial submission can be completed by calling the
+	// endpoint again.
+	Data KYBSubmitData `json:"data,omitzero" api:"required"`
+	// KYC/KYB provider identifier.
+	//
+	// Any of "bridge".
+	Provider KyxProvider `json:"provider,omitzero" api:"required"`
+	// Client-side agreement ID for ToS acceptance.
+	ClientAgreementID param.Opt[string] `json:"client_agreement_id,omitzero"`
+	// Endorsements to request during KYB.
+	Endorsements []KyxEndorsementName `json:"endorsements,omitzero"`
+	// Provider environment (production or sandbox).
+	//
+	// Any of "production", "sandbox".
+	Environment KyxEnvironment `json:"environment,omitzero"`
+	paramObj
+}
+
+func (r KYBSubmitRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow KYBSubmitRequestBody
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *KYBSubmitRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -860,6 +1181,62 @@ type KYCStatusResponse struct {
 // Returns the unmodified JSON received from the API
 func (r KYCStatusResponse) RawJSON() string { return r.JSON.raw }
 func (r *KYCStatusResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// KYC verification data for headless submission.
+type KYCSubmitData struct {
+	// Date of birth in YYYY-MM-DD format.
+	DateOfBirth param.Opt[string] `json:"date_of_birth,omitzero"`
+	// Email address.
+	Email param.Opt[string] `json:"email,omitzero" format:"email"`
+	// Legal first name.
+	FirstName param.Opt[string] `json:"first_name,omitzero"`
+	// Legal last name.
+	LastName param.Opt[string] `json:"last_name,omitzero"`
+	// Phone number in E.164 format.
+	Phone param.Opt[string] `json:"phone,omitzero"`
+	// Identifying documents.
+	IdentifyingInformation []VerificationDocument `json:"identifying_information,omitzero"`
+	// A postal address used in KYC and KYB data submission.
+	ResidentialAddress VerificationAddress `json:"residential_address,omitzero"`
+	paramObj
+}
+
+func (r KYCSubmitData) MarshalJSON() (data []byte, err error) {
+	type shadow KYCSubmitData
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *KYCSubmitData) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Request body for headless KYC data submission.
+//
+// The properties Data, Provider are required.
+type KYCSubmitRequestBody struct {
+	// KYC verification data for headless submission.
+	Data KYCSubmitData `json:"data,omitzero" api:"required"`
+	// KYC/KYB provider identifier.
+	//
+	// Any of "bridge".
+	Provider KyxProvider `json:"provider,omitzero" api:"required"`
+	// Client-side agreement ID for ToS acceptance.
+	ClientAgreementID param.Opt[string] `json:"client_agreement_id,omitzero"`
+	// Endorsements to request during KYC.
+	Endorsements []KyxEndorsementName `json:"endorsements,omitzero"`
+	// Provider environment (production or sandbox).
+	//
+	// Any of "production", "sandbox".
+	Environment KyxEnvironment `json:"environment,omitzero"`
+	paramObj
+}
+
+func (r KYCSubmitRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow KYCSubmitRequestBody
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *KYCSubmitRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -1260,5 +1637,63 @@ func (r PayoutSource) MarshalJSON() (data []byte, err error) {
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *PayoutSource) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A postal address used in KYC and KYB data submission.
+//
+// The properties City, Country, StreetLine1 are required.
+type VerificationAddress struct {
+	// City.
+	City string `json:"city" api:"required"`
+	// ISO 3166-1 alpha-3 country code.
+	Country string `json:"country" api:"required"`
+	// Street address line 1.
+	StreetLine1 string `json:"street_line_1" api:"required"`
+	// Postal code. Required for countries that use them.
+	PostalCode param.Opt[string] `json:"postal_code,omitzero"`
+	// Street address line 2.
+	StreetLine2 param.Opt[string] `json:"street_line_2,omitzero"`
+	// ISO 3166-2 state or province code. Required for US addresses.
+	Subdivision param.Opt[string] `json:"subdivision,omitzero"`
+	paramObj
+}
+
+func (r VerificationAddress) MarshalJSON() (data []byte, err error) {
+	type shadow VerificationAddress
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *VerificationAddress) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// An identifying document for KYC or KYB verification. Also used for business
+// identifiers such as tax and registration numbers, for which the image and
+// expiration fields do not apply.
+//
+// The properties IssuingCountry, Type are required.
+type VerificationDocument struct {
+	// ISO 3166-1 alpha-3 issuing country code.
+	IssuingCountry string `json:"issuing_country" api:"required"`
+	// Document type identifier.
+	Type string `json:"type" api:"required"`
+	// Document description.
+	Description param.Opt[string] `json:"description,omitzero"`
+	// Document expiration date.
+	Expiration param.Opt[string] `json:"expiration,omitzero"`
+	// Base64-encoded back image.
+	ImageBack param.Opt[string] `json:"image_back,omitzero"`
+	// Base64-encoded front image.
+	ImageFront param.Opt[string] `json:"image_front,omitzero"`
+	// Document number.
+	Number param.Opt[string] `json:"number,omitzero"`
+	paramObj
+}
+
+func (r VerificationDocument) MarshalJSON() (data []byte, err error) {
+	type shadow VerificationDocument
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *VerificationDocument) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }

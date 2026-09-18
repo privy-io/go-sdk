@@ -213,6 +213,7 @@ const (
 	WalletBalanceGetParamsChainStringMegaeth          WalletBalanceGetParamsChainString = "megaeth"
 	WalletBalanceGetParamsChainStringHyperevm         WalletBalanceGetParamsChainString = "hyperevm"
 	WalletBalanceGetParamsChainStringHypercore        WalletBalanceGetParamsChainString = "hypercore"
+	WalletBalanceGetParamsChainStringArc              WalletBalanceGetParamsChainString = "arc"
 	WalletBalanceGetParamsChainStringTempoTestnet     WalletBalanceGetParamsChainString = "tempo_testnet"
 	WalletBalanceGetParamsChainStringHoodi            WalletBalanceGetParamsChainString = "hoodi"
 	WalletBalanceGetParamsChainStringSepolia          WalletBalanceGetParamsChainString = "sepolia"
