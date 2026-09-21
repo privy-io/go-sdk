@@ -7,6 +7,7 @@ import (
 	"errors"
 	"os"
 	"testing"
+	"time"
 
 	privyclient "github.com/privy-io/go-sdk"
 	"github.com/privy-io/go-sdk/internal/testutil"
@@ -282,6 +283,43 @@ func TestWalletAssignEntity(t *testing.T) {
 	}
 }
 
+func TestWalletAttachAutomationsWithOptionalParams(t *testing.T) {
+	t.Skip("Mock server tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := privyclient.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAppID("My App ID"),
+		option.WithAppSecret("My App Secret"),
+	)
+	_, err := client.Wallets.AttachAutomations(
+		context.TODO(),
+		"wallet_id",
+		privyclient.WalletAttachAutomationsParams{
+			AttachWalletAutomationRequestBody: privyclient.AttachWalletAutomationRequestBody{
+				AutomationIDs: []string{"x"},
+				Params: privyclient.SwapAttachmentParams{
+					DestinationAddress: "x",
+				},
+			},
+			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
+			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
+		},
+	)
+	if err != nil {
+		var apierr *privyclient.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
 func TestWalletAuthenticateWithJwt(t *testing.T) {
 	t.Skip("Mock server tests are disabled")
 	baseURL := "http://localhost:4010"
@@ -415,6 +453,40 @@ func TestWalletNewWalletsWithRecovery(t *testing.T) {
 			PolicyIDs:   privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 		}},
 	})
+	if err != nil {
+		var apierr *privyclient.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestWalletDetachAutomationsWithOptionalParams(t *testing.T) {
+	t.Skip("Mock server tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := privyclient.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAppID("My App ID"),
+		option.WithAppSecret("My App Secret"),
+	)
+	_, err := client.Wallets.DetachAutomations(
+		context.TODO(),
+		"wallet_id",
+		privyclient.WalletDetachAutomationsParams{
+			DetachWalletAutomationRequestBody: privyclient.DetachWalletAutomationRequestBody{
+				AutomationIDs: []string{"x"},
+			},
+			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
+			PrivyRequestExpiry:          privyclient.String("privy-request-expiry"),
+		},
+	)
 	if err != nil {
 		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
@@ -683,6 +755,26 @@ func TestWalletTransferWithOptionalParams(t *testing.T) {
 				},
 				Amount:     privyclient.String("10.5"),
 				AmountType: privyclient.AmountTypeExactInput,
+				CustodyOptions: privyclient.TransferCustodyOptions{
+					Initiation: privyclient.TransferInitiation{
+						Attestations: privyclient.TransferInitiationAttestations{
+							Sca: privyclient.TransferScaAttestation{
+								Outcome: privyclient.TransferScaOutcomeNotApplicable,
+								AuthFactors: []privyclient.TransferScaAuthFactor{{
+									AuthenticatedAt: time.Now(),
+									Category:        privyclient.TransferScaAuthFactorCategoryPossession,
+									Reference:       "auth_event_123",
+								}, {
+									AuthenticatedAt: time.Now(),
+									Category:        privyclient.TransferScaAuthFactorCategoryKnowledge,
+									Reference:       "auth_event_456",
+								}},
+							},
+						},
+						Channel:    privyclient.TransferInitiationChannelOtherMobilePayment,
+						Subchannel: privyclient.TransferInitiationSubchannelRemote,
+					},
+				},
 				FeeConfiguration: privyclient.FeeConfiguration{
 					Type:  privyclient.FeeConfigurationTypeTotalFeeBps,
 					Value: 50,

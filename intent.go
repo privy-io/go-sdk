@@ -863,6 +863,8 @@ type IntentResponseUnionRequestDetailsBody struct {
 	// This field is from variant [TransferRequestBodyResp].
 	AmountType AmountType `json:"amount_type"`
 	// This field is from variant [TransferRequestBodyResp].
+	CustodyOptions TransferCustodyOptionsResp `json:"custody_options"`
+	// This field is from variant [TransferRequestBodyResp].
 	FeeConfiguration FeeConfigurationResp `json:"fee_configuration"`
 	// This field is from variant [TransferRequestBodyResp].
 	Nonce WalletActionNonce `json:"nonce"`
@@ -913,6 +915,7 @@ type IntentResponseUnionRequestDetailsBody struct {
 		Source                 respjson.Field
 		Amount                 respjson.Field
 		AmountType             respjson.Field
+		CustodyOptions         respjson.Field
 		FeeConfiguration       respjson.Field
 		Nonce                  respjson.Field
 		SlippageBps            respjson.Field

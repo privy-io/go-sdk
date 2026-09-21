@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"slices"
+	"time"
 
 	"github.com/privy-io/go-sdk/internal/apijson"
 	"github.com/privy-io/go-sdk/internal/apiquery"
@@ -152,6 +153,24 @@ func (r *WalletService) AssignEntity(ctx context.Context, walletID string, body 
 	return res, err
 }
 
+// Attach one or more automations to a wallet.
+func (r *WalletService) AttachAutomations(ctx context.Context, walletID string, params WalletAttachAutomationsParams, opts ...option.RequestOption) (res *WalletAutomationAttachmentListResponse, err error) {
+	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
+		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
+	}
+	if !param.IsOmitted(params.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
+	}
+	opts = slices.Concat(r.Options, opts)
+	if walletID == "" {
+		err = errors.New("missing required wallet_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/wallets/%s/automations/attach", url.PathEscape(walletID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
+	return res, err
+}
+
 // Exchange a user JWT for a session key authorized to act on the user's wallets.
 // Returns the encrypted authorization key and the list of wallets it can access.
 func (r *WalletService) AuthenticateWithJwt(ctx context.Context, body WalletAuthenticateWithJwtParams, opts ...option.RequestOption) (res *WalletAuthenticateWithJwtResponseUnion, err error) {
@@ -180,6 +199,24 @@ func (r *WalletService) NewWalletsWithRecovery(ctx context.Context, body WalletN
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/wallets_with_recovery"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return res, err
+}
+
+// Detach one or more automations from a wallet.
+func (r *WalletService) DetachAutomations(ctx context.Context, walletID string, params WalletDetachAutomationsParams, opts ...option.RequestOption) (res *WalletAutomationSuccessResponse, err error) {
+	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
+		opts = append(opts, option.WithHeader("privy-authorization-signature", fmt.Sprintf("%v", params.PrivyAuthorizationSignature.Value)))
+	}
+	if !param.IsOmitted(params.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
+	}
+	opts = slices.Concat(r.Options, opts)
+	if walletID == "" {
+		err = errors.New("missing required wallet_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/wallets/%s/automations/detach", url.PathEscape(walletID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return res, err
 }
 
@@ -553,6 +590,25 @@ const (
 )
 
 type AptosSignedTransactionBcsHex = string
+
+// Request body for attaching automations to a wallet (wallet ID comes from the
+// URL).
+//
+// The property AutomationIDs is required.
+type AttachWalletAutomationRequestBody struct {
+	AutomationIDs []string `json:"automation_ids,omitzero" api:"required"`
+	// Per-attachment parameters for swap automations.
+	Params SwapAttachmentParams `json:"params,omitzero"`
+	paramObj
+}
+
+func (r AttachWalletAutomationRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow AttachWalletAutomationRequestBody
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *AttachWalletAutomationRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 // A summary of an automation attached to a wallet.
 type AttachedWalletAutomation struct {
@@ -1281,6 +1337,23 @@ func (r CustomTokenTransferSource) MarshalJSON() (data []byte, err error) {
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *CustomTokenTransferSource) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Request body for detaching automations from a wallet (wallet ID comes from the
+// URL).
+//
+// The property AutomationIDs is required.
+type DetachWalletAutomationRequestBody struct {
+	AutomationIDs []string `json:"automation_ids,omitzero" api:"required"`
+	paramObj
+}
+
+func (r DetachWalletAutomationRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow DetachWalletAutomationRequestBody
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *DetachWalletAutomationRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -7664,6 +7737,196 @@ func (r *TransactionDetailUnion) UnmarshalJSON(data []byte) error {
 
 type TransactionTokenAddressInput = string
 
+// Options for a transfer from a custodial wallet.
+type TransferCustodyOptionsResp struct {
+	// Payment initiation context for transfers sourced from wallets that require
+	// initiation data. Captures how the payment was initiated (channel and subchannel)
+	// and whether Strong Customer Authentication was applied or which SCA exemption
+	// was used.
+	Initiation TransferInitiationResp `json:"initiation" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Initiation  respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TransferCustodyOptionsResp) RawJSON() string { return r.JSON.raw }
+func (r *TransferCustodyOptionsResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TransferCustodyOptionsResp to a TransferCustodyOptions.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TransferCustodyOptions.Overrides()
+func (r TransferCustodyOptionsResp) ToParam() TransferCustodyOptions {
+	return param.Override[TransferCustodyOptions](json.RawMessage(r.RawJSON()))
+}
+
+// Options for a transfer from a custodial wallet.
+//
+// The property Initiation is required.
+type TransferCustodyOptions struct {
+	// Payment initiation context for transfers sourced from wallets that require
+	// initiation data. Captures how the payment was initiated (channel and subchannel)
+	// and whether Strong Customer Authentication was applied or which SCA exemption
+	// was used.
+	Initiation TransferInitiation `json:"initiation,omitzero" api:"required"`
+	paramObj
+}
+
+func (r TransferCustodyOptions) MarshalJSON() (data []byte, err error) {
+	type shadow TransferCustodyOptions
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TransferCustodyOptions) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Payment initiation context for transfers sourced from wallets that require
+// initiation data. Captures how the payment was initiated (channel and subchannel)
+// and whether Strong Customer Authentication was applied or which SCA exemption
+// was used.
+type TransferInitiationResp struct {
+	// Payment initiation attestations for a transfer.
+	Attestations TransferInitiationAttestationsResp `json:"attestations" api:"required"`
+	// How the payment was initiated. Use `p2p_mobile_payment` for peer-to-peer
+	// transfers initiated on a mobile device; `other_mobile_payment` for non-P2P
+	// mobile-initiated payments (e.g. a merchant payment via a mobile app); `other`
+	// for payments not relying on a mobile device.
+	Channel TransferInitiationChannel `json:"channel" api:"required"`
+	// Whether the payment was made remotely or in person. Use `remote` for payments
+	// initiated from a distance (mobile app, online banking, or e-commerce checkout);
+	// `non_remote` for payments made in person (physical card, payment terminal, or
+	// contactless tap).
+	Subchannel TransferInitiationSubchannel `json:"subchannel" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Attestations respjson.Field
+		Channel      respjson.Field
+		Subchannel   respjson.Field
+		ExtraFields  map[string]respjson.Field
+		raw          string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TransferInitiationResp) RawJSON() string { return r.JSON.raw }
+func (r *TransferInitiationResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TransferInitiationResp to a TransferInitiation.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TransferInitiation.Overrides()
+func (r TransferInitiationResp) ToParam() TransferInitiation {
+	return param.Override[TransferInitiation](json.RawMessage(r.RawJSON()))
+}
+
+// Payment initiation context for transfers sourced from wallets that require
+// initiation data. Captures how the payment was initiated (channel and subchannel)
+// and whether Strong Customer Authentication was applied or which SCA exemption
+// was used.
+//
+// The properties Attestations, Channel, Subchannel are required.
+type TransferInitiation struct {
+	// Payment initiation attestations for a transfer.
+	Attestations TransferInitiationAttestations `json:"attestations,omitzero" api:"required"`
+	// How the payment was initiated. Use `p2p_mobile_payment` for peer-to-peer
+	// transfers initiated on a mobile device; `other_mobile_payment` for non-P2P
+	// mobile-initiated payments (e.g. a merchant payment via a mobile app); `other`
+	// for payments not relying on a mobile device.
+	Channel TransferInitiationChannel `json:"channel,omitzero" api:"required"`
+	// Whether the payment was made remotely or in person. Use `remote` for payments
+	// initiated from a distance (mobile app, online banking, or e-commerce checkout);
+	// `non_remote` for payments made in person (physical card, payment terminal, or
+	// contactless tap).
+	Subchannel TransferInitiationSubchannel `json:"subchannel,omitzero" api:"required"`
+	paramObj
+}
+
+func (r TransferInitiation) MarshalJSON() (data []byte, err error) {
+	type shadow TransferInitiation
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TransferInitiation) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Payment initiation attestations for a transfer.
+type TransferInitiationAttestationsResp struct {
+	// Strong Customer Authentication attestation for a transfer.
+	Sca TransferScaAttestationResp `json:"sca" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Sca         respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TransferInitiationAttestationsResp) RawJSON() string { return r.JSON.raw }
+func (r *TransferInitiationAttestationsResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TransferInitiationAttestationsResp to a
+// TransferInitiationAttestations.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TransferInitiationAttestations.Overrides()
+func (r TransferInitiationAttestationsResp) ToParam() TransferInitiationAttestations {
+	return param.Override[TransferInitiationAttestations](json.RawMessage(r.RawJSON()))
+}
+
+// Payment initiation attestations for a transfer.
+//
+// The property Sca is required.
+type TransferInitiationAttestations struct {
+	// Strong Customer Authentication attestation for a transfer.
+	Sca TransferScaAttestation `json:"sca,omitzero" api:"required"`
+	paramObj
+}
+
+func (r TransferInitiationAttestations) MarshalJSON() (data []byte, err error) {
+	type shadow TransferInitiationAttestations
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TransferInitiationAttestations) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// How the payment was initiated. Use `p2p_mobile_payment` for peer-to-peer
+// transfers initiated on a mobile device; `other_mobile_payment` for non-P2P
+// mobile-initiated payments (e.g. a merchant payment via a mobile app); `other`
+// for payments not relying on a mobile device.
+type TransferInitiationChannel string
+
+const (
+	TransferInitiationChannelP2pMobilePayment   TransferInitiationChannel = "p2p_mobile_payment"
+	TransferInitiationChannelOtherMobilePayment TransferInitiationChannel = "other_mobile_payment"
+	TransferInitiationChannelOther              TransferInitiationChannel = "other"
+)
+
+// Whether the payment was made remotely or in person. Use `remote` for payments
+// initiated from a distance (mobile app, online banking, or e-commerce checkout);
+// `non_remote` for payments made in person (physical card, payment terminal, or
+// contactless tap).
+type TransferInitiationSubchannel string
+
+const (
+	TransferInitiationSubchannelRemote    TransferInitiationSubchannel = "remote"
+	TransferInitiationSubchannelNonRemote TransferInitiationSubchannel = "non_remote"
+)
+
 // Details for a received transfer transaction.
 type TransferReceivedTransactionDetail struct {
 	Asset TransferReceivedTransactionDetailAsset `json:"asset" api:"required"`
@@ -7741,6 +8004,8 @@ type TransferRequestBodyResp struct {
 	//
 	// Any of "exact_input", "exact_output".
 	AmountType AmountType `json:"amount_type"`
+	// Options for a transfer from a custodial wallet.
+	CustodyOptions TransferCustodyOptionsResp `json:"custody_options"`
 	// Total fees assessed on a transfer, in BPS
 	FeeConfiguration FeeConfigurationResp `json:"fee_configuration"`
 	// Unique caller-generated nonce used to prevent replaying a signed wallet action
@@ -7757,6 +8022,7 @@ type TransferRequestBodyResp struct {
 		Source           respjson.Field
 		Amount           respjson.Field
 		AmountType       respjson.Field
+		CustodyOptions   respjson.Field
 		FeeConfiguration respjson.Field
 		Nonce            respjson.Field
 		ReferenceID      respjson.Field
@@ -7807,6 +8073,8 @@ type TransferRequestBody struct {
 	//
 	// Any of "exact_input", "exact_output".
 	AmountType AmountType `json:"amount_type,omitzero"`
+	// Options for a transfer from a custodial wallet.
+	CustodyOptions TransferCustodyOptions `json:"custody_options,omitzero"`
 	// Total fees assessed on a transfer, in BPS
 	FeeConfiguration FeeConfiguration `json:"fee_configuration,omitzero"`
 	paramObj
@@ -7819,6 +8087,210 @@ func (r TransferRequestBody) MarshalJSON() (data []byte, err error) {
 func (r *TransferRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// Strong Customer Authentication attestation for a transfer.
+type TransferScaAttestationResp struct {
+	// Whether Strong Customer Authentication (SCA) was applied or which regulatory
+	// exemption or non-applicability reason covers this payment. Use `sca_used` when
+	// the user authenticated with SCA. Otherwise, choose the value that applies:
+	// `payment_to_self` — payer and payee are the same person (remote only);
+	// `trusted_beneficiaries` — payee is on the user's pre-approved list;
+	// `recurring_transaction` — amount and payee match a previously SCA-authorized
+	// recurring series; `contactless_low_value` — contactless card payment below the
+	// low-value threshold (non-remote only); `unattended_terminal_for_transport` —
+	// automated terminal for transport fares or parking (non-remote only); `low_value`
+	// — remote payment below the low-value threshold (remote only);
+	// `secure_corporate_payment` — dedicated corporate payment process with controls
+	// equivalent to SCA (remote only); `transaction_risk_analysis` — PSP has performed
+	// real-time risk analysis and the transaction falls within permitted thresholds
+	// (remote only); `merchant_initiated_transaction` — payment triggered by the
+	// merchant without the payer present, on a pre-authorized mandate (remote only);
+	// `not_applicable` — this flow requires initiation context but SCA and SCA
+	// exemptions do not apply; `other` — another recognized exemption not listed
+	// above.
+	Outcome TransferScaOutcome `json:"outcome" api:"required"`
+	// Authentication factor metadata. Optional when `outcome` is `sca_used`; if
+	// provided, it must contain at least two entries from different `category` values
+	// (e.g. one `possession` factor and one `knowledge` factor). Omit this field for
+	// any other outcome.
+	AuthFactors []TransferScaAuthFactorResp `json:"auth_factors"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Outcome     respjson.Field
+		AuthFactors respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TransferScaAttestationResp) RawJSON() string { return r.JSON.raw }
+func (r *TransferScaAttestationResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TransferScaAttestationResp to a TransferScaAttestation.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TransferScaAttestation.Overrides()
+func (r TransferScaAttestationResp) ToParam() TransferScaAttestation {
+	return param.Override[TransferScaAttestation](json.RawMessage(r.RawJSON()))
+}
+
+// Strong Customer Authentication attestation for a transfer.
+//
+// The property Outcome is required.
+type TransferScaAttestation struct {
+	// Whether Strong Customer Authentication (SCA) was applied or which regulatory
+	// exemption or non-applicability reason covers this payment. Use `sca_used` when
+	// the user authenticated with SCA. Otherwise, choose the value that applies:
+	// `payment_to_self` — payer and payee are the same person (remote only);
+	// `trusted_beneficiaries` — payee is on the user's pre-approved list;
+	// `recurring_transaction` — amount and payee match a previously SCA-authorized
+	// recurring series; `contactless_low_value` — contactless card payment below the
+	// low-value threshold (non-remote only); `unattended_terminal_for_transport` —
+	// automated terminal for transport fares or parking (non-remote only); `low_value`
+	// — remote payment below the low-value threshold (remote only);
+	// `secure_corporate_payment` — dedicated corporate payment process with controls
+	// equivalent to SCA (remote only); `transaction_risk_analysis` — PSP has performed
+	// real-time risk analysis and the transaction falls within permitted thresholds
+	// (remote only); `merchant_initiated_transaction` — payment triggered by the
+	// merchant without the payer present, on a pre-authorized mandate (remote only);
+	// `not_applicable` — this flow requires initiation context but SCA and SCA
+	// exemptions do not apply; `other` — another recognized exemption not listed
+	// above.
+	Outcome TransferScaOutcome `json:"outcome,omitzero" api:"required"`
+	// Authentication factor metadata. Optional when `outcome` is `sca_used`; if
+	// provided, it must contain at least two entries from different `category` values
+	// (e.g. one `possession` factor and one `knowledge` factor). Omit this field for
+	// any other outcome.
+	AuthFactors []TransferScaAuthFactor `json:"auth_factors,omitzero"`
+	paramObj
+}
+
+func (r TransferScaAttestation) MarshalJSON() (data []byte, err error) {
+	type shadow TransferScaAttestation
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TransferScaAttestation) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Authentication factor metadata for a transfer.
+type TransferScaAuthFactorResp struct {
+	// The ISO 8601 timestamp when this factor was authenticated.
+	AuthenticatedAt time.Time `json:"authenticated_at" api:"required" format:"date-time"`
+	// The type of authentication factor used. Known values are: `knowledge` (something
+	// only the user knows, e.g. a PIN or password), `possession` (something only the
+	// user has, e.g. a phone receiving an OTP or a hardware token), and `inherence`
+	// (something the user is, e.g. a fingerprint or face scan). When `outcome` is
+	// `sca_used`, the two factors in `auth_factors` must belong to two different
+	// categories.
+	Category TransferScaAuthFactorCategory `json:"category" api:"required"`
+	// Your internal identifier for this authentication event (e.g. a session ID,
+	// transaction ID, or audit log reference). Used for reconciliation.
+	Reference string `json:"reference" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		AuthenticatedAt respjson.Field
+		Category        respjson.Field
+		Reference       respjson.Field
+		ExtraFields     map[string]respjson.Field
+		raw             string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TransferScaAuthFactorResp) RawJSON() string { return r.JSON.raw }
+func (r *TransferScaAuthFactorResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this TransferScaAuthFactorResp to a TransferScaAuthFactor.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// TransferScaAuthFactor.Overrides()
+func (r TransferScaAuthFactorResp) ToParam() TransferScaAuthFactor {
+	return param.Override[TransferScaAuthFactor](json.RawMessage(r.RawJSON()))
+}
+
+// Authentication factor metadata for a transfer.
+//
+// The properties AuthenticatedAt, Category, Reference are required.
+type TransferScaAuthFactor struct {
+	// The ISO 8601 timestamp when this factor was authenticated.
+	AuthenticatedAt time.Time `json:"authenticated_at" api:"required" format:"date-time"`
+	// The type of authentication factor used. Known values are: `knowledge` (something
+	// only the user knows, e.g. a PIN or password), `possession` (something only the
+	// user has, e.g. a phone receiving an OTP or a hardware token), and `inherence`
+	// (something the user is, e.g. a fingerprint or face scan). When `outcome` is
+	// `sca_used`, the two factors in `auth_factors` must belong to two different
+	// categories.
+	Category TransferScaAuthFactorCategory `json:"category,omitzero" api:"required"`
+	// Your internal identifier for this authentication event (e.g. a session ID,
+	// transaction ID, or audit log reference). Used for reconciliation.
+	Reference string `json:"reference" api:"required"`
+	paramObj
+}
+
+func (r TransferScaAuthFactor) MarshalJSON() (data []byte, err error) {
+	type shadow TransferScaAuthFactor
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TransferScaAuthFactor) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The type of authentication factor used. Known values are: `knowledge` (something
+// only the user knows, e.g. a PIN or password), `possession` (something only the
+// user has, e.g. a phone receiving an OTP or a hardware token), and `inherence`
+// (something the user is, e.g. a fingerprint or face scan). When `outcome` is
+// `sca_used`, the two factors in `auth_factors` must belong to two different
+// categories.
+type TransferScaAuthFactorCategory string
+
+const (
+	TransferScaAuthFactorCategoryKnowledge  TransferScaAuthFactorCategory = "knowledge"
+	TransferScaAuthFactorCategoryPossession TransferScaAuthFactorCategory = "possession"
+	TransferScaAuthFactorCategoryInherence  TransferScaAuthFactorCategory = "inherence"
+)
+
+// Whether Strong Customer Authentication (SCA) was applied or which regulatory
+// exemption or non-applicability reason covers this payment. Use `sca_used` when
+// the user authenticated with SCA. Otherwise, choose the value that applies:
+// `payment_to_self` — payer and payee are the same person (remote only);
+// `trusted_beneficiaries` — payee is on the user's pre-approved list;
+// `recurring_transaction` — amount and payee match a previously SCA-authorized
+// recurring series; `contactless_low_value` — contactless card payment below the
+// low-value threshold (non-remote only); `unattended_terminal_for_transport` —
+// automated terminal for transport fares or parking (non-remote only); `low_value`
+// — remote payment below the low-value threshold (remote only);
+// `secure_corporate_payment` — dedicated corporate payment process with controls
+// equivalent to SCA (remote only); `transaction_risk_analysis` — PSP has performed
+// real-time risk analysis and the transaction falls within permitted thresholds
+// (remote only); `merchant_initiated_transaction` — payment triggered by the
+// merchant without the payer present, on a pre-authorized mandate (remote only);
+// `not_applicable` — this flow requires initiation context but SCA and SCA
+// exemptions do not apply; `other` — another recognized exemption not listed
+// above.
+type TransferScaOutcome string
+
+const (
+	TransferScaOutcomeScaUsed                        TransferScaOutcome = "sca_used"
+	TransferScaOutcomePaymentToSelf                  TransferScaOutcome = "payment_to_self"
+	TransferScaOutcomeTrustedBeneficiaries           TransferScaOutcome = "trusted_beneficiaries"
+	TransferScaOutcomeRecurringTransaction           TransferScaOutcome = "recurring_transaction"
+	TransferScaOutcomeContactlessLowValue            TransferScaOutcome = "contactless_low_value"
+	TransferScaOutcomeUnattendedTerminalForTransport TransferScaOutcome = "unattended_terminal_for_transport"
+	TransferScaOutcomeLowValue                       TransferScaOutcome = "low_value"
+	TransferScaOutcomeSecureCorporatePayment         TransferScaOutcome = "secure_corporate_payment"
+	TransferScaOutcomeTransactionRiskAnalysis        TransferScaOutcome = "transaction_risk_analysis"
+	TransferScaOutcomeMerchantInitiatedTransaction   TransferScaOutcome = "merchant_initiated_transaction"
+	TransferScaOutcomeNotApplicable                  TransferScaOutcome = "not_applicable"
+	TransferScaOutcomeOther                          TransferScaOutcome = "other"
+)
 
 // Details for a sent transfer transaction.
 type TransferSentTransactionDetail struct {
@@ -9369,6 +9841,56 @@ func (u WalletAuthenticateWithJwtResponseUnion) AsRawWalletAuthenticateResponse(
 func (u WalletAuthenticateWithJwtResponseUnion) RawJSON() string { return u.JSON.raw }
 
 func (r *WalletAuthenticateWithJwtResponseUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// List of wallet automation attachments.
+type WalletAutomationAttachmentListResponse struct {
+	Data []WalletAutomationAttachmentResponse `json:"data" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletAutomationAttachmentListResponse) RawJSON() string { return r.JSON.raw }
+func (r *WalletAutomationAttachmentListResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A wallet automation attachment linking an automation to a specific wallet.
+type WalletAutomationAttachmentResponse struct {
+	ID           string `json:"id" api:"required"`
+	AutomationID string `json:"automation_id" api:"required"`
+	CreatedAt    string `json:"created_at" api:"required"`
+	// Per-attachment parameters for swap automations.
+	Params SwapAttachmentParamsResp `json:"params" api:"required"`
+	// Automation lifecycle state: 'enabled' = running, 'disabled' = not running.
+	//
+	// Any of "enabled", "disabled".
+	Status    WalletAutomationStatus `json:"status" api:"required"`
+	UpdatedAt string                 `json:"updated_at" api:"required"`
+	WalletID  string                 `json:"wallet_id" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID           respjson.Field
+		AutomationID respjson.Field
+		CreatedAt    respjson.Field
+		Params       respjson.Field
+		Status       respjson.Field
+		UpdatedAt    respjson.Field
+		WalletID     respjson.Field
+		ExtraFields  map[string]respjson.Field
+		raw          string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WalletAutomationAttachmentResponse) RawJSON() string { return r.JSON.raw }
+func (r *WalletAutomationAttachmentResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -11627,6 +12149,26 @@ func (r *WalletAssignEntityParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+type WalletAttachAutomationsParams struct {
+	// Request body for attaching automations to a wallet (wallet ID comes from the
+	// URL).
+	AttachWalletAutomationRequestBody AttachWalletAutomationRequestBody
+	// Request authorization signature. If multiple signatures are required, they
+	// should be comma separated.
+	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
+	paramObj
+}
+
+func (r WalletAttachAutomationsParams) MarshalJSON() (data []byte, err error) {
+	return shimjson.Marshal(r.AttachWalletAutomationRequestBody)
+}
+func (r *WalletAttachAutomationsParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 type WalletAuthenticateWithJwtParams struct {
 	// Request body for wallet authentication with HPKE-encrypted response.
 	WalletAuthenticateRequestBody WalletAuthenticateRequestBody
@@ -11745,6 +12287,26 @@ func (r WalletNewWalletsWithRecoveryParamsWallet) MarshalJSON() (data []byte, er
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *WalletNewWalletsWithRecoveryParamsWallet) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type WalletDetachAutomationsParams struct {
+	// Request body for detaching automations from a wallet (wallet ID comes from the
+	// URL).
+	DetachWalletAutomationRequestBody DetachWalletAutomationRequestBody
+	// Request authorization signature. If multiple signatures are required, they
+	// should be comma separated.
+	PrivyAuthorizationSignature param.Opt[string] `header:"privy-authorization-signature,omitzero" json:"-"`
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
+	paramObj
+}
+
+func (r WalletDetachAutomationsParams) MarshalJSON() (data []byte, err error) {
+	return shimjson.Marshal(r.DetachWalletAutomationRequestBody)
+}
+func (r *WalletDetachAutomationsParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

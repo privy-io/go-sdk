@@ -1194,12 +1194,27 @@ type KYCSubmitData struct {
 	FirstName param.Opt[string] `json:"first_name,omitzero"`
 	// Legal last name.
 	LastName param.Opt[string] `json:"last_name,omitzero"`
+	// Legal middle name.
+	MiddleName param.Opt[string] `json:"middle_name,omitzero"`
+	// Attests the user is a nonresident alien to satisfy identification without a US
+	// tax ID (must be enabled for you).
+	NonresidentAlienAttestation param.Opt[bool] `json:"nonresident_alien_attestation,omitzero"`
 	// Phone number in E.164 format.
 	Phone param.Opt[string] `json:"phone,omitzero"`
+	// Latin-1 transliteration of the first name. Required for non-Latin-1 names.
+	TransliteratedFirstName param.Opt[string] `json:"transliterated_first_name,omitzero"`
+	// Latin-1 transliteration of the last name. Required for non-Latin-1 names.
+	TransliteratedLastName param.Opt[string] `json:"transliterated_last_name,omitzero"`
+	// Latin-1 transliteration of the middle name. Required for non-Latin-1 names.
+	TransliteratedMiddleName param.Opt[string] `json:"transliterated_middle_name,omitzero"`
 	// Identifying documents.
 	IdentifyingInformation []VerificationDocument `json:"identifying_information,omitzero"`
+	// ISO 3166-1 alpha-3 codes for all nationalities held.
+	Nationalities []string `json:"nationalities,omitzero"`
 	// A postal address used in KYC and KYB data submission.
 	ResidentialAddress VerificationAddress `json:"residential_address,omitzero"`
+	// A postal address used in KYC and KYB data submission.
+	TransliteratedResidentialAddress VerificationAddress `json:"transliterated_residential_address,omitzero"`
 	paramObj
 }
 

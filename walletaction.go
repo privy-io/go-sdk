@@ -133,18 +133,24 @@ type CustodianTransactionWalletActionStep struct {
 	// Any of "preparing", "queued", "custodian_reviewing", "pending", "confirmed",
 	// "rejected", "failed".
 	Status CustodianTransactionWalletActionStepStatus `json:"status" api:"required"`
+	// Identifier of the transaction the custodian last reported on the destination
+	// chain. Set on a settled transfer, and also on a failed one when the custodian
+	// had already broadcast a payout that was later returned. Null until the custodian
+	// reports one.
+	TransactionHash string `json:"transaction_hash" api:"required"`
 	// Any of "custodian_transaction".
 	Type CustodianTransactionWalletActionStepType `json:"type" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		Custodian     respjson.Field
-		Status        respjson.Field
-		Type          respjson.Field
-		FailureReason respjson.Field
-		ExtraFields   map[string]respjson.Field
-		raw           string
+		Custodian       respjson.Field
+		Status          respjson.Field
+		TransactionHash respjson.Field
+		Type            respjson.Field
+		FailureReason   respjson.Field
+		ExtraFields     map[string]respjson.Field
+		raw             string
 	} `json:"-"`
 }
 
@@ -1745,9 +1751,8 @@ const (
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 type WalletActionStepUnion struct {
-	Caip2  string `json:"caip2"`
-	Status string `json:"status"`
-	// This field is from variant [EvmTransactionWalletActionStep].
+	Caip2           string `json:"caip2"`
+	Status          string `json:"status"`
 	TransactionHash string `json:"transaction_hash"`
 	// Any of "evm_transaction", "evm_user_operation", "svm_transaction",
 	// "tvm_transaction", "external_transaction", "custodian_transaction".

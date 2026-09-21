@@ -7,6 +7,7 @@ import (
 	"errors"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/privy-io/go-sdk"
 	"github.com/privy-io/go-sdk/internal/testutil"
@@ -285,6 +286,26 @@ func TestIntentTransferWithOptionalParams(t *testing.T) {
 				},
 				Amount:     privyclient.String("10.5"),
 				AmountType: privyclient.AmountTypeExactInput,
+				CustodyOptions: privyclient.TransferCustodyOptions{
+					Initiation: privyclient.TransferInitiation{
+						Attestations: privyclient.TransferInitiationAttestations{
+							Sca: privyclient.TransferScaAttestation{
+								Outcome: privyclient.TransferScaOutcomeNotApplicable,
+								AuthFactors: []privyclient.TransferScaAuthFactor{{
+									AuthenticatedAt: time.Now(),
+									Category:        privyclient.TransferScaAuthFactorCategoryPossession,
+									Reference:       "auth_event_123",
+								}, {
+									AuthenticatedAt: time.Now(),
+									Category:        privyclient.TransferScaAuthFactorCategoryKnowledge,
+									Reference:       "auth_event_456",
+								}},
+							},
+						},
+						Channel:    privyclient.TransferInitiationChannelOtherMobilePayment,
+						Subchannel: privyclient.TransferInitiationSubchannelRemote,
+					},
+				},
 				FeeConfiguration: privyclient.FeeConfiguration{
 					Type:  privyclient.FeeConfigurationTypeTotalFeeBps,
 					Value: 50,
