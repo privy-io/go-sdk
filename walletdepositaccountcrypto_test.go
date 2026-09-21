@@ -7,6 +7,7 @@ import (
 	"errors"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/privy-io/go-sdk"
 	"github.com/privy-io/go-sdk/internal/testutil"
@@ -98,6 +99,73 @@ func TestWalletDepositAccountCryptoGetConfig(t *testing.T) {
 		option.WithAppSecret("My App Secret"),
 	)
 	_, err := client.Wallets.DepositAccounts.Crypto.GetConfig(context.TODO())
+	if err != nil {
+		var apierr *privyclient.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestWalletDepositAccountCryptoGetNextOrder(t *testing.T) {
+	t.Skip("Mock server tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := privyclient.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAppID("My App ID"),
+		option.WithAppSecret("My App Secret"),
+	)
+	_, err := client.Wallets.DepositAccounts.Crypto.GetNextOrder(
+		context.TODO(),
+		"wallet_id",
+		privyclient.WalletDepositAccountCryptoGetNextOrderParams{
+			After: time.Now(),
+		},
+	)
+	if err != nil {
+		var apierr *privyclient.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestWalletDepositAccountCryptoQuoteWithOptionalParams(t *testing.T) {
+	t.Skip("Mock server tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := privyclient.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAppID("My App ID"),
+		option.WithAppSecret("My App Secret"),
+	)
+	_, err := client.Wallets.DepositAccounts.Crypto.Quote(context.TODO(), privyclient.WalletDepositAccountCryptoQuoteParams{
+		DepositAccountCryptoQuoteRequestBody: privyclient.DepositAccountCryptoQuoteRequestBody{
+			Destination: privyclient.DepositAccountCryptoQuoteAsset{
+				Asset: "usdc",
+				Chain: "base",
+			},
+			Source: privyclient.DepositAccountCryptoQuoteAsset{
+				Asset: "eth",
+				Chain: "ethereum",
+			},
+			InputAmount: privyclient.String("0.02"),
+			SlippageBps: privyclient.Int(50),
+		},
+	})
 	if err != nil {
 		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {

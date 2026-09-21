@@ -1340,6 +1340,77 @@ func (r *CustomTokenTransferSource) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+type DepositAccountCryptoQuoteAmount = string
+
+// An asset and chain for an indicative crypto deposit-account quote.
+//
+// The properties Asset, Chain are required.
+type DepositAccountCryptoQuoteAsset struct {
+	// Named asset ID (e.g. "usdc", "eth") or chain-specific token contract or mint
+	// address
+	Asset string `json:"asset" api:"required"`
+	// Friendly chain name or CAIP-2 identifier (e.g. "base", "eip155:8453")
+	Chain string `json:"chain" api:"required"`
+	paramObj
+}
+
+func (r DepositAccountCryptoQuoteAsset) MarshalJSON() (data []byte, err error) {
+	type shadow DepositAccountCryptoQuoteAsset
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *DepositAccountCryptoQuoteAsset) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Request body for an indicative crypto deposit-account route quote.
+//
+// The properties Destination, Source are required.
+type DepositAccountCryptoQuoteRequestBody struct {
+	// An asset and chain for an indicative crypto deposit-account quote.
+	Destination DepositAccountCryptoQuoteAsset `json:"destination,omitzero" api:"required"`
+	// An asset and chain for an indicative crypto deposit-account quote.
+	Source DepositAccountCryptoQuoteAsset `json:"source,omitzero" api:"required"`
+	// A positive decimal amount in the source token’s standard unit, not its smallest
+	// on-chain unit.
+	InputAmount param.Opt[DepositAccountCryptoQuoteAmount] `json:"input_amount,omitzero"`
+	// Value in basis points: integer from 0 to 10000 (0% to 100%).
+	SlippageBps param.Opt[Bps] `json:"slippage_bps,omitzero"`
+	paramObj
+}
+
+func (r DepositAccountCryptoQuoteRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow DepositAccountCryptoQuoteRequestBody
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *DepositAccountCryptoQuoteRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// An indicative crypto deposit-account quote. Amounts are in token standard units.
+type DepositAccountCryptoQuoteResponse struct {
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// Estimated output amount as a decimal string in the destination token's standard
+	// unit. Not in the smallest on-chain unit.
+	EstimatedOutputAmount string `json:"estimated_output_amount" api:"required"`
+	// Quoted input amount as a decimal string in the source token's standard unit
+	// (e.g. "0.02" for 0.02 ETH). Not in the smallest on-chain unit.
+	InputAmount string `json:"input_amount" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		CreatedAt             respjson.Field
+		EstimatedOutputAmount respjson.Field
+		InputAmount           respjson.Field
+		ExtraFields           map[string]respjson.Field
+		raw                   string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r DepositAccountCryptoQuoteResponse) RawJSON() string { return r.JSON.raw }
+func (r *DepositAccountCryptoQuoteResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Request body for detaching automations from a wallet (wallet ID comes from the
 // URL).
 //
@@ -3485,6 +3556,26 @@ func (r GetByWalletAddressRequestBody) MarshalJSON() (data []byte, err error) {
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *GetByWalletAddressRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The next crypto deposit-account sweep into the path wallet after `after`, or
+// null if none. The order object matches GET order.
+type GetCryptoDepositAccountNextOrderResponse struct {
+	// A crypto deposit-account sweep identified by its wallet action ID. Status is the
+	// wallet-action status.
+	Order GetCryptoDepositAccountOrderResponse `json:"order" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Order       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r GetCryptoDepositAccountNextOrderResponse) RawJSON() string { return r.JSON.raw }
+func (r *GetCryptoDepositAccountNextOrderResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

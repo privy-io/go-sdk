@@ -30,6 +30,8 @@ func NewSharedService(opts ...option.RequestOption) (r SharedService) {
 	return
 }
 
+type Bps = int64
+
 // The Privy API environment.
 type Environment string
 

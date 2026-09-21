@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"slices"
+	"time"
 
 	"github.com/privy-io/go-sdk/internal/apijson"
 	"github.com/privy-io/go-sdk/internal/apiquery"
@@ -102,6 +103,30 @@ func (r *WalletDepositAccountCryptoService) GetConfig(ctx context.Context, opts 
 	return res, err
 }
 
+// Fetch the earliest crypto deposit-account sweep into the path wallet after
+// `after`. Returns `{order: {id, status} | null}` — the same order object as GET
+// order. The path wallet is the destination (same as create). Accepts an app
+// secret or a user / wallet-signer JWT (`privy-app-id`).
+func (r *WalletDepositAccountCryptoService) GetNextOrder(ctx context.Context, walletID string, query WalletDepositAccountCryptoGetNextOrderParams, opts ...option.RequestOption) (res *GetCryptoDepositAccountNextOrderResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if walletID == "" {
+		err = errors.New("missing required wallet_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/wallets/%s/deposit_accounts/crypto/next_order", url.PathEscape(walletID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	return res, err
+}
+
+// Returns an indicative route quote without creating a wallet. Amounts use token
+// standard units. Accepts an app secret or user token.
+func (r *WalletDepositAccountCryptoService) Quote(ctx context.Context, body WalletDepositAccountCryptoQuoteParams, opts ...option.RequestOption) (res *DepositAccountCryptoQuoteResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "v1/deposit_accounts/crypto/quote"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return res, err
+}
+
 type WalletDepositAccountCryptoNewParams struct {
 	// Request body for creating a crypto deposit account.
 	CreateCryptoDepositAccountRequestBody CreateCryptoDepositAccountRequestBodyUnion
@@ -137,4 +162,32 @@ func (r WalletDepositAccountCryptoListParams) URLQuery() (v url.Values, err erro
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+type WalletDepositAccountCryptoGetNextOrderParams struct {
+	// Return the earliest sweep strictly after this timestamp.
+	After time.Time `query:"after" api:"required" format:"date-time" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [WalletDepositAccountCryptoGetNextOrderParams]'s query
+// parameters as `url.Values`.
+func (r WalletDepositAccountCryptoGetNextOrderParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
+type WalletDepositAccountCryptoQuoteParams struct {
+	// Request body for an indicative crypto deposit-account route quote.
+	DepositAccountCryptoQuoteRequestBody DepositAccountCryptoQuoteRequestBody
+	paramObj
+}
+
+func (r WalletDepositAccountCryptoQuoteParams) MarshalJSON() (data []byte, err error) {
+	return shimjson.Marshal(r.DepositAccountCryptoQuoteRequestBody)
+}
+func (r *WalletDepositAccountCryptoQuoteParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
