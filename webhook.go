@@ -493,6 +493,33 @@ func (r *DepositFailedData) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Metadata identifying a refunded wallet deposit.
+type DepositMetadata struct {
+	// Relay details for a refunded wallet deposit.
+	Details RefundDetails `json:"details" api:"required"`
+	// Any of "refund".
+	Type DepositMetadataType `json:"type" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Details     respjson.Field
+		Type        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r DepositMetadata) RawJSON() string { return r.JSON.raw }
+func (r *DepositMetadata) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type DepositMetadataType string
+
+const (
+	DepositMetadataTypeRefund DepositMetadataType = "refund"
+)
+
 // Details of a fiat deposit that has begun processing into a deposit account.
 type DepositStartedData struct {
 	CreatedAt string `json:"created_at" api:"required"`
@@ -605,6 +632,8 @@ type FundsDepositedWebhookPayload struct {
 	WalletID string `json:"wallet_id" api:"required"`
 	// Metadata about a Bridge transaction associated with a wallet event.
 	BridgeMetadata BridgeMetadataUnion `json:"bridge_metadata"`
+	// Metadata identifying a refunded wallet deposit.
+	DepositMetadata DepositMetadata `json:"deposit_metadata"`
 	// The transaction fee paid, as a stringified bigint in the chain's native token.
 	TransactionFee string `json:"transaction_fee"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -620,6 +649,7 @@ type FundsDepositedWebhookPayload struct {
 		Type            respjson.Field
 		WalletID        respjson.Field
 		BridgeMetadata  respjson.Field
+		DepositMetadata respjson.Field
 		TransactionFee  respjson.Field
 		ExtraFields     map[string]respjson.Field
 		raw             string
@@ -1139,6 +1169,39 @@ type PrivateKeyExportWebhookPayloadType string
 
 const (
 	PrivateKeyExportWebhookPayloadTypeWalletPrivateKeyExport PrivateKeyExportWebhookPayloadType = "wallet.private_key_export"
+)
+
+// Relay details for a refunded wallet deposit.
+type RefundDetails struct {
+	// The transaction hash of the transfer that was refunded.
+	OriginalTransactionHash string `json:"original_transaction_hash" api:"required"`
+	// The provider that handled the refund.
+	//
+	// Any of "relay".
+	Provider RefundDetailsProvider `json:"provider" api:"required"`
+	// The Privy wallet action ID of the transfer that was refunded.
+	WalletActionID string `json:"wallet_action_id" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		OriginalTransactionHash respjson.Field
+		Provider                respjson.Field
+		WalletActionID          respjson.Field
+		ExtraFields             map[string]respjson.Field
+		raw                     string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RefundDetails) RawJSON() string { return r.JSON.raw }
+func (r *RefundDetails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The provider that handled the refund.
+type RefundDetailsProvider string
+
+const (
+	RefundDetailsProviderRelay RefundDetailsProvider = "relay"
 )
 
 // Payload for the transaction.broadcasted webhook event.
@@ -5397,7 +5460,9 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	Recipient      string    `json:"recipient"`
 	// This field is from variant [FundsDepositedWebhookPayload].
 	BridgeMetadata BridgeMetadataUnion `json:"bridge_metadata"`
-	TransactionFee string              `json:"transaction_fee"`
+	// This field is from variant [FundsDepositedWebhookPayload].
+	DepositMetadata DepositMetadata `json:"deposit_metadata"`
+	TransactionFee  string          `json:"transaction_fee"`
 	// This field is from variant [PrivateKeyExportWebhookPayload].
 	ExportSource ExportType `json:"export_source"`
 	// This field is from variant [WalletActionEarnDepositCreatedWebhookPayload].
@@ -5507,6 +5572,7 @@ type UnsafeUnwrapWebhookEventUnion struct {
 		IdempotencyKey           respjson.Field
 		Recipient                respjson.Field
 		BridgeMetadata           respjson.Field
+		DepositMetadata          respjson.Field
 		TransactionFee           respjson.Field
 		ExportSource             respjson.Field
 		ActionType               respjson.Field
