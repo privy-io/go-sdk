@@ -1351,6 +1351,45 @@ const (
 	TempoVaultDetailsProviderTempo TempoVaultDetailsProvider = "tempo"
 )
 
+// A wallet action step representing a Tempo Zone settlement on its parent chain.
+type TempoZoneSettlementWalletActionStep struct {
+	// CAIP-2 identifier of the Tempo parent chain, or null when unavailable.
+	Caip2 string `json:"caip2" api:"required"`
+	// Status of an external transaction step in a wallet action.
+	//
+	// Any of "preparing", "queued", "pending", "confirmed", "rejected", "failed".
+	Status ExternalTransactionWalletActionStepStatus `json:"status" api:"required"`
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
+	// bytes).
+	TransactionHash Hex `json:"transaction_hash" api:"required"`
+	// Any of "tempo_zone_settlement".
+	Type TempoZoneSettlementWalletActionStepType `json:"type" api:"required"`
+	// A description of why a wallet action (or a step within a wallet action) failed.
+	FailureReason FailureReason `json:"failure_reason"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Caip2           respjson.Field
+		Status          respjson.Field
+		TransactionHash respjson.Field
+		Type            respjson.Field
+		FailureReason   respjson.Field
+		ExtraFields     map[string]respjson.Field
+		raw             string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TempoZoneSettlementWalletActionStep) RawJSON() string { return r.JSON.raw }
+func (r *TempoZoneSettlementWalletActionStep) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type TempoZoneSettlementWalletActionStepType string
+
+const (
+	TempoZoneSettlementWalletActionStepTypeTempoZoneSettlement TempoZoneSettlementWalletActionStepType = "tempo_zone_settlement"
+)
+
 // Response for a transfer action.
 type TransferActionResponse struct {
 	// The ID of the wallet action.
@@ -1745,7 +1784,8 @@ const (
 // WalletActionStepUnion contains all possible properties and values from
 // [EvmTransactionWalletActionStep], [EvmUserOperationWalletActionStep],
 // [SvmTransactionWalletActionStep], [TvmTransactionWalletActionStep],
-// [ExternalTransactionWalletActionStep], [CustodianTransactionWalletActionStep].
+// [ExternalTransactionWalletActionStep], [CustodianTransactionWalletActionStep],
+// [TempoZoneSettlementWalletActionStep].
 //
 // Use the [WalletActionStepUnion.AsAny] method to switch on the variant.
 //
@@ -1755,7 +1795,8 @@ type WalletActionStepUnion struct {
 	Status          string `json:"status"`
 	TransactionHash string `json:"transaction_hash"`
 	// Any of "evm_transaction", "evm_user_operation", "svm_transaction",
-	// "tvm_transaction", "external_transaction", "custodian_transaction".
+	// "tvm_transaction", "external_transaction", "custodian_transaction",
+	// "tempo_zone_settlement".
 	Type string `json:"type"`
 	// This field is from variant [EvmTransactionWalletActionStep].
 	FailureReason        FailureReason `json:"failure_reason"`
@@ -1803,6 +1844,7 @@ func (SvmTransactionWalletActionStep) implWalletActionStepUnion()       {}
 func (TvmTransactionWalletActionStep) implWalletActionStepUnion()       {}
 func (ExternalTransactionWalletActionStep) implWalletActionStepUnion()  {}
 func (CustodianTransactionWalletActionStep) implWalletActionStepUnion() {}
+func (TempoZoneSettlementWalletActionStep) implWalletActionStepUnion()  {}
 
 // Use the following switch statement to find the correct variant
 //
@@ -1813,6 +1855,7 @@ func (CustodianTransactionWalletActionStep) implWalletActionStepUnion() {}
 //	case privyclient.TvmTransactionWalletActionStep:
 //	case privyclient.ExternalTransactionWalletActionStep:
 //	case privyclient.CustodianTransactionWalletActionStep:
+//	case privyclient.TempoZoneSettlementWalletActionStep:
 //	default:
 //	  fmt.Errorf("no variant present")
 //	}
@@ -1830,6 +1873,8 @@ func (u WalletActionStepUnion) AsAny() anyWalletActionStep {
 		return u.AsExternalTransaction()
 	case "custodian_transaction":
 		return u.AsCustodianTransaction()
+	case "tempo_zone_settlement":
+		return u.AsTempoZoneSettlement()
 	}
 	return nil
 }
@@ -1860,6 +1905,11 @@ func (u WalletActionStepUnion) AsExternalTransaction() (v ExternalTransactionWal
 }
 
 func (u WalletActionStepUnion) AsCustodianTransaction() (v CustodianTransactionWalletActionStep) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletActionStepUnion) AsTempoZoneSettlement() (v TempoZoneSettlementWalletActionStep) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
