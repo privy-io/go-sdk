@@ -22,6 +22,27 @@ func verifySolanaSignature(t *testing.T, address string, message, signature []by
 	}
 }
 
+func solanaTransactionForSigner(t *testing.T, address string) []byte {
+	t.Helper()
+
+	// This transaction has one required signer and three account keys. Replace the
+	// first account key with the wallet under test so the API can sign it.
+	const transaction = "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQABA6Sih224FoBZ3LfpkolHQKFK6YSbidfv1FW9YACkTdazfHrf9hlOV6sJkws1eGUPR+0+wKPsm78llwnS4EhArhoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQICAAEMAgAAAGQAAAAAAAAAAA=="
+	data, err := base64.StdEncoding.DecodeString(transaction)
+	if err != nil {
+		t.Fatalf("failed to decode test transaction: %v", err)
+	}
+
+	pubKey := base58.Decode(address)
+	if len(pubKey) != ed25519.PublicKeySize {
+		t.Fatalf("unexpected public key length %d (expected %d)", len(pubKey), ed25519.PublicKeySize)
+	}
+
+	const firstAccountKeyOffset = 70
+	copy(data[firstAccountKeyOffset:firstAccountKeyOffset+ed25519.PublicKeySize], pubKey)
+	return data
+}
+
 func TestWallets_Solana(t *testing.T) {
 	client := newTestClient(t)
 	res := setupTestWalletResources(t, client)
@@ -88,12 +109,9 @@ func TestWallets_Solana(t *testing.T) {
 	})
 
 	t.Run("SignTransaction", func(t *testing.T) {
-		// A placeholder base64-encoded transaction for testing
-		// This is a minimal valid Solana transaction structure
-		transaction := "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQABA6Sih224FoBZ3LfpkolHQKFK6YSbidfv1FW9YACkTdazfHrf9hlOV6sJkws1eGUPR+0+wKPsm78llwnS4EhArhoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQICAAEMAgAAAGQAAAAAAAAAAA=="
-
 		for _, wallet := range wallets {
 			t.Run(wallet.name, func(t *testing.T) {
+				transaction := base64.StdEncoding.EncodeToString(solanaTransactionForSigner(t, wallet.address))
 				data, err := client.Wallets.Solana.SignTransaction(ctx, wallet.id,
 					SolanaSignTransactionRpcInputParams{
 						Transaction: transaction,
@@ -116,17 +134,9 @@ func TestWallets_Solana(t *testing.T) {
 	})
 
 	t.Run("SignTransactionBytes", func(t *testing.T) {
-		// Same transaction as above, decoded from base64 to raw bytes
-		// The service will base64-encode it for transmission
-		transactionB64 := "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQABA6Sih224FoBZ3LfpkolHQKFK6YSbidfv1FW9YACkTdazfHrf9hlOV6sJkws1eGUPR+0+wKPsm78llwnS4EhArhoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQICAAEMAgAAAGQAAAAAAAAAAA=="
-
-		transaction, err := base64.StdEncoding.DecodeString(transactionB64)
-		if err != nil {
-			t.Fatalf("failed to decode test transaction: %v", err)
-		}
-
 		for _, wallet := range wallets {
 			t.Run(wallet.name, func(t *testing.T) {
+				transaction := solanaTransactionForSigner(t, wallet.address)
 				data, err := client.Wallets.Solana.SignTransactionBytes(ctx, wallet.id,
 					transaction,
 					WithAuthorizationContext(wallet.authCtx),

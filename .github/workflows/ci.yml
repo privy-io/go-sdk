@@ -105,4 +105,4 @@ jobs:
               - type: "section"
                 text:
                   type: "mrkdwn"
-                  text: "Workflow failed on `${{ github.ref_name }}`.\n- `build` job ${{ needs.build.result == 'success' && 'passed' || 'failed' }}\n- `lint` job ${{ needs.lint.result == 'success' && 'passed' || 'failed' }}\n- `test` job ${{ needs.test.result == 'success' && 'passed' || 'failed' }}\n\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View workflow run>"
+                  text: "Workflow failed on `${{ github.ref_name }}`.\n- `build` job ${{ needs.build.result == 'success' && 'passed' || needs.build.result }}\n- `lint` job ${{ needs.lint.result == 'success' && 'passed' || needs.lint.result }}\n- `test` job ${{ needs.test.result == 'success' && 'passed' || needs.test.result }}\n\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View workflow run>"
