@@ -225,8 +225,9 @@ func (r *OrganizationUpdateParams) UnmarshalJSON(data []byte) error {
 }
 
 type OrganizationListParams struct {
-	Limit  param.Opt[float64] `query:"limit,omitzero" json:"-"`
-	Cursor param.Opt[string]  `query:"cursor,omitzero" json:"-"`
+	Limit param.Opt[float64] `query:"limit,omitzero" json:"-"`
+	// Cursor returned by the previous page.
+	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
 	paramObj
 }
 

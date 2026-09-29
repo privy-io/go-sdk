@@ -12,9 +12,11 @@ import (
 	"slices"
 
 	"github.com/privy-io/go-sdk/internal/apijson"
+	"github.com/privy-io/go-sdk/internal/apiquery"
 	shimjson "github.com/privy-io/go-sdk/internal/encoding/json"
 	"github.com/privy-io/go-sdk/internal/requestconfig"
 	"github.com/privy-io/go-sdk/option"
+	"github.com/privy-io/go-sdk/packages/pagination"
 	"github.com/privy-io/go-sdk/packages/param"
 	"github.com/privy-io/go-sdk/packages/respjson"
 )
@@ -29,6 +31,8 @@ import (
 // the [NewPolicyService] method instead.
 type PolicyService struct {
 	Options []option.RequestOption
+	// Operations related to policies
+	ConditionSets PolicyConditionSetService
 }
 
 // NewPolicyService generates a new service that applies the given options to each
@@ -37,6 +41,7 @@ type PolicyService struct {
 func NewPolicyService(opts ...option.RequestOption) (r PolicyService) {
 	r = PolicyService{}
 	r.Options = opts
+	r.ConditionSets = NewPolicyConditionSetService(opts...)
 	return
 }
 
@@ -67,6 +72,29 @@ func (r *PolicyService) Update(ctx context.Context, policyID string, params Poli
 	path := fmt.Sprintf("v1/policies/%s", url.PathEscape(policyID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, params, &res, opts...)
 	return res, err
+}
+
+// List policies in an app, excluding rules.
+func (r *PolicyService) List(ctx context.Context, query PolicyListParams, opts ...option.RequestOption) (res *pagination.Cursor[PolicyListItem], err error) {
+	var raw *http.Response
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
+	path := "v1/policies"
+	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
+	if err != nil {
+		return nil, err
+	}
+	err = cfg.Execute()
+	if err != nil {
+		return nil, err
+	}
+	res.SetPageConfig(cfg, raw)
+	return res, nil
+}
+
+// List policies in an app, excluding rules.
+func (r *PolicyService) ListAutoPaging(ctx context.Context, query PolicyListParams, opts ...option.RequestOption) *pagination.CursorAutoPager[PolicyListItem] {
+	return pagination.NewCursorAutoPager(r.List(ctx, query, opts...))
 }
 
 // Delete a policy by policy ID.
@@ -453,6 +481,34 @@ const (
 	ConditionOperatorStartsWith     ConditionOperator = "starts_with"
 	ConditionOperatorEndsWith       ConditionOperator = "ends_with"
 )
+
+// A condition set for grouping related condition values.
+type ConditionSet struct {
+	// Unique ID of the created condition set. This will be the primary identifier when
+	// using the condition set in the future.
+	ID string `json:"id" api:"required"`
+	// Unix timestamp of when the condition set was created in milliseconds.
+	CreatedAt float64 `json:"created_at" api:"required"`
+	// Name of the condition set.
+	Name string `json:"name" api:"required"`
+	// A unique identifier for a key quorum.
+	OwnerID KeyQuorumID `json:"owner_id" api:"required" format:"cuid2"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID          respjson.Field
+		CreatedAt   respjson.Field
+		Name        respjson.Field
+		OwnerID     respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ConditionSet) RawJSON() string { return r.JSON.raw }
+func (r *ConditionSet) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 // ConditionValueUnionResp contains all possible properties and values from
 // [string], [[]string].
@@ -1019,6 +1075,27 @@ const (
 	MessageSigningFieldByteLength MessageSigningField = "byte_length"
 )
 
+// Paginated list of policies in an app.
+type PoliciesResponse struct {
+	// Policies in this page.
+	Data []PolicyListItem `json:"data" api:"required"`
+	// Cursor for the next page. Null when there are no further pages.
+	NextCursor string `json:"next_cursor" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		NextCursor  respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PoliciesResponse) RawJSON() string { return r.JSON.raw }
+func (r *PoliciesResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // A policy for controlling wallet operations.
 type Policy struct {
 	// Unique ID of the created policy. This will be the primary identifier when using
@@ -1424,6 +1501,53 @@ func init() {
 		apijson.Discriminator[MessageSigningCondition]("message"),
 	)
 }
+
+// A policy without its rules, as returned when listing policies.
+type PolicyListItem struct {
+	// Unique ID of the created policy. This will be the primary identifier when using
+	// the policy in the future.
+	ID string `json:"id" api:"required"`
+	// The wallet chain types.
+	//
+	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
+	// "tron", "bitcoin-segwit", "bitcoin-taproot", "pearl", "near", "ton", "starknet",
+	// "xrpl", "spark".
+	ChainType WalletChainType `json:"chain_type" api:"required"`
+	// Unix timestamp of when the policy was created in milliseconds.
+	CreatedAt float64 `json:"created_at" api:"required"`
+	// Name to assign to policy.
+	Name string `json:"name" api:"required"`
+	// A unique identifier for a key quorum.
+	OwnerID KeyQuorumID `json:"owner_id" api:"required" format:"cuid2"`
+	// Version of the policy. Currently, 1.0 is the only version.
+	//
+	// Any of "1.0".
+	Version PolicyListItemVersion `json:"version" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID          respjson.Field
+		ChainType   respjson.Field
+		CreatedAt   respjson.Field
+		Name        respjson.Field
+		OwnerID     respjson.Field
+		Version     respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PolicyListItem) RawJSON() string { return r.JSON.raw }
+func (r *PolicyListItem) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Version of the policy. Currently, 1.0 is the only version.
+type PolicyListItemVersion string
+
+const (
+	PolicyListItemVersion1_0 PolicyListItemVersion = "1.0"
+)
 
 // Method the rule applies to.
 type PolicyMethod string
@@ -2735,6 +2859,21 @@ func (r PolicyUpdateParams) MarshalJSON() (data []byte, err error) {
 }
 func (r *PolicyUpdateParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+type PolicyListParams struct {
+	Limit param.Opt[float64] `query:"limit,omitzero" json:"-"`
+	// Cursor returned by the previous page.
+	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [PolicyListParams]'s query parameters as `url.Values`.
+func (r PolicyListParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }
 
 type PolicyDeleteParams struct {

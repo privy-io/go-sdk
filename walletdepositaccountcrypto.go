@@ -150,6 +150,7 @@ func (r *WalletDepositAccountCryptoNewParams) UnmarshalJSON(data []byte) error {
 }
 
 type WalletDepositAccountCryptoListParams struct {
+	// Cursor returned by the previous page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
 	Limit  param.Opt[int64]  `query:"limit,omitzero" json:"-"`
 	paramObj

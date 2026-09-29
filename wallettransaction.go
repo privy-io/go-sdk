@@ -113,9 +113,10 @@ func (r *WalletTransactionGetResponseTransaction) UnmarshalJSON(data []byte) err
 
 type WalletTransactionGetParams struct {
 	// Chains supported for transaction history queries.
-	Chain  TransactionChainNameInput `query:"chain,omitzero" api:"required" json:"-"`
-	Limit  param.Opt[float64]        `query:"limit,omitzero" json:"-"`
-	Cursor param.Opt[string]         `query:"cursor,omitzero" json:"-"`
+	Chain TransactionChainNameInput `query:"chain,omitzero" api:"required" json:"-"`
+	Limit param.Opt[float64]        `query:"limit,omitzero" json:"-"`
+	// Cursor returned by the previous page.
+	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
 	// Include archived wallets in lookup. Defaults to false.
 	IncludeArchived param.Opt[bool]   `query:"include_archived,omitzero" json:"-"`
 	TxHash          param.Opt[string] `query:"tx_hash,omitzero" json:"-"`

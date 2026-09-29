@@ -8,12 +8,15 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"slices"
 
 	"github.com/privy-io/go-sdk/internal/apijson"
+	"github.com/privy-io/go-sdk/internal/apiquery"
 	shimjson "github.com/privy-io/go-sdk/internal/encoding/json"
 	"github.com/privy-io/go-sdk/internal/requestconfig"
 	"github.com/privy-io/go-sdk/option"
+	"github.com/privy-io/go-sdk/packages/pagination"
 	"github.com/privy-io/go-sdk/packages/param"
 	"github.com/privy-io/go-sdk/packages/respjson"
 )
@@ -63,6 +66,29 @@ func (r *KeyQuorumService) Update(ctx context.Context, keyQuorumID KeyQuorumID, 
 	path := fmt.Sprintf("v1/key_quorums/%s", keyQuorumID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, params, &res, opts...)
 	return res, err
+}
+
+// List key quorums in an app.
+func (r *KeyQuorumService) List(ctx context.Context, query KeyQuorumListParams, opts ...option.RequestOption) (res *pagination.Cursor[KeyQuorum], err error) {
+	var raw *http.Response
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
+	path := "v1/key_quorums"
+	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
+	if err != nil {
+		return nil, err
+	}
+	err = cfg.Execute()
+	if err != nil {
+		return nil, err
+	}
+	res.SetPageConfig(cfg, raw)
+	return res, nil
+}
+
+// List key quorums in an app.
+func (r *KeyQuorumService) ListAutoPaging(ctx context.Context, query KeyQuorumListParams, opts ...option.RequestOption) *pagination.CursorAutoPager[KeyQuorum] {
+	return pagination.NewCursorAutoPager(r.List(ctx, query, opts...))
 }
 
 // Delete a key quorum by key quorum ID.
@@ -243,6 +269,27 @@ func (r *KeyQuorumUpdateRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Paginated list of key quorums in an app.
+type KeyQuorumsResponse struct {
+	// Key quorums in this page.
+	Data []KeyQuorum `json:"data" api:"required"`
+	// Cursor for the next page. Null when there are no further pages.
+	NextCursor string `json:"next_cursor" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		NextCursor  respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r KeyQuorumsResponse) RawJSON() string { return r.JSON.raw }
+func (r *KeyQuorumsResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 type KeyQuorumNewParams struct {
 	// Request input for creating a key quorum. At least one of `user_ids`,
 	// `public_keys`, or `key_quorum_ids` is required.
@@ -275,6 +322,21 @@ func (r KeyQuorumUpdateParams) MarshalJSON() (data []byte, err error) {
 }
 func (r *KeyQuorumUpdateParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+type KeyQuorumListParams struct {
+	Limit param.Opt[float64] `query:"limit,omitzero" json:"-"`
+	// Cursor returned by the previous page.
+	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [KeyQuorumListParams]'s query parameters as `url.Values`.
+func (r KeyQuorumListParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }
 
 type KeyQuorumDeleteParams struct {

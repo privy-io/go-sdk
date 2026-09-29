@@ -69,8 +69,7 @@ type AaveVaultDetails struct {
 	AdminWalletAddress string `json:"admin_wallet_address" api:"required"`
 	// Privy wallet ID of the vault admin.
 	AdminWalletID string `json:"admin_wallet_id" api:"required"`
-	// Annual percentage yield earned by the app from fee wrapper fees, in basis
-	// points.
+	// Annual percentage yield earned by the app from vault fees, in basis points.
 	AppApy float64 `json:"app_apy" api:"required"`
 	// Asset metadata for an earn vault position.
 	Asset EarnAsset `json:"asset" api:"required"`
@@ -977,8 +976,7 @@ type MorphoVaultDetails struct {
 	AdminWalletAddress string `json:"admin_wallet_address" api:"required"`
 	// Privy wallet ID of the vault admin.
 	AdminWalletID string `json:"admin_wallet_id" api:"required"`
-	// Annual percentage yield earned by the app from fee wrapper fees, in basis
-	// points.
+	// Annual percentage yield earned by the app from vault fees, in basis points.
 	AppApy float64 `json:"app_apy" api:"required"`
 	// Asset metadata for an earn vault position.
 	Asset EarnAsset `json:"asset" api:"required"`
@@ -1300,8 +1298,7 @@ type TempoVaultDetails struct {
 	// Privy wallet ID of the vault admin, or null when the Tempo vault admin is not
 	// Privy-managed.
 	AdminWalletID string `json:"admin_wallet_id" api:"required"`
-	// Annual percentage yield earned by the app from fee wrapper fees, in basis
-	// points.
+	// Annual percentage yield earned by the app from vault fees, in basis points.
 	AppApy float64 `json:"app_apy" api:"required"`
 	// Asset metadata for an earn vault position.
 	Asset EarnAsset `json:"asset" api:"required"`
@@ -1499,8 +1496,7 @@ type VedaVaultDetails struct {
 	AdminWalletAddress string `json:"admin_wallet_address" api:"required"`
 	// Privy wallet ID of the vault admin.
 	AdminWalletID string `json:"admin_wallet_id" api:"required"`
-	// Annual percentage yield earned by the app from fee wrapper fees, in basis
-	// points.
+	// Annual percentage yield earned by the app from vault fees, in basis points.
 	AppApy float64 `json:"app_apy" api:"required"`
 	// Asset metadata for an earn vault position.
 	Asset EarnAsset `json:"asset" api:"required"`

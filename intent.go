@@ -1934,7 +1934,8 @@ type IntentListParams struct {
 	// Filter by creator user ID. For user-token requests, Privy uses the authenticated
 	// user ID to scope intent visibility. This filter only narrows that scoped result.
 	CreatedByID param.Opt[string] `query:"created_by_id,omitzero" json:"-"`
-	Cursor      param.Opt[string] `query:"cursor,omitzero" json:"-"`
+	// Cursor returned by the previous page.
+	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
 	// Filter by a user whose approval is still pending. For user-token requests, Privy
 	// uses the authenticated user ID to scope intent visibility. This filter only
 	// narrows that scoped result.

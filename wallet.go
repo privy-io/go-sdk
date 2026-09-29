@@ -12122,7 +12122,8 @@ type WalletListParams struct {
 	// that include the specified P-256 public key (base64-encoded DER format). Cannot
 	// be used together with user_id.
 	AuthorizationKey param.Opt[string] `query:"authorization_key,omitzero" json:"-"`
-	Cursor           param.Opt[string] `query:"cursor,omitzero" json:"-"`
+	// Cursor returned by the previous page.
+	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
 	// Filter wallets by the entity ID the wallet is attributed to.
 	EntityID param.Opt[string] `query:"entity_id,omitzero" json:"-"`
 	// Filter wallets by external ID.
