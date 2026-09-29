@@ -93,6 +93,18 @@ func (r *UserService) Delete(ctx context.Context, userID string, opts ...option.
 	return err
 }
 
+// Freezes a user by user ID, blocking new logins and revoking active sessions.
+func (r *UserService) Freeze(ctx context.Context, userID string, opts ...option.RequestOption) (res *SuccessResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if userID == "" {
+		err = errors.New("missing required user_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/users/%s/freeze", url.PathEscape(userID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, nil, &res, opts...)
+	return res, err
+}
+
 // Get a user by user ID.
 func (r *UserService) Get(ctx context.Context, userID string, opts ...option.RequestOption) (res *User, err error) {
 	opts = slices.Concat(r.Options, opts)
@@ -230,6 +242,18 @@ func (r *UserService) SetCustomMetadata(ctx context.Context, userID string, body
 	}
 	path := fmt.Sprintf("v1/users/%s/custom_metadata", url.PathEscape(userID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return res, err
+}
+
+// Unfreezes a user by user ID, restoring their ability to log in.
+func (r *UserService) Unfreeze(ctx context.Context, userID string, opts ...option.RequestOption) (res *SuccessResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if userID == "" {
+		err = errors.New("missing required user_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/users/%s/freeze", url.PathEscape(userID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
 	return res, err
 }
 
