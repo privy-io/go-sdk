@@ -34,12 +34,14 @@ func TestWalletPayoutFiatNewWithOptionalParams(t *testing.T) {
 			CreatePayoutRequestBody: privyclient.CreatePayoutRequestBody{
 				Destination: privyclient.PayoutDestination{
 					FiatAccountID: "fiat_account_id",
+					PaymentRail:   privyclient.PayoutPaymentRailACH,
 				},
 				Source: privyclient.PayoutSource{
 					Amount: "amount",
 					Asset:  "asset",
 					Chain:  "chain",
 				},
+				DeveloperFeePercent: privyclient.String("1.5"),
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
 			PrivyIdempotencyKey:         privyclient.String("privy-idempotency-key"),

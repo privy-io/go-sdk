@@ -2705,6 +2705,9 @@ type User struct {
 	MfaMethods     []LinkedMfaMethodUnion `json:"mfa_methods" api:"required"`
 	// Custom metadata associated with the user.
 	CustomMetadata CustomMetadataResp `json:"custom_metadata"`
+	// Unix timestamp in seconds of when the user was frozen, or `null` if not frozen.
+	// Not included in every user response.
+	FrozenAt int64 `json:"frozen_at" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID               respjson.Field
@@ -2714,6 +2717,7 @@ type User struct {
 		LinkedAccounts   respjson.Field
 		MfaMethods       respjson.Field
 		CustomMetadata   respjson.Field
+		FrozenAt         respjson.Field
 		ExtraFields      map[string]respjson.Field
 		raw              string
 	} `json:"-"`

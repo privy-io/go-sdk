@@ -79,6 +79,9 @@ type CreateFiatDepositAccountRequestBody struct {
 	Provider CreateFiatDepositAccountRequestBodyProvider `json:"provider,omitzero" api:"required"`
 	// The source fiat currency for a fiat deposit account.
 	Source CreateFiatDepositAccountSource `json:"source,omitzero" api:"required"`
+	// A developer fee as a percentage string from 0 up to (not including) 100, e.g.
+	// "1.5" for 1.5%.
+	DeveloperFeePercent param.Opt[DeveloperFeePercent] `json:"developer_fee_percent,omitzero"`
 	// The Privy API environment.
 	//
 	// Any of "sandbox", "production".
@@ -125,6 +128,9 @@ type CreatePayoutRequestBody struct {
 	Destination PayoutDestination `json:"destination,omitzero" api:"required"`
 	// The source crypto asset, chain, and amount for a payout.
 	Source PayoutSource `json:"source,omitzero" api:"required"`
+	// A developer fee as a percentage string from 0 up to (not including) 100, e.g.
+	// "1.5" for 1.5%.
+	DeveloperFeePercent param.Opt[DeveloperFeePercent] `json:"developer_fee_percent,omitzero"`
 	paramObj
 }
 
@@ -135,6 +141,8 @@ func (r CreatePayoutRequestBody) MarshalJSON() (data []byte, err error) {
 func (r *CreatePayoutRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+type DeveloperFeePercent = string
 
 // A Bridge external fiat account linked to a user.
 type ExternalFiatAccount struct {
@@ -457,6 +465,9 @@ type FiatDepositAccount struct {
 	DepositInstructions FiatDepositInstructions `json:"deposit_instructions" api:"required"`
 	// The destination crypto asset and chain for a fiat deposit account.
 	Destination FiatDepositAccountDestinationResp `json:"destination" api:"required"`
+	// A developer fee as a percentage string from 0 up to (not including) 100, e.g.
+	// "1.5" for 1.5%.
+	DeveloperFeePercent DeveloperFeePercent `json:"developer_fee_percent" api:"required"`
 	// The Privy API environment.
 	//
 	// Any of "sandbox", "production".
@@ -478,6 +489,7 @@ type FiatDepositAccount struct {
 		CreatedAt           respjson.Field
 		DepositInstructions respjson.Field
 		Destination         respjson.Field
+		DeveloperFeePercent respjson.Field
 		Environment         respjson.Field
 		Provider            respjson.Field
 		Source              respjson.Field
@@ -1561,9 +1573,16 @@ func (r *OrganizationExternalFiatAccountResponse) UnmarshalJSON(data []byte) err
 type PayoutDestinationResp struct {
 	// The ID of a previously registered external fiat account to pay out to.
 	FiatAccountID string `json:"fiat_account_id" api:"required"`
+	// A fiat payment rail a payout can settle over. `ach` is a standard ACH credit to
+	// the destination account.
+	//
+	// Any of "ach", "ach_same_day", "wire", "fednow", "sepa", "faster_payments",
+	// "pix".
+	PaymentRail PayoutPaymentRail `json:"payment_rail"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		FiatAccountID respjson.Field
+		PaymentRail   respjson.Field
 		ExtraFields   map[string]respjson.Field
 		raw           string
 	} `json:"-"`
@@ -1590,6 +1609,12 @@ func (r PayoutDestinationResp) ToParam() PayoutDestination {
 type PayoutDestination struct {
 	// The ID of a previously registered external fiat account to pay out to.
 	FiatAccountID string `json:"fiat_account_id" api:"required"`
+	// A fiat payment rail a payout can settle over. `ach` is a standard ACH credit to
+	// the destination account.
+	//
+	// Any of "ach", "ach_same_day", "wire", "fednow", "sepa", "faster_payments",
+	// "pix".
+	PaymentRail PayoutPaymentRail `json:"payment_rail,omitzero"`
 	paramObj
 }
 
@@ -1600,6 +1625,20 @@ func (r PayoutDestination) MarshalJSON() (data []byte, err error) {
 func (r *PayoutDestination) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// A fiat payment rail a payout can settle over. `ach` is a standard ACH credit to
+// the destination account.
+type PayoutPaymentRail string
+
+const (
+	PayoutPaymentRailACH            PayoutPaymentRail = "ach"
+	PayoutPaymentRailACHSameDay     PayoutPaymentRail = "ach_same_day"
+	PayoutPaymentRailWire           PayoutPaymentRail = "wire"
+	PayoutPaymentRailFednow         PayoutPaymentRail = "fednow"
+	PayoutPaymentRailSepa           PayoutPaymentRail = "sepa"
+	PayoutPaymentRailFasterPayments PayoutPaymentRail = "faster_payments"
+	PayoutPaymentRailPix            PayoutPaymentRail = "pix"
+)
 
 // The source crypto asset, chain, and amount for a payout.
 type PayoutSourceResp struct {

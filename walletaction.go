@@ -1038,6 +1038,9 @@ type PayoutResponse struct {
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// The destination bank account for a payout.
 	Destination PayoutDestinationResp `json:"destination" api:"required"`
+	// A developer fee as a percentage string from 0 up to (not including) 100, e.g.
+	// "1.5" for 1.5%.
+	DeveloperFeePercent DeveloperFeePercent `json:"developer_fee_percent" api:"required"`
 	// The Privy API environment.
 	//
 	// Any of "sandbox", "production".
@@ -1064,20 +1067,21 @@ type PayoutResponse struct {
 	Steps []WalletActionStepUnion `json:"steps"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		ID            respjson.Field
-		CreatedAt     respjson.Field
-		Destination   respjson.Field
-		Environment   respjson.Field
-		Provider      respjson.Field
-		Source        respjson.Field
-		Status        respjson.Field
-		Type          respjson.Field
-		WalletID      respjson.Field
-		FailureReason respjson.Field
-		ReferenceID   respjson.Field
-		Steps         respjson.Field
-		ExtraFields   map[string]respjson.Field
-		raw           string
+		ID                  respjson.Field
+		CreatedAt           respjson.Field
+		Destination         respjson.Field
+		DeveloperFeePercent respjson.Field
+		Environment         respjson.Field
+		Provider            respjson.Field
+		Source              respjson.Field
+		Status              respjson.Field
+		Type                respjson.Field
+		WalletID            respjson.Field
+		FailureReason       respjson.Field
+		ReferenceID         respjson.Field
+		Steps               respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
 	} `json:"-"`
 }
 
@@ -1625,6 +1629,8 @@ type WalletActionResponseUnion struct {
 	// This field is from variant [PayoutResponse].
 	Destination PayoutDestinationResp `json:"destination"`
 	// This field is from variant [PayoutResponse].
+	DeveloperFeePercent DeveloperFeePercent `json:"developer_fee_percent"`
+	// This field is from variant [PayoutResponse].
 	Environment Environment `json:"environment"`
 	// This field is from variant [PayoutResponse].
 	Provider OrchestrationProvider `json:"provider"`
@@ -1670,6 +1676,7 @@ type WalletActionResponseUnion struct {
 		Chain               respjson.Field
 		Rewards             respjson.Field
 		Destination         respjson.Field
+		DeveloperFeePercent respjson.Field
 		Environment         respjson.Field
 		Provider            respjson.Field
 		Source              respjson.Field

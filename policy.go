@@ -1157,7 +1157,7 @@ const (
 // [EthereumTransactionConditionResp], [EthereumCalldataConditionResp],
 // [EthereumTypedDataDomainConditionResp], [EthereumTypedDataMessageConditionResp],
 // [Ethereum7702AuthorizationConditionResp], [TempoTransactionConditionResp],
-// [SolanaProgramInstructionConditionResp],
+// [SolanaProgramInstructionConditionResp], [SolanaInstructionDataConditionResp],
 // [SolanaSystemProgramInstructionConditionResp],
 // [SolanaTokenProgramInstructionConditionResp], [SystemConditionResp],
 // [TronTransactionConditionResp], [TronCalldataConditionResp],
@@ -1173,10 +1173,10 @@ type PolicyConditionUnionResp struct {
 	// Any of "ethereum_transaction", "ethereum_calldata",
 	// "ethereum_typed_data_domain", "ethereum_typed_data_message",
 	// "ethereum_7702_authorization", "tempo_transaction",
-	// "solana_program_instruction", "solana_system_program_instruction",
-	// "solana_token_program_instruction", "system", "tron_transaction",
-	// "tron_trigger_smart_contract_data", "xrpl_transaction",
-	// "sui_transaction_command", "sui_transfer_objects_command",
+	// "solana_program_instruction", "solana_instruction_data",
+	// "solana_system_program_instruction", "solana_token_program_instruction",
+	// "system", "tron_transaction", "tron_trigger_smart_contract_data",
+	// "xrpl_transaction", "sui_transaction_command", "sui_transfer_objects_command",
 	// "action_request_body", "reference", "message".
 	FieldSource string `json:"field_source"`
 	Operator    string `json:"operator"`
@@ -1187,13 +1187,16 @@ type PolicyConditionUnionResp struct {
 	Abi AbiSchemaResp `json:"abi"`
 	// This field is from variant [EthereumTypedDataMessageConditionResp].
 	TypedData TypedDataInputResp `json:"typed_data"`
-	JSON      struct {
+	// This field is from variant [SolanaInstructionDataConditionResp].
+	Idl  SolanaIdl `json:"idl"`
+	JSON struct {
 		Field       respjson.Field
 		FieldSource respjson.Field
 		Operator    respjson.Field
 		Value       respjson.Field
 		Abi         respjson.Field
 		TypedData   respjson.Field
+		Idl         respjson.Field
 		raw         string
 	} `json:"-"`
 }
@@ -1212,6 +1215,7 @@ func (EthereumTypedDataMessageConditionResp) implPolicyConditionUnionResp()     
 func (Ethereum7702AuthorizationConditionResp) implPolicyConditionUnionResp()      {}
 func (TempoTransactionConditionResp) implPolicyConditionUnionResp()               {}
 func (SolanaProgramInstructionConditionResp) implPolicyConditionUnionResp()       {}
+func (SolanaInstructionDataConditionResp) implPolicyConditionUnionResp()          {}
 func (SolanaSystemProgramInstructionConditionResp) implPolicyConditionUnionResp() {}
 func (SolanaTokenProgramInstructionConditionResp) implPolicyConditionUnionResp()  {}
 func (SystemConditionResp) implPolicyConditionUnionResp()                         {}
@@ -1234,6 +1238,7 @@ func (MessageSigningConditionResp) implPolicyConditionUnionResp()               
 //	case privyclient.Ethereum7702AuthorizationConditionResp:
 //	case privyclient.TempoTransactionConditionResp:
 //	case privyclient.SolanaProgramInstructionConditionResp:
+//	case privyclient.SolanaInstructionDataConditionResp:
 //	case privyclient.SolanaSystemProgramInstructionConditionResp:
 //	case privyclient.SolanaTokenProgramInstructionConditionResp:
 //	case privyclient.SystemConditionResp:
@@ -1264,6 +1269,8 @@ func (u PolicyConditionUnionResp) AsAny() anyPolicyConditionResp {
 		return u.AsTempoTransaction()
 	case "solana_program_instruction":
 		return u.AsSolanaProgramInstruction()
+	case "solana_instruction_data":
+		return u.AsSolanaInstructionData()
 	case "solana_system_program_instruction":
 		return u.AsSolanaSystemProgramInstruction()
 	case "solana_token_program_instruction":
@@ -1321,6 +1328,11 @@ func (u PolicyConditionUnionResp) AsTempoTransaction() (v TempoTransactionCondit
 }
 
 func (u PolicyConditionUnionResp) AsSolanaProgramInstruction() (v SolanaProgramInstructionConditionResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyConditionUnionResp) AsSolanaInstructionData() (v SolanaInstructionDataConditionResp) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -1440,6 +1452,7 @@ type PolicyConditionUnion struct {
 	OfEthereum7702Authorization      *Ethereum7702AuthorizationCondition      `json:",omitzero,inline"`
 	OfTempoTransaction               *TempoTransactionCondition               `json:",omitzero,inline"`
 	OfSolanaProgramInstruction       *SolanaProgramInstructionCondition       `json:",omitzero,inline"`
+	OfSolanaInstructionData          *SolanaInstructionDataCondition          `json:",omitzero,inline"`
 	OfSolanaSystemProgramInstruction *SolanaSystemProgramInstructionCondition `json:",omitzero,inline"`
 	OfSolanaTokenProgramInstruction  *SolanaTokenProgramInstructionCondition  `json:",omitzero,inline"`
 	OfSystem                         *SystemCondition                         `json:",omitzero,inline"`
@@ -1462,6 +1475,7 @@ func (u PolicyConditionUnion) MarshalJSON() ([]byte, error) {
 		u.OfEthereum7702Authorization,
 		u.OfTempoTransaction,
 		u.OfSolanaProgramInstruction,
+		u.OfSolanaInstructionData,
 		u.OfSolanaSystemProgramInstruction,
 		u.OfSolanaTokenProgramInstruction,
 		u.OfSystem,
@@ -1488,6 +1502,7 @@ func init() {
 		apijson.Discriminator[Ethereum7702AuthorizationCondition]("ethereum_7702_authorization"),
 		apijson.Discriminator[TempoTransactionCondition]("tempo_transaction"),
 		apijson.Discriminator[SolanaProgramInstructionCondition]("solana_program_instruction"),
+		apijson.Discriminator[SolanaInstructionDataCondition]("solana_instruction_data"),
 		apijson.Discriminator[SolanaSystemProgramInstructionCondition]("solana_system_program_instruction"),
 		apijson.Discriminator[SolanaTokenProgramInstructionCondition]("solana_token_program_instruction"),
 		apijson.Discriminator[SystemCondition]("system"),
@@ -1683,6 +1698,89 @@ type PolicyRuleResponse struct {
 // Returns the unmodified JSON received from the API
 func (r PolicyRuleResponse) RawJSON() string { return r.JSON.raw }
 func (r *PolicyRuleResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type SolanaIdl map[string]any
+
+// Solana instruction arguments and named accounts interpreted using an inline
+// Anchor IDL.
+type SolanaInstructionDataConditionResp struct {
+	Field string `json:"field" api:"required"`
+	// Any of "solana_instruction_data".
+	FieldSource SolanaInstructionDataConditionFieldSource `json:"field_source" api:"required"`
+	// A modern Anchor IDL containing selected instructions and their complete type
+	// dependencies.
+	Idl SolanaIdl `json:"idl" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
+	Operator ConditionOperator `json:"operator" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnionResp `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Field       respjson.Field
+		FieldSource respjson.Field
+		Idl         respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SolanaInstructionDataConditionResp) RawJSON() string { return r.JSON.raw }
+func (r *SolanaInstructionDataConditionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this SolanaInstructionDataConditionResp to a
+// SolanaInstructionDataCondition.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// SolanaInstructionDataCondition.Overrides()
+func (r SolanaInstructionDataConditionResp) ToParam() SolanaInstructionDataCondition {
+	return param.Override[SolanaInstructionDataCondition](json.RawMessage(r.RawJSON()))
+}
+
+type SolanaInstructionDataConditionFieldSource string
+
+const (
+	SolanaInstructionDataConditionFieldSourceSolanaInstructionData SolanaInstructionDataConditionFieldSource = "solana_instruction_data"
+)
+
+// Solana instruction arguments and named accounts interpreted using an inline
+// Anchor IDL.
+//
+// The properties Field, FieldSource, Idl, Operator, Value are required.
+type SolanaInstructionDataCondition struct {
+	Field string `json:"field" api:"required"`
+	// Any of "solana_instruction_data".
+	FieldSource SolanaInstructionDataConditionFieldSource `json:"field_source,omitzero" api:"required"`
+	// A modern Anchor IDL containing selected instructions and their complete type
+	// dependencies.
+	Idl SolanaIdl `json:"idl,omitzero" api:"required"`
+	// Operator to use for policy conditions.
+	//
+	// Any of "eq", "gt", "gte", "lt", "lte", "in", "in_condition_set", "contains",
+	// "starts_with", "ends_with".
+	Operator ConditionOperator `json:"operator,omitzero" api:"required"`
+	// Value to compare against in a policy condition. Can be a single string or an
+	// array of strings.
+	Value ConditionValueUnion `json:"value,omitzero" api:"required"`
+	paramObj
+}
+
+func (r SolanaInstructionDataCondition) MarshalJSON() (data []byte, err error) {
+	type shadow SolanaInstructionDataCondition
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *SolanaInstructionDataCondition) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

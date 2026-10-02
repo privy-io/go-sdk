@@ -40,7 +40,8 @@ func TestWalletDepositAccountFiatNewWithOptionalParams(t *testing.T) {
 				Source: privyclient.CreateFiatDepositAccountSource{
 					Currency: "currency",
 				},
-				Environment: privyclient.EnvironmentSandbox,
+				DeveloperFeePercent: privyclient.String("1.5"),
+				Environment:         privyclient.EnvironmentSandbox,
 			},
 		},
 	)
