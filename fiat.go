@@ -1174,6 +1174,8 @@ type KYCStatusResponse struct {
 	Status KyxProviderStatus `json:"status" api:"required"`
 	// Terms of Service acceptance status for a KYC or KYB flow.
 	Tos KyxTosStatusDetail `json:"tos" api:"required"`
+	// Stripe Issuing cardholder ID assigned by Bridge for this user.
+	StripeCardholderID string `json:"stripe_cardholder_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Capabilities          respjson.Field
@@ -1185,6 +1187,7 @@ type KYCStatusResponse struct {
 		RequirementsDue       respjson.Field
 		Status                respjson.Field
 		Tos                   respjson.Field
+		StripeCardholderID    respjson.Field
 		ExtraFields           map[string]respjson.Field
 		raw                   string
 	} `json:"-"`

@@ -1715,15 +1715,18 @@ type UserKYCUpdatedData struct {
 	Status KyxProviderStatus `json:"status" api:"required"`
 	// Terms of service status in a KYC update event.
 	Tos UserKYCUpdatedTosData `json:"tos" api:"required"`
+	// Stripe Issuing cardholder ID assigned by Bridge for this user.
+	StripeCardholderID string `json:"stripe_cardholder_id"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		Capabilities respjson.Field
-		Endorsements respjson.Field
-		KYC          respjson.Field
-		Status       respjson.Field
-		Tos          respjson.Field
-		ExtraFields  map[string]respjson.Field
-		raw          string
+		Capabilities       respjson.Field
+		Endorsements       respjson.Field
+		KYC                respjson.Field
+		Status             respjson.Field
+		Tos                respjson.Field
+		StripeCardholderID respjson.Field
+		ExtraFields        map[string]respjson.Field
+		raw                string
 	} `json:"-"`
 }
 
@@ -6331,8 +6334,10 @@ type UnsafeUnwrapWebhookEventUnionData struct {
 	// [UserKYCUpdatedTosData]
 	Tos UnsafeUnwrapWebhookEventUnionDataTos `json:"tos"`
 	// This field is from variant [UserKYCUpdatedData].
-	KYC       UserKYCUpdatedKYCData `json:"kyc"`
-	CreatedAt string                `json:"created_at"`
+	KYC UserKYCUpdatedKYCData `json:"kyc"`
+	// This field is from variant [UserKYCUpdatedData].
+	StripeCardholderID string `json:"stripe_cardholder_id"`
+	CreatedAt          string `json:"created_at"`
 	// This field is a union of [DepositCompletedDestination],
 	// [DepositStartedDestination]
 	Destination UnsafeUnwrapWebhookEventUnionDataDestination `json:"destination"`
@@ -6345,19 +6350,20 @@ type UnsafeUnwrapWebhookEventUnionData struct {
 	// This field is from variant [DepositFailedData].
 	RefundedAt string `json:"refunded_at"`
 	JSON       struct {
-		Capabilities respjson.Field
-		Endorsements respjson.Field
-		KYB          respjson.Field
-		Status       respjson.Field
-		Tos          respjson.Field
-		KYC          respjson.Field
-		CreatedAt    respjson.Field
-		Destination  respjson.Field
-		Source       respjson.Field
-		Reason       respjson.Field
-		ReasonCode   respjson.Field
-		RefundedAt   respjson.Field
-		raw          string
+		Capabilities       respjson.Field
+		Endorsements       respjson.Field
+		KYB                respjson.Field
+		Status             respjson.Field
+		Tos                respjson.Field
+		KYC                respjson.Field
+		StripeCardholderID respjson.Field
+		CreatedAt          respjson.Field
+		Destination        respjson.Field
+		Source             respjson.Field
+		Reason             respjson.Field
+		ReasonCode         respjson.Field
+		RefundedAt         respjson.Field
+		raw                string
 	} `json:"-"`
 }
 
