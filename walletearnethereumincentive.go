@@ -11,6 +11,7 @@ import (
 	"slices"
 
 	"github.com/privy-io/go-sdk/internal/apijson"
+	"github.com/privy-io/go-sdk/internal/apiquery"
 	shimjson "github.com/privy-io/go-sdk/internal/encoding/json"
 	"github.com/privy-io/go-sdk/internal/requestconfig"
 	"github.com/privy-io/go-sdk/option"
@@ -38,6 +39,19 @@ func NewWalletEarnEthereumIncentiveService(opts ...option.RequestOption) (r Wall
 	return
 }
 
+// Retrieve all incentive rewards for a wallet on a given chain, with claimed and
+// claimable amounts per token.
+func (r *WalletEarnEthereumIncentiveService) List(ctx context.Context, walletID string, query WalletEarnEthereumIncentiveListParams, opts ...option.RequestOption) (res *EarnIncentiveRewardsResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if walletID == "" {
+		err = errors.New("missing required wallet_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/wallets/%s/earn/ethereum/incentive/claim", url.PathEscape(walletID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	return res, err
+}
+
 // Claim incentive rewards for a wallet.
 func (r *WalletEarnEthereumIncentiveService) Claim(ctx context.Context, walletID string, params WalletEarnEthereumIncentiveClaimParams, opts ...option.RequestOption) (res *EarnIncentiveClaimActionResponse, err error) {
 	if !param.IsOmitted(params.PrivyAuthorizationSignature) {
@@ -57,6 +71,21 @@ func (r *WalletEarnEthereumIncentiveService) Claim(ctx context.Context, walletID
 	path := fmt.Sprintf("v1/wallets/%s/earn/ethereum/incentive/claim", url.PathEscape(walletID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return res, err
+}
+
+type WalletEarnEthereumIncentiveListParams struct {
+	// Chain name to fetch rewards for (e.g. "tempo", "base").
+	Chain string `query:"chain" api:"required" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [WalletEarnEthereumIncentiveListParams]'s query parameters
+// as `url.Values`.
+func (r WalletEarnEthereumIncentiveListParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }
 
 type WalletEarnEthereumIncentiveClaimParams struct {

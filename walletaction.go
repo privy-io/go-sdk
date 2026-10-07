@@ -589,6 +589,55 @@ func (r *EarnIncentiveClaimRequestBody) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// A reward token with claimed and unclaimed amounts.
+type EarnIncentiveRewardEntry struct {
+	// Total amount already claimed, in smallest unit.
+	AmountClaimed string `json:"amount_claimed" api:"required"`
+	// Amount available to claim on-chain but not yet claimed, in smallest unit.
+	AmountUnclaimed string `json:"amount_unclaimed" api:"required"`
+	// Address of the reward token.
+	TokenAddress string `json:"token_address" api:"required"`
+	// Symbol of the reward token (e.g. "MORPHO").
+	TokenSymbol string `json:"token_symbol" api:"required"`
+	// Number of decimals for the reward token.
+	TokenDecimals int64 `json:"token_decimals"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		AmountClaimed   respjson.Field
+		AmountUnclaimed respjson.Field
+		TokenAddress    respjson.Field
+		TokenSymbol     respjson.Field
+		TokenDecimals   respjson.Field
+		ExtraFields     map[string]respjson.Field
+		raw             string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EarnIncentiveRewardEntry) RawJSON() string { return r.JSON.raw }
+func (r *EarnIncentiveRewardEntry) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// All incentive rewards for a wallet, with claimed and unclaimed amounts per
+// token.
+type EarnIncentiveRewardsResponse struct {
+	// Reward tokens with their claimed and unclaimed amounts.
+	Rewards []EarnIncentiveRewardEntry `json:"rewards" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Rewards     respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r EarnIncentiveRewardsResponse) RawJSON() string { return r.JSON.raw }
+func (r *EarnIncentiveRewardsResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // A specific reward token and amount associated with an earn incentive claim.
 type EarnIncetiveClaimRewardEntry struct {
 	// Claimable amount in base units.
