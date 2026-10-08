@@ -43,6 +43,9 @@ type CreateExternalFiatAccountRequestBody struct {
 	// Any of "bridge".
 	Provider CreateExternalFiatAccountRequestBodyProvider `json:"provider,omitzero" api:"required"`
 	BankName param.Opt[string]                            `json:"bank_name,omitzero"`
+	// The individual or business that owns the account. Required for `iban`, `gb`, and
+	// `swift` accounts.
+	AccountOwner ExternalFiatAccountOwnerUnion `json:"account_owner,omitzero"`
 	// Physical address associated with an external fiat account.
 	Address ExternalFiatAccountAddress `json:"address,omitzero"`
 	// The Privy API environment.
@@ -213,6 +216,30 @@ func (r *ExternalFiatAccountAddress) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// A business that owns an external fiat account.
+//
+// The properties BusinessName, Type are required.
+type ExternalFiatAccountBusinessOwner struct {
+	BusinessName string `json:"business_name" api:"required"`
+	// Any of "business".
+	Type ExternalFiatAccountBusinessOwnerType `json:"type,omitzero" api:"required"`
+	paramObj
+}
+
+func (r ExternalFiatAccountBusinessOwner) MarshalJSON() (data []byte, err error) {
+	type shadow ExternalFiatAccountBusinessOwner
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *ExternalFiatAccountBusinessOwner) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type ExternalFiatAccountBusinessOwnerType string
+
+const (
+	ExternalFiatAccountBusinessOwnerTypeBusiness ExternalFiatAccountBusinessOwnerType = "business"
+)
+
 func ExternalFiatAccountDataOfUs(accountNumber string, routingNumber string, type_ ExternalFiatAccountUsDataType) ExternalFiatAccountDataUnion {
 	var us ExternalFiatAccountUsData
 	us.AccountNumber = accountNumber
@@ -325,6 +352,69 @@ type ExternalFiatAccountIbanDataType string
 const (
 	ExternalFiatAccountIbanDataTypeIban ExternalFiatAccountIbanDataType = "iban"
 )
+
+// An individual who owns an external fiat account.
+//
+// The properties FirstName, LastName, Type are required.
+type ExternalFiatAccountIndividualOwner struct {
+	FirstName string `json:"first_name" api:"required"`
+	LastName  string `json:"last_name" api:"required"`
+	// Any of "individual".
+	Type ExternalFiatAccountIndividualOwnerType `json:"type,omitzero" api:"required"`
+	paramObj
+}
+
+func (r ExternalFiatAccountIndividualOwner) MarshalJSON() (data []byte, err error) {
+	type shadow ExternalFiatAccountIndividualOwner
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *ExternalFiatAccountIndividualOwner) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type ExternalFiatAccountIndividualOwnerType string
+
+const (
+	ExternalFiatAccountIndividualOwnerTypeIndividual ExternalFiatAccountIndividualOwnerType = "individual"
+)
+
+func ExternalFiatAccountOwnerOfIndividual(firstName string, lastName string, type_ ExternalFiatAccountIndividualOwnerType) ExternalFiatAccountOwnerUnion {
+	var individual ExternalFiatAccountIndividualOwner
+	individual.FirstName = firstName
+	individual.LastName = lastName
+	individual.Type = type_
+	return ExternalFiatAccountOwnerUnion{OfIndividual: &individual}
+}
+
+func ExternalFiatAccountOwnerOfBusiness(businessName string) ExternalFiatAccountOwnerUnion {
+	var business ExternalFiatAccountBusinessOwner
+	business.BusinessName = businessName
+	return ExternalFiatAccountOwnerUnion{OfBusiness: &business}
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type ExternalFiatAccountOwnerUnion struct {
+	OfIndividual *ExternalFiatAccountIndividualOwner `json:",omitzero,inline"`
+	OfBusiness   *ExternalFiatAccountBusinessOwner   `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u ExternalFiatAccountOwnerUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfIndividual, u.OfBusiness)
+}
+func (u *ExternalFiatAccountOwnerUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+func init() {
+	apijson.RegisterUnion[ExternalFiatAccountOwnerUnion](
+		"type",
+		apijson.Discriminator[ExternalFiatAccountIndividualOwner]("individual"),
+		apijson.Discriminator[ExternalFiatAccountBusinessOwner]("business"),
+	)
+}
 
 // Brazilian Pix account data for an external fiat account. Provide exactly one of
 // `pix_key` or `br_code`.

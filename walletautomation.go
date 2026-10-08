@@ -1072,6 +1072,8 @@ type WalletAutomationReindexAssetStatus = string
 type WalletAutomationReindexRequestBody struct {
 	// Asset contract address to check; the native asset uses `native`.
 	AssetAddress string `json:"asset_address" api:"required"`
+	// Automation to target when more than one active automation matches the asset.
+	AutomationID param.Opt[string] `json:"automation_id,omitzero"`
 	// Human-readable chain name to check. Specify exactly one of `caip2` or `chain`.
 	Chain param.Opt[string] `json:"chain,omitzero"`
 	// On-chain deposit address of the wallet to reindex. Must match the resolved

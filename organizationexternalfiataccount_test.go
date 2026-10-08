@@ -43,6 +43,13 @@ func TestOrganizationExternalFiatAccountNewWithOptionalParams(t *testing.T) {
 				AccountOwnerName: "xxx",
 				Currency:         "currency",
 				Provider:         privyclient.CreateExternalFiatAccountRequestBodyProviderBridge,
+				AccountOwner: privyclient.ExternalFiatAccountOwnerUnion{
+					OfIndividual: &privyclient.ExternalFiatAccountIndividualOwner{
+						FirstName: "x",
+						LastName:  "x",
+						Type:      privyclient.ExternalFiatAccountIndividualOwnerTypeIndividual,
+					},
+				},
 				Address: privyclient.ExternalFiatAccountAddress{
 					City:        "x",
 					Country:     "xxx",

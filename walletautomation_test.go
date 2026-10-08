@@ -243,6 +243,7 @@ func TestWalletAutomationReindexWithOptionalParams(t *testing.T) {
 	_, err := client.WalletAutomations.Reindex(context.TODO(), privyclient.WalletAutomationReindexParams{
 		WalletAutomationReindexRequestBody: privyclient.WalletAutomationReindexRequestBody{
 			AssetAddress:   "x",
+			AutomationID:   privyclient.String("x"),
 			Caip2:          privyclient.TronCaip2TronMainnet,
 			Chain:          privyclient.String("x"),
 			DepositAddress: privyclient.String("x"),
