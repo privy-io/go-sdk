@@ -7,6 +7,7 @@ import (
 	"errors"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/privy-io/go-sdk"
 	"github.com/privy-io/go-sdk/internal/testutil"
@@ -140,11 +141,19 @@ func TestUserKYCSubmitWithOptionalParams(t *testing.T) {
 						ImageFront:     privyclient.String("image_front"),
 						Number:         privyclient.String("number"),
 					}},
+					KYCScreen: privyclient.KyxScreen{
+						Result:     privyclient.KyxScreenResultPassed,
+						ScreenedAt: time.Now(),
+					},
 					LastName:                    privyclient.String("x"),
 					MiddleName:                  privyclient.String("x"),
 					Nationalities:               []string{"xxx"},
 					NonresidentAlienAttestation: privyclient.Bool(true),
-					Phone:                       privyclient.String("phone"),
+					OfacScreen: privyclient.KyxScreen{
+						Result:     privyclient.KyxScreenResultPassed,
+						ScreenedAt: time.Now(),
+					},
+					Phone: privyclient.String("phone"),
 					ResidentialAddress: privyclient.VerificationAddress{
 						City:        "x",
 						Country:     "xxx",
@@ -165,6 +174,9 @@ func TestUserKYCSubmitWithOptionalParams(t *testing.T) {
 						StreetLine2: privyclient.String("x"),
 						Subdivision: privyclient.String("x"),
 					},
+					VerifiedDatabaseAt:       time.Now(),
+					VerifiedGovidAt:          time.Now(),
+					VerifiedProofOfAddressAt: time.Now(),
 				},
 				Provider:          privyclient.KyxProviderBridge,
 				ClientAgreementID: privyclient.String("x"),

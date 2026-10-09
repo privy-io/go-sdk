@@ -1227,6 +1227,8 @@ Params Types:
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#KyxEndorsementName">KyxEndorsementName</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#KyxEnvironment">KyxEnvironment</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#KyxProvider">KyxProvider</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#KyxScreen">KyxScreen</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#KyxScreenResult">KyxScreenResult</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#KyxTosRequestBody">KyxTosRequestBody</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#PayoutDestination">PayoutDestination</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#PayoutPaymentRail">PayoutPaymentRail</a>

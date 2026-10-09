@@ -4,6 +4,7 @@ package privyclient
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/privy-io/go-sdk/internal/apijson"
 	"github.com/privy-io/go-sdk/option"
@@ -791,14 +792,29 @@ type KYBAssociatedPerson struct {
 	TransliteratedLastName param.Opt[string] `json:"transliterated_last_name,omitzero"`
 	// Latin-1 transliteration of the middle name. Required for non-Latin-1 names.
 	TransliteratedMiddleName param.Opt[string] `json:"transliterated_middle_name,omitzero"`
+	// When this person (a control person) attested to having verified the business
+	// ownership structure (ISO 8601).
+	AttestedOwnershipStructureAt time.Time `json:"attested_ownership_structure_at,omitzero" format:"date-time"`
 	// Supporting documents for this person, such as proof of address.
 	Documents []KYBIndividualDocument `json:"documents,omitzero"`
+	// Result of a KYC/AML or OFAC screen you performed and are relying on the provider
+	// to accept, honoured only for developers enrolled in reliance.
+	KYCScreen KyxScreen `json:"kyc_screen,omitzero"`
 	// ISO 3166-1 alpha-3 codes for all nationalities held.
 	Nationalities []string `json:"nationalities,omitzero"`
+	// Result of a KYC/AML or OFAC screen you performed and are relying on the provider
+	// to accept, honoured only for developers enrolled in reliance.
+	OfacScreen KyxScreen `json:"ofac_screen,omitzero"`
 	// Place of birth for an associated person.
 	PlaceOfBirth KYBPlaceOfBirth `json:"place_of_birth,omitzero"`
 	// A postal address used in KYC and KYB data submission.
 	TransliteratedResidentialAddress VerificationAddress `json:"transliterated_residential_address,omitzero"`
+	// When you verified this person against a database source (ISO 8601).
+	VerifiedDatabaseAt time.Time `json:"verified_database_at,omitzero" format:"date-time"`
+	// When you verified the government ID for this person (ISO 8601).
+	VerifiedGovidAt time.Time `json:"verified_govid_at,omitzero" format:"date-time"`
+	// When you verified proof of address for this person (ISO 8601).
+	VerifiedProofOfAddressAt time.Time `json:"verified_proof_of_address_at,omitzero" format:"date-time"`
 	paramObj
 }
 
@@ -1107,6 +1123,12 @@ type KYBSubmitData struct {
 	HighRiskActivities []KYBHighRiskActivity `json:"high_risk_activities,omitzero"`
 	// Business tax and registration identifiers.
 	IdentifyingInformation []VerificationDocument `json:"identifying_information,omitzero"`
+	// Result of a KYC/AML or OFAC screen you performed and are relying on the provider
+	// to accept, honoured only for developers enrolled in reliance.
+	KYBScreen KyxScreen `json:"kyb_screen,omitzero"`
+	// Result of a KYC/AML or OFAC screen you performed and are relying on the provider
+	// to accept, honoured only for developers enrolled in reliance.
+	OfacScreen KyxScreen `json:"ofac_screen,omitzero"`
 	// Additional websites and social handles.
 	OtherWebsites []string `json:"other_websites,omitzero"`
 	// A postal address used in KYC and KYB data submission.
@@ -1121,6 +1143,13 @@ type KYBSubmitData struct {
 	TransliteratedPhysicalAddress VerificationAddress `json:"transliterated_physical_address,omitzero"`
 	// A postal address used in KYC and KYB data submission.
 	TransliteratedRegisteredAddress VerificationAddress `json:"transliterated_registered_address,omitzero"`
+	// When you verified the business against a database source (ISO 8601).
+	VerifiedDatabaseAt time.Time `json:"verified_database_at,omitzero" format:"date-time"`
+	// When you verified the business registration documents (ISO 8601).
+	VerifiedGovidAt time.Time `json:"verified_govid_at,omitzero" format:"date-time"`
+	// When you verified the business proof of address (ISO 8601), required for EEA
+	// customers and SEPA rails under reliance.
+	VerifiedProofOfAddressAt time.Time `json:"verified_proof_of_address_at,omitzero" format:"date-time"`
 	paramObj
 }
 
@@ -1317,12 +1346,27 @@ type KYCSubmitData struct {
 	TransliteratedMiddleName param.Opt[string] `json:"transliterated_middle_name,omitzero"`
 	// Identifying documents.
 	IdentifyingInformation []VerificationDocument `json:"identifying_information,omitzero"`
+	// Result of a KYC/AML or OFAC screen you performed and are relying on the provider
+	// to accept, honoured only for developers enrolled in reliance.
+	KYCScreen KyxScreen `json:"kyc_screen,omitzero"`
 	// ISO 3166-1 alpha-3 codes for all nationalities held.
 	Nationalities []string `json:"nationalities,omitzero"`
+	// Result of a KYC/AML or OFAC screen you performed and are relying on the provider
+	// to accept, honoured only for developers enrolled in reliance.
+	OfacScreen KyxScreen `json:"ofac_screen,omitzero"`
 	// A postal address used in KYC and KYB data submission.
 	ResidentialAddress VerificationAddress `json:"residential_address,omitzero"`
 	// A postal address used in KYC and KYB data submission.
 	TransliteratedResidentialAddress VerificationAddress `json:"transliterated_residential_address,omitzero"`
+	// When you verified the user against a database source (ISO 8601), which loosens
+	// the identifying-document requirement under reliance.
+	VerifiedDatabaseAt time.Time `json:"verified_database_at,omitzero" format:"date-time"`
+	// When you verified the government ID (ISO 8601), which loosens the
+	// identifying-document requirement under reliance.
+	VerifiedGovidAt time.Time `json:"verified_govid_at,omitzero" format:"date-time"`
+	// When you verified proof of address (ISO 8601), required for EEA customers and
+	// SEPA rails under reliance.
+	VerifiedProofOfAddressAt time.Time `json:"verified_proof_of_address_at,omitzero" format:"date-time"`
 	paramObj
 }
 
@@ -1439,6 +1483,36 @@ const (
 )
 
 type KyxProviderStatus = string
+
+// Result of a KYC/AML or OFAC screen you performed and are relying on the provider
+// to accept, honoured only for developers enrolled in reliance.
+//
+// The properties Result, ScreenedAt are required.
+type KyxScreen struct {
+	// Outcome of a screen performed under KYC/KYB reliance.
+	//
+	// Any of "passed", "failed".
+	Result KyxScreenResult `json:"result,omitzero" api:"required"`
+	// When the screen was performed (ISO 8601 date or date-time).
+	ScreenedAt time.Time `json:"screened_at,omitzero" api:"required" format:"date-time"`
+	paramObj
+}
+
+func (r KyxScreen) MarshalJSON() (data []byte, err error) {
+	type shadow KyxScreen
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *KyxScreen) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Outcome of a screen performed under KYC/KYB reliance.
+type KyxScreenResult string
+
+const (
+	KyxScreenResultPassed KyxScreenResult = "passed"
+	KyxScreenResultFailed KyxScreenResult = "failed"
+)
 
 // Request body for initiating Terms of Service acceptance.
 //

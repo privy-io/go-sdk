@@ -7,6 +7,7 @@ import (
 	"errors"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/privy-io/go-sdk"
 	"github.com/privy-io/go-sdk/internal/testutil"
@@ -158,14 +159,23 @@ func TestOrganizationKYBSubmitWithOptionalParams(t *testing.T) {
 							StreetLine2: privyclient.String("x"),
 							Subdivision: privyclient.String("x"),
 						},
+						AttestedOwnershipStructureAt: time.Now(),
 						Documents: []privyclient.KYBIndividualDocument{{
 							File:        "x",
 							Purposes:    []privyclient.KYBIndividualDocumentPurpose{"proof_of_address"},
 							Description: privyclient.String("x"),
 						}},
-						IsDirector:          privyclient.Bool(true),
-						MiddleName:          privyclient.String("x"),
-						Nationalities:       []string{"xxx"},
+						IsDirector: privyclient.Bool(true),
+						KYCScreen: privyclient.KyxScreen{
+							Result:     privyclient.KyxScreenResultPassed,
+							ScreenedAt: time.Now(),
+						},
+						MiddleName:    privyclient.String("x"),
+						Nationalities: []string{"xxx"},
+						OfacScreen: privyclient.KyxScreen{
+							Result:     privyclient.KyxScreenResultPassed,
+							ScreenedAt: time.Now(),
+						},
 						OwnershipPercentage: privyclient.Int(0),
 						Phone:               privyclient.String("phone"),
 						PlaceOfBirth: privyclient.KYBPlaceOfBirth{
@@ -185,6 +195,9 @@ func TestOrganizationKYBSubmitWithOptionalParams(t *testing.T) {
 							StreetLine2: privyclient.String("x"),
 							Subdivision: privyclient.String("x"),
 						},
+						VerifiedDatabaseAt:       time.Now(),
+						VerifiedGovidAt:          time.Now(),
+						VerifiedProofOfAddressAt: time.Now(),
 					}},
 					BusinessDescription:              privyclient.String("x"),
 					BusinessIndustry:                 []string{"x"},
@@ -216,8 +229,16 @@ func TestOrganizationKYBSubmitWithOptionalParams(t *testing.T) {
 						ImageFront:     privyclient.String("image_front"),
 						Number:         privyclient.String("number"),
 					}},
-					IncorporationDate:             privyclient.String("7321-69-10"),
-					IsDao:                         privyclient.Bool(true),
+					IncorporationDate: privyclient.String("7321-69-10"),
+					IsDao:             privyclient.Bool(true),
+					KYBScreen: privyclient.KyxScreen{
+						Result:     privyclient.KyxScreenResultPassed,
+						ScreenedAt: time.Now(),
+					},
+					OfacScreen: privyclient.KyxScreen{
+						Result:     privyclient.KyxScreenResultPassed,
+						ScreenedAt: time.Now(),
+					},
 					OperatesInProhibitedCountries: privyclient.Bool(true),
 					OtherWebsites:                 []string{"string"},
 					OwnershipThreshold:            privyclient.Int(5),
@@ -270,6 +291,9 @@ func TestOrganizationKYBSubmitWithOptionalParams(t *testing.T) {
 						StreetLine2: privyclient.String("x"),
 						Subdivision: privyclient.String("x"),
 					},
+					VerifiedDatabaseAt:       time.Now(),
+					VerifiedGovidAt:          time.Now(),
+					VerifiedProofOfAddressAt: time.Now(),
 				},
 				Provider:          privyclient.KyxProviderBridge,
 				ClientAgreementID: privyclient.String("x"),
