@@ -1306,6 +1306,9 @@ type KYCSubmitData struct {
 	NonresidentAlienAttestation param.Opt[bool] `json:"nonresident_alien_attestation,omitzero"`
 	// Phone number in E.164 format.
 	Phone param.Opt[string] `json:"phone,omitzero"`
+	// Stripe Link shared data ID that supplies name, date of birth, address, and US
+	// SSN (omit those fields); retrieval errors surface in endorsements[].issues.
+	StripeLinkSharedDataID param.Opt[string] `json:"stripe_link_shared_data_id,omitzero"`
 	// Latin-1 transliteration of the first name. Required for non-Latin-1 names.
 	TransliteratedFirstName param.Opt[string] `json:"transliterated_first_name,omitzero"`
 	// Latin-1 transliteration of the last name. Required for non-Latin-1 names.
@@ -1391,6 +1394,8 @@ type KyxCapabilityStatus = string
 
 // An endorsement with its approval status and missing requirements.
 type KyxEndorsement struct {
+	// Provider issue codes, or null if none.
+	Issues []string `json:"issues" api:"required"`
 	// Missing requirements, or null if complete.
 	Missing []string `json:"missing" api:"required"`
 	// Endorsement identifier.
@@ -1399,6 +1404,7 @@ type KyxEndorsement struct {
 	Status KyxEndorsementStatus `json:"status" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
+		Issues      respjson.Field
 		Missing     respjson.Field
 		Name        respjson.Field
 		Status      respjson.Field

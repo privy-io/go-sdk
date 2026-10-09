@@ -153,6 +153,7 @@ func TestUserKYCSubmitWithOptionalParams(t *testing.T) {
 						StreetLine2: privyclient.String("x"),
 						Subdivision: privyclient.String("x"),
 					},
+					StripeLinkSharedDataID:   privyclient.String("lsd_J!Q0Ok0bzJb7"),
 					TransliteratedFirstName:  privyclient.String("x"),
 					TransliteratedLastName:   privyclient.String("x"),
 					TransliteratedMiddleName: privyclient.String("x"),

@@ -74,12 +74,9 @@ func (r *UserKYCService) InitiateTos(ctx context.Context, userID string, body Us
 	return res, err
 }
 
-// Submits KYC verification data for the user. Safe to call more than once: the
-// first call creates the provider customer and later calls update it, so a partial
-// submission can be completed incrementally. The first submission must carry
-// enough to begin verification — name, date of birth, residential address and at
-// least one identifying document; later calls may send only the fields that
-// change.
+// Submits KYC data, creating a provider customer on the first call and updating it
+// on later calls. Stripe Link can supply identity details, but an email is still
+// required to create a customer.
 func (r *UserKYCService) Submit(ctx context.Context, userID string, body UserKYCSubmitParams, opts ...option.RequestOption) (res *KYCStatusResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if userID == "" {
