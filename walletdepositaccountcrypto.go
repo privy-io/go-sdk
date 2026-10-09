@@ -127,6 +127,16 @@ func (r *WalletDepositAccountCryptoService) Quote(ctx context.Context, body Wall
 	return res, err
 }
 
+// Returns deposit-account source tokens matching a symbol, name, or contract
+// address. Results are limited to supported EVM and Solana source chains and can
+// include unverified tokens.
+func (r *WalletDepositAccountCryptoService) SearchConfig(ctx context.Context, query WalletDepositAccountCryptoSearchConfigParams, opts ...option.RequestOption) (res *CryptoDepositAccountConfigSearchResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "v1/deposit_accounts/crypto/config/search"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	return res, err
+}
+
 type WalletDepositAccountCryptoNewParams struct {
 	// Request body for creating a crypto deposit account.
 	CreateCryptoDepositAccountRequestBody CreateCryptoDepositAccountRequestBodyUnion
@@ -191,4 +201,19 @@ func (r WalletDepositAccountCryptoQuoteParams) MarshalJSON() (data []byte, err e
 }
 func (r *WalletDepositAccountCryptoQuoteParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+type WalletDepositAccountCryptoSearchConfigParams struct {
+	// Token symbol, name, or contract address in any chain format.
+	Q string `query:"q" api:"required" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [WalletDepositAccountCryptoSearchConfigParams]'s query
+// parameters as `url.Values`.
+func (r WalletDepositAccountCryptoSearchConfigParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }

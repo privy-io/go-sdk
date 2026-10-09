@@ -811,6 +811,53 @@ func (r *CryptoDepositAccountConfigResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Source tokens matching a crypto deposit-account search.
+type CryptoDepositAccountConfigSearchResponse struct {
+	Chains     map[string]CryptoDepositAccountChain `json:"chains" api:"required"`
+	Currencies []CryptoDepositAccountSearchCurrency `json:"currencies" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Chains      respjson.Field
+		Currencies  respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r CryptoDepositAccountConfigSearchResponse) RawJSON() string { return r.JSON.raw }
+func (r *CryptoDepositAccountConfigSearchResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A source token matched by crypto deposit-account search.
+type CryptoDepositAccountSearchCurrency struct {
+	Chains []CryptoDepositAccountSourceChain `json:"chains" api:"required"`
+	Name   string                            `json:"name" api:"required"`
+	Symbol string                            `json:"symbol" api:"required"`
+	// Whether this token is verified as the canonical token for its symbol, since
+	// unverified tokens may be lookalikes.
+	Verified bool `json:"verified" api:"required"`
+	// URL of the token logo, omitted when none is known.
+	LogoUri string `json:"logo_uri"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Chains      respjson.Field
+		Name        respjson.Field
+		Symbol      respjson.Field
+		Verified    respjson.Field
+		LogoUri     respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r CryptoDepositAccountSearchCurrency) RawJSON() string { return r.JSON.raw }
+func (r *CryptoDepositAccountSearchCurrency) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // A token contract on one source chain in the crypto deposit-account catalog.
 type CryptoDepositAccountSourceChain struct {
 	// Token contract or native asset address on this chain.
@@ -1408,6 +1455,24 @@ type DepositAccountCryptoQuoteResponse struct {
 // Returns the unmodified JSON received from the API
 func (r DepositAccountCryptoQuoteResponse) RawJSON() string { return r.JSON.raw }
 func (r *DepositAccountCryptoQuoteResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Derives the new wallet from an existing HD root wallet so both share one seed
+// phrase.
+//
+// The property WalletID is required.
+type DerivationInput struct {
+	// ID of the HD root wallet to derive the new wallet from.
+	WalletID string `json:"wallet_id" api:"required" format:"cuid2"`
+	paramObj
+}
+
+func (r DerivationInput) MarshalJSON() (data []byte, err error) {
+	type shadow DerivationInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *DerivationInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -9744,6 +9809,9 @@ type Wallet struct {
 	// characters only ([a-zA-Z0-9_-]), max 64 chars. Write-once: cannot be changed
 	// once set.
 	ExternalID string `json:"external_id"`
+	// ID of the HD root wallet this wallet was derived from, or null if it was not
+	// derived from another wallet.
+	ParentWalletID string `json:"parent_wallet_id" api:"nullable"`
 	// The compressed, raw public key for the wallet along the chain cryptographic
 	// curve.
 	PublicKey string `json:"public_key"`
@@ -9766,6 +9834,7 @@ type Wallet struct {
 		DisplayName            respjson.Field
 		Entity                 respjson.Field
 		ExternalID             respjson.Field
+		ParentWalletID         respjson.Field
 		PublicKey              respjson.Field
 		ExtraFields            map[string]respjson.Field
 		raw                    string
@@ -10137,6 +10206,9 @@ type WalletBatchItemInput struct {
 	Owner OwnerInputUnion `json:"owner,omitzero"`
 	// Additional signers for the wallet.
 	AdditionalSigners AdditionalSignerInput `json:"additional_signers,omitzero"`
+	// Derives the new wallet from an existing HD root wallet so both share one seed
+	// phrase.
+	Derivation DerivationInput `json:"derivation,omitzero"`
 	// Request body for assigning an entity to a wallet.
 	Entity WalletEntityAssignmentRequestBody `json:"entity,omitzero"`
 	// List of policy IDs for policies that should be enforced on the wallet.
@@ -12077,6 +12149,9 @@ type WalletNewParams struct {
 	Owner OwnerInputUnion `json:"owner,omitzero"`
 	// Additional signers for the wallet.
 	AdditionalSigners AdditionalSignerInput `json:"additional_signers,omitzero"`
+	// Derives the new wallet from an existing HD root wallet so both share one seed
+	// phrase.
+	Derivation DerivationInput `json:"derivation,omitzero"`
 	// Request body for assigning an entity to a wallet.
 	Entity WalletEntityAssignmentRequestBody `json:"entity,omitzero"`
 	// An optional list of up to one policy ID to enforce on the wallet.
@@ -12369,6 +12444,9 @@ type WalletNewWalletsWithRecoveryParamsWallet struct {
 	// characters only ([a-zA-Z0-9_-]), max 64 chars. Write-once: cannot be changed
 	// after creation.
 	ExternalID param.Opt[string] `json:"external_id,omitzero"`
+	// Derives the new wallet from an existing HD root wallet so both share one seed
+	// phrase.
+	Derivation DerivationInput `json:"derivation,omitzero"`
 	// An optional list of up to one policy ID to enforce on the wallet.
 	PolicyIDs PolicyInput `json:"policy_ids,omitzero" format:"cuid2"`
 	paramObj

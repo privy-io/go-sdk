@@ -1223,6 +1223,8 @@ type IntentResponseUnionCurrentResourceData struct {
 	// This field is from variant [Wallet].
 	ExternalID string `json:"external_id"`
 	// This field is from variant [Wallet].
+	ParentWalletID string `json:"parent_wallet_id"`
+	// This field is from variant [Wallet].
 	PublicKey string `json:"public_key"`
 	Name      string `json:"name"`
 	// This field is from variant [Policy].
@@ -1259,6 +1261,7 @@ type IntentResponseUnionCurrentResourceData struct {
 		DisplayName            respjson.Field
 		Entity                 respjson.Field
 		ExternalID             respjson.Field
+		ParentWalletID         respjson.Field
 		PublicKey              respjson.Field
 		Name                   respjson.Field
 		Rules                  respjson.Field

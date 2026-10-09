@@ -34,6 +34,9 @@ func TestWalletNewWithOptionalParams(t *testing.T) {
 			SignerID:          "string",
 			OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 		}},
+		Derivation: privyclient.DerivationInput{
+			WalletID: "wallet_id",
+		},
 		DisplayName: privyclient.String("display_name"),
 		Entity: privyclient.WalletEntityAssignmentRequestBody{
 			ID:   "jorpjo4rfxj62nx1itt8y1zt",
@@ -372,6 +375,9 @@ func TestWalletNewBatch(t *testing.T) {
 					SignerID:          "string",
 					OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 				}},
+				Derivation: privyclient.DerivationInput{
+					WalletID: "wallet_id",
+				},
 				DisplayName: privyclient.String("display_name"),
 				Entity: privyclient.WalletEntityAssignmentRequestBody{
 					ID:   "jorpjo4rfxj62nx1itt8y1zt",
@@ -391,6 +397,9 @@ func TestWalletNewBatch(t *testing.T) {
 					SignerID:          "string",
 					OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 				}},
+				Derivation: privyclient.DerivationInput{
+					WalletID: "wallet_id",
+				},
 				DisplayName: privyclient.String("display_name"),
 				Entity: privyclient.WalletEntityAssignmentRequestBody{
 					ID:   "jorpjo4rfxj62nx1itt8y1zt",
@@ -442,12 +451,18 @@ func TestWalletNewWalletsWithRecovery(t *testing.T) {
 			}},
 		},
 		Wallets: []privyclient.WalletNewWalletsWithRecoveryParamsWallet{{
-			ChainType:   privyclient.WalletChainTypeEthereum,
+			ChainType: privyclient.WalletChainTypeEthereum,
+			Derivation: privyclient.DerivationInput{
+				WalletID: "wallet_id",
+			},
 			DisplayName: privyclient.String("display_name"),
 			ExternalID:  privyclient.String("external_id"),
 			PolicyIDs:   privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
 		}, {
-			ChainType:   privyclient.WalletChainTypeSolana,
+			ChainType: privyclient.WalletChainTypeSolana,
+			Derivation: privyclient.DerivationInput{
+				WalletID: "wallet_id",
+			},
 			DisplayName: privyclient.String("display_name"),
 			ExternalID:  privyclient.String("external_id"),
 			PolicyIDs:   privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
