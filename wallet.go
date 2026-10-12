@@ -7811,6 +7811,7 @@ const (
 	TransactionChainNameInputSolana      TransactionChainNameInput = "solana"
 	TransactionChainNameInputSepolia     TransactionChainNameInput = "sepolia"
 	TransactionChainNameInputArc         TransactionChainNameInput = "arc"
+	TransactionChainNameInputMonad       TransactionChainNameInput = "monad"
 )
 
 // TransactionDetailUnion contains all possible properties and values from
@@ -8129,6 +8130,7 @@ const (
 	TransferReceivedTransactionDetailAssetAvax    TransferReceivedTransactionDetailAsset = "avax"
 	TransferReceivedTransactionDetailAssetPol     TransferReceivedTransactionDetailAsset = "pol"
 	TransferReceivedTransactionDetailAssetBnb     TransferReceivedTransactionDetailAsset = "bnb"
+	TransferReceivedTransactionDetailAssetMon     TransferReceivedTransactionDetailAsset = "mon"
 	TransferReceivedTransactionDetailAssetUsdt    TransferReceivedTransactionDetailAsset = "usdt"
 	TransferReceivedTransactionDetailAssetEurc    TransferReceivedTransactionDetailAsset = "eurc"
 	TransferReceivedTransactionDetailAssetUsdb    TransferReceivedTransactionDetailAsset = "usdb"
@@ -8494,6 +8496,7 @@ const (
 	TransferSentTransactionDetailAssetAvax    TransferSentTransactionDetailAsset = "avax"
 	TransferSentTransactionDetailAssetPol     TransferSentTransactionDetailAsset = "pol"
 	TransferSentTransactionDetailAssetBnb     TransferSentTransactionDetailAsset = "bnb"
+	TransferSentTransactionDetailAssetMon     TransferSentTransactionDetailAsset = "mon"
 	TransferSentTransactionDetailAssetUsdt    TransferSentTransactionDetailAsset = "usdt"
 	TransferSentTransactionDetailAssetEurc    TransferSentTransactionDetailAsset = "eurc"
 	TransferSentTransactionDetailAssetUsdb    TransferSentTransactionDetailAsset = "usdb"
@@ -9882,6 +9885,7 @@ const (
 	WalletAssetAvax    WalletAsset = "avax"
 	WalletAssetPol     WalletAsset = "pol"
 	WalletAssetBnb     WalletAsset = "bnb"
+	WalletAssetMon     WalletAsset = "mon"
 	WalletAssetUsdt    WalletAsset = "usdt"
 	WalletAssetEurc    WalletAsset = "eurc"
 	WalletAssetUsdb    WalletAsset = "usdb"
@@ -9916,6 +9920,7 @@ const (
 	WalletAssetChainNameInputHyperevm         WalletAssetChainNameInput = "hyperevm"
 	WalletAssetChainNameInputHypercore        WalletAssetChainNameInput = "hypercore"
 	WalletAssetChainNameInputArc              WalletAssetChainNameInput = "arc"
+	WalletAssetChainNameInputMonad            WalletAssetChainNameInput = "monad"
 	WalletAssetChainNameInputTempoTestnet     WalletAssetChainNameInput = "tempo_testnet"
 	WalletAssetChainNameInputHoodi            WalletAssetChainNameInput = "hoodi"
 	WalletAssetChainNameInputSepolia          WalletAssetChainNameInput = "sepolia"

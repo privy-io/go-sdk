@@ -167,6 +167,7 @@ const (
 	WalletTransactionGetParamsAssetStringAvax    WalletTransactionGetParamsAssetString = "avax"
 	WalletTransactionGetParamsAssetStringPol     WalletTransactionGetParamsAssetString = "pol"
 	WalletTransactionGetParamsAssetStringBnb     WalletTransactionGetParamsAssetString = "bnb"
+	WalletTransactionGetParamsAssetStringMon     WalletTransactionGetParamsAssetString = "mon"
 	WalletTransactionGetParamsAssetStringUsdt    WalletTransactionGetParamsAssetString = "usdt"
 	WalletTransactionGetParamsAssetStringEurc    WalletTransactionGetParamsAssetString = "eurc"
 	WalletTransactionGetParamsAssetStringUsdb    WalletTransactionGetParamsAssetString = "usdb"
