@@ -486,11 +486,15 @@ This library provides some conveniences for working with paginated list endpoint
 You can use `.ListAutoPaging()` methods to iterate through items across all pages:
 
 ```go
-iter := client.Intents.ListAutoPaging(context.TODO(), privyclient.IntentListParams{})
+iter := client.Apps.Denylist.ListAutoPaging(
+	context.TODO(),
+	"app_id",
+	privyclient.AppDenylistListParams{},
+)
 // Automatically fetches more pages as needed.
 for iter.Next() {
-	intentResponse := iter.Current()
-	fmt.Printf("%+v\n", intentResponse)
+	denylistEntry := iter.Current()
+	fmt.Printf("%+v\n", denylistEntry)
 }
 if err := iter.Err(); err != nil {
  panic(err.Error())
@@ -501,10 +505,14 @@ Or you can use simple `.List()` methods to fetch a single page and receive a sta
 with additional helper methods like `.GetNextPage()`, e.g.:
 
 ```go
-page, err := client.Intents.List(context.TODO(), privyclient.IntentListParams{})
+page, err := client.Apps.Denylist.List(
+	context.TODO(),
+	"app_id",
+	privyclient.AppDenylistListParams{},
+)
 for page != nil {
-	for _, intent := range page.Data {
-		fmt.Printf("%+v\n", intent)
+	for _, denylist := range page.Data {
+		fmt.Printf("%+v\n", denylist)
 	}
 	page, err = page.GetNextPage()
 }

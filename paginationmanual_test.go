@@ -26,12 +26,16 @@ func TestManualPagination(t *testing.T) {
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	page, err := client.Intents.List(context.TODO(), privyclient.IntentListParams{})
+	page, err := client.Apps.Denylist.List(
+		context.TODO(),
+		"app_id",
+		privyclient.AppDenylistListParams{},
+	)
 	if err != nil {
 		t.Fatalf("err should be nil: %s", err.Error())
 	}
-	for _, intent := range page.Data {
-		t.Logf("%+v\n", intent)
+	for _, denylist := range page.Data {
+		t.Logf("%+v\n", denylist.ID)
 	}
 	// The mock server isn't going to give us real pagination
 	page, err = page.GetNextPage()
@@ -39,8 +43,8 @@ func TestManualPagination(t *testing.T) {
 		t.Fatalf("err should be nil: %s", err.Error())
 	}
 	if page != nil {
-		for _, intent := range page.Data {
-			t.Logf("%+v\n", intent)
+		for _, denylist := range page.Data {
+			t.Logf("%+v\n", denylist.ID)
 		}
 	}
 }

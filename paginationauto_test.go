@@ -26,11 +26,15 @@ func TestAutoPagination(t *testing.T) {
 		option.WithAppID("My App ID"),
 		option.WithAppSecret("My App Secret"),
 	)
-	iter := client.Intents.ListAutoPaging(context.TODO(), privyclient.IntentListParams{})
+	iter := client.Apps.Denylist.ListAutoPaging(
+		context.TODO(),
+		"app_id",
+		privyclient.AppDenylistListParams{},
+	)
 	// The mock server isn't going to give us real pagination
 	for i := 0; i < 3 && iter.Next(); i++ {
-		intent := iter.Current()
-		t.Logf("%+v\n", intent)
+		denylist := iter.Current()
+		t.Logf("%+v\n", denylist.ID)
 	}
 	if err := iter.Err(); err != nil {
 		t.Fatalf("err should be nil: %s", err.Error())

@@ -30,6 +30,8 @@ type AppService struct {
 	Options []option.RequestOption
 	// Operations related to app settings and allowlist management
 	Allowlist AppAllowlistService
+	// Operations related to app settings and allowlist management
+	Denylist AppDenylistService
 }
 
 // NewAppService generates a new service that applies the given options to each
@@ -39,6 +41,7 @@ func NewAppService(opts ...option.RequestOption) (r AppService) {
 	r = AppService{}
 	r.Options = opts
 	r.Allowlist = NewAppAllowlistService(opts...)
+	r.Denylist = NewAppDenylistService(opts...)
 	return
 }
 
@@ -364,6 +367,266 @@ type CurrencyAsset string
 const (
 	CurrencyAssetNativeCurrency CurrencyAsset = "native-currency"
 	CurrencyAssetUsdc           CurrencyAsset = "USDC"
+)
+
+// Denylist input for an email domain, which blocks every email address on the
+// domain.
+//
+// The properties Type, Value are required.
+type DenylistEmailDomainInput struct {
+	// Any of "emailDomain".
+	Type DenylistEmailDomainInputType `json:"type,omitzero" api:"required"`
+	// An email domain.
+	Value EmailDomain `json:"value" api:"required"`
+	paramObj
+}
+
+func (r DenylistEmailDomainInput) MarshalJSON() (data []byte, err error) {
+	type shadow DenylistEmailDomainInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *DenylistEmailDomainInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type DenylistEmailDomainInputType string
+
+const (
+	DenylistEmailDomainInputTypeEmailDomain DenylistEmailDomainInputType = "emailDomain"
+)
+
+// Denylist input for an email address, which also blocks its `+` and `.` variants.
+//
+// The properties Type, Value are required.
+type DenylistEmailInput struct {
+	// Any of "email".
+	Type  DenylistEmailInputType `json:"type,omitzero" api:"required"`
+	Value string                 `json:"value" api:"required" format:"email"`
+	paramObj
+}
+
+func (r DenylistEmailInput) MarshalJSON() (data []byte, err error) {
+	type shadow DenylistEmailInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *DenylistEmailInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type DenylistEmailInputType string
+
+const (
+	DenylistEmailInputTypeEmail DenylistEmailInputType = "email"
+)
+
+// A denylist entry for an app.
+type DenylistEntry struct {
+	// The ID of the denylist entry.
+	ID string `json:"id" api:"required"`
+	// The type of identifier a denylist rule blocks.
+	RuleType DenylistRuleType `json:"rule_type" api:"required"`
+	// The blocked identifier.
+	Value string `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID          respjson.Field
+		RuleType    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r DenylistEntry) RawJSON() string { return r.JSON.raw }
+func (r *DenylistEntry) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func DenylistEntryCreateRequestBodyOfEmail(value string) DenylistEntryCreateRequestBodyUnion {
+	var email DenylistEmailInput
+	email.Value = value
+	return DenylistEntryCreateRequestBodyUnion{OfEmail: &email}
+}
+
+func DenylistEntryCreateRequestBodyOfEmailDomain(value EmailDomain) DenylistEntryCreateRequestBodyUnion {
+	var emailDomain DenylistEmailDomainInput
+	emailDomain.Value = value
+	return DenylistEntryCreateRequestBodyUnion{OfEmailDomain: &emailDomain}
+}
+
+func DenylistEntryCreateRequestBodyOfPhone(value string) DenylistEntryCreateRequestBodyUnion {
+	var phone DenylistPhoneInput
+	phone.Value = value
+	return DenylistEntryCreateRequestBodyUnion{OfPhone: &phone}
+}
+
+func DenylistEntryCreateRequestBodyOfEthereumAddress(value string) DenylistEntryCreateRequestBodyUnion {
+	var ethereumAddress DenylistEthereumAddressInput
+	ethereumAddress.Value = value
+	return DenylistEntryCreateRequestBodyUnion{OfEthereumAddress: &ethereumAddress}
+}
+
+func DenylistEntryCreateRequestBodyOfSolanaAddress(value string) DenylistEntryCreateRequestBodyUnion {
+	var solanaAddress DenylistSolanaAddressInput
+	solanaAddress.Value = value
+	return DenylistEntryCreateRequestBodyUnion{OfSolanaAddress: &solanaAddress}
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type DenylistEntryCreateRequestBodyUnion struct {
+	OfEmail           *DenylistEmailInput           `json:",omitzero,inline"`
+	OfEmailDomain     *DenylistEmailDomainInput     `json:",omitzero,inline"`
+	OfPhone           *DenylistPhoneInput           `json:",omitzero,inline"`
+	OfEthereumAddress *DenylistEthereumAddressInput `json:",omitzero,inline"`
+	OfSolanaAddress   *DenylistSolanaAddressInput   `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u DenylistEntryCreateRequestBodyUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfEmail,
+		u.OfEmailDomain,
+		u.OfPhone,
+		u.OfEthereumAddress,
+		u.OfSolanaAddress)
+}
+func (u *DenylistEntryCreateRequestBodyUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+func init() {
+	apijson.RegisterUnion[DenylistEntryCreateRequestBodyUnion](
+		"type",
+		apijson.Discriminator[DenylistEmailInput]("email"),
+		apijson.Discriminator[DenylistEmailDomainInput]("emailDomain"),
+		apijson.Discriminator[DenylistPhoneInput]("phone"),
+		apijson.Discriminator[DenylistEthereumAddressInput]("ethereumAddress"),
+		apijson.Discriminator[DenylistSolanaAddressInput]("solanaAddress"),
+	)
+}
+
+// Input for removing a denylist entry.
+//
+// The property ID is required.
+type DenylistEntryDeleteRequestBody struct {
+	// The ID of the denylist entry to remove.
+	ID string `json:"id" api:"required"`
+	paramObj
+}
+
+func (r DenylistEntryDeleteRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow DenylistEntryDeleteRequestBody
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *DenylistEntryDeleteRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Denylist input for an Ethereum wallet address, which blocks SIWE logins.
+//
+// The properties Type, Value are required.
+type DenylistEthereumAddressInput struct {
+	// Any of "ethereumAddress".
+	Type  DenylistEthereumAddressInputType `json:"type,omitzero" api:"required"`
+	Value string                           `json:"value" api:"required"`
+	paramObj
+}
+
+func (r DenylistEthereumAddressInput) MarshalJSON() (data []byte, err error) {
+	type shadow DenylistEthereumAddressInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *DenylistEthereumAddressInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type DenylistEthereumAddressInputType string
+
+const (
+	DenylistEthereumAddressInputTypeEthereumAddress DenylistEthereumAddressInputType = "ethereumAddress"
+)
+
+// A page of denylist entries for an app.
+type DenylistListResponse struct {
+	// Denylist entries in this page.
+	Data []DenylistEntry `json:"data" api:"required"`
+	// Cursor for the next page, which is null only when this page is empty, so keep
+	// paging until `data` is empty.
+	NextCursor string `json:"next_cursor" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		NextCursor  respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r DenylistListResponse) RawJSON() string { return r.JSON.raw }
+func (r *DenylistListResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Denylist input for a phone number.
+//
+// The properties Type, Value are required.
+type DenylistPhoneInput struct {
+	// Any of "phone".
+	Type  DenylistPhoneInputType `json:"type,omitzero" api:"required"`
+	Value string                 `json:"value" api:"required"`
+	paramObj
+}
+
+func (r DenylistPhoneInput) MarshalJSON() (data []byte, err error) {
+	type shadow DenylistPhoneInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *DenylistPhoneInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type DenylistPhoneInputType string
+
+const (
+	DenylistPhoneInputTypePhone DenylistPhoneInputType = "phone"
+)
+
+// The type of identifier a denylist rule blocks.
+type DenylistRuleType string
+
+const (
+	DenylistRuleTypeEmail           DenylistRuleType = "email"
+	DenylistRuleTypeEmailDomain     DenylistRuleType = "emailDomain"
+	DenylistRuleTypePhone           DenylistRuleType = "phone"
+	DenylistRuleTypeEthereumAddress DenylistRuleType = "ethereumAddress"
+	DenylistRuleTypeSolanaAddress   DenylistRuleType = "solanaAddress"
+)
+
+// Denylist input for a Solana wallet address, which blocks SIWS logins.
+//
+// The properties Type, Value are required.
+type DenylistSolanaAddressInput struct {
+	// Any of "solanaAddress".
+	Type  DenylistSolanaAddressInputType `json:"type,omitzero" api:"required"`
+	Value string                         `json:"value" api:"required"`
+	paramObj
+}
+
+func (r DenylistSolanaAddressInput) MarshalJSON() (data []byte, err error) {
+	type shadow DenylistSolanaAddressInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *DenylistSolanaAddressInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type DenylistSolanaAddressInputType string
+
+const (
+	DenylistSolanaAddressInputTypeSolanaAddress DenylistSolanaAddressInputType = "solanaAddress"
 )
 
 type EmailDomain = string
