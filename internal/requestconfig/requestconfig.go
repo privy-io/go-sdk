@@ -387,6 +387,14 @@ func (cfg *RequestConfig) Execute() (err error) {
 		}
 	}
 
+	// URL.Path is already percent-decoded. Reject dot segments before resolving
+	// the relative URL, which would otherwise normalize them into another endpoint.
+	for _, segment := range strings.Split(cfg.Request.URL.Path, "/") {
+		if segment == "." || segment == ".." {
+			return fmt.Errorf("request path must not contain dot segments")
+		}
+	}
+
 	cfg.Request.URL, err = cfg.BaseURL.Parse(strings.TrimLeft(cfg.Request.URL.String(), "/"))
 	if err != nil {
 		return err
