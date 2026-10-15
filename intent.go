@@ -73,6 +73,22 @@ func (r *IntentService) ListAutoPaging(ctx context.Context, query IntentListPara
 	return pagination.NewCursorAutoPager(r.List(ctx, query, opts...))
 }
 
+// Create an intent to add items to a condition set. The intent must be authorized
+// by the condition set owner before it can be executed.
+func (r *IntentService) NewConditionSetItems(ctx context.Context, conditionSetID string, params IntentNewConditionSetItemsParams, opts ...option.RequestOption) (res *ConditionSetItemIntentResponse, err error) {
+	if !param.IsOmitted(params.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
+	}
+	opts = slices.Concat(r.Options, opts)
+	if conditionSetID == "" {
+		err = errors.New("missing required condition_set_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/intents/condition_sets/%s/condition_set_items", url.PathEscape(conditionSetID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
+	return res, err
+}
+
 // Create an intent to add a rule to a policy. The intent must be authorized by the
 // policy owner before it can be executed.
 func (r *IntentService) NewPolicyRule(ctx context.Context, policyID string, params IntentNewPolicyRuleParams, opts ...option.RequestOption) (res *RuleMutateIntentResponse, err error) {
@@ -122,6 +138,22 @@ func (r *IntentService) Get(ctx context.Context, intentID string, opts ...option
 	}
 	path := fmt.Sprintf("v1/intents/%s", url.PathEscape(intentID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return res, err
+}
+
+// Create an intent to sign a raw hash or bytes with a wallet. The intent must be
+// authorized by either the wallet owner or signers before it can be executed.
+func (r *IntentService) RawSign(ctx context.Context, walletID string, params IntentRawSignParams, opts ...option.RequestOption) (res *RawSignIntentResponse, err error) {
+	if !param.IsOmitted(params.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
+	}
+	opts = slices.Concat(r.Options, opts)
+	if walletID == "" {
+		err = errors.New("missing required wallet_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/intents/wallets/%s/raw_sign", url.PathEscape(walletID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return res, err
 }
 
@@ -319,6 +351,67 @@ type BaseIntentResponse struct {
 // Returns the unmodified JSON received from the API
 func (r BaseIntentResponse) RawJSON() string { return r.JSON.raw }
 func (r *BaseIntentResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Request details for adding items to a condition set via intent.
+type ConditionSetItemIntentCreateRequestDetails struct {
+	// Array of values to add to the condition set. Maximum 100 items per request.
+	Body ConditionSetItemsRequestBodyResp `json:"body" api:"required"`
+	// Any of "POST".
+	Method ConditionSetItemIntentCreateRequestDetailsMethod `json:"method" api:"required"`
+	URL    string                                           `json:"url" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Body        respjson.Field
+		Method      respjson.Field
+		URL         respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ConditionSetItemIntentCreateRequestDetails) RawJSON() string { return r.JSON.raw }
+func (r *ConditionSetItemIntentCreateRequestDetails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type ConditionSetItemIntentCreateRequestDetailsMethod string
+
+const (
+	ConditionSetItemIntentCreateRequestDetailsMethodPost ConditionSetItemIntentCreateRequestDetailsMethod = "POST"
+)
+
+// Response for a condition set item intent
+type ConditionSetItemIntentResponse struct {
+	// Any of "CONDITION_SET_ITEM".
+	IntentType string `json:"intent_type" api:"required"`
+	// Request details for adding items to a condition set via intent.
+	RequestDetails ConditionSetItemIntentCreateRequestDetails `json:"request_details" api:"required"`
+	// Result of condition set item execution (only present if status is 'executed' or
+	// 'failed')
+	ActionResult BaseActionResult `json:"action_result"`
+	// A condition set for grouping related condition values.
+	ConditionSet ConditionSet `json:"condition_set"`
+	// A single item in a condition set.
+	CurrentResourceData ConditionSetItem `json:"current_resource_data"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		ConditionSet        respjson.Field
+		CurrentResourceData respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
+	} `json:"-"`
+	BaseIntentResponse
+}
+
+// Returns the unmodified JSON received from the API
+func (r ConditionSetItemIntentResponse) RawJSON() string { return r.JSON.raw }
+func (r *ConditionSetItemIntentResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -608,75 +701,93 @@ const (
 )
 
 // IntentResponseUnion contains all possible properties and values from
-// [RpcIntentResponse], [TransferIntentResponse], [WalletIntentResponse],
-// [PolicyIntentResponse], [RuleIntentResponse], [KeyQuorumIntentResponse].
+// [RpcIntentResponse], [TransferIntentResponse], [RawSignIntentResponse],
+// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
+// [KeyQuorumIntentResponse], [ConditionSetItemIntentResponse].
 //
 // Use the [IntentResponseUnion.AsAny] method to switch on the variant.
 //
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 type IntentResponseUnion struct {
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
-	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
-	// [KeyQuorumIntentResponse].
+	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [ConditionSetItemIntentResponse].
 	AuthorizationDetails []IntentAuthorization `json:"authorization_details"`
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
-	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
-	// [KeyQuorumIntentResponse].
+	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [ConditionSetItemIntentResponse].
 	CreatedAt float64 `json:"created_at"`
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
-	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
-	// [KeyQuorumIntentResponse].
+	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [ConditionSetItemIntentResponse].
 	CreatedByDisplayName string `json:"created_by_display_name"`
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
-	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
-	// [KeyQuorumIntentResponse].
+	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [ConditionSetItemIntentResponse].
 	CustomExpiry bool `json:"custom_expiry"`
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
-	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
-	// [KeyQuorumIntentResponse].
+	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [ConditionSetItemIntentResponse].
 	ExpiresAt float64 `json:"expires_at"`
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
-	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
-	// [KeyQuorumIntentResponse].
+	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [ConditionSetItemIntentResponse].
 	IntentID string `json:"intent_id"`
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
-	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
-	// [KeyQuorumIntentResponse].
+	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [ConditionSetItemIntentResponse].
 	ResourceID string `json:"resource_id"`
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
-	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
-	// [KeyQuorumIntentResponse].
+	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [ConditionSetItemIntentResponse].
 	Status IntentStatus `json:"status"`
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
-	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
-	// [KeyQuorumIntentResponse].
+	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [ConditionSetItemIntentResponse].
 	CreatedByID string `json:"created_by_id"`
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
-	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
-	// [KeyQuorumIntentResponse].
+	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [ConditionSetItemIntentResponse].
 	DismissalReason string `json:"dismissal_reason"`
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
-	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
-	// [KeyQuorumIntentResponse].
+	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [ConditionSetItemIntentResponse].
 	DismissedAt float64 `json:"dismissed_at"`
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
-	// [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
-	// [KeyQuorumIntentResponse].
+	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [ConditionSetItemIntentResponse].
 	RejectedAt float64 `json:"rejected_at"`
-	// Any of "RPC", "TRANSFER", "WALLET", "POLICY", "RULE", "KEY_QUORUM".
+	// Any of "RPC", "TRANSFER", "RAW_SIGN", "WALLET", "POLICY", "RULE", "KEY_QUORUM",
+	// "CONDITION_SET_ITEM".
 	IntentType string `json:"intent_type"`
 	// This field is a union of [RpcIntentResponseRequestDetails],
-	// [TransferIntentResponseRequestDetails], [WalletIntentResponseRequestDetails],
-	// [PolicyIntentResponseRequestDetails], [RuleIntentRequestDetailsUnion],
-	// [KeyQuorumIntentResponseRequestDetails]
+	// [TransferIntentResponseRequestDetails], [RawSignIntentResponseRequestDetails],
+	// [WalletIntentResponseRequestDetails], [PolicyIntentResponseRequestDetails],
+	// [RuleIntentRequestDetailsUnion], [KeyQuorumIntentResponseRequestDetails],
+	// [ConditionSetItemIntentCreateRequestDetails]
 	RequestDetails IntentResponseUnionRequestDetails `json:"request_details"`
 	// This field is from variant [RpcIntentResponse].
 	ActionResult BaseActionResult `json:"action_result"`
-	// This field is a union of [Wallet], [Policy], [PolicyRuleResponse], [KeyQuorum]
+	// This field is a union of [Wallet], [Policy], [PolicyRuleResponse], [KeyQuorum],
+	// [ConditionSetItem]
 	CurrentResourceData IntentResponseUnionCurrentResourceData `json:"current_resource_data"`
 	// This field is from variant [RuleIntentResponse].
 	Policy Policy `json:"policy"`
-	JSON   struct {
+	// This field is from variant [ConditionSetItemIntentResponse].
+	ConditionSet ConditionSet `json:"condition_set"`
+	JSON         struct {
 		AuthorizationDetails respjson.Field
 		CreatedAt            respjson.Field
 		CreatedByDisplayName respjson.Field
@@ -694,6 +805,7 @@ type IntentResponseUnion struct {
 		ActionResult         respjson.Field
 		CurrentResourceData  respjson.Field
 		Policy               respjson.Field
+		ConditionSet         respjson.Field
 		raw                  string
 	} `json:"-"`
 }
@@ -704,22 +816,26 @@ type anyIntentResponse interface {
 	implIntentResponseUnion()
 }
 
-func (RpcIntentResponse) implIntentResponseUnion()       {}
-func (TransferIntentResponse) implIntentResponseUnion()  {}
-func (WalletIntentResponse) implIntentResponseUnion()    {}
-func (PolicyIntentResponse) implIntentResponseUnion()    {}
-func (RuleIntentResponse) implIntentResponseUnion()      {}
-func (KeyQuorumIntentResponse) implIntentResponseUnion() {}
+func (RpcIntentResponse) implIntentResponseUnion()              {}
+func (TransferIntentResponse) implIntentResponseUnion()         {}
+func (RawSignIntentResponse) implIntentResponseUnion()          {}
+func (WalletIntentResponse) implIntentResponseUnion()           {}
+func (PolicyIntentResponse) implIntentResponseUnion()           {}
+func (RuleIntentResponse) implIntentResponseUnion()             {}
+func (KeyQuorumIntentResponse) implIntentResponseUnion()        {}
+func (ConditionSetItemIntentResponse) implIntentResponseUnion() {}
 
 // Use the following switch statement to find the correct variant
 //
 //	switch variant := IntentResponseUnion.AsAny().(type) {
 //	case privyclient.RpcIntentResponse:
 //	case privyclient.TransferIntentResponse:
+//	case privyclient.RawSignIntentResponse:
 //	case privyclient.WalletIntentResponse:
 //	case privyclient.PolicyIntentResponse:
 //	case privyclient.RuleIntentResponse:
 //	case privyclient.KeyQuorumIntentResponse:
+//	case privyclient.ConditionSetItemIntentResponse:
 //	default:
 //	  fmt.Errorf("no variant present")
 //	}
@@ -729,6 +845,8 @@ func (u IntentResponseUnion) AsAny() anyIntentResponse {
 		return u.AsRpc()
 	case "TRANSFER":
 		return u.AsTransfer()
+	case "RAW_SIGN":
+		return u.AsRawSign()
 	case "WALLET":
 		return u.AsWallet()
 	case "POLICY":
@@ -737,6 +855,8 @@ func (u IntentResponseUnion) AsAny() anyIntentResponse {
 		return u.AsRule()
 	case "KEY_QUORUM":
 		return u.AsKeyQuorum()
+	case "CONDITION_SET_ITEM":
+		return u.AsConditionSetItem()
 	}
 	return nil
 }
@@ -747,6 +867,11 @@ func (u IntentResponseUnion) AsRpc() (v RpcIntentResponse) {
 }
 
 func (u IntentResponseUnion) AsTransfer() (v TransferIntentResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u IntentResponseUnion) AsRawSign() (v RawSignIntentResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -771,6 +896,11 @@ func (u IntentResponseUnion) AsKeyQuorum() (v KeyQuorumIntentResponse) {
 	return
 }
 
+func (u IntentResponseUnion) AsConditionSetItem() (v ConditionSetItemIntentResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
 // Returns the unmodified JSON received from the API
 func (u IntentResponseUnion) RawJSON() string { return u.JSON.raw }
 
@@ -786,9 +916,11 @@ func (r *IntentResponseUnion) UnmarshalJSON(data []byte) error {
 // [IntentResponseUnion].
 type IntentResponseUnionRequestDetails struct {
 	// This field is a union of [WalletRpcRequestBodyUnionResp],
-	// [TransferRequestBodyResp], [WalletIntentResponseRequestDetailsBody],
+	// [TransferRequestBodyResp], [RawSignInputResp],
+	// [WalletIntentResponseRequestDetailsBody],
 	// [PolicyIntentResponseRequestDetailsBody], [PolicyRuleRequestBodyResp],
-	// [RuleIntentDeleteRequestBody], [KeyQuorumUpdateRequestBodyResp]
+	// [RuleIntentDeleteRequestBody], [KeyQuorumUpdateRequestBodyResp],
+	// [ConditionSetItemsRequestBodyResp]
 	Body   IntentResponseUnionRequestDetailsBody `json:"body"`
 	Method string                                `json:"method"`
 	URL    string                                `json:"url"`
@@ -810,8 +942,14 @@ func (r *IntentResponseUnionRequestDetails) UnmarshalJSON(data []byte) error {
 //
 // For type safety it is recommended to directly use a variant of the
 // [IntentResponseUnion].
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfConditionSetItemsRequestBody]
 type IntentResponseUnionRequestDetailsBody struct {
-	Method string `json:"method"`
+	// This field will be present if the value is a [ConditionSetItemsRequestBodyResp]
+	// instead of an object.
+	OfConditionSetItemsRequestBody ConditionSetItemsRequestBodyResp `json:",inline"`
+	Method                         string                           `json:"method"`
 	// This field is a union of [EthereumSignTransactionRpcInputParamsResp],
 	// [EthereumSendTransactionRpcInputParamsResp],
 	// [EthereumPersonalSignRpcInputParamsResp],
@@ -835,7 +973,7 @@ type IntentResponseUnionRequestDetailsBody struct {
 	// [TronSendTransactionRpcInputParamsResp],
 	// [XrplSignTransactionRpcInputParamsResp],
 	// [NearSignTransactionRpcRequestBodyParamsResp], [PrivateKeyExportInputResp],
-	// [SeedPhraseExportInputResp]
+	// [SeedPhraseExportInputResp], [RawSignInputParamsUnionResp]
 	Params    IntentResponseUnionRequestDetailsBodyParams `json:"params"`
 	Address   string                                      `json:"address"`
 	ChainType string                                      `json:"chain_type"`
@@ -898,43 +1036,44 @@ type IntentResponseUnionRequestDetailsBody struct {
 	// This field is from variant [KeyQuorumUpdateRequestBodyResp].
 	UserIDs []string `json:"user_ids"`
 	JSON    struct {
-		Method                 respjson.Field
-		Params                 respjson.Field
-		Address                respjson.Field
-		ChainType              respjson.Field
-		WalletID               respjson.Field
-		Caip2                  respjson.Field
-		ExperimentalDataSuffix respjson.Field
-		ReferenceID            respjson.Field
-		Sponsor                respjson.Field
-		SponsorOptions         respjson.Field
-		SignatureOptions       respjson.Field
-		OptimisticBroadcast    respjson.Field
-		Network                respjson.Field
-		Destination            respjson.Field
-		Source                 respjson.Field
-		Amount                 respjson.Field
-		AmountType             respjson.Field
-		CustodyOptions         respjson.Field
-		FeeConfiguration       respjson.Field
-		Nonce                  respjson.Field
-		SlippageBps            respjson.Field
-		AdditionalSigners      respjson.Field
-		AuthorizationKeyIDs    respjson.Field
-		AuthorizationThreshold respjson.Field
-		DisplayName            respjson.Field
-		ExternalID             respjson.Field
-		Owner                  respjson.Field
-		OwnerID                respjson.Field
-		PolicyIDs              respjson.Field
-		Name                   respjson.Field
-		Rules                  respjson.Field
-		Action                 respjson.Field
-		Conditions             respjson.Field
-		KeyQuorumIDs           respjson.Field
-		PublicKeys             respjson.Field
-		UserIDs                respjson.Field
-		raw                    string
+		OfConditionSetItemsRequestBody respjson.Field
+		Method                         respjson.Field
+		Params                         respjson.Field
+		Address                        respjson.Field
+		ChainType                      respjson.Field
+		WalletID                       respjson.Field
+		Caip2                          respjson.Field
+		ExperimentalDataSuffix         respjson.Field
+		ReferenceID                    respjson.Field
+		Sponsor                        respjson.Field
+		SponsorOptions                 respjson.Field
+		SignatureOptions               respjson.Field
+		OptimisticBroadcast            respjson.Field
+		Network                        respjson.Field
+		Destination                    respjson.Field
+		Source                         respjson.Field
+		Amount                         respjson.Field
+		AmountType                     respjson.Field
+		CustodyOptions                 respjson.Field
+		FeeConfiguration               respjson.Field
+		Nonce                          respjson.Field
+		SlippageBps                    respjson.Field
+		AdditionalSigners              respjson.Field
+		AuthorizationKeyIDs            respjson.Field
+		AuthorizationThreshold         respjson.Field
+		DisplayName                    respjson.Field
+		ExternalID                     respjson.Field
+		Owner                          respjson.Field
+		OwnerID                        respjson.Field
+		PolicyIDs                      respjson.Field
+		Name                           respjson.Field
+		Rules                          respjson.Field
+		Action                         respjson.Field
+		Conditions                     respjson.Field
+		KeyQuorumIDs                   respjson.Field
+		PublicKeys                     respjson.Field
+		UserIDs                        respjson.Field
+		raw                            string
 	} `json:"-"`
 }
 
@@ -1025,7 +1164,11 @@ type IntentResponseUnionRequestDetailsBodyParams struct {
 	ExportSeedPhrase   bool               `json:"export_seed_phrase"`
 	// This field is from variant [PrivateKeyExportInputResp].
 	ExportType ExportType `json:"export_type"`
-	JSON       struct {
+	// This field is from variant [RawSignInputParamsUnionResp].
+	Bytes string `json:"bytes"`
+	// This field is from variant [RawSignInputParamsUnionResp].
+	HashFunction RawSignBytesHashFunction `json:"hash_function"`
+	JSON         struct {
 		Transaction                   respjson.Field
 		Encoding                      respjson.Field
 		Message                       respjson.Field
@@ -1068,6 +1211,8 @@ type IntentResponseUnionRequestDetailsBodyParams struct {
 		RecipientPublicKey            respjson.Field
 		ExportSeedPhrase              respjson.Field
 		ExportType                    respjson.Field
+		Bytes                         respjson.Field
+		HashFunction                  respjson.Field
 		raw                           string
 	} `json:"-"`
 }
@@ -1243,7 +1388,11 @@ type IntentResponseUnionCurrentResourceData struct {
 	UserIDs []string `json:"user_ids"`
 	// This field is from variant [KeyQuorum].
 	KeyQuorumIDs []string `json:"key_quorum_ids"`
-	JSON         struct {
+	// This field is from variant [ConditionSetItem].
+	ConditionSetID string `json:"condition_set_id"`
+	// This field is from variant [ConditionSetItem].
+	Value string `json:"value"`
+	JSON  struct {
 		ID                     respjson.Field
 		AdditionalSigners      respjson.Field
 		Address                respjson.Field
@@ -1272,6 +1421,8 @@ type IntentResponseUnionCurrentResourceData struct {
 		AuthorizationKeys      respjson.Field
 		UserIDs                respjson.Field
 		KeyQuorumIDs           respjson.Field
+		ConditionSetID         respjson.Field
+		Value                  respjson.Field
 		raw                    string
 	} `json:"-"`
 }
@@ -1297,12 +1448,14 @@ const (
 type IntentType string
 
 const (
-	IntentTypeKeyQuorum IntentType = "KEY_QUORUM"
-	IntentTypePolicy    IntentType = "POLICY"
-	IntentTypeRule      IntentType = "RULE"
-	IntentTypeRpc       IntentType = "RPC"
-	IntentTypeTransfer  IntentType = "TRANSFER"
-	IntentTypeWallet    IntentType = "WALLET"
+	IntentTypeConditionSetItem IntentType = "CONDITION_SET_ITEM"
+	IntentTypeKeyQuorum        IntentType = "KEY_QUORUM"
+	IntentTypePolicy           IntentType = "POLICY"
+	IntentTypeRawSign          IntentType = "RAW_SIGN"
+	IntentTypeRule             IntentType = "RULE"
+	IntentTypeRpc              IntentType = "RPC"
+	IntentTypeTransfer         IntentType = "TRANSFER"
+	IntentTypeWallet           IntentType = "WALLET"
 )
 
 // Response for a key quorum intent
@@ -1435,6 +1588,58 @@ type PolicyIntentResponseRequestDetailsBody struct {
 // Returns the unmodified JSON received from the API
 func (r PolicyIntentResponseRequestDetailsBody) RawJSON() string { return r.JSON.raw }
 func (r *PolicyIntentResponseRequestDetailsBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response for a raw sign intent
+type RawSignIntentResponse struct {
+	// Any of "RAW_SIGN".
+	IntentType string `json:"intent_type" api:"required"`
+	// The original raw sign request that would be sent to the wallet endpoint
+	RequestDetails RawSignIntentResponseRequestDetails `json:"request_details" api:"required"`
+	// Result of raw sign execution (only present if status is 'executed' or 'failed')
+	ActionResult BaseActionResult `json:"action_result"`
+	// A wallet managed by Privy's wallet infrastructure.
+	CurrentResourceData Wallet `json:"current_resource_data"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		CurrentResourceData respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
+	} `json:"-"`
+	BaseIntentResponse
+}
+
+// Returns the unmodified JSON received from the API
+func (r RawSignIntentResponse) RawJSON() string { return r.JSON.raw }
+func (r *RawSignIntentResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The original raw sign request that would be sent to the wallet endpoint
+type RawSignIntentResponseRequestDetails struct {
+	// Provide either `hash` (to sign a pre-computed hash) OR `bytes`, `encoding`, and
+	// `hash_function` (to hash and then sign). These options are mutually exclusive.
+	Body RawSignInputResp `json:"body" api:"required"`
+	// Any of "POST".
+	Method string `json:"method" api:"required"`
+	URL    string `json:"url" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Body        respjson.Field
+		Method      respjson.Field
+		URL         respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RawSignIntentResponseRequestDetails) RawJSON() string { return r.JSON.raw }
+func (r *RawSignIntentResponseRequestDetails) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -1947,8 +2152,6 @@ type IntentListParams struct {
 	// Any of "true", "false".
 	CurrentUserHasSigned IntentListParamsCurrentUserHasSigned `query:"current_user_has_signed,omitzero" json:"-"`
 	// Type of intent.
-	//
-	// Any of "KEY_QUORUM", "POLICY", "RULE", "RPC", "TRANSFER", "WALLET".
 	IntentType IntentType `query:"intent_type,omitzero" json:"-"`
 	// Any of "created_at_desc", "expires_at_asc", "updated_at_desc".
 	SortBy IntentListParamsSortBy `query:"sort_by,omitzero" json:"-"`
@@ -1983,6 +2186,22 @@ const (
 	IntentListParamsSortByUpdatedAtDesc IntentListParamsSortBy = "updated_at_desc"
 )
 
+type IntentNewConditionSetItemsParams struct {
+	// Array of values to add to the condition set. Maximum 100 items per request.
+	ConditionSetItemsRequestBody ConditionSetItemsRequestBody
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
+	paramObj
+}
+
+func (r IntentNewConditionSetItemsParams) MarshalJSON() (data []byte, err error) {
+	return shimjson.Marshal(r.ConditionSetItemsRequestBody)
+}
+func (r *IntentNewConditionSetItemsParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 type IntentNewPolicyRuleParams struct {
 	// The rules that apply to each method the policy covers.
 	PolicyRuleRequestBody PolicyRuleRequestBody
@@ -2006,6 +2225,23 @@ type IntentDeletePolicyRuleParams struct {
 	// deadline by which the request must be processed.
 	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
 	paramObj
+}
+
+type IntentRawSignParams struct {
+	// Provide either `hash` (to sign a pre-computed hash) OR `bytes`, `encoding`, and
+	// `hash_function` (to hash and then sign). These options are mutually exclusive.
+	RawSignInput RawSignInput
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
+	paramObj
+}
+
+func (r IntentRawSignParams) MarshalJSON() (data []byte, err error) {
+	return shimjson.Marshal(r.RawSignInput)
+}
+func (r *IntentRawSignParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
 type IntentRpcParams struct {

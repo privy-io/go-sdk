@@ -4361,6 +4361,43 @@ const (
 )
 
 // Parameters for hashing and signing bytes with the `raw_sign` RPC.
+type RawSignBytesParamsResp struct {
+	// The bytes to hash and sign.
+	Bytes string `json:"bytes" api:"required"`
+	// Encoding scheme for bytes in the `raw_sign` RPC.
+	//
+	// Any of "utf-8", "hex", "base64".
+	Encoding RawSignBytesEncoding `json:"encoding" api:"required"`
+	// Hash function for bytes in the `raw_sign` RPC.
+	//
+	// Any of "keccak256", "sha256", "blake2b256".
+	HashFunction RawSignBytesHashFunction `json:"hash_function" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Bytes        respjson.Field
+		Encoding     respjson.Field
+		HashFunction respjson.Field
+		ExtraFields  map[string]respjson.Field
+		raw          string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RawSignBytesParamsResp) RawJSON() string { return r.JSON.raw }
+func (r *RawSignBytesParamsResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this RawSignBytesParamsResp to a RawSignBytesParams.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// RawSignBytesParams.Overrides()
+func (r RawSignBytesParamsResp) ToParam() RawSignBytesParams {
+	return param.Override[RawSignBytesParams](json.RawMessage(r.RawJSON()))
+}
+
+// Parameters for hashing and signing bytes with the `raw_sign` RPC.
 //
 // The properties Bytes, Encoding, HashFunction are required.
 type RawSignBytesParams struct {
@@ -4386,6 +4423,34 @@ func (r *RawSignBytesParams) UnmarshalJSON(data []byte) error {
 }
 
 // Parameters for signing a pre-computed hash with the `raw_sign` RPC.
+type RawSignHashParamsResp struct {
+	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
+	// bytes).
+	Hash Hex `json:"hash" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Hash        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RawSignHashParamsResp) RawJSON() string { return r.JSON.raw }
+func (r *RawSignHashParamsResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this RawSignHashParamsResp to a RawSignHashParams.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// RawSignHashParams.Overrides()
+func (r RawSignHashParamsResp) ToParam() RawSignHashParams {
+	return param.Override[RawSignHashParams](json.RawMessage(r.RawJSON()))
+}
+
+// Parameters for signing a pre-computed hash with the `raw_sign` RPC.
 //
 // The property Hash is required.
 type RawSignHashParams struct {
@@ -4405,6 +4470,34 @@ func (r *RawSignHashParams) UnmarshalJSON(data []byte) error {
 
 // Provide either `hash` (to sign a pre-computed hash) OR `bytes`, `encoding`, and
 // `hash_function` (to hash and then sign). These options are mutually exclusive.
+type RawSignInputResp struct {
+	// Parameters for the `raw_sign` RPC.
+	Params RawSignInputParamsUnionResp `json:"params" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Params      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r RawSignInputResp) RawJSON() string { return r.JSON.raw }
+func (r *RawSignInputResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this RawSignInputResp to a RawSignInput.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// RawSignInput.Overrides()
+func (r RawSignInputResp) ToParam() RawSignInput {
+	return param.Override[RawSignInput](json.RawMessage(r.RawJSON()))
+}
+
+// Provide either `hash` (to sign a pre-computed hash) OR `bytes`, `encoding`, and
+// `hash_function` (to hash and then sign). These options are mutually exclusive.
 //
 // The property Params is required.
 type RawSignInput struct {
@@ -4419,6 +4512,54 @@ func (r RawSignInput) MarshalJSON() (data []byte, err error) {
 }
 func (r *RawSignInput) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+// RawSignInputParamsUnionResp contains all possible properties and values from
+// [RawSignHashParamsResp], [RawSignBytesParamsResp].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type RawSignInputParamsUnionResp struct {
+	// This field is from variant [RawSignHashParamsResp].
+	Hash Hex `json:"hash"`
+	// This field is from variant [RawSignBytesParamsResp].
+	Bytes string `json:"bytes"`
+	// This field is from variant [RawSignBytesParamsResp].
+	Encoding RawSignBytesEncoding `json:"encoding"`
+	// This field is from variant [RawSignBytesParamsResp].
+	HashFunction RawSignBytesHashFunction `json:"hash_function"`
+	JSON         struct {
+		Hash         respjson.Field
+		Bytes        respjson.Field
+		Encoding     respjson.Field
+		HashFunction respjson.Field
+		raw          string
+	} `json:"-"`
+}
+
+func (u RawSignInputParamsUnionResp) AsRawSignHashParams() (v RawSignHashParamsResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u RawSignInputParamsUnionResp) AsRawSignBytesParams() (v RawSignBytesParamsResp) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u RawSignInputParamsUnionResp) RawJSON() string { return u.JSON.raw }
+
+func (r *RawSignInputParamsUnionResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this RawSignInputParamsUnionResp to a RawSignInputParamsUnion.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// RawSignInputParamsUnion.Overrides()
+func (r RawSignInputParamsUnionResp) ToParam() RawSignInputParamsUnion {
+	return param.Override[RawSignInputParamsUnion](json.RawMessage(r.RawJSON()))
 }
 
 func RawSignInputParamsOfRawSignHashs(hash Hex) RawSignInputParamsUnion {

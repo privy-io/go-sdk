@@ -510,6 +510,80 @@ func (r *ConditionSet) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// A single item in a condition set.
+type ConditionSetItem struct {
+	// Unique ID of the created condition set item.
+	ID string `json:"id" api:"required"`
+	// Unique ID of the condition set this item belongs to.
+	ConditionSetID string `json:"condition_set_id" api:"required"`
+	// Unix timestamp of when the condition set item was created in milliseconds.
+	CreatedAt float64 `json:"created_at" api:"required"`
+	// The value stored in this condition set item.
+	Value string `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID             respjson.Field
+		ConditionSetID respjson.Field
+		CreatedAt      respjson.Field
+		Value          respjson.Field
+		ExtraFields    map[string]respjson.Field
+		raw            string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ConditionSetItem) RawJSON() string { return r.JSON.raw }
+func (r *ConditionSetItem) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A single value to add to a condition set.
+type ConditionSetItemValueInputResp struct {
+	Value string `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ConditionSetItemValueInputResp) RawJSON() string { return r.JSON.raw }
+func (r *ConditionSetItemValueInputResp) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// ToParam converts this ConditionSetItemValueInputResp to a
+// ConditionSetItemValueInput.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// ConditionSetItemValueInput.Overrides()
+func (r ConditionSetItemValueInputResp) ToParam() ConditionSetItemValueInput {
+	return param.Override[ConditionSetItemValueInput](json.RawMessage(r.RawJSON()))
+}
+
+// A single value to add to a condition set.
+//
+// The property Value is required.
+type ConditionSetItemValueInput struct {
+	Value string `json:"value" api:"required"`
+	paramObj
+}
+
+func (r ConditionSetItemValueInput) MarshalJSON() (data []byte, err error) {
+	type shadow ConditionSetItemValueInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *ConditionSetItemValueInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type ConditionSetItemsRequestBodyResp []ConditionSetItemValueInputResp
+
+type ConditionSetItemsRequestBody []ConditionSetItemValueInput
+
 // ConditionValueUnionResp contains all possible properties and values from
 // [string], [[]string].
 //

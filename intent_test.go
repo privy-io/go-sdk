@@ -32,13 +32,46 @@ func TestIntentListWithOptionalParams(t *testing.T) {
 		CreatedByID:          privyclient.String("created_by_id"),
 		CurrentUserHasSigned: privyclient.IntentListParamsCurrentUserHasSignedTrue,
 		Cursor:               privyclient.String("x"),
-		IntentType:           privyclient.IntentTypeKeyQuorum,
+		IntentType:           privyclient.IntentTypeConditionSetItem,
 		Limit:                privyclient.Float(100),
 		PendingMemberID:      privyclient.String("pending_member_id"),
 		ResourceID:           privyclient.String("resource_id"),
 		SortBy:               privyclient.IntentListParamsSortByCreatedAtDesc,
 		Status:               privyclient.IntentStatusPending,
 	})
+	if err != nil {
+		var apierr *privyclient.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestIntentNewConditionSetItemsWithOptionalParams(t *testing.T) {
+	t.Skip("Mock server tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := privyclient.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAppID("My App ID"),
+		option.WithAppSecret("My App Secret"),
+	)
+	_, err := client.Intents.NewConditionSetItems(
+		context.TODO(),
+		"xxxxxxxxxxxxxxxxxxxxxxxx",
+		privyclient.IntentNewConditionSetItemsParams{
+			ConditionSetItemsRequestBody: privyclient.ConditionSetItemsRequestBody{privyclient.ConditionSetItemValueInput{
+				Value: "x",
+			}},
+			PrivyRequestExpiry: privyclient.String("privy-request-expiry"),
+		},
+	)
 	if err != nil {
 		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {
@@ -139,6 +172,43 @@ func TestIntentGet(t *testing.T) {
 		option.WithAppSecret("My App Secret"),
 	)
 	_, err := client.Intents.Get(context.TODO(), "intent_id")
+	if err != nil {
+		var apierr *privyclient.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestIntentRawSignWithOptionalParams(t *testing.T) {
+	t.Skip("Mock server tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := privyclient.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAppID("My App ID"),
+		option.WithAppSecret("My App Secret"),
+	)
+	_, err := client.Intents.RawSign(
+		context.TODO(),
+		"wallet_id",
+		privyclient.IntentRawSignParams{
+			RawSignInput: privyclient.RawSignInput{
+				Params: privyclient.RawSignInputParamsUnion{
+					OfRawSignHashs: &privyclient.RawSignHashParams{
+						Hash: "string",
+					},
+				},
+			},
+			PrivyRequestExpiry: privyclient.String("privy-request-expiry"),
+		},
+	)
 	if err != nil {
 		var apierr *privyclient.Error
 		if errors.As(err, &apierr) {

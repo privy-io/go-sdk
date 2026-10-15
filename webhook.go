@@ -737,8 +737,6 @@ type IntentAuthorizedWebhookPayload struct {
 	// The unique ID of the intent.
 	IntentID string `json:"intent_id" api:"required"`
 	// Type of intent.
-	//
-	// Any of "KEY_QUORUM", "POLICY", "RULE", "RPC", "TRANSFER", "WALLET".
 	IntentType IntentType `json:"intent_type" api:"required"`
 	// A leaf member (user or key) of a nested key quorum in an intent authorization.
 	Member IntentAuthorizationKeyQuorumMemberUnion `json:"member" api:"required"`
@@ -791,8 +789,6 @@ type IntentCreatedWebhookPayload struct {
 	// The unique ID of the intent.
 	IntentID string `json:"intent_id" api:"required"`
 	// Type of intent.
-	//
-	// Any of "KEY_QUORUM", "POLICY", "RULE", "RPC", "TRANSFER", "WALLET".
 	IntentType IntentType `json:"intent_type" api:"required"`
 	// The current status of the intent.
 	Status string `json:"status" api:"required"`
@@ -846,8 +842,6 @@ type IntentExecutedWebhookPayload struct {
 	// The unique ID of the intent.
 	IntentID string `json:"intent_id" api:"required"`
 	// Type of intent.
-	//
-	// Any of "KEY_QUORUM", "POLICY", "RULE", "RPC", "TRANSFER", "WALLET".
 	IntentType IntentType `json:"intent_type" api:"required"`
 	// The current status of the intent.
 	Status string `json:"status" api:"required"`
@@ -899,8 +893,6 @@ type IntentFailedWebhookPayload struct {
 	// The unique ID of the intent.
 	IntentID string `json:"intent_id" api:"required"`
 	// Type of intent.
-	//
-	// Any of "KEY_QUORUM", "POLICY", "RULE", "RPC", "TRANSFER", "WALLET".
 	IntentType IntentType `json:"intent_type" api:"required"`
 	// The current status of the intent.
 	Status string `json:"status" api:"required"`
@@ -950,8 +942,6 @@ type IntentRejectedWebhookPayload struct {
 	// The unique ID of the intent.
 	IntentID string `json:"intent_id" api:"required"`
 	// Type of intent.
-	//
-	// Any of "KEY_QUORUM", "POLICY", "RULE", "RPC", "TRANSFER", "WALLET".
 	IntentType IntentType `json:"intent_type" api:"required"`
 	// Unix timestamp when the intent was rejected.
 	RejectedAt float64 `json:"rejected_at" api:"required"`
