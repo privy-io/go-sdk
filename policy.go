@@ -811,7 +811,7 @@ func (r *EthereumCalldataCondition) UnmarshalJSON(data []byte) error {
 type EthereumTransactionConditionResp struct {
 	// Ethereum transaction-level fields that can be referenced in a policy condition.
 	//
-	// Any of "to", "value", "chain_id".
+	// Any of "to", "value", "chain_id", "data_byte_length".
 	Field EthereumTransactionConditionField `json:"field" api:"required"`
 	// Any of "ethereum_transaction".
 	FieldSource EthereumTransactionConditionFieldSource `json:"field_source" api:"required"`
@@ -863,7 +863,7 @@ const (
 type EthereumTransactionCondition struct {
 	// Ethereum transaction-level fields that can be referenced in a policy condition.
 	//
-	// Any of "to", "value", "chain_id".
+	// Any of "to", "value", "chain_id", "data_byte_length".
 	Field EthereumTransactionConditionField `json:"field,omitzero" api:"required"`
 	// Any of "ethereum_transaction".
 	FieldSource EthereumTransactionConditionFieldSource `json:"field_source,omitzero" api:"required"`
@@ -890,9 +890,10 @@ func (r *EthereumTransactionCondition) UnmarshalJSON(data []byte) error {
 type EthereumTransactionConditionField string
 
 const (
-	EthereumTransactionConditionFieldTo      EthereumTransactionConditionField = "to"
-	EthereumTransactionConditionFieldValue   EthereumTransactionConditionField = "value"
-	EthereumTransactionConditionFieldChainID EthereumTransactionConditionField = "chain_id"
+	EthereumTransactionConditionFieldTo             EthereumTransactionConditionField = "to"
+	EthereumTransactionConditionFieldValue          EthereumTransactionConditionField = "value"
+	EthereumTransactionConditionFieldChainID        EthereumTransactionConditionField = "chain_id"
+	EthereumTransactionConditionFieldDataByteLength EthereumTransactionConditionField = "data_byte_length"
 )
 
 // Attributes from the signing domain that will verify the signature.

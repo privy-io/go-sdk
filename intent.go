@@ -75,7 +75,7 @@ func (r *IntentService) ListAutoPaging(ctx context.Context, query IntentListPara
 
 // Create an intent to add items to a condition set. The intent must be authorized
 // by the condition set owner before it can be executed.
-func (r *IntentService) NewConditionSetItems(ctx context.Context, conditionSetID string, params IntentNewConditionSetItemsParams, opts ...option.RequestOption) (res *ConditionSetItemIntentResponse, err error) {
+func (r *IntentService) NewConditionSetItems(ctx context.Context, conditionSetID string, params IntentNewConditionSetItemsParams, opts ...option.RequestOption) (res *ConditionSetItemMutateIntentResponse, err error) {
 	if !param.IsOmitted(params.PrivyRequestExpiry) {
 		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
 	}
@@ -102,6 +102,42 @@ func (r *IntentService) NewPolicyRule(ctx context.Context, policyID string, para
 	}
 	path := fmt.Sprintf("v1/intents/policies/%s/rules", url.PathEscape(policyID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
+	return res, err
+}
+
+// Create an intent to delete a condition set. The intent must be authorized by the
+// condition set owner before it can be executed.
+func (r *IntentService) DeleteConditionSet(ctx context.Context, conditionSetID string, body IntentDeleteConditionSetParams, opts ...option.RequestOption) (res *ConditionSetDeleteIntentResponse, err error) {
+	if !param.IsOmitted(body.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", body.PrivyRequestExpiry.Value)))
+	}
+	opts = slices.Concat(r.Options, opts)
+	if conditionSetID == "" {
+		err = errors.New("missing required condition_set_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/intents/condition_sets/%s", url.PathEscape(conditionSetID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
+	return res, err
+}
+
+// Create an intent to delete an item from a condition set. The intent must be
+// authorized by the condition set owner before it can be executed.
+func (r *IntentService) DeleteConditionSetItem(ctx context.Context, conditionSetItemID string, params IntentDeleteConditionSetItemParams, opts ...option.RequestOption) (res *ConditionSetItemDeleteIntentResponse, err error) {
+	if !param.IsOmitted(params.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
+	}
+	opts = slices.Concat(r.Options, opts)
+	if params.ConditionSetID == "" {
+		err = errors.New("missing required condition_set_id parameter")
+		return nil, err
+	}
+	if conditionSetItemID == "" {
+		err = errors.New("missing required condition_set_item_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/intents/condition_sets/%s/condition_set_items/%s", url.PathEscape(params.ConditionSetID), url.PathEscape(conditionSetItemID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
 	return res, err
 }
 
@@ -199,6 +235,22 @@ func (r *IntentService) Transfer(ctx context.Context, walletID string, params In
 	}
 	path := fmt.Sprintf("v1/intents/wallets/%s/transfer", url.PathEscape(walletID))
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
+	return res, err
+}
+
+// Create an intent to replace all items in a condition set. The intent must be
+// authorized by the condition set owner before it can be executed.
+func (r *IntentService) UpdateConditionSetItems(ctx context.Context, conditionSetID string, params IntentUpdateConditionSetItemsParams, opts ...option.RequestOption) (res *ConditionSetItemMutateIntentResponse, err error) {
+	if !param.IsOmitted(params.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
+	}
+	opts = slices.Concat(r.Options, opts)
+	if conditionSetID == "" {
+		err = errors.New("missing required condition_set_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/intents/condition_sets/%s/condition_set_items", url.PathEscape(conditionSetID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, params, &res, opts...)
 	return res, err
 }
 
@@ -354,6 +406,140 @@ func (r *BaseIntentResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Response for a condition set delete intent
+type ConditionSetDeleteIntentResponse struct {
+	// Any of "CONDITION_SET".
+	IntentType string `json:"intent_type" api:"required"`
+	// Request details for deleting a condition set via intent.
+	RequestDetails ConditionSetIntentDeleteRequestDetails `json:"request_details" api:"required"`
+	// Result of condition set execution (only present if status is 'executed' or
+	// 'failed')
+	ActionResult BaseActionResult `json:"action_result"`
+	// A condition set for grouping related condition values.
+	CurrentResourceData ConditionSet `json:"current_resource_data"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		CurrentResourceData respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
+	} `json:"-"`
+	BaseIntentResponse
+}
+
+// Returns the unmodified JSON received from the API
+func (r ConditionSetDeleteIntentResponse) RawJSON() string { return r.JSON.raw }
+func (r *ConditionSetDeleteIntentResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Empty request body for a condition set delete intent.
+type ConditionSetIntentDeleteRequestBody struct {
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ConditionSetIntentDeleteRequestBody) RawJSON() string { return r.JSON.raw }
+func (r *ConditionSetIntentDeleteRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Request details for deleting a condition set via intent.
+type ConditionSetIntentDeleteRequestDetails struct {
+	// Any of "DELETE".
+	Method ConditionSetIntentDeleteRequestDetailsMethod `json:"method" api:"required"`
+	URL    string                                       `json:"url" api:"required"`
+	// Empty request body for a condition set delete intent.
+	Body ConditionSetIntentDeleteRequestBody `json:"body"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Method      respjson.Field
+		URL         respjson.Field
+		Body        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ConditionSetIntentDeleteRequestDetails) RawJSON() string { return r.JSON.raw }
+func (r *ConditionSetIntentDeleteRequestDetails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type ConditionSetIntentDeleteRequestDetailsMethod string
+
+const (
+	ConditionSetIntentDeleteRequestDetailsMethodDelete ConditionSetIntentDeleteRequestDetailsMethod = "DELETE"
+)
+
+// Response for a condition set intent
+type ConditionSetIntentResponse struct {
+	// Any of "CONDITION_SET".
+	IntentType string `json:"intent_type" api:"required"`
+	// Request details for deleting a condition set via intent.
+	RequestDetails ConditionSetIntentDeleteRequestDetails `json:"request_details" api:"required"`
+	// Result of condition set execution (only present if status is 'executed' or
+	// 'failed')
+	ActionResult BaseActionResult `json:"action_result"`
+	// A condition set for grouping related condition values.
+	CurrentResourceData ConditionSet `json:"current_resource_data"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		CurrentResourceData respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
+	} `json:"-"`
+	BaseIntentResponse
+}
+
+// Returns the unmodified JSON received from the API
+func (r ConditionSetIntentResponse) RawJSON() string { return r.JSON.raw }
+func (r *ConditionSetIntentResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response for an intent that deletes a condition set item
+type ConditionSetItemDeleteIntentResponse struct {
+	// Any of "CONDITION_SET_ITEM".
+	IntentType string `json:"intent_type" api:"required"`
+	// Request details for deleting a condition set item via intent.
+	RequestDetails ConditionSetItemIntentDeleteRequestDetails `json:"request_details" api:"required"`
+	// Result of condition set item execution (only present if status is 'executed' or
+	// 'failed')
+	ActionResult BaseActionResult `json:"action_result"`
+	// A condition set for grouping related condition values.
+	ConditionSet ConditionSet `json:"condition_set"`
+	// A single item in a condition set.
+	CurrentResourceData ConditionSetItem `json:"current_resource_data"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		ConditionSet        respjson.Field
+		CurrentResourceData respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
+	} `json:"-"`
+	BaseIntentResponse
+}
+
+// Returns the unmodified JSON received from the API
+func (r ConditionSetItemDeleteIntentResponse) RawJSON() string { return r.JSON.raw }
+func (r *ConditionSetItemDeleteIntentResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Request details for adding items to a condition set via intent.
 type ConditionSetItemIntentCreateRequestDetails struct {
 	// Array of values to add to the condition set. Maximum 100 items per request.
@@ -383,12 +569,133 @@ const (
 	ConditionSetItemIntentCreateRequestDetailsMethodPost ConditionSetItemIntentCreateRequestDetailsMethod = "POST"
 )
 
+// Empty request body for a condition set item delete intent.
+type ConditionSetItemIntentDeleteRequestBody struct {
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ConditionSetItemIntentDeleteRequestBody) RawJSON() string { return r.JSON.raw }
+func (r *ConditionSetItemIntentDeleteRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Request details for deleting a condition set item via intent.
+type ConditionSetItemIntentDeleteRequestDetails struct {
+	// Any of "DELETE".
+	Method ConditionSetItemIntentDeleteRequestDetailsMethod `json:"method" api:"required"`
+	URL    string                                           `json:"url" api:"required"`
+	// Empty request body for a condition set item delete intent.
+	Body ConditionSetItemIntentDeleteRequestBody `json:"body"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Method      respjson.Field
+		URL         respjson.Field
+		Body        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ConditionSetItemIntentDeleteRequestDetails) RawJSON() string { return r.JSON.raw }
+func (r *ConditionSetItemIntentDeleteRequestDetails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type ConditionSetItemIntentDeleteRequestDetailsMethod string
+
+const (
+	ConditionSetItemIntentDeleteRequestDetailsMethodDelete ConditionSetItemIntentDeleteRequestDetailsMethod = "DELETE"
+)
+
+// ConditionSetItemIntentRequestDetailsUnion contains all possible properties and
+// values from [ConditionSetItemIntentCreateRequestDetails],
+// [ConditionSetItemIntentUpdateRequestDetails],
+// [ConditionSetItemIntentDeleteRequestDetails].
+//
+// Use the [ConditionSetItemIntentRequestDetailsUnion.AsAny] method to switch on
+// the variant.
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type ConditionSetItemIntentRequestDetailsUnion struct {
+	Body ConditionSetItemsRequestBodyResp `json:"body"`
+	// Any of "POST", "PUT", "DELETE".
+	Method string `json:"method"`
+	URL    string `json:"url"`
+	JSON   struct {
+		Body   respjson.Field
+		Method respjson.Field
+		URL    respjson.Field
+		raw    string
+	} `json:"-"`
+}
+
+// anyConditionSetItemIntentRequestDetails is implemented by each variant of
+// [ConditionSetItemIntentRequestDetailsUnion] to add type safety for the return
+// type of [ConditionSetItemIntentRequestDetailsUnion.AsAny]
+type anyConditionSetItemIntentRequestDetails interface {
+	implConditionSetItemIntentRequestDetailsUnion()
+}
+
+func (ConditionSetItemIntentCreateRequestDetails) implConditionSetItemIntentRequestDetailsUnion() {}
+func (ConditionSetItemIntentUpdateRequestDetails) implConditionSetItemIntentRequestDetailsUnion() {}
+func (ConditionSetItemIntentDeleteRequestDetails) implConditionSetItemIntentRequestDetailsUnion() {}
+
+// Use the following switch statement to find the correct variant
+//
+//	switch variant := ConditionSetItemIntentRequestDetailsUnion.AsAny().(type) {
+//	case privyclient.ConditionSetItemIntentCreateRequestDetails:
+//	case privyclient.ConditionSetItemIntentUpdateRequestDetails:
+//	case privyclient.ConditionSetItemIntentDeleteRequestDetails:
+//	default:
+//	  fmt.Errorf("no variant present")
+//	}
+func (u ConditionSetItemIntentRequestDetailsUnion) AsAny() anyConditionSetItemIntentRequestDetails {
+	switch u.Method {
+	case "POST":
+		return u.AsPost()
+	case "PUT":
+		return u.AsPut()
+	case "DELETE":
+		return u.AsDelete()
+	}
+	return nil
+}
+
+func (u ConditionSetItemIntentRequestDetailsUnion) AsPost() (v ConditionSetItemIntentCreateRequestDetails) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u ConditionSetItemIntentRequestDetailsUnion) AsPut() (v ConditionSetItemIntentUpdateRequestDetails) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u ConditionSetItemIntentRequestDetailsUnion) AsDelete() (v ConditionSetItemIntentDeleteRequestDetails) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u ConditionSetItemIntentRequestDetailsUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *ConditionSetItemIntentRequestDetailsUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Response for a condition set item intent
 type ConditionSetItemIntentResponse struct {
 	// Any of "CONDITION_SET_ITEM".
 	IntentType string `json:"intent_type" api:"required"`
-	// Request details for adding items to a condition set via intent.
-	RequestDetails ConditionSetItemIntentCreateRequestDetails `json:"request_details" api:"required"`
+	// The original condition set item request. Method is POST (add items), PUT
+	// (replace items), or DELETE (delete an item)
+	RequestDetails ConditionSetItemIntentRequestDetailsUnion `json:"request_details" api:"required"`
 	// Result of condition set item execution (only present if status is 'executed' or
 	// 'failed')
 	ActionResult BaseActionResult `json:"action_result"`
@@ -412,6 +719,68 @@ type ConditionSetItemIntentResponse struct {
 // Returns the unmodified JSON received from the API
 func (r ConditionSetItemIntentResponse) RawJSON() string { return r.JSON.raw }
 func (r *ConditionSetItemIntentResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Request details for replacing the items of a condition set via intent.
+type ConditionSetItemIntentUpdateRequestDetails struct {
+	// Array of values to add to the condition set. Maximum 100 items per request.
+	Body ConditionSetItemsRequestBodyResp `json:"body" api:"required"`
+	// Any of "PUT".
+	Method ConditionSetItemIntentUpdateRequestDetailsMethod `json:"method" api:"required"`
+	URL    string                                           `json:"url" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Body        respjson.Field
+		Method      respjson.Field
+		URL         respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ConditionSetItemIntentUpdateRequestDetails) RawJSON() string { return r.JSON.raw }
+func (r *ConditionSetItemIntentUpdateRequestDetails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type ConditionSetItemIntentUpdateRequestDetailsMethod string
+
+const (
+	ConditionSetItemIntentUpdateRequestDetailsMethodPut ConditionSetItemIntentUpdateRequestDetailsMethod = "PUT"
+)
+
+// Response for an intent that adds or replaces condition set items
+type ConditionSetItemMutateIntentResponse struct {
+	// Any of "CONDITION_SET_ITEM".
+	IntentType string `json:"intent_type" api:"required"`
+	// The original condition set item request. Method is POST (add items), PUT
+	// (replace items), or DELETE (delete an item)
+	RequestDetails ConditionSetItemIntentRequestDetailsUnion `json:"request_details" api:"required"`
+	// Result of condition set item execution (only present if status is 'executed' or
+	// 'failed')
+	ActionResult BaseActionResult `json:"action_result"`
+	// A condition set for grouping related condition values.
+	ConditionSet ConditionSet `json:"condition_set"`
+	// A single item in a condition set.
+	CurrentResourceData ConditionSetItem `json:"current_resource_data"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		ConditionSet        respjson.Field
+		CurrentResourceData respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
+	} `json:"-"`
+	BaseIntentResponse
+}
+
+// Returns the unmodified JSON received from the API
+func (r ConditionSetItemMutateIntentResponse) RawJSON() string { return r.JSON.raw }
+func (r *ConditionSetItemMutateIntentResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -703,7 +1072,8 @@ const (
 // IntentResponseUnion contains all possible properties and values from
 // [RpcIntentResponse], [TransferIntentResponse], [RawSignIntentResponse],
 // [WalletIntentResponse], [PolicyIntentResponse], [RuleIntentResponse],
-// [KeyQuorumIntentResponse], [ConditionSetItemIntentResponse].
+// [KeyQuorumIntentResponse], [ConditionSetIntentResponse],
+// [ConditionSetItemIntentResponse].
 //
 // Use the [IntentResponseUnion.AsAny] method to switch on the variant.
 //
@@ -711,77 +1081,78 @@ const (
 type IntentResponseUnion struct {
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
 	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
-	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse], [ConditionSetIntentResponse],
 	// [ConditionSetItemIntentResponse].
 	AuthorizationDetails []IntentAuthorization `json:"authorization_details"`
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
 	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
-	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse], [ConditionSetIntentResponse],
 	// [ConditionSetItemIntentResponse].
 	CreatedAt float64 `json:"created_at"`
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
 	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
-	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse], [ConditionSetIntentResponse],
 	// [ConditionSetItemIntentResponse].
 	CreatedByDisplayName string `json:"created_by_display_name"`
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
 	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
-	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse], [ConditionSetIntentResponse],
 	// [ConditionSetItemIntentResponse].
 	CustomExpiry bool `json:"custom_expiry"`
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
 	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
-	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse], [ConditionSetIntentResponse],
 	// [ConditionSetItemIntentResponse].
 	ExpiresAt float64 `json:"expires_at"`
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
 	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
-	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse], [ConditionSetIntentResponse],
 	// [ConditionSetItemIntentResponse].
 	IntentID string `json:"intent_id"`
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
 	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
-	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse], [ConditionSetIntentResponse],
 	// [ConditionSetItemIntentResponse].
 	ResourceID string `json:"resource_id"`
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
 	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
-	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse], [ConditionSetIntentResponse],
 	// [ConditionSetItemIntentResponse].
 	Status IntentStatus `json:"status"`
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
 	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
-	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse], [ConditionSetIntentResponse],
 	// [ConditionSetItemIntentResponse].
 	CreatedByID string `json:"created_by_id"`
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
 	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
-	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse], [ConditionSetIntentResponse],
 	// [ConditionSetItemIntentResponse].
 	DismissalReason string `json:"dismissal_reason"`
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
 	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
-	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse], [ConditionSetIntentResponse],
 	// [ConditionSetItemIntentResponse].
 	DismissedAt float64 `json:"dismissed_at"`
 	// This field is from variant [RpcIntentResponse], [TransferIntentResponse],
 	// [RawSignIntentResponse], [WalletIntentResponse], [PolicyIntentResponse],
-	// [RuleIntentResponse], [KeyQuorumIntentResponse],
+	// [RuleIntentResponse], [KeyQuorumIntentResponse], [ConditionSetIntentResponse],
 	// [ConditionSetItemIntentResponse].
 	RejectedAt float64 `json:"rejected_at"`
 	// Any of "RPC", "TRANSFER", "RAW_SIGN", "WALLET", "POLICY", "RULE", "KEY_QUORUM",
-	// "CONDITION_SET_ITEM".
+	// "CONDITION_SET", "CONDITION_SET_ITEM".
 	IntentType string `json:"intent_type"`
 	// This field is a union of [RpcIntentResponseRequestDetails],
 	// [TransferIntentResponseRequestDetails], [RawSignIntentResponseRequestDetails],
 	// [WalletIntentResponseRequestDetails], [PolicyIntentResponseRequestDetails],
 	// [RuleIntentRequestDetailsUnion], [KeyQuorumIntentResponseRequestDetails],
-	// [ConditionSetItemIntentCreateRequestDetails]
+	// [ConditionSetIntentDeleteRequestDetails],
+	// [ConditionSetItemIntentRequestDetailsUnion]
 	RequestDetails IntentResponseUnionRequestDetails `json:"request_details"`
 	// This field is from variant [RpcIntentResponse].
 	ActionResult BaseActionResult `json:"action_result"`
 	// This field is a union of [Wallet], [Policy], [PolicyRuleResponse], [KeyQuorum],
-	// [ConditionSetItem]
+	// [ConditionSet], [ConditionSetItem]
 	CurrentResourceData IntentResponseUnionCurrentResourceData `json:"current_resource_data"`
 	// This field is from variant [RuleIntentResponse].
 	Policy Policy `json:"policy"`
@@ -823,6 +1194,7 @@ func (WalletIntentResponse) implIntentResponseUnion()           {}
 func (PolicyIntentResponse) implIntentResponseUnion()           {}
 func (RuleIntentResponse) implIntentResponseUnion()             {}
 func (KeyQuorumIntentResponse) implIntentResponseUnion()        {}
+func (ConditionSetIntentResponse) implIntentResponseUnion()     {}
 func (ConditionSetItemIntentResponse) implIntentResponseUnion() {}
 
 // Use the following switch statement to find the correct variant
@@ -835,6 +1207,7 @@ func (ConditionSetItemIntentResponse) implIntentResponseUnion() {}
 //	case privyclient.PolicyIntentResponse:
 //	case privyclient.RuleIntentResponse:
 //	case privyclient.KeyQuorumIntentResponse:
+//	case privyclient.ConditionSetIntentResponse:
 //	case privyclient.ConditionSetItemIntentResponse:
 //	default:
 //	  fmt.Errorf("no variant present")
@@ -855,6 +1228,8 @@ func (u IntentResponseUnion) AsAny() anyIntentResponse {
 		return u.AsRule()
 	case "KEY_QUORUM":
 		return u.AsKeyQuorum()
+	case "CONDITION_SET":
+		return u.AsConditionSet()
 	case "CONDITION_SET_ITEM":
 		return u.AsConditionSetItem()
 	}
@@ -896,6 +1271,11 @@ func (u IntentResponseUnion) AsKeyQuorum() (v KeyQuorumIntentResponse) {
 	return
 }
 
+func (u IntentResponseUnion) AsConditionSet() (v ConditionSetIntentResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
 func (u IntentResponseUnion) AsConditionSetItem() (v ConditionSetItemIntentResponse) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
@@ -920,7 +1300,8 @@ type IntentResponseUnionRequestDetails struct {
 	// [WalletIntentResponseRequestDetailsBody],
 	// [PolicyIntentResponseRequestDetailsBody], [PolicyRuleRequestBodyResp],
 	// [RuleIntentDeleteRequestBody], [KeyQuorumUpdateRequestBodyResp],
-	// [ConditionSetItemsRequestBodyResp]
+	// [ConditionSetIntentDeleteRequestBody], [ConditionSetItemsRequestBodyResp],
+	// [ConditionSetItemIntentDeleteRequestBody]
 	Body   IntentResponseUnionRequestDetailsBody `json:"body"`
 	Method string                                `json:"method"`
 	URL    string                                `json:"url"`
@@ -1448,6 +1829,7 @@ const (
 type IntentType string
 
 const (
+	IntentTypeConditionSet     IntentType = "CONDITION_SET"
 	IntentTypeConditionSetItem IntentType = "CONDITION_SET_ITEM"
 	IntentTypeKeyQuorum        IntentType = "KEY_QUORUM"
 	IntentTypePolicy           IntentType = "POLICY"
@@ -2218,6 +2600,21 @@ func (r *IntentNewPolicyRuleParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+type IntentDeleteConditionSetParams struct {
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
+	paramObj
+}
+
+type IntentDeleteConditionSetItemParams struct {
+	ConditionSetID string `path:"condition_set_id" api:"required" json:"-"`
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
+	paramObj
+}
+
 type IntentDeletePolicyRuleParams struct {
 	// ID of the policy.
 	PolicyID string `path:"policy_id" api:"required" json:"-"`
@@ -2273,6 +2670,22 @@ func (r IntentTransferParams) MarshalJSON() (data []byte, err error) {
 	return shimjson.Marshal(r.TransferRequestBody)
 }
 func (r *IntentTransferParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type IntentUpdateConditionSetItemsParams struct {
+	// Array of values to add to the condition set. Maximum 100 items per request.
+	ConditionSetItemsRequestBody ConditionSetItemsRequestBody
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
+	paramObj
+}
+
+func (r IntentUpdateConditionSetItemsParams) MarshalJSON() (data []byte, err error) {
+	return shimjson.Marshal(r.ConditionSetItemsRequestBody)
+}
+func (r *IntentUpdateConditionSetItemsParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

@@ -32,7 +32,7 @@ func TestIntentListWithOptionalParams(t *testing.T) {
 		CreatedByID:          privyclient.String("created_by_id"),
 		CurrentUserHasSigned: privyclient.IntentListParamsCurrentUserHasSignedTrue,
 		Cursor:               privyclient.String("x"),
-		IntentType:           privyclient.IntentTypeConditionSetItem,
+		IntentType:           privyclient.IntentTypeConditionSet,
 		Limit:                privyclient.Float(100),
 		PendingMemberID:      privyclient.String("pending_member_id"),
 		ResourceID:           privyclient.String("resource_id"),
@@ -114,6 +114,67 @@ func TestIntentNewPolicyRuleWithOptionalParams(t *testing.T) {
 				Method: privyclient.PolicyMethodEthSendTransaction,
 				Name:   "x",
 			},
+			PrivyRequestExpiry: privyclient.String("privy-request-expiry"),
+		},
+	)
+	if err != nil {
+		var apierr *privyclient.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestIntentDeleteConditionSetWithOptionalParams(t *testing.T) {
+	t.Skip("Mock server tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := privyclient.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAppID("My App ID"),
+		option.WithAppSecret("My App Secret"),
+	)
+	_, err := client.Intents.DeleteConditionSet(
+		context.TODO(),
+		"xxxxxxxxxxxxxxxxxxxxxxxx",
+		privyclient.IntentDeleteConditionSetParams{
+			PrivyRequestExpiry: privyclient.String("privy-request-expiry"),
+		},
+	)
+	if err != nil {
+		var apierr *privyclient.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestIntentDeleteConditionSetItemWithOptionalParams(t *testing.T) {
+	t.Skip("Mock server tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := privyclient.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAppID("My App ID"),
+		option.WithAppSecret("My App Secret"),
+	)
+	_, err := client.Intents.DeleteConditionSetItem(
+		context.TODO(),
+		"xxxxxxxxxxxxxxxxxxxxxxxx",
+		privyclient.IntentDeleteConditionSetItemParams{
+			ConditionSetID:     "xxxxxxxxxxxxxxxxxxxxxxxx",
 			PrivyRequestExpiry: privyclient.String("privy-request-expiry"),
 		},
 	)
@@ -384,6 +445,39 @@ func TestIntentTransferWithOptionalParams(t *testing.T) {
 				ReferenceID: privyclient.String("x"),
 				SlippageBps: privyclient.Int(0),
 			},
+			PrivyRequestExpiry: privyclient.String("privy-request-expiry"),
+		},
+	)
+	if err != nil {
+		var apierr *privyclient.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestIntentUpdateConditionSetItemsWithOptionalParams(t *testing.T) {
+	t.Skip("Mock server tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := privyclient.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAppID("My App ID"),
+		option.WithAppSecret("My App Secret"),
+	)
+	_, err := client.Intents.UpdateConditionSetItems(
+		context.TODO(),
+		"xxxxxxxxxxxxxxxxxxxxxxxx",
+		privyclient.IntentUpdateConditionSetItemsParams{
+			ConditionSetItemsRequestBody: privyclient.ConditionSetItemsRequestBody{privyclient.ConditionSetItemValueInput{
+				Value: "x",
+			}},
 			PrivyRequestExpiry: privyclient.String("privy-request-expiry"),
 		},
 	)
