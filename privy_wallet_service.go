@@ -32,6 +32,19 @@ type PrivyWalletService struct {
 
 	// Tron provides convenience methods for Tron wallet operations.
 	Tron *PrivyTronWalletService
+
+	// DepositAccounts shadows WalletService.DepositAccounts; Crypto.New is signed.
+	DepositAccounts *PrivyWalletDepositAccountService
+
+	// Earn shadows WalletService.Earn; Ethereum deposit, withdraw, and
+	// incentive claim are signed.
+	Earn *PrivyWalletEarnService
+
+	// Payout shadows WalletService.Payout; Fiat.New is signed.
+	Payout *PrivyWalletPayoutService
+
+	// Swap shadows WalletService.Swap; Execute and Quote are signed.
+	Swap *PrivyWalletSwapService
 }
 
 // newPrivyWalletService creates a new wrapped wallet service.
@@ -57,6 +70,10 @@ func newPrivyWalletService(
 	s.Ethereum = newPrivyEthereumWalletService(s)
 	s.Solana = newPrivySolanaWalletService(s)
 	s.Tron = newPrivyTronWalletService(s)
+	s.DepositAccounts = newPrivyWalletDepositAccountService(service.DepositAccounts, s)
+	s.Earn = newPrivyWalletEarnService(service.Earn, s)
+	s.Payout = newPrivyWalletPayoutService(service.Payout, s)
+	s.Swap = newPrivyWalletSwapService(service.Swap, s)
 	return s
 }
 

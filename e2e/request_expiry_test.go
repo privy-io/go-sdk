@@ -296,3 +296,85 @@ func TestRequestExpiry_Automations(t *testing.T) {
 		}
 	})
 }
+
+func TestRequestExpiry_DepositAccountsAndPayouts(t *testing.T) {
+	// Without these, staging rejects the requests before checking the expiry.
+	t.Skip("deposit accounts need a deposit config and a wallet owned 1-of-1 by an authenticated user, and payouts need a fiat account; the staging test app has neither")
+	client := newTestClient(t)
+	ctx := context.Background()
+	walletID, authCtx := newKeyOwnedWallet(t, ctx, client, WalletChainTypeEthereum)
+	expired := WithRequestExpiry(RequestExpiry(-60 * 1000))
+
+	t.Run("DepositAccountRejectsExpired", func(t *testing.T) {
+		_, err := client.Wallets.DepositAccounts.Crypto.New(ctx, walletID, WalletDepositAccountCryptoNewParams{
+			CreateCryptoDepositAccountRequestBody: CreateCryptoDepositAccountRequestBodyUnion{
+				OfDepositConfig: &CreateCryptoDepositAccountWithConfigRequestBody{
+					DepositConfigID: "deposit-config-id",
+					Type:            CreateCryptoDepositAccountWithConfigRequestBodyTypeDepositConfig,
+				},
+			},
+		}, WithAuthorizationContext(authCtx), expired)
+		requireExpiryError(t, err)
+	})
+
+	t.Run("PayoutRejectsExpired", func(t *testing.T) {
+		_, err := client.Wallets.Payout.Fiat.New(ctx, walletID, WalletPayoutFiatNewParams{
+			CreatePayoutRequestBody: CreatePayoutRequestBody{
+				Destination: PayoutDestination{FiatAccountID: "fiat-account-id"},
+				Source:      PayoutSource{Amount: "1.00", Asset: "usdc", Chain: "base"},
+			},
+		}, WithAuthorizationContext(authCtx), expired)
+		requireExpiryError(t, err)
+	})
+}
+
+// Skipped like the Node SDK's swap and earn tests: they would move funds, and
+// staging wallets are unfunded. They still type-check the per-call expiry calls.
+func TestRequestExpiry_SwapsAndEarn(t *testing.T) {
+	t.Skip("swaps and earn move funds, and staging wallets are unfunded")
+	client := newTestClient(t)
+	ctx := context.Background()
+	walletID, authCtx := newKeyOwnedWallet(t, ctx, client, WalletChainTypeEthereum)
+	perCall := WithRequestExpiry(RequestExpiry(20 * 60 * 1000))
+	auth := WithAuthorizationContext(authCtx)
+	source := SwapSource{AssetAddress: "native", Caip2: "eip155:8453"}
+	const vaultID = "cm7oxq1el000e11o8iwp7d0d0"
+
+	if _, err := client.Wallets.Swap.Quote(ctx, walletID, WalletSwapQuoteParams{
+		SwapQuoteRequestBody: SwapQuoteRequestBody{
+			BaseAmount:  "1000000000000000000",
+			Source:      source,
+			Destination: SwapQuoteDestination{AssetAddress: "0x0000000000000000000000000000000000000001"},
+		},
+	}, auth, perCall); err != nil {
+		t.Errorf("failed to get swap quote: %v", err)
+	}
+
+	if _, err := client.Wallets.Swap.Execute(ctx, walletID, WalletSwapExecuteParams{
+		SwapRequestBody: SwapRequestBody{
+			BaseAmount:  "1000000000000000000",
+			Source:      source,
+			Destination: SwapDestination{AssetAddress: "0x0000000000000000000000000000000000000001"},
+		},
+	}, auth, perCall); err != nil {
+		t.Errorf("failed to execute swap: %v", err)
+	}
+
+	if _, err := client.Wallets.Earn.Ethereum.Deposit(ctx, walletID, WalletEarnEthereumDepositParams{
+		EarnDepositRequestBody: EarnDepositRequestBody{VaultID: vaultID, Amount: String("1.0")},
+	}, auth, perCall); err != nil {
+		t.Errorf("failed to deposit: %v", err)
+	}
+
+	if _, err := client.Wallets.Earn.Ethereum.Withdraw(ctx, walletID, WalletEarnEthereumWithdrawParams{
+		EarnWithdrawRequestBody: EarnWithdrawRequestBody{VaultID: vaultID, Amount: String("1.0")},
+	}, auth, perCall); err != nil {
+		t.Errorf("failed to withdraw: %v", err)
+	}
+
+	if _, err := client.Wallets.Earn.Ethereum.Incentive.Claim(ctx, walletID, WalletEarnEthereumIncentiveClaimParams{
+		EarnIncentiveClaimRequestBody: EarnIncentiveClaimRequestBody{Chain: "base"},
+	}, auth, perCall); err != nil {
+		t.Errorf("failed to claim incentives: %v", err)
+	}
+}
