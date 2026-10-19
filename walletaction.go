@@ -1305,15 +1305,18 @@ type TvmTransactionWalletActionStep struct {
 	Type TvmTransactionWalletActionStepType `json:"type" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason"`
+	// Amount charged in USD for gas sponsorship on this step.
+	GasCreditsChargedUsd string `json:"gas_credits_charged_usd"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		Caip2         respjson.Field
-		Status        respjson.Field
-		TransactionID respjson.Field
-		Type          respjson.Field
-		FailureReason respjson.Field
-		ExtraFields   map[string]respjson.Field
-		raw           string
+		Caip2                respjson.Field
+		Status               respjson.Field
+		TransactionID        respjson.Field
+		Type                 respjson.Field
+		FailureReason        respjson.Field
+		GasCreditsChargedUsd respjson.Field
+		ExtraFields          map[string]respjson.Field
+		raw                  string
 	} `json:"-"`
 }
 
