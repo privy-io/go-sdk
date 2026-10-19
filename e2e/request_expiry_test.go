@@ -240,3 +240,59 @@ func TestRequestExpiry_Intents(t *testing.T) {
 		expectCustomIntentExpiry(t, intent.BaseIntentResponse, expiry)
 	})
 }
+
+func TestRequestExpiry_Transfer(t *testing.T) {
+	// The server checks the balance before the expiry, so even the expired case fails this way.
+	t.Skip("staging wallets are unfunded, so transfers fail with insufficient balance")
+	client := newTestClient(t)
+	ctx := context.Background()
+	walletID, authCtx := newKeyOwnedWallet(t, ctx, client, WalletChainTypeEthereum)
+
+	transfer := func(opts ...RequestOption) (*TransferActionResponse, error) {
+		return client.Wallets.Transfer(ctx, walletID, WalletTransferParams{
+			TransferRequestBody: TransferRequestBody{
+				Source: TokenTransferSourceUnion{
+					OfNamedTokenTransferSource: &NamedTokenTransferSource{Asset: "usdc", Chain: "base", Amount: String("0.01")},
+				},
+				Destination: TokenTransferDestination{Address: "0xB00F0759DbeeF5E543Cc3E3B07A6442F5f3928a2"},
+			},
+		}, append([]RequestOption{WithAuthorizationContext(authCtx)}, opts...)...)
+	}
+
+	t.Run("AcceptsPerCall", func(t *testing.T) {
+		if _, err := transfer(WithRequestExpiry(RequestExpiry(20 * 60 * 1000))); err != nil {
+			t.Fatalf("failed to transfer: %v", err)
+		}
+	})
+
+	t.Run("RejectsExpired", func(t *testing.T) {
+		_, err := transfer(WithRequestExpiry(RequestExpiry(-60 * 1000)))
+		requireExpiryError(t, err)
+	})
+}
+
+func TestRequestExpiry_Automations(t *testing.T) {
+	t.Skip("attaching needs an existing automation, and PrivyClient does not expose automation creation")
+	client := newTestClient(t)
+	ctx := context.Background()
+	walletID, authCtx := newKeyOwnedWallet(t, ctx, client, WalletChainTypeEthereum)
+	automationIDs := []string{"automation-id"}
+
+	t.Run("Attach", func(t *testing.T) {
+		_, err := client.Wallets.AttachAutomations(ctx, walletID, WalletAttachAutomationsParams{
+			AttachWalletAutomationRequestBody: AttachWalletAutomationRequestBody{AutomationIDs: automationIDs},
+		}, WithAuthorizationContext(authCtx), WithRequestExpiry(RequestExpiry(20*60*1000)))
+		if err != nil {
+			t.Fatalf("failed to attach automations: %v", err)
+		}
+	})
+
+	t.Run("Detach", func(t *testing.T) {
+		_, err := client.Wallets.DetachAutomations(ctx, walletID, WalletDetachAutomationsParams{
+			DetachWalletAutomationRequestBody: DetachWalletAutomationRequestBody{AutomationIDs: automationIDs},
+		}, WithAuthorizationContext(authCtx), WithRequestExpiry(RequestExpiry(20*60*1000)))
+		if err != nil {
+			t.Fatalf("failed to detach automations: %v", err)
+		}
+	})
+}
