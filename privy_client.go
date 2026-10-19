@@ -27,16 +27,18 @@ import (
 //     struct cannot override a true in the deprecated alias.
 type PrivyRequestExpiryOptions struct {
 	// DefaultMs is the default request expiry duration in milliseconds
-	// for non-intents endpoints. If zero, defaults to 15 minutes.
+	// for non-intents endpoints. If zero, defaults to DefaultRequestExpiryMs
+	// (15 minutes).
 	DefaultMs int64
 
 	// DefaultIntentMs is the default request expiry duration in
-	// milliseconds for intents-endpoint calls. If zero, defaults to 72 hours.
+	// milliseconds for intents-endpoint calls. If zero, defaults to
+	// DefaultIntentRequestExpiryMs (72 hours).
 	DefaultIntentMs int64
 
-	// Disabled, when true, suppresses the `privy-request-expiry` header on
-	// all outgoing requests unless explicitly provided per-request.
-	// Defaults to false.
+	// Disabled, when true, stops the SDK from setting a default
+	// `privy-request-expiry` header. A per-call WithRequestExpiry value is
+	// still sent. Defaults to false.
 	Disabled bool
 }
 
@@ -67,8 +69,8 @@ type PrivyClientOptions struct {
 	DefaultRequestExpiryMs int64
 
 	// DisableRequestExpiry opts out of automatically setting the "privy-request-expiry"
-	// header on requests. When true, no expiry header will be sent unless explicitly
-	// provided per-request via WithRequestExpiry. Defaults to false.
+	// header on requests. When true, no default expiry header is sent; a per-call
+	// WithRequestExpiry value is still sent. Defaults to false.
 	//
 	// Deprecated: Use RequestExpiry.Disabled instead.
 	DisableRequestExpiry bool
@@ -179,13 +181,13 @@ func NewPrivyClient(opts PrivyClientOptions) *PrivyClient {
 		defaultRequestExpiryMs = opts.DefaultRequestExpiryMs
 	}
 	if defaultRequestExpiryMs == 0 {
-		defaultRequestExpiryMs = 15 * 60 * 1000
+		defaultRequestExpiryMs = DefaultRequestExpiryMs
 	}
 
 	// Resolve default intent request expiry: new field only, no deprecated alias.
 	defaultIntentRequestExpiryMs := opts.RequestExpiry.DefaultIntentMs
 	if defaultIntentRequestExpiryMs == 0 {
-		defaultIntentRequestExpiryMs = 72 * 60 * 60 * 1000
+		defaultIntentRequestExpiryMs = DefaultIntentRequestExpiryMs
 	}
 
 	// Resolve "disabled": OR of nested and deprecated bool (see RequestExpiry doc).

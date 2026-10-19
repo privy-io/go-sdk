@@ -20,16 +20,21 @@ func TestMain(m *testing.M) {
 
 func newTestClient(t *testing.T) *PrivyClient {
 	t.Helper()
+	return newTestClientWithOptions(t, PrivyClientOptions{})
+}
+
+// newTestClientWithOptions is newTestClient with extra client options. The
+// staging credentials and API URL always override the matching fields of opts.
+func newTestClientWithOptions(t *testing.T, opts PrivyClientOptions) *PrivyClient {
+	t.Helper()
 	appId := os.Getenv("TEST_APP_ID")
 	appSecret := os.Getenv("TEST_APP_SECRET")
 	if appSecret == "" {
 		t.Fatal("TEST_APP_SECRET environment variable is required")
 	}
-	opts := PrivyClientOptions{
-		AppID:     appId,
-		AppSecret: appSecret,
-		APIUrl:    "https://api.staging.privy.io",
-	}
+	opts.AppID = appId
+	opts.AppSecret = appSecret
+	opts.APIUrl = "https://api.staging.privy.io"
 	if os.Getenv("TEST_DEBUG_LOGS") != "" {
 		opts.LogLevel = LogLevelVerbose
 	}

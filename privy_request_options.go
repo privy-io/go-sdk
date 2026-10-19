@@ -14,7 +14,7 @@ import (
 // Available options:
 //   - WithAuthorizationContext: sets the authorization context for user-owned wallet operations.
 //   - WithIdempotencyKey: sets an idempotency key (applicable to Rpc, RawSign, and Ethereum/Solana convenience methods).
-//   - WithRequestExpiry: sets the request expiry timestamp in milliseconds.
+//   - WithRequestExpiry: sets the request expiry as an absolute Unix timestamp in milliseconds.
 type RequestOption interface {
 	applyOption(*requestOptions)
 }
@@ -50,9 +50,16 @@ func WithIdempotencyKey(key string) RequestOption {
 	}}
 }
 
-// WithRequestExpiry sets the request expiry for the request.
-// The value should be a Unix timestamp in milliseconds.
-// If not set, the client's DefaultRequestExpiryMs is used, or 15 minutes from now.
+// WithRequestExpiry sets the "privy-request-expiry" header for a single call.
+// The value is an absolute Unix timestamp in milliseconds and is sent verbatim;
+// use RequestExpiry(durationMs) to compute one relative to now.
+//
+// A per-call value takes precedence over everything else, and is sent even when
+// request expiry is disabled on the client. Without it, the SDK uses the client
+// default: PrivyRequestExpiryOptions.DefaultMs (DefaultRequestExpiryMs, 15
+// minutes, if unset) for most endpoints, and
+// PrivyRequestExpiryOptions.DefaultIntentMs (DefaultIntentRequestExpiryMs, 72
+// hours, if unset) for client.Intents methods.
 func WithRequestExpiry(expiry int64) RequestOption {
 	return requestOptionFunc{fn: func(o *requestOptions) {
 		o.RequestExpiry = &expiry

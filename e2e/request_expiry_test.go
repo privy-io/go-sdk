@@ -1,0 +1,242 @@
+package e2e_test
+
+import (
+	"context"
+	"regexp"
+	"testing"
+	"time"
+
+	. "github.com/privy-io/go-sdk"
+	"github.com/privy-io/go-sdk/authorization"
+)
+
+// requestExpiryHash is a 32-byte hash (keccak256 of "hello") used for raw sign requests.
+const requestExpiryHash = "0x1c8aff950685c2ed4bc3174f3472287b56d9517b9c948127319a09a7a36deac8"
+
+// Rejections must come from the request expiry check, not from another validation error.
+var expiryErrorPattern = regexp.MustCompile(`(?i)expir`)
+
+// intentExpiryToleranceMs absorbs clock skew and request latency in intent expiry checks.
+const intentExpiryToleranceMs = int64(5 * 60 * 1000)
+
+func requireExpiryError(t *testing.T, err error) {
+	t.Helper()
+	if err == nil {
+		t.Fatal("expected the request to be rejected, got no error")
+	}
+	if !expiryErrorPattern.MatchString(err.Error()) {
+		t.Fatalf("expected a request expiry error, got: %v", err)
+	}
+}
+
+// newKeyOwnedWallet creates a wallet owned by a fresh P256 key. Raw sign does
+// not support ethereum or solana wallets on staging, so raw sign tests use tron.
+func newKeyOwnedWallet(t *testing.T, ctx context.Context, client *PrivyClient, chainType WalletChainType) (string, *authorization.AuthorizationContext) {
+	t.Helper()
+	keyPair, err := authorization.GenerateP256KeyPair()
+	if err != nil {
+		t.Fatalf("failed to generate P256 key pair: %v", err)
+	}
+	wallet, err := client.Wallets.New(ctx, WalletNewParams{
+		ChainType: chainType,
+		Owner: OwnerInputUnion{
+			OfOwnerInputPublicKey: &OwnerInputPublicKey{PublicKey: keyPair.PublicKey},
+		},
+	})
+	if err != nil {
+		t.Fatalf("failed to create %s wallet: %v", chainType, err)
+	}
+	return wallet.ID, &authorization.AuthorizationContext{PrivateKeys: []string{keyPair.PrivateKey}}
+}
+
+func rawSignParams() WalletRawSignParams {
+	return WalletRawSignParams{
+		RawSignInput: RawSignInput{
+			Params: RawSignInputParamsUnion{
+				OfRawSignHashs: &RawSignHashParams{Hash: requestExpiryHash},
+			},
+		},
+	}
+}
+
+// intentExpiresAtMs converts an intent expires_at Unix timestamp to milliseconds,
+// accepting either seconds or milliseconds.
+func intentExpiresAtMs(expiresAt float64) int64 {
+	if expiresAt < 1e12 {
+		return int64(expiresAt * 1000)
+	}
+	return int64(expiresAt)
+}
+
+func expectDefaultIntentExpiry(t *testing.T, intent BaseIntentResponse, before, after int64) {
+	t.Helper()
+	expiresAt := intentExpiresAtMs(intent.ExpiresAt)
+	if expiresAt < before+DefaultIntentRequestExpiryMs-intentExpiryToleranceMs ||
+		expiresAt > after+DefaultIntentRequestExpiryMs+intentExpiryToleranceMs {
+		t.Errorf("expected expires_at about 72h from now, got %d (now %d)", expiresAt, after)
+	}
+}
+
+func expectCustomIntentExpiry(t *testing.T, intent BaseIntentResponse, expiry int64) {
+	t.Helper()
+	if !intent.CustomExpiry {
+		t.Error("expected custom_expiry to be true")
+	}
+	expiresAt := intentExpiresAtMs(intent.ExpiresAt)
+	if diff := expiresAt - expiry; diff > intentExpiryToleranceMs || diff < -intentExpiryToleranceMs {
+		t.Errorf("expected expires_at about %d, got %d", expiry, expiresAt)
+	}
+}
+
+func TestRequestExpiry_SignedWrappers(t *testing.T) {
+	client := newTestClient(t)
+	ctx := context.Background()
+	walletID, authCtx := newKeyOwnedWallet(t, ctx, client, WalletChainTypeTron)
+
+	t.Run("RawSign", func(t *testing.T) {
+		t.Run("AcceptsDefault", func(t *testing.T) {
+			result, err := client.Wallets.RawSign(ctx, walletID, rawSignParams(), WithAuthorizationContext(authCtx))
+			if err != nil {
+				t.Fatalf("failed to raw sign: %v", err)
+			}
+			if result.Data.Signature == "" {
+				t.Error("expected signature to be non-empty")
+			}
+		})
+
+		t.Run("AcceptsPerCall", func(t *testing.T) {
+			result, err := client.Wallets.RawSign(ctx, walletID, rawSignParams(),
+				WithAuthorizationContext(authCtx),
+				WithRequestExpiry(RequestExpiry(20*60*1000)),
+			)
+			if err != nil {
+				t.Fatalf("failed to raw sign: %v", err)
+			}
+			if result.Data.Signature == "" {
+				t.Error("expected signature to be non-empty")
+			}
+		})
+
+		t.Run("RejectsExpired", func(t *testing.T) {
+			_, err := client.Wallets.RawSign(ctx, walletID, rawSignParams(),
+				WithAuthorizationContext(authCtx),
+				WithRequestExpiry(RequestExpiry(-60*1000)),
+			)
+			requireExpiryError(t, err)
+		})
+
+		t.Run("RejectsZero", func(t *testing.T) {
+			_, err := client.Wallets.RawSign(ctx, walletID, rawSignParams(),
+				WithAuthorizationContext(authCtx),
+				WithRequestExpiry(0),
+			)
+			requireExpiryError(t, err)
+		})
+	})
+
+	t.Run("Update", func(t *testing.T) {
+		update := func(name string, opts ...RequestOption) (*Wallet, error) {
+			return client.Wallets.Update(ctx, walletID, WalletUpdateParams{
+				WalletUpdateRequestBody: WalletUpdateRequestBody{DisplayName: String(name)},
+			}, append([]RequestOption{WithAuthorizationContext(authCtx)}, opts...)...)
+		}
+
+		t.Run("AcceptsDefault", func(t *testing.T) {
+			wallet, err := update("request expiry default")
+			if err != nil {
+				t.Fatalf("failed to update wallet: %v", err)
+			}
+			if wallet.ID != walletID {
+				t.Errorf("expected wallet ID %s, got %s", walletID, wallet.ID)
+			}
+		})
+
+		t.Run("AcceptsPerCall", func(t *testing.T) {
+			wallet, err := update("request expiry per-call", WithRequestExpiry(RequestExpiry(20*60*1000)))
+			if err != nil {
+				t.Fatalf("failed to update wallet: %v", err)
+			}
+			if wallet.ID != walletID {
+				t.Errorf("expected wallet ID %s, got %s", walletID, wallet.ID)
+			}
+		})
+
+		t.Run("RejectsExpired", func(t *testing.T) {
+			_, err := update("request expiry expired", WithRequestExpiry(RequestExpiry(-60*1000)))
+			requireExpiryError(t, err)
+		})
+	})
+
+	t.Run("Disabled", func(t *testing.T) {
+		disabled := newTestClientWithOptions(t, PrivyClientOptions{
+			RequestExpiry: PrivyRequestExpiryOptions{Disabled: true},
+		})
+
+		t.Run("AcceptsNoExpiry", func(t *testing.T) {
+			result, err := disabled.Wallets.RawSign(ctx, walletID, rawSignParams(), WithAuthorizationContext(authCtx))
+			if err != nil {
+				t.Fatalf("failed to raw sign: %v", err)
+			}
+			if result.Data.Signature == "" {
+				t.Error("expected signature to be non-empty")
+			}
+		})
+
+		// Without a client default, the request only fails if the per-call 0 is sent as the header.
+		t.Run("SendsPerCallZero", func(t *testing.T) {
+			_, err := disabled.Wallets.RawSign(ctx, walletID, rawSignParams(),
+				WithAuthorizationContext(authCtx),
+				WithRequestExpiry(0),
+			)
+			requireExpiryError(t, err)
+		})
+	})
+}
+
+func TestRequestExpiry_Intents(t *testing.T) {
+	client := newTestClient(t)
+	ctx := context.Background()
+
+	// Each intent gets its own wallet so no two intents are pending on the same wallet.
+	updateWallet := func(t *testing.T, c *PrivyClient, opts ...RequestOption) *WalletIntentResponse {
+		t.Helper()
+		walletID, _ := newKeyOwnedWallet(t, ctx, client, WalletChainTypeTron)
+		newOwner, err := authorization.GenerateP256KeyPair()
+		if err != nil {
+			t.Fatalf("failed to generate P256 key pair: %v", err)
+		}
+		intent, err := c.Intents.UpdateWallet(ctx, walletID, IntentUpdateWalletParams{
+			WalletUpdateRequestBody: WalletUpdateRequestBody{
+				Owner: OwnerInputUnion{
+					OfOwnerInputPublicKey: &OwnerInputPublicKey{PublicKey: newOwner.PublicKey},
+				},
+			},
+		}, opts...)
+		if err != nil {
+			t.Fatalf("failed to create update wallet intent: %v", err)
+		}
+		return intent
+	}
+
+	t.Run("DefaultsTo72Hours", func(t *testing.T) {
+		before := time.Now().UnixMilli()
+		intent := updateWallet(t, client)
+		after := time.Now().UnixMilli()
+		expectDefaultIntentExpiry(t, intent.BaseIntentResponse, before, after)
+	})
+
+	t.Run("UsesPerCall", func(t *testing.T) {
+		expiry := RequestExpiry(60 * 60 * 1000)
+		intent := updateWallet(t, client, WithRequestExpiry(expiry))
+		expectCustomIntentExpiry(t, intent.BaseIntentResponse, expiry)
+	})
+
+	t.Run("SendsPerCallWhenDisabled", func(t *testing.T) {
+		disabled := newTestClientWithOptions(t, PrivyClientOptions{
+			RequestExpiry: PrivyRequestExpiryOptions{Disabled: true},
+		})
+		expiry := RequestExpiry(60 * 60 * 1000)
+		intent := updateWallet(t, disabled, WithRequestExpiry(expiry))
+		expectCustomIntentExpiry(t, intent.BaseIntentResponse, expiry)
+	})
+}

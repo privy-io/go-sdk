@@ -9,17 +9,18 @@ import (
 
 // PrivyIntentService wraps the generated IntentService.
 // Intents represent pending operations that require dashboard signing
-// before they can be executed.
+// before they can be executed. Intent requests are not signed by the SDK.
 //
-// The wrapper auto-populates the "privy-request-expiry" header on every
-// mutating intent call, unless the client was constructed with
-// DisableRequestExpiry: true (in which case no expiry header is sent on
-// intents calls). Resolution order when not disabled, highest priority
-// first:
-//  1. Per-call WithRequestExpiry(...).
-//  2. params.PrivyRequestExpiry already set explicitly by the caller.
-//  3. DefaultIntentRequestExpiryMs from client options.
-//  4. Hardcoded 72 hours.
+// The wrapper sets the "privy-request-expiry" header on every mutating intent
+// call. Resolution order, highest priority first:
+//  1. Per-call WithRequestExpiry(...), sent verbatim even when request expiry
+//     is disabled on the client.
+//  2. params.PrivyRequestExpiry, if the caller set it.
+//  3. No header, if the client was built with RequestExpiry.Disabled (or the
+//     deprecated DisableRequestExpiry).
+//  4. Now + RequestExpiry.DefaultIntentMs, or DefaultIntentRequestExpiryMs
+//     (72 hours) when unset. The generic RequestExpiry.DefaultMs and the
+//     deprecated DefaultRequestExpiryMs do not apply to intents.
 type PrivyIntentService struct {
 	IntentService
 	defaultIntentRequestExpiryMs int64
@@ -38,6 +39,19 @@ func newPrivyIntentService(service IntentService, defaultIntentRequestExpiryMs i
 	}
 }
 
+// setRequestExpiry sets a params PrivyRequestExpiry field following the
+// precedence documented on PrivyIntentService.
+func (s *PrivyIntentService) setRequestExpiry(options *requestOptions, field *param.Opt[string]) {
+	expiry := options.RequestExpiry
+	if expiry == nil {
+		if !s.requestExpiryEnabled || !param.IsOmitted(*field) {
+			return
+		}
+		expiry = int64Ptr(RequestExpiry(s.defaultIntentRequestExpiryMs))
+	}
+	*field = param.NewOpt(strconv.FormatInt(*expiry, 10))
+}
+
 // Rpc executes a wallet RPC intent.
 func (s *PrivyIntentService) Rpc(
 	ctx context.Context,
@@ -46,13 +60,7 @@ func (s *PrivyIntentService) Rpc(
 	opts ...RequestOption,
 ) (*RpcIntentResponse, error) {
 	options := applyRequestOptions(opts)
-	if s.requestExpiryEnabled && param.IsOmitted(params.PrivyRequestExpiry) {
-		expiry := options.RequestExpiry
-		if expiry == nil {
-			expiry = int64Ptr(RequestExpiry(s.defaultIntentRequestExpiryMs))
-		}
-		params.PrivyRequestExpiry = param.NewOpt(strconv.FormatInt(*expiry, 10))
-	}
+	s.setRequestExpiry(options, &params.PrivyRequestExpiry)
 	return s.IntentService.Rpc(ctx, walletID, params, options.RequestOptions...)
 }
 
@@ -64,13 +72,7 @@ func (s *PrivyIntentService) Transfer(
 	opts ...RequestOption,
 ) (*TransferIntentResponse, error) {
 	options := applyRequestOptions(opts)
-	if s.requestExpiryEnabled && param.IsOmitted(params.PrivyRequestExpiry) {
-		expiry := options.RequestExpiry
-		if expiry == nil {
-			expiry = int64Ptr(RequestExpiry(s.defaultIntentRequestExpiryMs))
-		}
-		params.PrivyRequestExpiry = param.NewOpt(strconv.FormatInt(*expiry, 10))
-	}
+	s.setRequestExpiry(options, &params.PrivyRequestExpiry)
 	return s.IntentService.Transfer(ctx, walletID, params, options.RequestOptions...)
 }
 
@@ -82,13 +84,7 @@ func (s *PrivyIntentService) UpdateWallet(
 	opts ...RequestOption,
 ) (*WalletIntentResponse, error) {
 	options := applyRequestOptions(opts)
-	if s.requestExpiryEnabled && param.IsOmitted(params.PrivyRequestExpiry) {
-		expiry := options.RequestExpiry
-		if expiry == nil {
-			expiry = int64Ptr(RequestExpiry(s.defaultIntentRequestExpiryMs))
-		}
-		params.PrivyRequestExpiry = param.NewOpt(strconv.FormatInt(*expiry, 10))
-	}
+	s.setRequestExpiry(options, &params.PrivyRequestExpiry)
 	return s.IntentService.UpdateWallet(ctx, walletID, params, options.RequestOptions...)
 }
 
@@ -100,13 +96,7 @@ func (s *PrivyIntentService) NewPolicyRule(
 	opts ...RequestOption,
 ) (*RuleMutateIntentResponse, error) {
 	options := applyRequestOptions(opts)
-	if s.requestExpiryEnabled && param.IsOmitted(params.PrivyRequestExpiry) {
-		expiry := options.RequestExpiry
-		if expiry == nil {
-			expiry = int64Ptr(RequestExpiry(s.defaultIntentRequestExpiryMs))
-		}
-		params.PrivyRequestExpiry = param.NewOpt(strconv.FormatInt(*expiry, 10))
-	}
+	s.setRequestExpiry(options, &params.PrivyRequestExpiry)
 	return s.IntentService.NewPolicyRule(ctx, policyID, params, options.RequestOptions...)
 }
 
@@ -118,13 +108,7 @@ func (s *PrivyIntentService) DeletePolicyRule(
 	opts ...RequestOption,
 ) (*RuleDeleteIntentResponse, error) {
 	options := applyRequestOptions(opts)
-	if s.requestExpiryEnabled && param.IsOmitted(params.PrivyRequestExpiry) {
-		expiry := options.RequestExpiry
-		if expiry == nil {
-			expiry = int64Ptr(RequestExpiry(s.defaultIntentRequestExpiryMs))
-		}
-		params.PrivyRequestExpiry = param.NewOpt(strconv.FormatInt(*expiry, 10))
-	}
+	s.setRequestExpiry(options, &params.PrivyRequestExpiry)
 	return s.IntentService.DeletePolicyRule(ctx, ruleID, params, options.RequestOptions...)
 }
 
@@ -136,13 +120,7 @@ func (s *PrivyIntentService) UpdatePolicy(
 	opts ...RequestOption,
 ) (*PolicyIntentResponse, error) {
 	options := applyRequestOptions(opts)
-	if s.requestExpiryEnabled && param.IsOmitted(params.PrivyRequestExpiry) {
-		expiry := options.RequestExpiry
-		if expiry == nil {
-			expiry = int64Ptr(RequestExpiry(s.defaultIntentRequestExpiryMs))
-		}
-		params.PrivyRequestExpiry = param.NewOpt(strconv.FormatInt(*expiry, 10))
-	}
+	s.setRequestExpiry(options, &params.PrivyRequestExpiry)
 	return s.IntentService.UpdatePolicy(ctx, policyID, params, options.RequestOptions...)
 }
 
@@ -154,13 +132,7 @@ func (s *PrivyIntentService) UpdatePolicyRule(
 	opts ...RequestOption,
 ) (*RuleMutateIntentResponse, error) {
 	options := applyRequestOptions(opts)
-	if s.requestExpiryEnabled && param.IsOmitted(params.PrivyRequestExpiry) {
-		expiry := options.RequestExpiry
-		if expiry == nil {
-			expiry = int64Ptr(RequestExpiry(s.defaultIntentRequestExpiryMs))
-		}
-		params.PrivyRequestExpiry = param.NewOpt(strconv.FormatInt(*expiry, 10))
-	}
+	s.setRequestExpiry(options, &params.PrivyRequestExpiry)
 	return s.IntentService.UpdatePolicyRule(ctx, ruleID, params, options.RequestOptions...)
 }
 
@@ -172,12 +144,6 @@ func (s *PrivyIntentService) UpdateKeyQuorum(
 	opts ...RequestOption,
 ) (*KeyQuorumIntentResponse, error) {
 	options := applyRequestOptions(opts)
-	if s.requestExpiryEnabled && param.IsOmitted(params.PrivyRequestExpiry) {
-		expiry := options.RequestExpiry
-		if expiry == nil {
-			expiry = int64Ptr(RequestExpiry(s.defaultIntentRequestExpiryMs))
-		}
-		params.PrivyRequestExpiry = param.NewOpt(strconv.FormatInt(*expiry, 10))
-	}
+	s.setRequestExpiry(options, &params.PrivyRequestExpiry)
 	return s.IntentService.UpdateKeyQuorum(ctx, keyQuorumID, params, options.RequestOptions...)
 }

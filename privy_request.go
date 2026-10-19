@@ -10,9 +10,22 @@ import (
 	"github.com/privy-io/go-sdk/internal/jwtexchange"
 )
 
+const (
+	// DefaultRequestExpiryMs is the built-in request expiry duration, in
+	// milliseconds from now, for non-intent endpoints (15 minutes). Override it
+	// with PrivyRequestExpiryOptions.DefaultMs.
+	DefaultRequestExpiryMs int64 = 15 * 60 * 1000
+
+	// DefaultIntentRequestExpiryMs is the built-in request expiry duration, in
+	// milliseconds from now, for intent endpoints (72 hours). Override it with
+	// PrivyRequestExpiryOptions.DefaultIntentMs.
+	DefaultIntentRequestExpiryMs int64 = 72 * 60 * 60 * 1000
+)
+
 // RequestExpiry computes a request expiry timestamp (Unix milliseconds)
 // from a duration offset. For example, RequestExpiry(20 * 60 * 1000)
-// returns a timestamp 20 minutes from now.
+// returns a timestamp 20 minutes from now. Pass the result to
+// WithRequestExpiry to override the expiry for a single call.
 func RequestExpiry(durationMsFromNow int64) int64 {
 	return time.Now().UnixMilli() + durationMsFromNow
 }
