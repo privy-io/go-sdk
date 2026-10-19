@@ -147,3 +147,63 @@ func (s *PrivyIntentService) UpdateKeyQuorum(
 	s.setRequestExpiry(options, &params.PrivyRequestExpiry)
 	return s.IntentService.UpdateKeyQuorum(ctx, keyQuorumID, params, options.RequestOptions...)
 }
+
+// RawSign executes a wallet raw-sign intent.
+func (s *PrivyIntentService) RawSign(
+	ctx context.Context,
+	walletID string,
+	params IntentRawSignParams,
+	opts ...RequestOption,
+) (*RawSignIntentResponse, error) {
+	options := applyRequestOptions(opts)
+	s.setRequestExpiry(options, &params.PrivyRequestExpiry)
+	return s.IntentService.RawSign(ctx, walletID, params, options.RequestOptions...)
+}
+
+// NewConditionSetItems executes an add-condition-set-items intent.
+func (s *PrivyIntentService) NewConditionSetItems(
+	ctx context.Context,
+	conditionSetID string,
+	params IntentNewConditionSetItemsParams,
+	opts ...RequestOption,
+) (*ConditionSetItemMutateIntentResponse, error) {
+	options := applyRequestOptions(opts)
+	s.setRequestExpiry(options, &params.PrivyRequestExpiry)
+	return s.IntentService.NewConditionSetItems(ctx, conditionSetID, params, options.RequestOptions...)
+}
+
+// UpdateConditionSetItems executes a replace-condition-set-items intent.
+func (s *PrivyIntentService) UpdateConditionSetItems(
+	ctx context.Context,
+	conditionSetID string,
+	params IntentUpdateConditionSetItemsParams,
+	opts ...RequestOption,
+) (*ConditionSetItemMutateIntentResponse, error) {
+	options := applyRequestOptions(opts)
+	s.setRequestExpiry(options, &params.PrivyRequestExpiry)
+	return s.IntentService.UpdateConditionSetItems(ctx, conditionSetID, params, options.RequestOptions...)
+}
+
+// DeleteConditionSet executes a delete-condition-set intent.
+func (s *PrivyIntentService) DeleteConditionSet(
+	ctx context.Context,
+	conditionSetID string,
+	params IntentDeleteConditionSetParams,
+	opts ...RequestOption,
+) (*ConditionSetDeleteIntentResponse, error) {
+	options := applyRequestOptions(opts)
+	s.setRequestExpiry(options, &params.PrivyRequestExpiry)
+	return s.IntentService.DeleteConditionSet(ctx, conditionSetID, params, options.RequestOptions...)
+}
+
+// DeleteConditionSetItem executes a delete-condition-set-item intent.
+func (s *PrivyIntentService) DeleteConditionSetItem(
+	ctx context.Context,
+	conditionSetItemID string,
+	params IntentDeleteConditionSetItemParams,
+	opts ...RequestOption,
+) (*ConditionSetItemDeleteIntentResponse, error) {
+	options := applyRequestOptions(opts)
+	s.setRequestExpiry(options, &params.PrivyRequestExpiry)
+	return s.IntentService.DeleteConditionSetItem(ctx, conditionSetItemID, params, options.RequestOptions...)
+}

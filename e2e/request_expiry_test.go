@@ -378,3 +378,90 @@ func TestRequestExpiry_SwapsAndEarn(t *testing.T) {
 		t.Errorf("failed to claim incentives: %v", err)
 	}
 }
+
+func TestRequestExpiry_IntentRawSign(t *testing.T) {
+	client := newTestClient(t)
+	ctx := context.Background()
+
+	// Each intent gets its own wallet so no two intents are pending on the same wallet.
+	rawSign := func(t *testing.T, opts ...RequestOption) *RawSignIntentResponse {
+		t.Helper()
+		walletID, _ := newKeyOwnedWallet(t, ctx, client, WalletChainTypeTron)
+		intent, err := client.Intents.RawSign(ctx, walletID, IntentRawSignParams{
+			RawSignInput: rawSignParams().RawSignInput,
+		}, opts...)
+		if err != nil {
+			t.Fatalf("failed to create raw sign intent: %v", err)
+		}
+		return intent
+	}
+
+	t.Run("DefaultsTo72Hours", func(t *testing.T) {
+		before := time.Now().UnixMilli()
+		intent := rawSign(t)
+		after := time.Now().UnixMilli()
+		if intent.IntentType != "RAW_SIGN" {
+			t.Errorf("expected intent type RAW_SIGN, got %s", intent.IntentType)
+		}
+		expectDefaultIntentExpiry(t, intent.BaseIntentResponse, before, after)
+	})
+
+	t.Run("UsesPerCall", func(t *testing.T) {
+		expiry := RequestExpiry(60 * 60 * 1000)
+		intent := rawSign(t, WithRequestExpiry(expiry))
+		expectCustomIntentExpiry(t, intent.BaseIntentResponse, expiry)
+	})
+}
+
+func TestRequestExpiry_IntentConditionSets(t *testing.T) {
+	t.Skip("condition set intents need an existing condition set owned by a key, which these tests don't set up")
+	client := newTestClient(t)
+	ctx := context.Background()
+	const conditionSetID = "condition-set-id"
+	const conditionSetItemID = "condition-set-item-id"
+	items := ConditionSetItemsRequestBody{{Value: "0xB00F0759DbeeF5E543Cc3E3B07A6442F5f3928a2"}}
+
+	t.Run("NewItemsDefaultsTo72Hours", func(t *testing.T) {
+		before := time.Now().UnixMilli()
+		intent, err := client.Intents.NewConditionSetItems(ctx, conditionSetID, IntentNewConditionSetItemsParams{
+			ConditionSetItemsRequestBody: items,
+		})
+		after := time.Now().UnixMilli()
+		if err != nil {
+			t.Fatalf("failed to create condition set items intent: %v", err)
+		}
+		expectDefaultIntentExpiry(t, intent.BaseIntentResponse, before, after)
+	})
+
+	t.Run("UpdateItemsUsesPerCall", func(t *testing.T) {
+		expiry := RequestExpiry(60 * 60 * 1000)
+		intent, err := client.Intents.UpdateConditionSetItems(ctx, conditionSetID, IntentUpdateConditionSetItemsParams{
+			ConditionSetItemsRequestBody: items,
+		}, WithRequestExpiry(expiry))
+		if err != nil {
+			t.Fatalf("failed to create update condition set items intent: %v", err)
+		}
+		expectCustomIntentExpiry(t, intent.BaseIntentResponse, expiry)
+	})
+
+	t.Run("DeleteItemUsesPerCall", func(t *testing.T) {
+		expiry := RequestExpiry(60 * 60 * 1000)
+		intent, err := client.Intents.DeleteConditionSetItem(ctx, conditionSetItemID, IntentDeleteConditionSetItemParams{
+			ConditionSetID: conditionSetID,
+		}, WithRequestExpiry(expiry))
+		if err != nil {
+			t.Fatalf("failed to create delete condition set item intent: %v", err)
+		}
+		expectCustomIntentExpiry(t, intent.BaseIntentResponse, expiry)
+	})
+
+	t.Run("DeleteDefaultsTo72Hours", func(t *testing.T) {
+		before := time.Now().UnixMilli()
+		intent, err := client.Intents.DeleteConditionSet(ctx, conditionSetID, IntentDeleteConditionSetParams{})
+		after := time.Now().UnixMilli()
+		if err != nil {
+			t.Fatalf("failed to create delete condition set intent: %v", err)
+		}
+		expectDefaultIntentExpiry(t, intent.BaseIntentResponse, before, after)
+	})
+}
