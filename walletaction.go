@@ -197,8 +197,13 @@ type EvmTransactionWalletActionStep struct {
 	// Whether this step has reached on-chain finality. Absent until finality is
 	// confirmed.
 	Finalized bool `json:"finalized"`
-	// Amount charged in USD for gas sponsorship on this step.
-	GasCreditsChargedUsd string `json:"gas_credits_charged_usd"`
+	// A monetary value with its currency denomination.
+	GasCreditsCharged CurrencyAmount `json:"gas_credits_charged" api:"nullable"`
+	// Deprecated, use `gas_credits_charged` instead; gas credits charged in USD for
+	// this step, if sponsored, as a decimal string.
+	//
+	// Deprecated: deprecated
+	GasCreditsChargedUsd string `json:"gas_credits_charged_usd" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2                respjson.Field
@@ -207,6 +212,7 @@ type EvmTransactionWalletActionStep struct {
 		Type                 respjson.Field
 		FailureReason        respjson.Field
 		Finalized            respjson.Field
+		GasCreditsCharged    respjson.Field
 		GasCreditsChargedUsd respjson.Field
 		ExtraFields          map[string]respjson.Field
 		raw                  string
@@ -261,8 +267,13 @@ type EvmUserOperationWalletActionStep struct {
 	// Whether this step has reached on-chain finality. Absent until finality is
 	// confirmed.
 	Finalized bool `json:"finalized"`
-	// Amount charged in USD for gas sponsorship on this step.
-	GasCreditsChargedUsd string `json:"gas_credits_charged_usd"`
+	// A monetary value with its currency denomination.
+	GasCreditsCharged CurrencyAmount `json:"gas_credits_charged" api:"nullable"`
+	// Deprecated, use `gas_credits_charged` instead; gas credits charged in USD for
+	// this step, if sponsored, as a decimal string.
+	//
+	// Deprecated: deprecated
+	GasCreditsChargedUsd string `json:"gas_credits_charged_usd" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		BundleTransactionHash respjson.Field
@@ -273,6 +284,7 @@ type EvmUserOperationWalletActionStep struct {
 		UserOperationHash     respjson.Field
 		FailureReason         respjson.Field
 		Finalized             respjson.Field
+		GasCreditsCharged     respjson.Field
 		GasCreditsChargedUsd  respjson.Field
 		ExtraFields           map[string]respjson.Field
 		raw                   string
@@ -1164,8 +1176,13 @@ type SvmTransactionWalletActionStep struct {
 	// Whether this step has reached on-chain finality. Absent until finality is
 	// confirmed.
 	Finalized bool `json:"finalized"`
-	// Amount charged in USD for gas sponsorship on this step.
-	GasCreditsChargedUsd string `json:"gas_credits_charged_usd"`
+	// A monetary value with its currency denomination.
+	GasCreditsCharged CurrencyAmount `json:"gas_credits_charged" api:"nullable"`
+	// Deprecated, use `gas_credits_charged` instead; gas credits charged in USD for
+	// this step, if sponsored, as a decimal string.
+	//
+	// Deprecated: deprecated
+	GasCreditsChargedUsd string `json:"gas_credits_charged_usd" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2                respjson.Field
@@ -1174,6 +1191,7 @@ type SvmTransactionWalletActionStep struct {
 		Type                 respjson.Field
 		FailureReason        respjson.Field
 		Finalized            respjson.Field
+		GasCreditsCharged    respjson.Field
 		GasCreditsChargedUsd respjson.Field
 		ExtraFields          map[string]respjson.Field
 		raw                  string
@@ -1305,8 +1323,13 @@ type TvmTransactionWalletActionStep struct {
 	Type TvmTransactionWalletActionStepType `json:"type" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason"`
-	// Amount charged in USD for gas sponsorship on this step.
-	GasCreditsChargedUsd string `json:"gas_credits_charged_usd"`
+	// A monetary value with its currency denomination.
+	GasCreditsCharged CurrencyAmount `json:"gas_credits_charged" api:"nullable"`
+	// Deprecated, use `gas_credits_charged` instead; gas credits charged in USD for
+	// this step, if sponsored, as a decimal string.
+	//
+	// Deprecated: deprecated
+	GasCreditsChargedUsd string `json:"gas_credits_charged_usd" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2                respjson.Field
@@ -1314,6 +1337,7 @@ type TvmTransactionWalletActionStep struct {
 		TransactionID        respjson.Field
 		Type                 respjson.Field
 		FailureReason        respjson.Field
+		GasCreditsCharged    respjson.Field
 		GasCreditsChargedUsd respjson.Field
 		ExtraFields          map[string]respjson.Field
 		raw                  string
@@ -1854,9 +1878,11 @@ type WalletActionStepUnion struct {
 	// "tempo_zone_settlement".
 	Type string `json:"type"`
 	// This field is from variant [EvmTransactionWalletActionStep].
-	FailureReason        FailureReason `json:"failure_reason"`
-	Finalized            bool          `json:"finalized"`
-	GasCreditsChargedUsd string        `json:"gas_credits_charged_usd"`
+	FailureReason FailureReason `json:"failure_reason"`
+	Finalized     bool          `json:"finalized"`
+	// This field is from variant [EvmTransactionWalletActionStep].
+	GasCreditsCharged    CurrencyAmount `json:"gas_credits_charged"`
+	GasCreditsChargedUsd string         `json:"gas_credits_charged_usd"`
 	// This field is from variant [EvmUserOperationWalletActionStep].
 	BundleTransactionHash string `json:"bundle_transaction_hash"`
 	// This field is from variant [EvmUserOperationWalletActionStep].
@@ -1876,6 +1902,7 @@ type WalletActionStepUnion struct {
 		Type                  respjson.Field
 		FailureReason         respjson.Field
 		Finalized             respjson.Field
+		GasCreditsCharged     respjson.Field
 		GasCreditsChargedUsd  respjson.Field
 		BundleTransactionHash respjson.Field
 		EntrypointVersion     respjson.Field

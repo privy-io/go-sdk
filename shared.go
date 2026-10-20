@@ -32,6 +32,36 @@ func NewSharedService(opts ...option.RequestOption) (r SharedService) {
 
 type Bps = int64
 
+// A monetary value with its currency denomination.
+type CurrencyAmount struct {
+	// Currency code
+	//
+	// Any of "usd".
+	Currency CurrencyAmountCurrency `json:"currency" api:"required"`
+	// The monetary value as a string.
+	Value string `json:"value" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Currency    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r CurrencyAmount) RawJSON() string { return r.JSON.raw }
+func (r *CurrencyAmount) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Currency code
+type CurrencyAmountCurrency string
+
+const (
+	CurrencyAmountCurrencyUsd CurrencyAmountCurrency = "usd"
+)
+
 // The Privy API environment.
 type Environment string
 

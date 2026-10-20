@@ -75,6 +75,8 @@ type Transaction struct {
 	Status          BlockchainTransactionStatus `json:"status" api:"required"`
 	TransactionHash string                      `json:"transaction_hash" api:"required"`
 	WalletID        string                      `json:"wallet_id" api:"required"`
+	// A monetary value with its currency denomination.
+	GasCreditsCharged CurrencyAmount `json:"gas_credits_charged" api:"nullable"`
 	// Developer-provided reference ID, if one was included in the request.
 	ReferenceID       string `json:"reference_id" api:"nullable"`
 	Sponsored         bool   `json:"sponsored"`
@@ -87,6 +89,7 @@ type Transaction struct {
 		Status            respjson.Field
 		TransactionHash   respjson.Field
 		WalletID          respjson.Field
+		GasCreditsCharged respjson.Field
 		ReferenceID       respjson.Field
 		Sponsored         respjson.Field
 		UserOperationHash respjson.Field

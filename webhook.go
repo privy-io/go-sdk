@@ -2106,8 +2106,10 @@ type WalletActionEarnDepositFailedWebhookPayload struct {
 	//
 	// Any of "failed".
 	Status WalletActionEarnDepositFailedWebhookPayloadStatus `json:"status" api:"required"`
-	// The steps of the wallet action. Completed steps will have transaction hashes;
-	// the failing step will have a failure_reason.
+	// The steps of the wallet action, where completed steps have transaction hashes
+	// and the failing step has a failure_reason; `gas_credits_charged` on a step may
+	// still be `null` when this webhook fires, so fetch the wallet action directly for
+	// up-to-date gas data.
 	Steps []WalletActionStepUnion `json:"steps" api:"required"`
 	// The type of webhook event.
 	//
@@ -2200,7 +2202,9 @@ type WalletActionEarnDepositRejectedWebhookPayload struct {
 	//
 	// Any of "rejected".
 	Status WalletActionEarnDepositRejectedWebhookPayloadStatus `json:"status" api:"required"`
-	// The steps of the wallet action at the time of rejection.
+	// The steps of the wallet action at the time of rejection; `gas_credits_charged`
+	// on a step may still be `null` when this webhook fires, so fetch the wallet
+	// action directly for up-to-date gas data.
 	Steps []WalletActionStepUnion `json:"steps" api:"required"`
 	// The type of webhook event.
 	//
@@ -2293,7 +2297,9 @@ type WalletActionEarnDepositSucceededWebhookPayload struct {
 	//
 	// Any of "succeeded".
 	Status WalletActionEarnDepositSucceededWebhookPayloadStatus `json:"status" api:"required"`
-	// The steps of the wallet action, including transaction hashes.
+	// The steps of the wallet action, including transaction hashes;
+	// `gas_credits_charged` on a step may still be `null` when this webhook fires, so
+	// fetch the wallet action directly for up-to-date gas data.
 	Steps []WalletActionStepUnion `json:"steps" api:"required"`
 	// The type of webhook event.
 	//
@@ -2470,8 +2476,10 @@ type WalletActionEarnFeeCollectFailedWebhookPayload struct {
 	//
 	// Any of "failed".
 	Status WalletActionEarnFeeCollectFailedWebhookPayloadStatus `json:"status" api:"required"`
-	// The steps of the wallet action. Completed steps will have transaction hashes;
-	// the failing step will have a failure_reason.
+	// The steps of the wallet action, where completed steps have transaction hashes
+	// and the failing step has a failure_reason; `gas_credits_charged` on a step may
+	// still be `null` when this webhook fires, so fetch the wallet action directly for
+	// up-to-date gas data.
 	Steps []WalletActionStepUnion `json:"steps" api:"required"`
 	// The type of webhook event.
 	//
@@ -2564,7 +2572,9 @@ type WalletActionEarnFeeCollectRejectedWebhookPayload struct {
 	//
 	// Any of "rejected".
 	Status WalletActionEarnFeeCollectRejectedWebhookPayloadStatus `json:"status" api:"required"`
-	// The steps of the wallet action at the time of rejection.
+	// The steps of the wallet action at the time of rejection; `gas_credits_charged`
+	// on a step may still be `null` when this webhook fires, so fetch the wallet
+	// action directly for up-to-date gas data.
 	Steps []WalletActionStepUnion `json:"steps" api:"required"`
 	// The type of webhook event.
 	//
@@ -2655,7 +2665,9 @@ type WalletActionEarnFeeCollectSucceededWebhookPayload struct {
 	//
 	// Any of "succeeded".
 	Status WalletActionEarnFeeCollectSucceededWebhookPayloadStatus `json:"status" api:"required"`
-	// The steps of the wallet action, including transaction hashes.
+	// The steps of the wallet action, including transaction hashes;
+	// `gas_credits_charged` on a step may still be `null` when this webhook fires, so
+	// fetch the wallet action directly for up-to-date gas data.
 	Steps []WalletActionStepUnion `json:"steps" api:"required"`
 	// The type of webhook event.
 	//
@@ -2808,8 +2820,10 @@ type WalletActionEarnIncentiveClaimFailedWebhookPayload struct {
 	//
 	// Any of "failed".
 	Status WalletActionEarnIncentiveClaimFailedWebhookPayloadStatus `json:"status" api:"required"`
-	// The steps of the wallet action. Completed steps will have transaction hashes;
-	// the failing step will have a failure_reason.
+	// The steps of the wallet action, where completed steps have transaction hashes
+	// and the failing step has a failure_reason; `gas_credits_charged` on a step may
+	// still be `null` when this webhook fires, so fetch the wallet action directly for
+	// up-to-date gas data.
 	Steps []WalletActionStepUnion `json:"steps" api:"required"`
 	// The type of webhook event.
 	//
@@ -2881,7 +2895,9 @@ type WalletActionEarnIncentiveClaimRejectedWebhookPayload struct {
 	//
 	// Any of "rejected".
 	Status WalletActionEarnIncentiveClaimRejectedWebhookPayloadStatus `json:"status" api:"required"`
-	// The steps of the wallet action at the time of rejection.
+	// The steps of the wallet action at the time of rejection; `gas_credits_charged`
+	// on a step may still be `null` when this webhook fires, so fetch the wallet
+	// action directly for up-to-date gas data.
 	Steps []WalletActionStepUnion `json:"steps" api:"required"`
 	// The type of webhook event.
 	//
@@ -2951,7 +2967,9 @@ type WalletActionEarnIncentiveClaimSucceededWebhookPayload struct {
 	//
 	// Any of "succeeded".
 	Status WalletActionEarnIncentiveClaimSucceededWebhookPayloadStatus `json:"status" api:"required"`
-	// The steps of the wallet action, including transaction hashes.
+	// The steps of the wallet action, including transaction hashes;
+	// `gas_credits_charged` on a step may still be `null` when this webhook fires, so
+	// fetch the wallet action directly for up-to-date gas data.
 	Steps []WalletActionStepUnion `json:"steps" api:"required"`
 	// The type of webhook event.
 	//
@@ -3108,8 +3126,10 @@ type WalletActionEarnWithdrawFailedWebhookPayload struct {
 	//
 	// Any of "failed".
 	Status WalletActionEarnWithdrawFailedWebhookPayloadStatus `json:"status" api:"required"`
-	// The steps of the wallet action. Completed steps will have transaction hashes;
-	// the failing step will have a failure_reason.
+	// The steps of the wallet action, where completed steps have transaction hashes
+	// and the failing step has a failure_reason; `gas_credits_charged` on a step may
+	// still be `null` when this webhook fires, so fetch the wallet action directly for
+	// up-to-date gas data.
 	Steps []WalletActionStepUnion `json:"steps" api:"required"`
 	// The type of webhook event.
 	//
@@ -3202,7 +3222,9 @@ type WalletActionEarnWithdrawRejectedWebhookPayload struct {
 	//
 	// Any of "rejected".
 	Status WalletActionEarnWithdrawRejectedWebhookPayloadStatus `json:"status" api:"required"`
-	// The steps of the wallet action at the time of rejection.
+	// The steps of the wallet action at the time of rejection; `gas_credits_charged`
+	// on a step may still be `null` when this webhook fires, so fetch the wallet
+	// action directly for up-to-date gas data.
 	Steps []WalletActionStepUnion `json:"steps" api:"required"`
 	// The type of webhook event.
 	//
@@ -3295,7 +3317,9 @@ type WalletActionEarnWithdrawSucceededWebhookPayload struct {
 	//
 	// Any of "succeeded".
 	Status WalletActionEarnWithdrawSucceededWebhookPayloadStatus `json:"status" api:"required"`
-	// The steps of the wallet action, including transaction hashes.
+	// The steps of the wallet action, including transaction hashes;
+	// `gas_credits_charged` on a step may still be `null` when this webhook fires, so
+	// fetch the wallet action directly for up-to-date gas data.
 	Steps []WalletActionStepUnion `json:"steps" api:"required"`
 	// The type of webhook event.
 	//
@@ -3487,8 +3511,10 @@ type WalletActionPayoutFailedWebhookPayload struct {
 	//
 	// Any of "failed".
 	Status WalletActionPayoutFailedWebhookPayloadStatus `json:"status" api:"required"`
-	// The steps of the wallet action. Completed steps will have transaction hashes;
-	// the failing step will have a failure_reason.
+	// The steps of the wallet action, where completed steps have transaction hashes
+	// and the failing step has a failure_reason; `gas_credits_charged` on a step may
+	// still be `null` when this webhook fires, so fetch the wallet action directly for
+	// up-to-date gas data.
 	Steps []WalletActionStepUnion `json:"steps" api:"required"`
 	// The type of webhook event.
 	//
@@ -3582,7 +3608,9 @@ type WalletActionPayoutRejectedWebhookPayload struct {
 	//
 	// Any of "rejected".
 	Status WalletActionPayoutRejectedWebhookPayloadStatus `json:"status" api:"required"`
-	// The steps of the wallet action at the time of rejection.
+	// The steps of the wallet action at the time of rejection; `gas_credits_charged`
+	// on a step may still be `null` when this webhook fires, so fetch the wallet
+	// action directly for up-to-date gas data.
 	Steps []WalletActionStepUnion `json:"steps" api:"required"`
 	// The type of webhook event.
 	//
@@ -3674,7 +3702,9 @@ type WalletActionPayoutSucceededWebhookPayload struct {
 	//
 	// Any of "succeeded".
 	Status WalletActionPayoutSucceededWebhookPayloadStatus `json:"status" api:"required"`
-	// The steps of the wallet action, including transaction hashes.
+	// The steps of the wallet action, including transaction hashes;
+	// `gas_credits_charged` on a step may still be `null` when this webhook fires, so
+	// fetch the wallet action directly for up-to-date gas data.
 	Steps []WalletActionStepUnion `json:"steps" api:"required"`
 	// The type of webhook event.
 	//
@@ -3824,8 +3854,10 @@ type WalletActionSwapFailedWebhookPayload struct {
 	//
 	// Any of "failed".
 	Status WalletActionSwapFailedWebhookPayloadStatus `json:"status" api:"required"`
-	// The steps of the wallet action. Completed steps will have transaction hashes;
-	// the failing step will have a failure_reason.
+	// The steps of the wallet action, where completed steps have transaction hashes
+	// and the failing step has a failure_reason; `gas_credits_charged` on a step may
+	// still be `null` when this webhook fires, so fetch the wallet action directly for
+	// up-to-date gas data.
 	Steps []WalletActionStepUnion `json:"steps" api:"required"`
 	// The type of webhook event.
 	//
@@ -3903,7 +3935,9 @@ type WalletActionSwapRejectedWebhookPayload struct {
 	//
 	// Any of "rejected".
 	Status WalletActionSwapRejectedWebhookPayloadStatus `json:"status" api:"required"`
-	// The steps of the wallet action at the time of rejection.
+	// The steps of the wallet action at the time of rejection; `gas_credits_charged`
+	// on a step may still be `null` when this webhook fires, so fetch the wallet
+	// action directly for up-to-date gas data.
 	Steps []WalletActionStepUnion `json:"steps" api:"required"`
 	// The type of webhook event.
 	//
@@ -3982,7 +4016,9 @@ type WalletActionSwapSucceededWebhookPayload struct {
 	//
 	// Any of "succeeded".
 	Status WalletActionSwapSucceededWebhookPayloadStatus `json:"status" api:"required"`
-	// The steps of the wallet action, including transaction hashes.
+	// The steps of the wallet action, including transaction hashes;
+	// `gas_credits_charged` on a step may still be `null` when this webhook fires, so
+	// fetch the wallet action directly for up-to-date gas data.
 	Steps []WalletActionStepUnion `json:"steps" api:"required"`
 	// The type of webhook event.
 	//
@@ -4135,8 +4171,10 @@ type WalletActionTransferFailedWebhookPayload struct {
 	//
 	// Any of "failed".
 	Status WalletActionTransferFailedWebhookPayloadStatus `json:"status" api:"required"`
-	// The steps of the wallet action. Completed steps will have transaction hashes;
-	// the failing step will have a failure_reason.
+	// The steps of the wallet action, where completed steps have transaction hashes
+	// and the failing step has a failure_reason; `gas_credits_charged` on a step may
+	// still be `null` when this webhook fires, so fetch the wallet action directly for
+	// up-to-date gas data.
 	Steps []WalletActionStepUnion `json:"steps" api:"required"`
 	// The type of webhook event.
 	//
@@ -4224,7 +4262,9 @@ type WalletActionTransferRejectedWebhookPayload struct {
 	//
 	// Any of "rejected".
 	Status WalletActionTransferRejectedWebhookPayloadStatus `json:"status" api:"required"`
-	// The steps of the wallet action at the time of rejection.
+	// The steps of the wallet action at the time of rejection; `gas_credits_charged`
+	// on a step may still be `null` when this webhook fires, so fetch the wallet
+	// action directly for up-to-date gas data.
 	Steps []WalletActionStepUnion `json:"steps" api:"required"`
 	// The type of webhook event.
 	//
@@ -4310,7 +4350,9 @@ type WalletActionTransferSucceededWebhookPayload struct {
 	//
 	// Any of "succeeded".
 	Status WalletActionTransferSucceededWebhookPayloadStatus `json:"status" api:"required"`
-	// The steps of the wallet action, including transaction hashes.
+	// The steps of the wallet action, including transaction hashes;
+	// `gas_credits_charged` on a step may still be `null` when this webhook fires, so
+	// fetch the wallet action directly for up-to-date gas data.
 	Steps []WalletActionStepUnion `json:"steps" api:"required"`
 	// The type of webhook event.
 	//
@@ -4430,6 +4472,8 @@ type WalletAutomationSubmittedWebhookPayload struct {
 	TriggerCaip2 string `json:"trigger_caip2" api:"required"`
 	// The ID of the automation execution that fired.
 	TriggerID string `json:"trigger_id" api:"required"`
+	// Transaction hash of the triggering deposit, or null when triggered by a reindex.
+	TriggerTxHash string `json:"trigger_tx_hash" api:"required"`
 	// The type of webhook event.
 	//
 	// Any of "wallet_automation.submitted".
@@ -4444,6 +4488,7 @@ type WalletAutomationSubmittedWebhookPayload struct {
 		TriggerAssetAddress respjson.Field
 		TriggerCaip2        respjson.Field
 		TriggerID           respjson.Field
+		TriggerTxHash       respjson.Field
 		Type                respjson.Field
 		WalletID            respjson.Field
 		ExtraFields         map[string]respjson.Field
@@ -5501,9 +5546,11 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	TriggerCaip2 string `json:"trigger_caip2"`
 	// This field is from variant [WalletAutomationSubmittedWebhookPayload].
 	TriggerID string `json:"trigger_id"`
-	Assets    string `json:"assets"`
-	Owner     string `json:"owner"`
-	Shares    string `json:"shares"`
+	// This field is from variant [WalletAutomationSubmittedWebhookPayload].
+	TriggerTxHash string `json:"trigger_tx_hash"`
+	Assets        string `json:"assets"`
+	Owner         string `json:"owner"`
+	Shares        string `json:"shares"`
 	// This field is from variant [YieldWithdrawConfirmedWebhookPayload].
 	Receiver string `json:"receiver"`
 	JSON     struct {
@@ -5600,6 +5647,7 @@ type UnsafeUnwrapWebhookEventUnion struct {
 		TriggerAssetAddress      respjson.Field
 		TriggerCaip2             respjson.Field
 		TriggerID                respjson.Field
+		TriggerTxHash            respjson.Field
 		Assets                   respjson.Field
 		Owner                    respjson.Field
 		Shares                   respjson.Field

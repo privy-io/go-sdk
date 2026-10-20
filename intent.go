@@ -141,6 +141,38 @@ func (r *IntentService) DeleteConditionSetItem(ctx context.Context, conditionSet
 	return res, err
 }
 
+// Create an intent to delete a key quorum. The intent must be authorized by the
+// key quorum members before it can be executed.
+func (r *IntentService) DeleteKeyQuorum(ctx context.Context, keyQuorumID string, body IntentDeleteKeyQuorumParams, opts ...option.RequestOption) (res *KeyQuorumDeleteIntentResponse, err error) {
+	if !param.IsOmitted(body.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", body.PrivyRequestExpiry.Value)))
+	}
+	opts = slices.Concat(r.Options, opts)
+	if keyQuorumID == "" {
+		err = errors.New("missing required key_quorum_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/intents/key_quorums/%s", url.PathEscape(keyQuorumID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
+	return res, err
+}
+
+// Create an intent to delete a policy. The intent must be authorized by the policy
+// owner before it can be executed.
+func (r *IntentService) DeletePolicy(ctx context.Context, policyID string, body IntentDeletePolicyParams, opts ...option.RequestOption) (res *PolicyDeleteIntentResponse, err error) {
+	if !param.IsOmitted(body.PrivyRequestExpiry) {
+		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", body.PrivyRequestExpiry.Value)))
+	}
+	opts = slices.Concat(r.Options, opts)
+	if policyID == "" {
+		err = errors.New("missing required policy_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/intents/policies/%s", url.PathEscape(policyID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
+	return res, err
+}
+
 // Create an intent to delete a rule from a policy. The intent must be authorized
 // by the policy owner before it can be executed.
 func (r *IntentService) DeletePolicyRule(ctx context.Context, ruleID string, params IntentDeletePolicyRuleParams, opts ...option.RequestOption) (res *RuleDeleteIntentResponse, err error) {
@@ -256,7 +288,7 @@ func (r *IntentService) UpdateConditionSetItems(ctx context.Context, conditionSe
 
 // Create an intent to update a key quorum. The intent must be authorized by the
 // key quorum members before it can be executed.
-func (r *IntentService) UpdateKeyQuorum(ctx context.Context, keyQuorumID string, params IntentUpdateKeyQuorumParams, opts ...option.RequestOption) (res *KeyQuorumIntentResponse, err error) {
+func (r *IntentService) UpdateKeyQuorum(ctx context.Context, keyQuorumID string, params IntentUpdateKeyQuorumParams, opts ...option.RequestOption) (res *KeyQuorumUpdateIntentResponse, err error) {
 	if !param.IsOmitted(params.PrivyRequestExpiry) {
 		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
 	}
@@ -272,7 +304,7 @@ func (r *IntentService) UpdateKeyQuorum(ctx context.Context, keyQuorumID string,
 
 // Create an intent to update a policy. The intent must be authorized by the policy
 // owner before it can be executed.
-func (r *IntentService) UpdatePolicy(ctx context.Context, policyID string, params IntentUpdatePolicyParams, opts ...option.RequestOption) (res *PolicyIntentResponse, err error) {
+func (r *IntentService) UpdatePolicy(ctx context.Context, policyID string, params IntentUpdatePolicyParams, opts ...option.RequestOption) (res *PolicyUpdateIntentResponse, err error) {
 	if !param.IsOmitted(params.PrivyRequestExpiry) {
 		opts = append(opts, option.WithHeader("privy-request-expiry", fmt.Sprintf("%v", params.PrivyRequestExpiry.Value)))
 	}
@@ -1144,8 +1176,8 @@ type IntentResponseUnion struct {
 	IntentType string `json:"intent_type"`
 	// This field is a union of [RpcIntentResponseRequestDetails],
 	// [TransferIntentResponseRequestDetails], [RawSignIntentResponseRequestDetails],
-	// [WalletIntentResponseRequestDetails], [PolicyIntentResponseRequestDetails],
-	// [RuleIntentRequestDetailsUnion], [KeyQuorumIntentResponseRequestDetails],
+	// [WalletIntentResponseRequestDetails], [PolicyIntentRequestDetailsUnion],
+	// [RuleIntentRequestDetailsUnion], [KeyQuorumIntentRequestDetailsUnion],
 	// [ConditionSetIntentDeleteRequestDetails],
 	// [ConditionSetItemIntentRequestDetailsUnion]
 	RequestDetails IntentResponseUnionRequestDetails `json:"request_details"`
@@ -1297,11 +1329,11 @@ func (r *IntentResponseUnion) UnmarshalJSON(data []byte) error {
 type IntentResponseUnionRequestDetails struct {
 	// This field is a union of [WalletRpcRequestBodyUnionResp],
 	// [TransferRequestBodyResp], [RawSignInputResp],
-	// [WalletIntentResponseRequestDetailsBody],
-	// [PolicyIntentResponseRequestDetailsBody], [PolicyRuleRequestBodyResp],
+	// [WalletIntentResponseRequestDetailsBody], [PolicyIntentRequestDetailsBody],
+	// [PolicyIntentDeleteRequestBody], [PolicyRuleRequestBodyResp],
 	// [RuleIntentDeleteRequestBody], [KeyQuorumUpdateRequestBodyResp],
-	// [ConditionSetIntentDeleteRequestBody], [ConditionSetItemsRequestBodyResp],
-	// [ConditionSetItemIntentDeleteRequestBody]
+	// [KeyQuorumIntentDeleteRequestBody], [ConditionSetIntentDeleteRequestBody],
+	// [ConditionSetItemsRequestBodyResp], [ConditionSetItemIntentDeleteRequestBody]
 	Body   IntentResponseUnionRequestDetailsBody `json:"body"`
 	Method string                                `json:"method"`
 	URL    string                                `json:"url"`
@@ -1404,7 +1436,7 @@ type IntentResponseUnionRequestDetailsBody struct {
 	// This field is from variant [WalletIntentResponseRequestDetailsBody].
 	PolicyIDs PolicyInput `json:"policy_ids"`
 	Name      string      `json:"name"`
-	// This field is from variant [PolicyIntentResponseRequestDetailsBody].
+	// This field is from variant [PolicyIntentRequestDetailsBody].
 	Rules []PolicyRuleRequestBodyResp `json:"rules"`
 	// This field is from variant [PolicyRuleRequestBodyResp].
 	Action PolicyAction `json:"action"`
@@ -1840,14 +1872,214 @@ const (
 	IntentTypeWallet           IntentType = "WALLET"
 )
 
+// Response for a key quorum delete intent
+type KeyQuorumDeleteIntentResponse struct {
+	// Any of "KEY_QUORUM".
+	IntentType string `json:"intent_type" api:"required"`
+	// Request details for deleting a key quorum via intent.
+	RequestDetails KeyQuorumIntentDeleteRequestDetails `json:"request_details" api:"required"`
+	// Result of key quorum delete execution (only present if status is 'executed' or
+	// 'failed')
+	ActionResult BaseActionResult `json:"action_result"`
+	// A key quorum for authorizing wallet operations.
+	CurrentResourceData KeyQuorum `json:"current_resource_data"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		CurrentResourceData respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
+	} `json:"-"`
+	BaseIntentResponse
+}
+
+// Returns the unmodified JSON received from the API
+func (r KeyQuorumDeleteIntentResponse) RawJSON() string { return r.JSON.raw }
+func (r *KeyQuorumDeleteIntentResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Empty request body for a key quorum delete intent.
+type KeyQuorumIntentDeleteRequestBody struct {
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r KeyQuorumIntentDeleteRequestBody) RawJSON() string { return r.JSON.raw }
+func (r *KeyQuorumIntentDeleteRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Request details for deleting a key quorum via intent.
+type KeyQuorumIntentDeleteRequestDetails struct {
+	// Any of "DELETE".
+	Method KeyQuorumIntentDeleteRequestDetailsMethod `json:"method" api:"required"`
+	URL    string                                    `json:"url" api:"required"`
+	// Empty request body for a key quorum delete intent.
+	Body KeyQuorumIntentDeleteRequestBody `json:"body"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Method      respjson.Field
+		URL         respjson.Field
+		Body        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r KeyQuorumIntentDeleteRequestDetails) RawJSON() string { return r.JSON.raw }
+func (r *KeyQuorumIntentDeleteRequestDetails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type KeyQuorumIntentDeleteRequestDetailsMethod string
+
+const (
+	KeyQuorumIntentDeleteRequestDetailsMethodDelete KeyQuorumIntentDeleteRequestDetailsMethod = "DELETE"
+)
+
+// Request details for a key quorum intent.
+type KeyQuorumIntentRequestDetails struct {
+	// Request input for updating an existing key quorum. At least one field must be
+	// provided.
+	Body KeyQuorumUpdateRequestBodyResp `json:"body" api:"required"`
+	// Any of "PATCH".
+	Method KeyQuorumIntentRequestDetailsMethod `json:"method" api:"required"`
+	URL    string                              `json:"url" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Body        respjson.Field
+		Method      respjson.Field
+		URL         respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r KeyQuorumIntentRequestDetails) RawJSON() string { return r.JSON.raw }
+func (r *KeyQuorumIntentRequestDetails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type KeyQuorumIntentRequestDetailsMethod string
+
+const (
+	KeyQuorumIntentRequestDetailsMethodPatch KeyQuorumIntentRequestDetailsMethod = "PATCH"
+)
+
+// KeyQuorumIntentRequestDetailsUnion contains all possible properties and values
+// from [KeyQuorumIntentRequestDetails], [KeyQuorumIntentDeleteRequestDetails].
+//
+// Use the [KeyQuorumIntentRequestDetailsUnion.AsAny] method to switch on the
+// variant.
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type KeyQuorumIntentRequestDetailsUnion struct {
+	// This field is a union of [KeyQuorumUpdateRequestBodyResp],
+	// [KeyQuorumIntentDeleteRequestBody]
+	Body KeyQuorumIntentRequestDetailsUnionBody `json:"body"`
+	// Any of "PATCH", "DELETE".
+	Method string `json:"method"`
+	URL    string `json:"url"`
+	JSON   struct {
+		Body   respjson.Field
+		Method respjson.Field
+		URL    respjson.Field
+		raw    string
+	} `json:"-"`
+}
+
+// anyKeyQuorumIntentRequestDetailsUnion is implemented by each variant of
+// [KeyQuorumIntentRequestDetailsUnion] to add type safety for the return type of
+// [KeyQuorumIntentRequestDetailsUnion.AsAny]
+type anyKeyQuorumIntentRequestDetailsUnion interface {
+	implKeyQuorumIntentRequestDetailsUnion()
+}
+
+func (KeyQuorumIntentRequestDetails) implKeyQuorumIntentRequestDetailsUnion()       {}
+func (KeyQuorumIntentDeleteRequestDetails) implKeyQuorumIntentRequestDetailsUnion() {}
+
+// Use the following switch statement to find the correct variant
+//
+//	switch variant := KeyQuorumIntentRequestDetailsUnion.AsAny().(type) {
+//	case privyclient.KeyQuorumIntentRequestDetails:
+//	case privyclient.KeyQuorumIntentDeleteRequestDetails:
+//	default:
+//	  fmt.Errorf("no variant present")
+//	}
+func (u KeyQuorumIntentRequestDetailsUnion) AsAny() anyKeyQuorumIntentRequestDetailsUnion {
+	switch u.Method {
+	case "PATCH":
+		return u.AsPatch()
+	case "DELETE":
+		return u.AsDelete()
+	}
+	return nil
+}
+
+func (u KeyQuorumIntentRequestDetailsUnion) AsPatch() (v KeyQuorumIntentRequestDetails) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u KeyQuorumIntentRequestDetailsUnion) AsDelete() (v KeyQuorumIntentDeleteRequestDetails) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u KeyQuorumIntentRequestDetailsUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *KeyQuorumIntentRequestDetailsUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// KeyQuorumIntentRequestDetailsUnionBody is an implicit subunion of
+// [KeyQuorumIntentRequestDetailsUnion]. KeyQuorumIntentRequestDetailsUnionBody
+// provides convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [KeyQuorumIntentRequestDetailsUnion].
+type KeyQuorumIntentRequestDetailsUnionBody struct {
+	// This field is from variant [KeyQuorumUpdateRequestBodyResp].
+	AuthorizationThreshold float64 `json:"authorization_threshold"`
+	// This field is from variant [KeyQuorumUpdateRequestBodyResp].
+	DisplayName string `json:"display_name"`
+	// This field is from variant [KeyQuorumUpdateRequestBodyResp].
+	KeyQuorumIDs []string `json:"key_quorum_ids"`
+	// This field is from variant [KeyQuorumUpdateRequestBodyResp].
+	PublicKeys []string `json:"public_keys"`
+	// This field is from variant [KeyQuorumUpdateRequestBodyResp].
+	UserIDs []string `json:"user_ids"`
+	JSON    struct {
+		AuthorizationThreshold respjson.Field
+		DisplayName            respjson.Field
+		KeyQuorumIDs           respjson.Field
+		PublicKeys             respjson.Field
+		UserIDs                respjson.Field
+		raw                    string
+	} `json:"-"`
+}
+
+func (r *KeyQuorumIntentRequestDetailsUnionBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Response for a key quorum intent
 type KeyQuorumIntentResponse struct {
 	// Any of "KEY_QUORUM".
 	IntentType string `json:"intent_type" api:"required"`
-	// The original key quorum update request that would be sent to the key quorum
-	// endpoint
-	RequestDetails KeyQuorumIntentResponseRequestDetails `json:"request_details" api:"required"`
-	// Result of key quorum update execution (only present if status is 'executed' or
+	// The original key quorum request. Method is PATCH (update) or DELETE (delete).
+	RequestDetails KeyQuorumIntentRequestDetailsUnion `json:"request_details" api:"required"`
+	// Result of key quorum execution (only present if status is 'executed' or
 	// 'failed')
 	ActionResult BaseActionResult `json:"action_result"`
 	// A key quorum for authorizing wallet operations.
@@ -1870,38 +2102,42 @@ func (r *KeyQuorumIntentResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// The original key quorum update request that would be sent to the key quorum
-// endpoint
-type KeyQuorumIntentResponseRequestDetails struct {
-	// Request input for updating an existing key quorum. At least one field must be
-	// provided.
-	Body KeyQuorumUpdateRequestBodyResp `json:"body" api:"required"`
-	// Any of "PATCH".
-	Method string `json:"method" api:"required"`
-	URL    string `json:"url" api:"required"`
+// Response for a key quorum update intent
+type KeyQuorumUpdateIntentResponse struct {
+	// Any of "KEY_QUORUM".
+	IntentType string `json:"intent_type" api:"required"`
+	// Request details for a key quorum intent.
+	RequestDetails KeyQuorumIntentRequestDetails `json:"request_details" api:"required"`
+	// Result of key quorum update execution (only present if status is 'executed' or
+	// 'failed')
+	ActionResult BaseActionResult `json:"action_result"`
+	// A key quorum for authorizing wallet operations.
+	CurrentResourceData KeyQuorum `json:"current_resource_data"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		Body        respjson.Field
-		Method      respjson.Field
-		URL         respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		CurrentResourceData respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
 	} `json:"-"`
+	BaseIntentResponse
 }
 
 // Returns the unmodified JSON received from the API
-func (r KeyQuorumIntentResponseRequestDetails) RawJSON() string { return r.JSON.raw }
-func (r *KeyQuorumIntentResponseRequestDetails) UnmarshalJSON(data []byte) error {
+func (r KeyQuorumUpdateIntentResponse) RawJSON() string { return r.JSON.raw }
+func (r *KeyQuorumUpdateIntentResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Response for a policy intent
-type PolicyIntentResponse struct {
+// Response for a policy delete intent
+type PolicyDeleteIntentResponse struct {
 	// Any of "POLICY".
 	IntentType string `json:"intent_type" api:"required"`
-	// The original policy update request that would be sent to the policy endpoint
-	RequestDetails PolicyIntentResponseRequestDetails `json:"request_details" api:"required"`
-	// Result of policy update execution (only present if status is 'executed' or
+	// Request details for deleting a policy via intent.
+	RequestDetails PolicyIntentDeleteRequestDetails `json:"request_details" api:"required"`
+	// Result of policy delete execution (only present if status is 'executed' or
 	// 'failed')
 	ActionResult BaseActionResult `json:"action_result"`
 	// A policy for controlling wallet operations.
@@ -1919,17 +2155,61 @@ type PolicyIntentResponse struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r PolicyIntentResponse) RawJSON() string { return r.JSON.raw }
-func (r *PolicyIntentResponse) UnmarshalJSON(data []byte) error {
+func (r PolicyDeleteIntentResponse) RawJSON() string { return r.JSON.raw }
+func (r *PolicyDeleteIntentResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// The original policy update request that would be sent to the policy endpoint
-type PolicyIntentResponseRequestDetails struct {
-	Body PolicyIntentResponseRequestDetailsBody `json:"body" api:"required"`
+// Empty request body for a policy delete intent.
+type PolicyIntentDeleteRequestBody struct {
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PolicyIntentDeleteRequestBody) RawJSON() string { return r.JSON.raw }
+func (r *PolicyIntentDeleteRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Request details for deleting a policy via intent.
+type PolicyIntentDeleteRequestDetails struct {
+	// Any of "DELETE".
+	Method PolicyIntentDeleteRequestDetailsMethod `json:"method" api:"required"`
+	URL    string                                 `json:"url" api:"required"`
+	// Empty request body for a policy delete intent.
+	Body PolicyIntentDeleteRequestBody `json:"body"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Method      respjson.Field
+		URL         respjson.Field
+		Body        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PolicyIntentDeleteRequestDetails) RawJSON() string { return r.JSON.raw }
+func (r *PolicyIntentDeleteRequestDetails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type PolicyIntentDeleteRequestDetailsMethod string
+
+const (
+	PolicyIntentDeleteRequestDetailsMethodDelete PolicyIntentDeleteRequestDetailsMethod = "DELETE"
+)
+
+// Request details for a policy intent.
+type PolicyIntentRequestDetails struct {
+	Body PolicyIntentRequestDetailsBody `json:"body" api:"required"`
 	// Any of "PATCH".
-	Method string `json:"method" api:"required"`
-	URL    string `json:"url" api:"required"`
+	Method PolicyIntentRequestDetailsMethod `json:"method" api:"required"`
+	URL    string                           `json:"url" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Body        respjson.Field
@@ -1941,12 +2221,12 @@ type PolicyIntentResponseRequestDetails struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r PolicyIntentResponseRequestDetails) RawJSON() string { return r.JSON.raw }
-func (r *PolicyIntentResponseRequestDetails) UnmarshalJSON(data []byte) error {
+func (r PolicyIntentRequestDetails) RawJSON() string { return r.JSON.raw }
+func (r *PolicyIntentRequestDetails) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type PolicyIntentResponseRequestDetailsBody struct {
+type PolicyIntentRequestDetailsBody struct {
 	// Name to assign to policy.
 	Name string `json:"name"`
 	// The owner of the resource, specified as a Privy user ID, a P-256 public key, or
@@ -1968,8 +2248,165 @@ type PolicyIntentResponseRequestDetailsBody struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r PolicyIntentResponseRequestDetailsBody) RawJSON() string { return r.JSON.raw }
-func (r *PolicyIntentResponseRequestDetailsBody) UnmarshalJSON(data []byte) error {
+func (r PolicyIntentRequestDetailsBody) RawJSON() string { return r.JSON.raw }
+func (r *PolicyIntentRequestDetailsBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type PolicyIntentRequestDetailsMethod string
+
+const (
+	PolicyIntentRequestDetailsMethodPatch PolicyIntentRequestDetailsMethod = "PATCH"
+)
+
+// PolicyIntentRequestDetailsUnion contains all possible properties and values from
+// [PolicyIntentRequestDetails], [PolicyIntentDeleteRequestDetails].
+//
+// Use the [PolicyIntentRequestDetailsUnion.AsAny] method to switch on the variant.
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type PolicyIntentRequestDetailsUnion struct {
+	// This field is a union of [PolicyIntentRequestDetailsBody],
+	// [PolicyIntentDeleteRequestBody]
+	Body PolicyIntentRequestDetailsUnionBody `json:"body"`
+	// Any of "PATCH", "DELETE".
+	Method string `json:"method"`
+	URL    string `json:"url"`
+	JSON   struct {
+		Body   respjson.Field
+		Method respjson.Field
+		URL    respjson.Field
+		raw    string
+	} `json:"-"`
+}
+
+// anyPolicyIntentRequestDetailsUnion is implemented by each variant of
+// [PolicyIntentRequestDetailsUnion] to add type safety for the return type of
+// [PolicyIntentRequestDetailsUnion.AsAny]
+type anyPolicyIntentRequestDetailsUnion interface {
+	implPolicyIntentRequestDetailsUnion()
+}
+
+func (PolicyIntentRequestDetails) implPolicyIntentRequestDetailsUnion()       {}
+func (PolicyIntentDeleteRequestDetails) implPolicyIntentRequestDetailsUnion() {}
+
+// Use the following switch statement to find the correct variant
+//
+//	switch variant := PolicyIntentRequestDetailsUnion.AsAny().(type) {
+//	case privyclient.PolicyIntentRequestDetails:
+//	case privyclient.PolicyIntentDeleteRequestDetails:
+//	default:
+//	  fmt.Errorf("no variant present")
+//	}
+func (u PolicyIntentRequestDetailsUnion) AsAny() anyPolicyIntentRequestDetailsUnion {
+	switch u.Method {
+	case "PATCH":
+		return u.AsPatch()
+	case "DELETE":
+		return u.AsDelete()
+	}
+	return nil
+}
+
+func (u PolicyIntentRequestDetailsUnion) AsPatch() (v PolicyIntentRequestDetails) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u PolicyIntentRequestDetailsUnion) AsDelete() (v PolicyIntentDeleteRequestDetails) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u PolicyIntentRequestDetailsUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *PolicyIntentRequestDetailsUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// PolicyIntentRequestDetailsUnionBody is an implicit subunion of
+// [PolicyIntentRequestDetailsUnion]. PolicyIntentRequestDetailsUnionBody provides
+// convenient access to the sub-properties of the union.
+//
+// For type safety it is recommended to directly use a variant of the
+// [PolicyIntentRequestDetailsUnion].
+type PolicyIntentRequestDetailsUnionBody struct {
+	// This field is from variant [PolicyIntentRequestDetailsBody].
+	Name string `json:"name"`
+	// This field is from variant [PolicyIntentRequestDetailsBody].
+	Owner OwnerInputUnionResp `json:"owner"`
+	// This field is from variant [PolicyIntentRequestDetailsBody].
+	OwnerID OwnerIDInput `json:"owner_id"`
+	// This field is from variant [PolicyIntentRequestDetailsBody].
+	Rules []PolicyRuleRequestBodyResp `json:"rules"`
+	JSON  struct {
+		Name    respjson.Field
+		Owner   respjson.Field
+		OwnerID respjson.Field
+		Rules   respjson.Field
+		raw     string
+	} `json:"-"`
+}
+
+func (r *PolicyIntentRequestDetailsUnionBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response for a policy intent
+type PolicyIntentResponse struct {
+	// Any of "POLICY".
+	IntentType string `json:"intent_type" api:"required"`
+	// The original policy request. Method is PATCH (update) or DELETE (delete).
+	RequestDetails PolicyIntentRequestDetailsUnion `json:"request_details" api:"required"`
+	// Result of policy execution (only present if status is 'executed' or 'failed')
+	ActionResult BaseActionResult `json:"action_result"`
+	// A policy for controlling wallet operations.
+	CurrentResourceData Policy `json:"current_resource_data"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		CurrentResourceData respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
+	} `json:"-"`
+	BaseIntentResponse
+}
+
+// Returns the unmodified JSON received from the API
+func (r PolicyIntentResponse) RawJSON() string { return r.JSON.raw }
+func (r *PolicyIntentResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response for a policy update intent
+type PolicyUpdateIntentResponse struct {
+	// Any of "POLICY".
+	IntentType string `json:"intent_type" api:"required"`
+	// Request details for a policy intent.
+	RequestDetails PolicyIntentRequestDetails `json:"request_details" api:"required"`
+	// Result of policy update execution (only present if status is 'executed' or
+	// 'failed')
+	ActionResult BaseActionResult `json:"action_result"`
+	// A policy for controlling wallet operations.
+	CurrentResourceData Policy `json:"current_resource_data"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		IntentType          respjson.Field
+		RequestDetails      respjson.Field
+		ActionResult        respjson.Field
+		CurrentResourceData respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
+	} `json:"-"`
+	BaseIntentResponse
+}
+
+// Returns the unmodified JSON received from the API
+func (r PolicyUpdateIntentResponse) RawJSON() string { return r.JSON.raw }
+func (r *PolicyUpdateIntentResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -2609,6 +3046,20 @@ type IntentDeleteConditionSetParams struct {
 
 type IntentDeleteConditionSetItemParams struct {
 	ConditionSetID string `path:"condition_set_id" api:"required" json:"-"`
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
+	paramObj
+}
+
+type IntentDeleteKeyQuorumParams struct {
+	// Request expiry. Value is a Unix timestamp in milliseconds representing the
+	// deadline by which the request must be processed.
+	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
+	paramObj
+}
+
+type IntentDeletePolicyParams struct {
 	// Request expiry. Value is a Unix timestamp in milliseconds representing the
 	// deadline by which the request must be processed.
 	PrivyRequestExpiry param.Opt[string] `header:"privy-request-expiry,omitzero" json:"-"`
