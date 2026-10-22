@@ -90,6 +90,8 @@ type CreateFiatDepositAccountRequestBody struct {
 	//
 	// Any of "sandbox", "production".
 	Environment Environment `json:"environment,omitzero"`
+	// Travel rule information about who sends deposits into a fiat deposit account.
+	TravelRule DepositTravelRule `json:"travel_rule,omitzero"`
 	paramObj
 }
 
@@ -135,6 +137,8 @@ type CreatePayoutRequestBody struct {
 	// A developer fee as a percentage string from 0 up to (not including) 100, e.g.
 	// "1.5" for 1.5%.
 	DeveloperFeePercent param.Opt[DeveloperFeePercent] `json:"developer_fee_percent,omitzero"`
+	// Travel rule information about who receives a payout.
+	TravelRule PayoutTravelRule `json:"travel_rule,omitzero"`
 	paramObj
 }
 
@@ -143,6 +147,23 @@ func (r CreatePayoutRequestBody) MarshalJSON() (data []byte, err error) {
 	return param.MarshalObject(r, (*shadow)(&r))
 }
 func (r *CreatePayoutRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Travel rule information about who sends deposits into a fiat deposit account.
+//
+// The property Source is required.
+type DepositTravelRule struct {
+	// The bank-side party to a fiat transfer, for travel rule compliance.
+	Source TravelRuleCounterpartyUnion `json:"source,omitzero" api:"required"`
+	paramObj
+}
+
+func (r DepositTravelRule) MarshalJSON() (data []byte, err error) {
+	type shadow DepositTravelRule
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *DepositTravelRule) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -1866,6 +1887,150 @@ func (r PayoutSource) MarshalJSON() (data []byte, err error) {
 func (r *PayoutSource) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// Travel rule information about who receives a payout.
+//
+// The property Destination is required.
+type PayoutTravelRule struct {
+	// The bank-side party to a fiat transfer, for travel rule compliance.
+	Destination TravelRuleCounterpartyUnion `json:"destination,omitzero" api:"required"`
+	paramObj
+}
+
+func (r PayoutTravelRule) MarshalJSON() (data []byte, err error) {
+	type shadow PayoutTravelRule
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *PayoutTravelRule) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The bank-side party is a business other than the customer.
+//
+// The properties LegalEntityIdentifier, Name, Type are required.
+type TravelRuleBusinessCounterparty struct {
+	// An official business identifier, such as an LEI, VAT number or company
+	// registration number.
+	LegalEntityIdentifier string `json:"legal_entity_identifier" api:"required"`
+	// Legal name of the business.
+	Name string `json:"name" api:"required"`
+	// Any of "business".
+	Type TravelRuleBusinessCounterpartyType `json:"type,omitzero" api:"required"`
+	// A postal address used in KYC and KYB data submission.
+	Address VerificationAddress `json:"address,omitzero"`
+	paramObj
+}
+
+func (r TravelRuleBusinessCounterparty) MarshalJSON() (data []byte, err error) {
+	type shadow TravelRuleBusinessCounterparty
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TravelRuleBusinessCounterparty) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type TravelRuleBusinessCounterpartyType string
+
+const (
+	TravelRuleBusinessCounterpartyTypeBusiness TravelRuleBusinessCounterpartyType = "business"
+)
+
+func TravelRuleCounterpartyOfSelf(type_ TravelRuleSelfCounterpartyType) TravelRuleCounterpartyUnion {
+	var self TravelRuleSelfCounterparty
+	self.Type = type_
+	return TravelRuleCounterpartyUnion{OfSelf: &self}
+}
+
+func TravelRuleCounterpartyOfIndividual(name string) TravelRuleCounterpartyUnion {
+	var individual TravelRuleIndividualCounterparty
+	individual.Name = name
+	return TravelRuleCounterpartyUnion{OfIndividual: &individual}
+}
+
+func TravelRuleCounterpartyOfBusiness(legalEntityIdentifier string, name string, type_ TravelRuleBusinessCounterpartyType) TravelRuleCounterpartyUnion {
+	var business TravelRuleBusinessCounterparty
+	business.LegalEntityIdentifier = legalEntityIdentifier
+	business.Name = name
+	business.Type = type_
+	return TravelRuleCounterpartyUnion{OfBusiness: &business}
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type TravelRuleCounterpartyUnion struct {
+	OfSelf       *TravelRuleSelfCounterparty       `json:",omitzero,inline"`
+	OfIndividual *TravelRuleIndividualCounterparty `json:",omitzero,inline"`
+	OfBusiness   *TravelRuleBusinessCounterparty   `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u TravelRuleCounterpartyUnion) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfSelf, u.OfIndividual, u.OfBusiness)
+}
+func (u *TravelRuleCounterpartyUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+func init() {
+	apijson.RegisterUnion[TravelRuleCounterpartyUnion](
+		"type",
+		apijson.Discriminator[TravelRuleSelfCounterparty]("self"),
+		apijson.Discriminator[TravelRuleIndividualCounterparty]("individual"),
+		apijson.Discriminator[TravelRuleBusinessCounterparty]("business"),
+	)
+}
+
+// The bank-side party is a person other than the customer.
+//
+// The properties Name, Type are required.
+type TravelRuleIndividualCounterparty struct {
+	// Full legal name of the person.
+	Name string `json:"name" api:"required"`
+	// Any of "individual".
+	Type TravelRuleIndividualCounterpartyType `json:"type,omitzero" api:"required"`
+	// A postal address used in KYC and KYB data submission.
+	Address VerificationAddress `json:"address,omitzero"`
+	paramObj
+}
+
+func (r TravelRuleIndividualCounterparty) MarshalJSON() (data []byte, err error) {
+	type shadow TravelRuleIndividualCounterparty
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TravelRuleIndividualCounterparty) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type TravelRuleIndividualCounterpartyType string
+
+const (
+	TravelRuleIndividualCounterpartyTypeIndividual TravelRuleIndividualCounterpartyType = "individual"
+)
+
+// The bank-side party is the KYC-verified customer. Bridge uses the customer's
+// name and address on file.
+//
+// The property Type is required.
+type TravelRuleSelfCounterparty struct {
+	// Any of "self".
+	Type TravelRuleSelfCounterpartyType `json:"type,omitzero" api:"required"`
+	paramObj
+}
+
+func (r TravelRuleSelfCounterparty) MarshalJSON() (data []byte, err error) {
+	type shadow TravelRuleSelfCounterparty
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TravelRuleSelfCounterparty) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type TravelRuleSelfCounterpartyType string
+
+const (
+	TravelRuleSelfCounterpartyTypeSelf TravelRuleSelfCounterpartyType = "self"
+)
 
 // A postal address used in KYC and KYB data submission.
 //

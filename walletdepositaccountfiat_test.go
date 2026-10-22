@@ -42,6 +42,13 @@ func TestWalletDepositAccountFiatNewWithOptionalParams(t *testing.T) {
 				},
 				DeveloperFeePercent: privyclient.String("1.5"),
 				Environment:         privyclient.EnvironmentSandbox,
+				TravelRule: privyclient.DepositTravelRule{
+					Source: privyclient.TravelRuleCounterpartyUnion{
+						OfSelf: &privyclient.TravelRuleSelfCounterparty{
+							Type: privyclient.TravelRuleSelfCounterpartyTypeSelf,
+						},
+					},
+				},
 			},
 		},
 	)

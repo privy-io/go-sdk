@@ -42,6 +42,13 @@ func TestWalletPayoutFiatNewWithOptionalParams(t *testing.T) {
 					Chain:  "chain",
 				},
 				DeveloperFeePercent: privyclient.String("1.5"),
+				TravelRule: privyclient.PayoutTravelRule{
+					Destination: privyclient.TravelRuleCounterpartyUnion{
+						OfSelf: &privyclient.TravelRuleSelfCounterparty{
+							Type: privyclient.TravelRuleSelfCounterpartyTypeSelf,
+						},
+					},
+				},
 			},
 			PrivyAuthorizationSignature: privyclient.String("privy-authorization-signature"),
 			PrivyIdempotencyKey:         privyclient.String("privy-idempotency-key"),
