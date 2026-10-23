@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.17.0](https://github.com/privy-io/go-sdk/compare/v0.16.0...v0.17.0) (2026-10-23)
+
+
+### Features
+
+* **api:** api update ([f6819e2](https://github.com/privy-io/go-sdk/commit/f6819e2b15327f85c41654ae77a40213ee879bdf))
+* **api:** api update ([cb6f868](https://github.com/privy-io/go-sdk/commit/cb6f8682503c923775d6cb2e4a502d5fe57b5c68))
+* **api:** api update ([2dc5ca6](https://github.com/privy-io/go-sdk/commit/2dc5ca68bda152e83f0e122b57aff058a4f20b0e))
+* **api:** api update ([79ba8bb](https://github.com/privy-io/go-sdk/commit/79ba8bbaa292a8f31ae109410070f50dd36a98a3))
+* **intents:** default request expiry for raw sign and condition sets ([#23](https://github.com/privy-io/go-sdk/issues/23)) ([c9d53a6](https://github.com/privy-io/go-sdk/commit/c9d53a6ca74857b5392468f40015a9b669337df1))
+* **wallets:** sign swap, deposit account, payout, and earn requests ([#22](https://github.com/privy-io/go-sdk/issues/22)) ([34764ee](https://github.com/privy-io/go-sdk/commit/34764eea48686dcd52f211ae90a44b994da835fa))
+* **wallets:** sign Transfer and automation attach/detach ([#21](https://github.com/privy-io/go-sdk/issues/21)) ([d53d6f3](https://github.com/privy-io/go-sdk/commit/d53d6f3865342e3f44c166b4805e786e06ffa02b))
+
+
+### Bug Fixes
+
+* **intents:** honor per-call request expiry when disabled ([#19](https://github.com/privy-io/go-sdk/issues/19)) ([8dd8e16](https://github.com/privy-io/go-sdk/commit/8dd8e1698d4ff19e4adfaa01463bc12e1569ec4b))
+* **intents:** match updated intent response types and wrap delete intents ([#27](https://github.com/privy-io/go-sdk/issues/27)) ([e422afa](https://github.com/privy-io/go-sdk/commit/e422afa8c4208a1245ae19042dffef76806a6d61))
+
 ## [0.16.0](https://github.com/privy-io/go-sdk/compare/v0.15.0...v0.16.0) (2026-10-15)
 
 
