@@ -118,10 +118,22 @@ func (s *PrivyIntentService) UpdatePolicy(
 	policyID string,
 	params IntentUpdatePolicyParams,
 	opts ...RequestOption,
-) (*PolicyIntentResponse, error) {
+) (*PolicyUpdateIntentResponse, error) {
 	options := applyRequestOptions(opts)
 	s.setRequestExpiry(options, &params.PrivyRequestExpiry)
 	return s.IntentService.UpdatePolicy(ctx, policyID, params, options.RequestOptions...)
+}
+
+// DeletePolicy executes a delete-policy intent.
+func (s *PrivyIntentService) DeletePolicy(
+	ctx context.Context,
+	policyID string,
+	params IntentDeletePolicyParams,
+	opts ...RequestOption,
+) (*PolicyDeleteIntentResponse, error) {
+	options := applyRequestOptions(opts)
+	s.setRequestExpiry(options, &params.PrivyRequestExpiry)
+	return s.IntentService.DeletePolicy(ctx, policyID, params, options.RequestOptions...)
 }
 
 // UpdatePolicyRule executes an update-policy-rule intent.
@@ -142,10 +154,22 @@ func (s *PrivyIntentService) UpdateKeyQuorum(
 	keyQuorumID string,
 	params IntentUpdateKeyQuorumParams,
 	opts ...RequestOption,
-) (*KeyQuorumIntentResponse, error) {
+) (*KeyQuorumUpdateIntentResponse, error) {
 	options := applyRequestOptions(opts)
 	s.setRequestExpiry(options, &params.PrivyRequestExpiry)
 	return s.IntentService.UpdateKeyQuorum(ctx, keyQuorumID, params, options.RequestOptions...)
+}
+
+// DeleteKeyQuorum executes a delete-key-quorum intent.
+func (s *PrivyIntentService) DeleteKeyQuorum(
+	ctx context.Context,
+	keyQuorumID string,
+	params IntentDeleteKeyQuorumParams,
+	opts ...RequestOption,
+) (*KeyQuorumDeleteIntentResponse, error) {
+	options := applyRequestOptions(opts)
+	s.setRequestExpiry(options, &params.PrivyRequestExpiry)
+	return s.IntentService.DeleteKeyQuorum(ctx, keyQuorumID, params, options.RequestOptions...)
 }
 
 // RawSign executes a wallet raw-sign intent.

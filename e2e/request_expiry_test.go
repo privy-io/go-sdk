@@ -465,3 +465,82 @@ func TestRequestExpiry_IntentConditionSets(t *testing.T) {
 		expectDefaultIntentExpiry(t, intent.BaseIntentResponse, before, after)
 	})
 }
+
+func TestRequestExpiry_IntentDeletes(t *testing.T) {
+	client := newTestClient(t)
+	ctx := context.Background()
+
+	// Each intent gets its own resource so no two intents are pending on the same one.
+	deletePolicy := func(t *testing.T, opts ...RequestOption) *PolicyDeleteIntentResponse {
+		t.Helper()
+		pair, err := authorization.GenerateP256KeyPair()
+		if err != nil {
+			t.Fatalf("failed to generate P256 key pair: %v", err)
+		}
+		policy := createPolicy(t, ctx, client, PolicyNewParams{
+			Name:      "go-sdk-test-delete-intent-policy",
+			ChainType: WalletChainTypeEthereum,
+			Version:   PolicyNewParamsVersion1_0,
+			Rules:     []PolicyNewParamsRule{},
+			Owner: OwnerInputUnion{
+				OfOwnerInputPublicKey: &OwnerInputPublicKey{PublicKey: pair.PublicKey},
+			},
+		}, authorization.AuthorizationContext{PrivateKeys: []string{pair.PrivateKey}})
+		intent, err := client.Intents.DeletePolicy(ctx, policy.ID, IntentDeletePolicyParams{}, opts...)
+		if err != nil {
+			t.Fatalf("failed to create delete policy intent: %v", err)
+		}
+		return intent
+	}
+
+	deleteKeyQuorum := func(t *testing.T, opts ...RequestOption) *KeyQuorumDeleteIntentResponse {
+		t.Helper()
+		pair, err := authorization.GenerateP256KeyPair()
+		if err != nil {
+			t.Fatalf("failed to generate P256 key pair: %v", err)
+		}
+		kq := createKeyQuorum(t, ctx, client, KeyQuorumNewParams{
+			KeyQuorumCreateRequestBody: KeyQuorumCreateRequestBody{
+				DisplayName: String("test-key-quorum"),
+				PublicKeys:  []string{pair.PublicKey},
+			},
+		}, authorization.AuthorizationContext{PrivateKeys: []string{pair.PrivateKey}})
+		intent, err := client.Intents.DeleteKeyQuorum(ctx, kq.ID, IntentDeleteKeyQuorumParams{}, opts...)
+		if err != nil {
+			t.Fatalf("failed to create delete key quorum intent: %v", err)
+		}
+		return intent
+	}
+
+	t.Run("PolicyDefaultsTo72Hours", func(t *testing.T) {
+		before := time.Now().UnixMilli()
+		intent := deletePolicy(t)
+		after := time.Now().UnixMilli()
+		if !intent.CustomExpiry {
+			t.Error("expected custom_expiry to be true")
+		}
+		expectDefaultIntentExpiry(t, intent.BaseIntentResponse, before, after)
+	})
+
+	t.Run("PolicyUsesPerCall", func(t *testing.T) {
+		expiry := RequestExpiry(60 * 60 * 1000)
+		intent := deletePolicy(t, WithRequestExpiry(expiry))
+		expectCustomIntentExpiry(t, intent.BaseIntentResponse, expiry)
+	})
+
+	t.Run("KeyQuorumDefaultsTo72Hours", func(t *testing.T) {
+		before := time.Now().UnixMilli()
+		intent := deleteKeyQuorum(t)
+		after := time.Now().UnixMilli()
+		if !intent.CustomExpiry {
+			t.Error("expected custom_expiry to be true")
+		}
+		expectDefaultIntentExpiry(t, intent.BaseIntentResponse, before, after)
+	})
+
+	t.Run("KeyQuorumUsesPerCall", func(t *testing.T) {
+		expiry := RequestExpiry(60 * 60 * 1000)
+		intent := deleteKeyQuorum(t, WithRequestExpiry(expiry))
+		expectCustomIntentExpiry(t, intent.BaseIntentResponse, expiry)
+	})
+}
