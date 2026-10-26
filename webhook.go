@@ -1468,7 +1468,7 @@ type TransactionStillPendingWebhookPayload struct {
 	// The Privy-assigned ID for this transaction.
 	TransactionID string `json:"transaction_id" api:"required"`
 	// An unsigned standard Ethereum transaction object. Supports EVM transaction types
-	// 0, 1, 2, and 4.
+	// 0, 2, and 4.
 	TransactionRequest UnsignedStandardEthereumTransactionResp `json:"transaction_request" api:"required"`
 	// The type of webhook event.
 	//

@@ -2297,7 +2297,7 @@ func (r *EthereumSendTransactionRpcInput) UnmarshalJSON(data []byte) error {
 // Parameters for the EVM `eth_sendTransaction` RPC.
 type EthereumSendTransactionRpcInputParamsResp struct {
 	// An unsigned Ethereum transaction object. Supports standard EVM transaction types
-	// (0, 1, 2, 4) and Tempo transactions (type 118).
+	// (0, 2, 4) and Tempo transactions (type 118).
 	Transaction UnsignedEthereumTransactionUnionResp `json:"transaction" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -2328,7 +2328,7 @@ func (r EthereumSendTransactionRpcInputParamsResp) ToParam() EthereumSendTransac
 // The property Transaction is required.
 type EthereumSendTransactionRpcInputParams struct {
 	// An unsigned Ethereum transaction object. Supports standard EVM transaction types
-	// (0, 1, 2, 4) and Tempo transactions (type 118).
+	// (0, 2, 4) and Tempo transactions (type 118).
 	Transaction UnsignedEthereumTransactionUnion `json:"transaction,omitzero" api:"required"`
 	paramObj
 }
@@ -2377,7 +2377,7 @@ type EthereumSendTransactionRpcResponseData struct {
 	ReferenceID   string `json:"reference_id" api:"nullable"`
 	TransactionID string `json:"transaction_id"`
 	// An unsigned Ethereum transaction object. Supports standard EVM transaction types
-	// (0, 1, 2, 4) and Tempo transactions (type 118).
+	// (0, 2, 4) and Tempo transactions (type 118).
 	TransactionRequest UnsignedEthereumTransactionUnionResp `json:"transaction_request"`
 	UserOperationHash  string                               `json:"user_operation_hash"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -2738,7 +2738,7 @@ func (r *EthereumSignTransactionRpcInput) UnmarshalJSON(data []byte) error {
 // Parameters for the EVM `eth_signTransaction` RPC.
 type EthereumSignTransactionRpcInputParamsResp struct {
 	// An unsigned Ethereum transaction object. Supports standard EVM transaction types
-	// (0, 1, 2, 4) and Tempo transactions (type 118).
+	// (0, 2, 4) and Tempo transactions (type 118).
 	Transaction UnsignedEthereumTransactionUnionResp `json:"transaction" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -2769,7 +2769,7 @@ func (r EthereumSignTransactionRpcInputParamsResp) ToParam() EthereumSignTransac
 // The property Transaction is required.
 type EthereumSignTransactionRpcInputParams struct {
 	// An unsigned Ethereum transaction object. Supports standard EVM transaction types
-	// (0, 1, 2, 4) and Tempo transactions (type 118).
+	// (0, 2, 4) and Tempo transactions (type 118).
 	Transaction UnsignedEthereumTransactionUnion `json:"transaction,omitzero" api:"required"`
 	paramObj
 }
@@ -9537,7 +9537,7 @@ func (u *UnsignedEthereumTransactionUnion) UnmarshalJSON(data []byte) error {
 }
 
 // An unsigned standard Ethereum transaction object. Supports EVM transaction types
-// 0, 1, 2, and 4.
+// 0, 2, and 4.
 type UnsignedStandardEthereumTransactionResp struct {
 	AuthorizationList []EthereumSign7702AuthorizationResp `json:"authorization_list"`
 	// A quantity value that can be either a hex string starting with '0x' or a
@@ -9563,7 +9563,7 @@ type UnsignedStandardEthereumTransactionResp struct {
 	// non-negative integer.
 	Nonce QuantityUnionResp `json:"nonce"`
 	To    string            `json:"to"`
-	// Any of 0, 1, 2, 4.
+	// Any of 0, 2, 4.
 	Type float64 `json:"type"`
 	// A quantity value that can be either a hex string starting with '0x' or a
 	// non-negative integer.
@@ -9604,7 +9604,7 @@ func (r UnsignedStandardEthereumTransactionResp) ToParam() UnsignedStandardEther
 }
 
 // An unsigned standard Ethereum transaction object. Supports EVM transaction types
-// 0, 1, 2, and 4.
+// 0, 2, and 4.
 type UnsignedStandardEthereumTransaction struct {
 	// A hex-encoded string prefixed with '0x', capped at 300002 characters (150,000
 	// bytes).
@@ -9630,7 +9630,7 @@ type UnsignedStandardEthereumTransaction struct {
 	// A quantity value that can be either a hex string starting with '0x' or a
 	// non-negative integer.
 	Nonce QuantityUnion `json:"nonce,omitzero"`
-	// Any of 0, 1, 2, 4.
+	// Any of 0, 2, 4.
 	Type float64 `json:"type,omitzero"`
 	// A quantity value that can be either a hex string starting with '0x' or a
 	// non-negative integer.
@@ -9648,7 +9648,7 @@ func (r *UnsignedStandardEthereumTransaction) UnmarshalJSON(data []byte) error {
 
 func init() {
 	apijson.RegisterFieldValidator[UnsignedStandardEthereumTransaction](
-		"type", 0, 1, 2, 4,
+		"type", 0, 2, 4,
 	)
 }
 

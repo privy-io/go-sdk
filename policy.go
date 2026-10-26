@@ -1184,7 +1184,7 @@ type Policy struct {
 	ChainType WalletChainType `json:"chain_type" api:"required"`
 	// Unix timestamp of when the policy was created in milliseconds.
 	CreatedAt float64 `json:"created_at" api:"required"`
-	// Name to assign to policy.
+	// Name to assign to the policy, up to 100 characters.
 	Name string `json:"name" api:"required"`
 	// A unique identifier for a key quorum.
 	OwnerID KeyQuorumID          `json:"owner_id" api:"required" format:"cuid2"`
@@ -1605,7 +1605,7 @@ type PolicyListItem struct {
 	ChainType WalletChainType `json:"chain_type" api:"required"`
 	// Unix timestamp of when the policy was created in milliseconds.
 	CreatedAt float64 `json:"created_at" api:"required"`
-	// Name to assign to policy.
+	// Name to assign to the policy, up to 100 characters.
 	Name string `json:"name" api:"required"`
 	// A unique identifier for a key quorum.
 	OwnerID KeyQuorumID `json:"owner_id" api:"required" format:"cuid2"`
@@ -2944,7 +2944,7 @@ type PolicyNewParams struct {
 	// "tron", "bitcoin-segwit", "bitcoin-taproot", "pearl", "near", "ton", "starknet",
 	// "xrpl", "spark".
 	ChainType WalletChainType `json:"chain_type,omitzero" api:"required"`
-	// Name to assign to policy.
+	// Name to assign to the policy, up to 100 characters.
 	Name  string                `json:"name" api:"required"`
 	Rules []PolicyNewParamsRule `json:"rules,omitzero" api:"required"`
 	// Version of the policy. Currently, 1.0 is the only version.
@@ -3011,7 +3011,7 @@ type PolicyUpdateParams struct {
 	// The key quorum ID to set as the owner of the resource. If you provide this, do
 	// not specify an owner.
 	OwnerID param.Opt[OwnerIDInput] `json:"owner_id,omitzero" format:"cuid2"`
-	// Name to assign to policy.
+	// Name to assign to the policy, up to 100 characters.
 	Name param.Opt[string] `json:"name,omitzero"`
 	// Request authorization signature. If multiple signatures are required, they
 	// should be comma separated.

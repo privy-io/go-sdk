@@ -2227,7 +2227,7 @@ func (r *PolicyIntentRequestDetails) UnmarshalJSON(data []byte) error {
 }
 
 type PolicyIntentRequestDetailsBody struct {
-	// Name to assign to policy.
+	// Name to assign to the policy, up to 100 characters.
 	Name string `json:"name"`
 	// The owner of the resource, specified as a Privy user ID, a P-256 public key, or
 	// null to remove the current owner.
@@ -3161,7 +3161,7 @@ type IntentUpdatePolicyParams struct {
 	// The key quorum ID to set as the owner of the resource. If you provide this, do
 	// not specify an owner.
 	OwnerID param.Opt[OwnerIDInput] `json:"owner_id,omitzero" format:"cuid2"`
-	// Name to assign to policy.
+	// Name to assign to the policy, up to 100 characters.
 	Name param.Opt[string] `json:"name,omitzero"`
 	// Request expiry. Value is a Unix timestamp in milliseconds representing the
 	// deadline by which the request must be processed.
