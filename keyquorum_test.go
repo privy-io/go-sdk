@@ -99,7 +99,7 @@ func TestKeyQuorumListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.KeyQuorums.List(context.TODO(), privyclient.KeyQuorumListParams{
 		Cursor: privyclient.String("x"),
-		Limit:  privyclient.Float(100),
+		Limit:  privyclient.Int(1),
 	})
 	if err != nil {
 		var apierr *privyclient.Error

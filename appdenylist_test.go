@@ -67,7 +67,7 @@ func TestAppDenylistListWithOptionalParams(t *testing.T) {
 		"app_id",
 		privyclient.AppDenylistListParams{
 			Cursor: privyclient.String("x"),
-			Limit:  privyclient.Float(100),
+			Limit:  privyclient.Int(1),
 		},
 	)
 	if err != nil {

@@ -325,9 +325,9 @@ func (r *KeyQuorumUpdateParams) UnmarshalJSON(data []byte) error {
 }
 
 type KeyQuorumListParams struct {
-	Limit param.Opt[float64] `query:"limit,omitzero" json:"-"`
 	// Cursor returned by the previous page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
+	Limit  param.Opt[int64]  `query:"limit,omitzero" json:"-"`
 	paramObj
 }
 

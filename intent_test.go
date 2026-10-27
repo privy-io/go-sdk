@@ -33,7 +33,7 @@ func TestIntentListWithOptionalParams(t *testing.T) {
 		CurrentUserHasSigned: privyclient.IntentListParamsCurrentUserHasSignedTrue,
 		Cursor:               privyclient.String("x"),
 		IntentType:           privyclient.IntentTypeConditionSet,
-		Limit:                privyclient.Float(100),
+		Limit:                privyclient.Int(1),
 		PendingMemberID:      privyclient.String("pending_member_id"),
 		ResourceID:           privyclient.String("resource_id"),
 		SortBy:               privyclient.IntentListParamsSortByCreatedAtDesc,

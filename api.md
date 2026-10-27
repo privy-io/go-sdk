@@ -454,6 +454,51 @@ Methods:
 - <code title="post /v1/users/{user_id}/kyc/tos">client.Users.KYC.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserKYCService.InitiateTos">InitiateTos</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, userID <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserKYCInitiateTosParams">UserKYCInitiateTosParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#KyxTosResponse">KyxTosResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="post /v1/users/{user_id}/kyc/submit">client.Users.KYC.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserKYCService.Submit">Submit</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, userID <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserKYCSubmitParams">UserKYCSubmitParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#KYCStatusResponse">KYCStatusResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
+## Mfa
+
+Params Types:
+
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SMSMfaEnrollmentInitRequestBody">SMSMfaEnrollmentInitRequestBody</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SMSMfaVerifyRequestBody">SMSMfaVerifyRequestBody</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TotpMfaVerifyRequestBody">TotpMfaVerifyRequestBody</a>
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaVerificationResponse">MfaVerificationResponse</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TotpMfaEnrollmentInitResponse">TotpMfaEnrollmentInitResponse</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TotpMfaEnrollmentOptions">TotpMfaEnrollmentOptions</a>
+
+### SMS
+
+#### Enrollment
+
+Methods:
+
+- <code title="post /v1/users/{user_id}/mfa/sms/enrollment/init">client.Users.Mfa.SMS.Enrollment.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaSMSEnrollmentService.Init">Init</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, userID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaSMSEnrollmentInitParams">UserMfaSMSEnrollmentInitParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SuccessResponse">SuccessResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /v1/users/{user_id}/mfa/sms/enrollment/verify">client.Users.Mfa.SMS.Enrollment.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaSMSEnrollmentService.Verify">Verify</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, userID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaSMSEnrollmentVerifyParams">UserMfaSMSEnrollmentVerifyParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaVerificationResponse">MfaVerificationResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
+#### Verification
+
+Methods:
+
+- <code title="post /v1/users/{user_id}/mfa/sms/verification/init">client.Users.Mfa.SMS.Verification.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaSMSVerificationService.Init">Init</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, userID <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaSMSVerificationInitParams">UserMfaSMSVerificationInitParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SuccessResponse">SuccessResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /v1/users/{user_id}/mfa/sms/verification/verify">client.Users.Mfa.SMS.Verification.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaSMSVerificationService.Verify">Verify</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, userID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaSMSVerificationVerifyParams">UserMfaSMSVerificationVerifyParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaVerificationResponse">MfaVerificationResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
+### Totp
+
+#### Enrollment
+
+Methods:
+
+- <code title="post /v1/users/{user_id}/mfa/totp/enrollment/init">client.Users.Mfa.Totp.Enrollment.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaTotpEnrollmentService.Init">Init</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, userID <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaTotpEnrollmentInitParams">UserMfaTotpEnrollmentInitParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TotpMfaEnrollmentInitResponse">TotpMfaEnrollmentInitResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /v1/users/{user_id}/mfa/totp/enrollment/verify">client.Users.Mfa.Totp.Enrollment.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaTotpEnrollmentService.Verify">Verify</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, userID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaTotpEnrollmentVerifyParams">UserMfaTotpEnrollmentVerifyParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaVerificationResponse">MfaVerificationResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
+#### Verification
+
+Methods:
+
+- <code title="post /v1/users/{user_id}/mfa/totp/verification/verify">client.Users.Mfa.Totp.Verification.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaTotpVerificationService.Verify">Verify</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, userID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaTotpVerificationVerifyParams">UserMfaTotpVerificationVerifyParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaVerificationResponse">MfaVerificationResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
 # WalletAutomations
 
 Params Types:

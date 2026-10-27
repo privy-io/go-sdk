@@ -12334,7 +12334,6 @@ func (r *WalletUpdateParams) UnmarshalJSON(data []byte) error {
 }
 
 type WalletListParams struct {
-	Limit param.Opt[float64] `query:"limit,omitzero" json:"-"`
 	// A blockchain wallet address. Ethereum addresses are normalized to EIP-55
 	// checksum format. Solana addresses are validated as base58. All other chain
 	// addresses (Stellar, Tron, Sui, Aptos, etc.) are accepted as-is.
@@ -12350,7 +12349,8 @@ type WalletListParams struct {
 	// Filter wallets by external ID.
 	ExternalID param.Opt[string] `query:"external_id,omitzero" json:"-"`
 	// Include archived wallets in lookup. Defaults to false.
-	IncludeArchived param.Opt[bool] `query:"include_archived,omitzero" json:"-"`
+	IncludeArchived param.Opt[bool]  `query:"include_archived,omitzero" json:"-"`
+	Limit           param.Opt[int64] `query:"limit,omitzero" json:"-"`
 	// Filter wallets by user ID. Cannot be used together with authorization_key.
 	UserID param.Opt[string] `query:"user_id,omitzero" json:"-"`
 	// The wallet chain types.

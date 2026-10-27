@@ -2957,12 +2957,12 @@ func (r *WalletIntentResponseRequestDetailsBody) UnmarshalJSON(data []byte) erro
 }
 
 type IntentListParams struct {
-	Limit param.Opt[float64] `query:"limit,omitzero" json:"-"`
 	// Filter by creator user ID. For user-token requests, Privy uses the authenticated
 	// user ID to scope intent visibility. This filter only narrows that scoped result.
 	CreatedByID param.Opt[string] `query:"created_by_id,omitzero" json:"-"`
 	// Cursor returned by the previous page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
+	Limit  param.Opt[int64]  `query:"limit,omitzero" json:"-"`
 	// Filter by a user whose approval is still pending. For user-token requests, Privy
 	// uses the authenticated user ID to scope intent visibility. This filter only
 	// narrows that scoped result.

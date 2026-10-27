@@ -29,7 +29,7 @@ func TestPolicyConditionSetListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Policies.ConditionSets.List(context.TODO(), privyclient.PolicyConditionSetListParams{
 		Cursor: privyclient.String("x"),
-		Limit:  privyclient.Float(100),
+		Limit:  privyclient.Int(1),
 	})
 	if err != nil {
 		var apierr *privyclient.Error

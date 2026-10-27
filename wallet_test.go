@@ -129,7 +129,7 @@ func TestWalletListWithOptionalParams(t *testing.T) {
 		EntityID:         privyclient.String("entity_id"),
 		ExternalID:       privyclient.String("external_id"),
 		IncludeArchived:  privyclient.Bool(true),
-		Limit:            privyclient.Float(100),
+		Limit:            privyclient.Int(1),
 		UserID:           privyclient.String("user_id"),
 	})
 	if err != nil {

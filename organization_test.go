@@ -91,7 +91,7 @@ func TestOrganizationListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Organizations.List(context.TODO(), privyclient.OrganizationListParams{
 		Cursor: privyclient.String("x"),
-		Limit:  privyclient.Float(100),
+		Limit:  privyclient.Int(1),
 	})
 	if err != nil {
 		var apierr *privyclient.Error

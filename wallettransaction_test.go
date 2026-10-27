@@ -40,7 +40,7 @@ func TestWalletTransactionGetWithOptionalParams(t *testing.T) {
 			},
 			Cursor:          privyclient.String("x"),
 			IncludeArchived: privyclient.Bool(true),
-			Limit:           privyclient.Float(100),
+			Limit:           privyclient.Int(1),
 			TxHash:          privyclient.String("tx_hash"),
 		},
 	)

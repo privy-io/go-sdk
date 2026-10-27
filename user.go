@@ -35,6 +35,7 @@ type UserService struct {
 	ExternalFiatAccounts UserExternalFiatAccountService
 	// Operations related to fiat onramping and offramping
 	KYC UserKYCService
+	Mfa UserMfaService
 }
 
 // NewUserService generates a new service that applies the given options to each
@@ -45,6 +46,7 @@ func NewUserService(opts ...option.RequestOption) (r UserService) {
 	r.Options = opts
 	r.ExternalFiatAccounts = NewUserExternalFiatAccountService(opts...)
 	r.KYC = NewUserKYCService(opts...)
+	r.Mfa = NewUserMfaService(opts...)
 	return
 }
 
@@ -2793,9 +2795,9 @@ func (r *UserNewParamsWalletAdditionalSigner) UnmarshalJSON(data []byte) error {
 }
 
 type UserListParams struct {
-	Limit param.Opt[float64] `query:"limit,omitzero" json:"-"`
 	// Cursor returned by the previous page.
 	Cursor param.Opt[string] `query:"cursor,omitzero" json:"-"`
+	Limit  param.Opt[int64]  `query:"limit,omitzero" json:"-"`
 	paramObj
 }
 
