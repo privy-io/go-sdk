@@ -1662,6 +1662,7 @@ const (
 	PolicyMethodXrplSignTransaction      PolicyMethod = "xrpl_signTransaction"
 	PolicyMethodEarnDeposit              PolicyMethod = "earn_deposit"
 	PolicyMethodEarnWithdraw             PolicyMethod = "earn_withdraw"
+	PolicyMethodEarnIncentiveClaim       PolicyMethod = "earn_incentive_claim"
 	PolicyMethodTransfer                 PolicyMethod = "transfer"
 	PolicyMethodStar                     PolicyMethod = "*"
 )
@@ -1680,7 +1681,8 @@ type PolicyRuleRequestBodyResp struct {
 	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
 	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes",
 	// "signRawMessageBytes", "tron_sendTransaction", "tron_signTransaction",
-	// "xrpl_signTransaction", "earn_deposit", "earn_withdraw", "transfer", "\*".
+	// "xrpl_signTransaction", "earn_deposit", "earn_withdraw", "earn_incentive_claim",
+	// "transfer", "\*".
 	Method PolicyMethod `json:"method" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -1725,7 +1727,8 @@ type PolicyRuleRequestBody struct {
 	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
 	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes",
 	// "signRawMessageBytes", "tron_sendTransaction", "tron_signTransaction",
-	// "xrpl_signTransaction", "earn_deposit", "earn_withdraw", "transfer", "\*".
+	// "xrpl_signTransaction", "earn_deposit", "earn_withdraw", "earn_incentive_claim",
+	// "transfer", "\*".
 	Method PolicyMethod `json:"method,omitzero" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	paramObj
@@ -1755,7 +1758,8 @@ type PolicyRuleResponse struct {
 	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
 	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes",
 	// "signRawMessageBytes", "tron_sendTransaction", "tron_signTransaction",
-	// "xrpl_signTransaction", "earn_deposit", "earn_withdraw", "transfer", "\*".
+	// "xrpl_signTransaction", "earn_deposit", "earn_withdraw", "earn_incentive_claim",
+	// "transfer", "\*".
 	Method PolicyMethod `json:"method" api:"required"`
 	Name   string       `json:"name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -2985,7 +2989,8 @@ type PolicyNewParamsRule struct {
 	// "wallet_sendCalls", "signTransaction", "signAndSendTransaction", "signMessage",
 	// "exportPrivateKey", "exportSeedPhrase", "signTransactionBytes",
 	// "signRawMessageBytes", "tron_sendTransaction", "tron_signTransaction",
-	// "xrpl_signTransaction", "earn_deposit", "earn_withdraw", "transfer", "\*".
+	// "xrpl_signTransaction", "earn_deposit", "earn_withdraw", "earn_incentive_claim",
+	// "transfer", "\*".
 	Method PolicyMethod      `json:"method,omitzero" api:"required"`
 	Name   string            `json:"name" api:"required"`
 	ID     param.Opt[string] `json:"id,omitzero"`
