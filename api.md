@@ -458,15 +458,52 @@ Methods:
 
 Params Types:
 
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaPasskeyAssertionResponse">MfaPasskeyAssertionResponse</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaPasskeyAttestationResponse">MfaPasskeyAttestationResponse</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaPasskeyAuthenticatorEnrollmentResponse">MfaPasskeyAuthenticatorEnrollmentResponse</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaPasskeyAuthenticatorVerifyResponse">MfaPasskeyAuthenticatorVerifyResponse</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaPasskeyClientExtensionResults">MfaPasskeyClientExtensionResults</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaPasskeyCredPropsResult">MfaPasskeyCredPropsResult</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#PasskeyMfaEnrollmentVerifyRequestBody">PasskeyMfaEnrollmentVerifyRequestBody</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#PasskeyMfaInitRequestBody">PasskeyMfaInitRequestBody</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#PasskeyMfaVerificationVerifyRequestBody">PasskeyMfaVerificationVerifyRequestBody</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SMSMfaEnrollmentInitRequestBody">SMSMfaEnrollmentInitRequestBody</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SMSMfaVerifyRequestBody">SMSMfaVerifyRequestBody</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TotpMfaVerifyRequestBody">TotpMfaVerifyRequestBody</a>
 
 Response Types:
 
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaPasskeyAuthenticatorEnrollmentOptions">MfaPasskeyAuthenticatorEnrollmentOptions</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaPasskeyAuthenticatorSelection">MfaPasskeyAuthenticatorSelection</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaPasskeyAuthenticatorVerifyOptions">MfaPasskeyAuthenticatorVerifyOptions</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaPasskeyCredPropsResultResp">MfaPasskeyCredPropsResultResp</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaPasskeyCredentialDescriptor">MfaPasskeyCredentialDescriptor</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaPasskeyEnrollmentExtensions">MfaPasskeyEnrollmentExtensions</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaPasskeyPubKeyCredParamResp">MfaPasskeyPubKeyCredParamResp</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaPasskeyRelyingParty">MfaPasskeyRelyingParty</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaPasskeyUser">MfaPasskeyUser</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaPasskeyVerifyExtensions">MfaPasskeyVerifyExtensions</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaVerificationResponse">MfaVerificationResponse</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#PasskeyMfaEnrollmentInitResponse">PasskeyMfaEnrollmentInitResponse</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#PasskeyMfaVerificationInitResponse">PasskeyMfaVerificationInitResponse</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TotpMfaEnrollmentInitResponse">TotpMfaEnrollmentInitResponse</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TotpMfaEnrollmentOptions">TotpMfaEnrollmentOptions</a>
+
+### Passkey
+
+#### Enrollment
+
+Methods:
+
+- <code title="post /v1/users/{user_id}/mfa/passkey/enrollment/init">client.Users.Mfa.Passkey.Enrollment.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaPasskeyEnrollmentService.Init">Init</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, userID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaPasskeyEnrollmentInitParams">UserMfaPasskeyEnrollmentInitParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#PasskeyMfaEnrollmentInitResponse">PasskeyMfaEnrollmentInitResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /v1/users/{user_id}/mfa/passkey/enrollment/verify">client.Users.Mfa.Passkey.Enrollment.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaPasskeyEnrollmentService.Verify">Verify</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, userID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaPasskeyEnrollmentVerifyParams">UserMfaPasskeyEnrollmentVerifyParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaVerificationResponse">MfaVerificationResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
+#### Verification
+
+Methods:
+
+- <code title="post /v1/users/{user_id}/mfa/passkey/verification/init">client.Users.Mfa.Passkey.Verification.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaPasskeyVerificationService.Init">Init</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, userID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaPasskeyVerificationInitParams">UserMfaPasskeyVerificationInitParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#PasskeyMfaVerificationInitResponse">PasskeyMfaVerificationInitResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /v1/users/{user_id}/mfa/passkey/verification/verify">client.Users.Mfa.Passkey.Verification.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaPasskeyVerificationService.Verify">Verify</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, userID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaPasskeyVerificationVerifyParams">UserMfaPasskeyVerificationVerifyParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaVerificationResponse">MfaVerificationResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 ### SMS
 
