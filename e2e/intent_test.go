@@ -237,7 +237,7 @@ func TestIntents_List(t *testing.T) {
 
 	t.Run("ListAll", func(t *testing.T) {
 		page, err := client.Intents.List(ctx, IntentListParams{
-			Limit: Float(10),
+			Limit: Int(10),
 		})
 		if err != nil {
 			t.Fatalf("failed to list intents: %v", err)
@@ -257,7 +257,7 @@ func TestIntents_List(t *testing.T) {
 			t.Run(string(intentType), func(t *testing.T) {
 				page, err := client.Intents.List(ctx, IntentListParams{
 					IntentType: intentType,
-					Limit:      Float(5),
+					Limit:      Int(5),
 				})
 				if err != nil {
 					t.Fatalf("failed to list %s intents: %v", intentType, err)
@@ -275,7 +275,7 @@ func TestIntents_List(t *testing.T) {
 	t.Run("FilterByStatus", func(t *testing.T) {
 		page, err := client.Intents.List(ctx, IntentListParams{
 			Status: IntentStatusPending,
-			Limit:  Float(5),
+			Limit:  Int(5),
 		})
 		if err != nil {
 			t.Fatalf("failed to list pending intents: %v", err)

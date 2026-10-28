@@ -90,11 +90,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build, lint, test]
     if: ${{ failure() && (github.ref_name == 'next' || github.ref_name == 'main') && github.event_name == 'push' }}
+    env:
+      SLACK_WEBHOOK_SERVER_SDK_ERRORS: ${{ secrets.SLACK_WEBHOOK_SERVER_SDK_ERRORS }}
     steps:
       - name: Notify Slack of CI failure
+        if: env.SLACK_WEBHOOK_SERVER_SDK_ERRORS != ''
         uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a
         with:
-          webhook: ${{ secrets.SLACK_WEBHOOK_SERVER_SDK_ERRORS }}
+          webhook: ${{ env.SLACK_WEBHOOK_SERVER_SDK_ERRORS }}
           webhook-type: incoming-webhook
           payload: |
             blocks:
