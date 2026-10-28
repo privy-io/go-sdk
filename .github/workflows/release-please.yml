@@ -11,14 +11,15 @@ permissions:
 
 jobs:
   release-please:
-    if: github.repository == 'privy-io/go-sdk'
+    if: github.repository == 'privy-io/go-sdk-private'
     runs-on: ubuntu-latest
-    environment: builder-blobby-sdk-release-and-sync
+    environment: builder-blobby-sdk-sync-and-seal
     steps:
       # Mint a short-lived builder-blobby installation token scoped to this repo. Go has no
       # package registry to publish to, but an app token (not the default GITHUB_TOKEN) is
-      # still used so the created Release triggers the stlc-sync back-sync notify (on:
-      # release) and so the version-bump commit — written through the GitHub API and signed
+      # still required so the created Release triggers stlc-promote (on: release), which
+      # promotes the release to privy-io/go-sdk — the default token cannot trigger other
+      # workflows. The version-bump commit — written through the GitHub API and signed
       # server-side — shows as Verified (builder-blobby[bot]); no GPG key needed.
       - name: Mint builder-blobby token
         id: app-token
@@ -27,7 +28,7 @@ jobs:
           app-id: ${{ secrets.BUILDER_BLOBBY_APP_ID }}
           private-key: ${{ secrets.BUILDER_BLOBBY_APP_PRIVATE_KEY }}
           owner: privy-io
-          repositories: go-sdk
+          repositories: go-sdk-private
           permission-contents: write
           permission-pull-requests: write
 

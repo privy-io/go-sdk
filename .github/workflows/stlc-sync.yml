@@ -3,6 +3,11 @@ name: Sync SDK repos
 # Keeps the staging and production trunks in sync and the config repo's tracking files
 # fresh. Each job self-routes by repo + event, so this one file can live in both repos and
 # only the right job runs. The dispatch jobs are eager-only; scheduled polls cover them.
+#
+# Releases are cut in staging and stlc-promote fast-forwards production main to the release
+# tag, so production main is always an ancestor of staging main. Back-sync is therefore a
+# no-op in normal operation and acts as a divergence alarm if production main moves on its
+# own (production main is locked to the build bot).
 on:
   schedule:
     # back-sync poll: a cheap pure-git check, twice hourly.

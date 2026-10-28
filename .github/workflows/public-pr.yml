@@ -1,0 +1,14 @@
+name: Public PR
+
+# Public main only moves when stlc-promote releases, so PRs in privy-io/go-sdk must not be
+# merged there. Fail them as a reminder to import them instead (see CONTRIBUTING.md).
+on: pull_request_target
+
+permissions: {}
+
+jobs:
+  do-not-merge:
+    if: github.repository == 'privy-io/go-sdk'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "::error title=Do not merge here::Import this PR into the private repo (see CONTRIBUTING.md), then close it." && exit 1

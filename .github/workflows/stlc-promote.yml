@@ -1,13 +1,20 @@
 name: Promote SDKs
 
-# Auto-promote: fast-forward production main up to staging main on every push to staging
-# main (and on manual dispatch), preserving SHAs so the trunks stay identical and linear.
-# Releases stay human-gated — release-please opens a version PR on production; a maintainer
-# merges it. Self-routes by repo so this one file can live in both staging and production.
+# Promote on release: when release-please publishes a GitHub Release in private (after the
+# release PR merges), push that release to public, where the Go module proxy picks up the
+# tag. Public main only moves here, fast-forwarded to a stable release cut from private main,
+# so it always matches the latest stable release. Every step is idempotent: re-run a failed
+# promote with workflow_dispatch and the release tag. Self-routes by repo so this one file
+# can live in both private and public.
 on:
-  push:
-    branches: [main]
-  workflow_dispatch: {}
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to promote (e.g. v1.2.3)
+        required: true
+        type: string
 
 concurrency:
   group: stlc-promote
@@ -22,15 +29,17 @@ jobs:
     if: github.repository == 'privy-io/go-sdk-private'
     environment: builder-blobby-sdk-sync-and-seal
     env:
-      PRODUCTION_REPO: privy-io/go-sdk
+      PUBLIC_REPO: privy-io/go-sdk
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
     steps:
-      - name: Check out staging
+      - name: Check out private
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 0
+          fetch-tags: true
           persist-credentials: false
 
-      - name: Mint production-repo-scoped Builder Blobby token
+      - name: Mint public-repo-scoped Builder Blobby token
         id: app-token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
@@ -41,25 +50,52 @@ jobs:
           permission-contents: write
           permission-workflows: write
 
-      - name: Fetch production main
+      - name: Read the private release
         env:
-          PRODUCTION_REPO_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          git remote add production \
-            "https://x-access-token:${PRODUCTION_REPO_TOKEN}@github.com/${PRODUCTION_REPO}.git"
-          git fetch production main
-
-      - name: Promote staging to production (fast-forward)
-        run: |
-          set -euo pipefail
-          if git merge-base --is-ancestor origin/main production/main; then
-            # Production may be ahead because release-please added commits that have
-            # not reached staging yet. The back-sync workflow will copy them back.
-            echo "Production already contains staging main. Nothing to promote."
-          elif git merge-base --is-ancestor production/main origin/main; then
-            git push production origin/main:refs/heads/main
-            echo "Fast-forwarded production/main to staging/main."
-          else
-            echo "::error title=Promote blocked::Production and staging main have diverged. Back-sync or reconcile the trunks first."
+          gh release view "$TAG" -R "$GITHUB_REPOSITORY" --json name,body > "$RUNNER_TEMP/release.json"
+          # Only stable releases cut from private main are promoted. Not `target_commitish == main`:
+          # release-please sets it to the merge commit SHA.
+          if ! git merge-base --is-ancestor "$TAG" origin/main; then
+            echo "::error title=Promote blocked::${TAG} is not on main. Only stable releases from main are promoted."
             exit 1
           fi
+
+      - name: Fetch public main
+        env:
+          PUBLIC_REPO_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: git remote add -f --no-tags -t main public "https://x-access-token:${PUBLIC_REPO_TOKEN}@github.com/${PUBLIC_REPO}.git"
+
+      - name: Fast-forward public main to the release
+        id: ff
+        run: |
+          # `latest` = public main ends at this release. A delayed retry of an older release, after
+          # a newer one was promoted, leaves public main and `latest` alone.
+          if git merge-base --is-ancestor public/main "$TAG"; then
+            git push public "${TAG}^{commit}:refs/heads/main"
+            echo "latest=true" >> "$GITHUB_OUTPUT"
+          elif ! git merge-base --is-ancestor "$TAG" public/main; then
+            echo "::error title=Promote blocked::Public main has diverged from ${TAG}. Reconcile the trunks first."
+            exit 1
+          fi
+
+      # A no-op if public already has the tag; git rejects it if the tag points elsewhere.
+      - name: Push the release tag to public
+        run: git push public "refs/tags/${TAG}"
+
+      - name: Create the public GitHub Release
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          LATEST: ${{ steps.ff.outputs.latest || 'false' }}
+        run: |
+          set -euo pipefail
+          gh release view "$TAG" -R "$PUBLIC_REPO" > /dev/null 2>&1 && exit 0
+          # Public notes: drop private PR references, which don't resolve in public, and point
+          # commit and compare links at public (same SHAs and tags).
+          jq -r .body "$RUNNER_TEMP/release.json" |
+            sed -E \
+              -e 's@ \(\[#[0-9]+\]\(https://github\.com/privy-io/go-sdk-private/(issues|pull)/[0-9]+\)\)@@g' \
+              -e 's@github\.com/privy-io/go-sdk-private/@github.com/privy-io/go-sdk/@g' |
+            gh release create "$TAG" -R "$PUBLIC_REPO" --verify-tag --notes-file - \
+              --title "$(jq -r .name "$RUNNER_TEMP/release.json")" --latest="$LATEST"
