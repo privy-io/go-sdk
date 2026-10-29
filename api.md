@@ -458,6 +458,8 @@ Methods:
 
 Params Types:
 
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EmailMfaEnrollmentInitRequestBody">EmailMfaEnrollmentInitRequestBody</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EmailMfaVerifyRequestBody">EmailMfaVerifyRequestBody</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaPasskeyAssertionResponse">MfaPasskeyAssertionResponse</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaPasskeyAttestationResponse">MfaPasskeyAttestationResponse</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaPasskeyAuthenticatorEnrollmentResponse">MfaPasskeyAuthenticatorEnrollmentResponse</a>
@@ -488,6 +490,22 @@ Response Types:
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#PasskeyMfaVerificationInitResponse">PasskeyMfaVerificationInitResponse</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TotpMfaEnrollmentInitResponse">TotpMfaEnrollmentInitResponse</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#TotpMfaEnrollmentOptions">TotpMfaEnrollmentOptions</a>
+
+### Email
+
+#### Enrollment
+
+Methods:
+
+- <code title="post /v1/users/{user_id}/mfa/email/enrollment/init">client.Users.Mfa.Email.Enrollment.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaEmailEnrollmentService.Init">Init</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, userID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaEmailEnrollmentInitParams">UserMfaEmailEnrollmentInitParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SuccessResponse">SuccessResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /v1/users/{user_id}/mfa/email/enrollment/verify">client.Users.Mfa.Email.Enrollment.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaEmailEnrollmentService.Verify">Verify</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, userID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaEmailEnrollmentVerifyParams">UserMfaEmailEnrollmentVerifyParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaVerificationResponse">MfaVerificationResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
+#### Verification
+
+Methods:
+
+- <code title="post /v1/users/{user_id}/mfa/email/verification/init">client.Users.Mfa.Email.Verification.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaEmailVerificationService.Init">Init</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, userID <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaEmailVerificationInitParams">UserMfaEmailVerificationInitParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#SuccessResponse">SuccessResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /v1/users/{user_id}/mfa/email/verification/verify">client.Users.Mfa.Email.Verification.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaEmailVerificationService.Verify">Verify</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, userID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#UserMfaEmailVerificationVerifyParams">UserMfaEmailVerificationVerifyParams</a>) (\*<a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#MfaVerificationResponse">MfaVerificationResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 ### Passkey
 
@@ -1048,6 +1066,7 @@ Response Types:
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EarnWithdrawActionResponse">EarnWithdrawActionResponse</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EthereumEarnPositionResponse">EthereumEarnPositionResponse</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#EthereumEarnVaultDetailsResponseUnion">EthereumEarnVaultDetailsResponseUnion</a>
+- <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#ExternalTransactionStepProvider">ExternalTransactionStepProvider</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#ExternalTransactionWalletActionStep">ExternalTransactionWalletActionStep</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#ExternalTransactionWalletActionStepStatus">ExternalTransactionWalletActionStepStatus</a>
 - <a href="https://pkg.go.dev/github.com/privy-io/go-sdk">privyclient</a>.<a href="https://pkg.go.dev/github.com/privy-io/go-sdk#FailureReason">FailureReason</a>

@@ -963,9 +963,20 @@ func (r *EthereumEarnVaultDetailsResponseUnion) UnmarshalJSON(data []byte) error
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// External provider that fills an external transaction step.
+type ExternalTransactionStepProvider string
+
+const (
+	ExternalTransactionStepProviderRelay       ExternalTransactionStepProvider = "relay"
+	ExternalTransactionStepProviderTempoRoutes ExternalTransactionStepProvider = "tempo_routes"
+	ExternalTransactionStepProviderBridge      ExternalTransactionStepProvider = "bridge"
+)
+
 // A wallet action step representing a cross-chain/cross-asset fill by an external
 // provider.
 type ExternalTransactionWalletActionStep struct {
+	// External provider that fills an external transaction step.
+	Provider ExternalTransactionStepProvider `json:"provider" api:"required"`
 	// Status of an external transaction step in a wallet action.
 	//
 	// Any of "preparing", "queued", "pending", "confirmed", "rejected", "failed".
@@ -976,6 +987,7 @@ type ExternalTransactionWalletActionStep struct {
 	FailureReason FailureReason `json:"failure_reason"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
+		Provider      respjson.Field
 		Status        respjson.Field
 		Type          respjson.Field
 		FailureReason respjson.Field
@@ -1893,6 +1905,8 @@ type WalletActionStepUnion struct {
 	TransactionSignature string `json:"transaction_signature"`
 	// This field is from variant [TvmTransactionWalletActionStep].
 	TransactionID string `json:"transaction_id"`
+	// This field is from variant [ExternalTransactionWalletActionStep].
+	Provider ExternalTransactionStepProvider `json:"provider"`
 	// This field is from variant [CustodianTransactionWalletActionStep].
 	Custodian string `json:"custodian"`
 	JSON      struct {
@@ -1909,6 +1923,7 @@ type WalletActionStepUnion struct {
 		UserOperationHash     respjson.Field
 		TransactionSignature  respjson.Field
 		TransactionID         respjson.Field
+		Provider              respjson.Field
 		Custodian             respjson.Field
 		raw                   string
 	} `json:"-"`

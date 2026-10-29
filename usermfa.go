@@ -19,6 +19,7 @@ import (
 // the [NewUserMfaService] method instead.
 type UserMfaService struct {
 	Options []option.RequestOption
+	Email   UserMfaEmailService
 	Passkey UserMfaPasskeyService
 	SMS     UserMfaSMSService
 	Totp    UserMfaTotpService
@@ -30,10 +31,43 @@ type UserMfaService struct {
 func NewUserMfaService(opts ...option.RequestOption) (r UserMfaService) {
 	r = UserMfaService{}
 	r.Options = opts
+	r.Email = NewUserMfaEmailService(opts...)
 	r.Passkey = NewUserMfaPasskeyService(opts...)
 	r.SMS = NewUserMfaSMSService(opts...)
 	r.Totp = NewUserMfaTotpService(opts...)
 	return
+}
+
+// Starts email MFA enrollment by sending a code to the email address.
+//
+// The property EmailAddress is required.
+type EmailMfaEnrollmentInitRequestBody struct {
+	EmailAddress string `json:"email_address" api:"required" format:"email"`
+	paramObj
+}
+
+func (r EmailMfaEnrollmentInitRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow EmailMfaEnrollmentInitRequestBody
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *EmailMfaEnrollmentInitRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Completes an email MFA ceremony with the code sent at init.
+//
+// The property Code is required.
+type EmailMfaVerifyRequestBody struct {
+	Code string `json:"code" api:"required"`
+	paramObj
+}
+
+func (r EmailMfaVerifyRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow EmailMfaVerifyRequestBody
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *EmailMfaVerifyRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
 // The authenticator assertion response from a WebAuthn authentication ceremony.
