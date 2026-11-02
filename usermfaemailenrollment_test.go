@@ -34,8 +34,8 @@ func TestUserMfaEmailEnrollmentInitWithOptionalParams(t *testing.T) {
 			EmailMfaEnrollmentInitRequestBody: privyclient.EmailMfaEnrollmentInitRequestBody{
 				EmailAddress: "dev@stainless.com",
 			},
-			PrivyUserToken: "x",
-			PrivyMfaToken:  privyclient.String("x"),
+			UserJwt:  "x",
+			MfaToken: privyclient.String("x"),
 		},
 	)
 	if err != nil {
@@ -68,7 +68,7 @@ func TestUserMfaEmailEnrollmentVerify(t *testing.T) {
 			EmailMfaVerifyRequestBody: privyclient.EmailMfaVerifyRequestBody{
 				Code: "xxxxxx",
 			},
-			PrivyUserToken: "x",
+			UserJwt: "x",
 		},
 	)
 	if err != nil {

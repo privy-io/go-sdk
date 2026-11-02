@@ -40,11 +40,11 @@ func NewUserMfaPasskeyEnrollmentService(opts ...option.RequestOption) (r UserMfa
 
 // Returns WebAuthn registration options for a new MFA passkey.
 func (r *UserMfaPasskeyEnrollmentService) Init(ctx context.Context, userID string, params UserMfaPasskeyEnrollmentInitParams, opts ...option.RequestOption) (res *PasskeyMfaEnrollmentInitResponse, err error) {
-	if !param.IsOmitted(params.PrivyUserToken) {
-		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", params.PrivyUserToken)))
+	if !param.IsOmitted(params.UserJwt) {
+		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", params.UserJwt)))
 	}
-	if !param.IsOmitted(params.PrivyMfaToken) {
-		opts = append(opts, option.WithHeader("privy-mfa-token", fmt.Sprintf("%v", params.PrivyMfaToken.Value)))
+	if !param.IsOmitted(params.MfaToken) {
+		opts = append(opts, option.WithHeader("privy-mfa-token", fmt.Sprintf("%v", params.MfaToken.Value)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if userID == "" {
@@ -58,8 +58,8 @@ func (r *UserMfaPasskeyEnrollmentService) Init(ctx context.Context, userID strin
 
 // Enrolls a passkey in MFA using the WebAuthn registration response.
 func (r *UserMfaPasskeyEnrollmentService) Verify(ctx context.Context, userID string, params UserMfaPasskeyEnrollmentVerifyParams, opts ...option.RequestOption) (res *MfaVerificationResponse, err error) {
-	if !param.IsOmitted(params.PrivyUserToken) {
-		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", params.PrivyUserToken)))
+	if !param.IsOmitted(params.UserJwt) {
+		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", params.UserJwt)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if userID == "" {
@@ -75,10 +75,10 @@ type UserMfaPasskeyEnrollmentInitParams struct {
 	// Starts a passkey MFA ceremony for the specified relying party origin.
 	PasskeyMfaInitRequestBody PasskeyMfaInitRequestBody
 	// Access token or custom authentication JWT for the user the request acts on.
-	PrivyUserToken string `header:"privy-user-token" api:"required" json:"-"`
+	UserJwt string `header:"privy-user-token" api:"required" json:"-"`
 	// MFA token from a completed MFA verification, required on MFA-protected requests
 	// for users with MFA enrolled.
-	PrivyMfaToken param.Opt[string] `header:"privy-mfa-token,omitzero" json:"-"`
+	MfaToken param.Opt[string] `header:"privy-mfa-token,omitzero" json:"-"`
 	paramObj
 }
 
@@ -93,7 +93,7 @@ type UserMfaPasskeyEnrollmentVerifyParams struct {
 	// Completes passkey MFA enrollment with a WebAuthn registration response.
 	PasskeyMfaEnrollmentVerifyRequestBody PasskeyMfaEnrollmentVerifyRequestBody
 	// Access token or custom authentication JWT for the user the request acts on.
-	PrivyUserToken string `header:"privy-user-token" api:"required" json:"-"`
+	UserJwt string `header:"privy-user-token" api:"required" json:"-"`
 	paramObj
 }
 

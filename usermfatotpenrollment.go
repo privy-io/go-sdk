@@ -40,11 +40,11 @@ func NewUserMfaTotpEnrollmentService(opts ...option.RequestOption) (r UserMfaTot
 
 // Creates a TOTP secret for the user to add to an authenticator app.
 func (r *UserMfaTotpEnrollmentService) Init(ctx context.Context, userID string, body UserMfaTotpEnrollmentInitParams, opts ...option.RequestOption) (res *TotpMfaEnrollmentInitResponse, err error) {
-	if !param.IsOmitted(body.PrivyUserToken) {
-		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", body.PrivyUserToken)))
+	if !param.IsOmitted(body.UserJwt) {
+		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", body.UserJwt)))
 	}
-	if !param.IsOmitted(body.PrivyMfaToken) {
-		opts = append(opts, option.WithHeader("privy-mfa-token", fmt.Sprintf("%v", body.PrivyMfaToken.Value)))
+	if !param.IsOmitted(body.MfaToken) {
+		opts = append(opts, option.WithHeader("privy-mfa-token", fmt.Sprintf("%v", body.MfaToken.Value)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if userID == "" {
@@ -58,8 +58,8 @@ func (r *UserMfaTotpEnrollmentService) Init(ctx context.Context, userID string, 
 
 // Enrolls the authenticator from init using a code it generated.
 func (r *UserMfaTotpEnrollmentService) Verify(ctx context.Context, userID string, params UserMfaTotpEnrollmentVerifyParams, opts ...option.RequestOption) (res *MfaVerificationResponse, err error) {
-	if !param.IsOmitted(params.PrivyUserToken) {
-		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", params.PrivyUserToken)))
+	if !param.IsOmitted(params.UserJwt) {
+		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", params.UserJwt)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if userID == "" {
@@ -73,10 +73,10 @@ func (r *UserMfaTotpEnrollmentService) Verify(ctx context.Context, userID string
 
 type UserMfaTotpEnrollmentInitParams struct {
 	// Access token or custom authentication JWT for the user the request acts on.
-	PrivyUserToken string `header:"privy-user-token" api:"required" json:"-"`
+	UserJwt string `header:"privy-user-token" api:"required" json:"-"`
 	// MFA token from a completed MFA verification, required on MFA-protected requests
 	// for users with MFA enrolled.
-	PrivyMfaToken param.Opt[string] `header:"privy-mfa-token,omitzero" json:"-"`
+	MfaToken param.Opt[string] `header:"privy-mfa-token,omitzero" json:"-"`
 	paramObj
 }
 
@@ -84,7 +84,7 @@ type UserMfaTotpEnrollmentVerifyParams struct {
 	// Completes a TOTP MFA ceremony with a code from the authenticator.
 	TotpMfaVerifyRequestBody TotpMfaVerifyRequestBody
 	// Access token or custom authentication JWT for the user the request acts on.
-	PrivyUserToken string `header:"privy-user-token" api:"required" json:"-"`
+	UserJwt string `header:"privy-user-token" api:"required" json:"-"`
 	paramObj
 }
 

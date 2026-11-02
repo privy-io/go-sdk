@@ -40,8 +40,8 @@ func NewUserMfaEmailVerificationService(opts ...option.RequestOption) (r UserMfa
 
 // Sends an email MFA verification code to the enrolled email address.
 func (r *UserMfaEmailVerificationService) Init(ctx context.Context, userID string, body UserMfaEmailVerificationInitParams, opts ...option.RequestOption) (res *SuccessResponse, err error) {
-	if !param.IsOmitted(body.PrivyUserToken) {
-		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", body.PrivyUserToken)))
+	if !param.IsOmitted(body.UserJwt) {
+		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", body.UserJwt)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if userID == "" {
@@ -55,8 +55,8 @@ func (r *UserMfaEmailVerificationService) Init(ctx context.Context, userID strin
 
 // Verifies the code sent to the enrolled email address.
 func (r *UserMfaEmailVerificationService) Verify(ctx context.Context, userID string, params UserMfaEmailVerificationVerifyParams, opts ...option.RequestOption) (res *MfaVerificationResponse, err error) {
-	if !param.IsOmitted(params.PrivyUserToken) {
-		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", params.PrivyUserToken)))
+	if !param.IsOmitted(params.UserJwt) {
+		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", params.UserJwt)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if userID == "" {
@@ -70,7 +70,7 @@ func (r *UserMfaEmailVerificationService) Verify(ctx context.Context, userID str
 
 type UserMfaEmailVerificationInitParams struct {
 	// Access token or custom authentication JWT for the user the request acts on.
-	PrivyUserToken string `header:"privy-user-token" api:"required" json:"-"`
+	UserJwt string `header:"privy-user-token" api:"required" json:"-"`
 	paramObj
 }
 
@@ -78,7 +78,7 @@ type UserMfaEmailVerificationVerifyParams struct {
 	// Completes an email MFA ceremony with the code sent at init.
 	EmailMfaVerifyRequestBody EmailMfaVerifyRequestBody
 	// Access token or custom authentication JWT for the user the request acts on.
-	PrivyUserToken string `header:"privy-user-token" api:"required" json:"-"`
+	UserJwt string `header:"privy-user-token" api:"required" json:"-"`
 	paramObj
 }
 

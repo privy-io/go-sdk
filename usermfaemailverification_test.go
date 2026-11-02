@@ -31,7 +31,7 @@ func TestUserMfaEmailVerificationInit(t *testing.T) {
 		context.TODO(),
 		"user_id",
 		privyclient.UserMfaEmailVerificationInitParams{
-			PrivyUserToken: "x",
+			UserJwt: "x",
 		},
 	)
 	if err != nil {
@@ -64,7 +64,7 @@ func TestUserMfaEmailVerificationVerify(t *testing.T) {
 			EmailMfaVerifyRequestBody: privyclient.EmailMfaVerifyRequestBody{
 				Code: "xxxxxx",
 			},
-			PrivyUserToken: "x",
+			UserJwt: "x",
 		},
 	)
 	if err != nil {

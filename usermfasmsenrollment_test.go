@@ -34,8 +34,8 @@ func TestUserMfaSMSEnrollmentInitWithOptionalParams(t *testing.T) {
 			SMSMfaEnrollmentInitRequestBody: privyclient.SMSMfaEnrollmentInitRequestBody{
 				PhoneNumber: "phone_number",
 			},
-			PrivyUserToken: "x",
-			PrivyMfaToken:  privyclient.String("x"),
+			UserJwt:  "x",
+			MfaToken: privyclient.String("x"),
 		},
 	)
 	if err != nil {
@@ -68,7 +68,7 @@ func TestUserMfaSMSEnrollmentVerify(t *testing.T) {
 			SMSMfaVerifyRequestBody: privyclient.SMSMfaVerifyRequestBody{
 				Code: "xxxxxx",
 			},
-			PrivyUserToken: "x",
+			UserJwt: "x",
 		},
 	)
 	if err != nil {

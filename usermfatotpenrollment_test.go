@@ -31,8 +31,8 @@ func TestUserMfaTotpEnrollmentInitWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"user_id",
 		privyclient.UserMfaTotpEnrollmentInitParams{
-			PrivyUserToken: "x",
-			PrivyMfaToken:  privyclient.String("x"),
+			UserJwt:  "x",
+			MfaToken: privyclient.String("x"),
 		},
 	)
 	if err != nil {
@@ -65,7 +65,7 @@ func TestUserMfaTotpEnrollmentVerify(t *testing.T) {
 			TotpMfaVerifyRequestBody: privyclient.TotpMfaVerifyRequestBody{
 				Code: "xxxxxx",
 			},
-			PrivyUserToken: "x",
+			UserJwt: "x",
 		},
 	)
 	if err != nil {

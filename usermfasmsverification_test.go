@@ -31,7 +31,7 @@ func TestUserMfaSMSVerificationInit(t *testing.T) {
 		context.TODO(),
 		"user_id",
 		privyclient.UserMfaSMSVerificationInitParams{
-			PrivyUserToken: "x",
+			UserJwt: "x",
 		},
 	)
 	if err != nil {
@@ -64,7 +64,7 @@ func TestUserMfaSMSVerificationVerify(t *testing.T) {
 			SMSMfaVerifyRequestBody: privyclient.SMSMfaVerifyRequestBody{
 				Code: "xxxxxx",
 			},
-			PrivyUserToken: "x",
+			UserJwt: "x",
 		},
 	)
 	if err != nil {

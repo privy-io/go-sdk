@@ -34,8 +34,8 @@ func TestUserMfaPasskeyEnrollmentInitWithOptionalParams(t *testing.T) {
 			PasskeyMfaInitRequestBody: privyclient.PasskeyMfaInitRequestBody{
 				RelyingParty: "https://example.com",
 			},
-			PrivyUserToken: "x",
-			PrivyMfaToken:  privyclient.String("x"),
+			UserJwt:  "x",
+			MfaToken: privyclient.String("x"),
 		},
 	)
 	if err != nil {
@@ -88,7 +88,7 @@ func TestUserMfaPasskeyEnrollmentVerify(t *testing.T) {
 					AuthenticatorAttachment: privyclient.String("authenticator_attachment"),
 				},
 			},
-			PrivyUserToken: "x",
+			UserJwt: "x",
 		},
 	)
 	if err != nil {

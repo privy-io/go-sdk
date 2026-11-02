@@ -40,8 +40,8 @@ func NewUserMfaTotpVerificationService(opts ...option.RequestOption) (r UserMfaT
 
 // Verifies a code from the enrolled authenticator.
 func (r *UserMfaTotpVerificationService) Verify(ctx context.Context, userID string, params UserMfaTotpVerificationVerifyParams, opts ...option.RequestOption) (res *MfaVerificationResponse, err error) {
-	if !param.IsOmitted(params.PrivyUserToken) {
-		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", params.PrivyUserToken)))
+	if !param.IsOmitted(params.UserJwt) {
+		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", params.UserJwt)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if userID == "" {
@@ -57,7 +57,7 @@ type UserMfaTotpVerificationVerifyParams struct {
 	// Completes a TOTP MFA ceremony with a code from the authenticator.
 	TotpMfaVerifyRequestBody TotpMfaVerifyRequestBody
 	// Access token or custom authentication JWT for the user the request acts on.
-	PrivyUserToken string `header:"privy-user-token" api:"required" json:"-"`
+	UserJwt string `header:"privy-user-token" api:"required" json:"-"`
 	paramObj
 }
 

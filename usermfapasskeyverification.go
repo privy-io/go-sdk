@@ -40,8 +40,8 @@ func NewUserMfaPasskeyVerificationService(opts ...option.RequestOption) (r UserM
 
 // Returns WebAuthn authentication options for the enrolled MFA passkeys.
 func (r *UserMfaPasskeyVerificationService) Init(ctx context.Context, userID string, params UserMfaPasskeyVerificationInitParams, opts ...option.RequestOption) (res *PasskeyMfaVerificationInitResponse, err error) {
-	if !param.IsOmitted(params.PrivyUserToken) {
-		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", params.PrivyUserToken)))
+	if !param.IsOmitted(params.UserJwt) {
+		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", params.UserJwt)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if userID == "" {
@@ -55,8 +55,8 @@ func (r *UserMfaPasskeyVerificationService) Init(ctx context.Context, userID str
 
 // Verifies the WebAuthn authentication response from an MFA passkey.
 func (r *UserMfaPasskeyVerificationService) Verify(ctx context.Context, userID string, params UserMfaPasskeyVerificationVerifyParams, opts ...option.RequestOption) (res *MfaVerificationResponse, err error) {
-	if !param.IsOmitted(params.PrivyUserToken) {
-		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", params.PrivyUserToken)))
+	if !param.IsOmitted(params.UserJwt) {
+		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", params.UserJwt)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if userID == "" {
@@ -72,7 +72,7 @@ type UserMfaPasskeyVerificationInitParams struct {
 	// Starts a passkey MFA ceremony for the specified relying party origin.
 	PasskeyMfaInitRequestBody PasskeyMfaInitRequestBody
 	// Access token or custom authentication JWT for the user the request acts on.
-	PrivyUserToken string `header:"privy-user-token" api:"required" json:"-"`
+	UserJwt string `header:"privy-user-token" api:"required" json:"-"`
 	paramObj
 }
 
@@ -87,7 +87,7 @@ type UserMfaPasskeyVerificationVerifyParams struct {
 	// Completes passkey MFA verification with a WebAuthn authentication response.
 	PasskeyMfaVerificationVerifyRequestBody PasskeyMfaVerificationVerifyRequestBody
 	// Access token or custom authentication JWT for the user the request acts on.
-	PrivyUserToken string `header:"privy-user-token" api:"required" json:"-"`
+	UserJwt string `header:"privy-user-token" api:"required" json:"-"`
 	paramObj
 }
 

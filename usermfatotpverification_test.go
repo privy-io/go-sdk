@@ -34,7 +34,7 @@ func TestUserMfaTotpVerificationVerify(t *testing.T) {
 			TotpMfaVerifyRequestBody: privyclient.TotpMfaVerifyRequestBody{
 				Code: "xxxxxx",
 			},
-			PrivyUserToken: "x",
+			UserJwt: "x",
 		},
 	)
 	if err != nil {

@@ -40,8 +40,8 @@ func NewUserMfaSMSVerificationService(opts ...option.RequestOption) (r UserMfaSM
 
 // Sends an SMS MFA verification code to the enrolled phone number.
 func (r *UserMfaSMSVerificationService) Init(ctx context.Context, userID string, body UserMfaSMSVerificationInitParams, opts ...option.RequestOption) (res *SuccessResponse, err error) {
-	if !param.IsOmitted(body.PrivyUserToken) {
-		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", body.PrivyUserToken)))
+	if !param.IsOmitted(body.UserJwt) {
+		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", body.UserJwt)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if userID == "" {
@@ -55,8 +55,8 @@ func (r *UserMfaSMSVerificationService) Init(ctx context.Context, userID string,
 
 // Verifies the code sent to the enrolled phone number.
 func (r *UserMfaSMSVerificationService) Verify(ctx context.Context, userID string, params UserMfaSMSVerificationVerifyParams, opts ...option.RequestOption) (res *MfaVerificationResponse, err error) {
-	if !param.IsOmitted(params.PrivyUserToken) {
-		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", params.PrivyUserToken)))
+	if !param.IsOmitted(params.UserJwt) {
+		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", params.UserJwt)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if userID == "" {
@@ -70,7 +70,7 @@ func (r *UserMfaSMSVerificationService) Verify(ctx context.Context, userID strin
 
 type UserMfaSMSVerificationInitParams struct {
 	// Access token or custom authentication JWT for the user the request acts on.
-	PrivyUserToken string `header:"privy-user-token" api:"required" json:"-"`
+	UserJwt string `header:"privy-user-token" api:"required" json:"-"`
 	paramObj
 }
 
@@ -78,7 +78,7 @@ type UserMfaSMSVerificationVerifyParams struct {
 	// Completes an SMS MFA ceremony with the code sent at init.
 	SMSMfaVerifyRequestBody SMSMfaVerifyRequestBody
 	// Access token or custom authentication JWT for the user the request acts on.
-	PrivyUserToken string `header:"privy-user-token" api:"required" json:"-"`
+	UserJwt string `header:"privy-user-token" api:"required" json:"-"`
 	paramObj
 }
 

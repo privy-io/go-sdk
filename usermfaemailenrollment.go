@@ -40,11 +40,11 @@ func NewUserMfaEmailEnrollmentService(opts ...option.RequestOption) (r UserMfaEm
 
 // Sends an email MFA enrollment code to an email address.
 func (r *UserMfaEmailEnrollmentService) Init(ctx context.Context, userID string, params UserMfaEmailEnrollmentInitParams, opts ...option.RequestOption) (res *SuccessResponse, err error) {
-	if !param.IsOmitted(params.PrivyUserToken) {
-		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", params.PrivyUserToken)))
+	if !param.IsOmitted(params.UserJwt) {
+		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", params.UserJwt)))
 	}
-	if !param.IsOmitted(params.PrivyMfaToken) {
-		opts = append(opts, option.WithHeader("privy-mfa-token", fmt.Sprintf("%v", params.PrivyMfaToken.Value)))
+	if !param.IsOmitted(params.MfaToken) {
+		opts = append(opts, option.WithHeader("privy-mfa-token", fmt.Sprintf("%v", params.MfaToken.Value)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if userID == "" {
@@ -58,8 +58,8 @@ func (r *UserMfaEmailEnrollmentService) Init(ctx context.Context, userID string,
 
 // Enrolls the email address from init using the code sent to it.
 func (r *UserMfaEmailEnrollmentService) Verify(ctx context.Context, userID string, params UserMfaEmailEnrollmentVerifyParams, opts ...option.RequestOption) (res *MfaVerificationResponse, err error) {
-	if !param.IsOmitted(params.PrivyUserToken) {
-		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", params.PrivyUserToken)))
+	if !param.IsOmitted(params.UserJwt) {
+		opts = append(opts, option.WithHeader("privy-user-token", fmt.Sprintf("%v", params.UserJwt)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	if userID == "" {
@@ -75,10 +75,10 @@ type UserMfaEmailEnrollmentInitParams struct {
 	// Starts email MFA enrollment by sending a code to the email address.
 	EmailMfaEnrollmentInitRequestBody EmailMfaEnrollmentInitRequestBody
 	// Access token or custom authentication JWT for the user the request acts on.
-	PrivyUserToken string `header:"privy-user-token" api:"required" json:"-"`
+	UserJwt string `header:"privy-user-token" api:"required" json:"-"`
 	// MFA token from a completed MFA verification, required on MFA-protected requests
 	// for users with MFA enrolled.
-	PrivyMfaToken param.Opt[string] `header:"privy-mfa-token,omitzero" json:"-"`
+	MfaToken param.Opt[string] `header:"privy-mfa-token,omitzero" json:"-"`
 	paramObj
 }
 
@@ -93,7 +93,7 @@ type UserMfaEmailEnrollmentVerifyParams struct {
 	// Completes an email MFA ceremony with the code sent at init.
 	EmailMfaVerifyRequestBody EmailMfaVerifyRequestBody
 	// Access token or custom authentication JWT for the user the request acts on.
-	PrivyUserToken string `header:"privy-user-token" api:"required" json:"-"`
+	UserJwt string `header:"privy-user-token" api:"required" json:"-"`
 	paramObj
 }
 
