@@ -2055,6 +2055,9 @@ type WalletActionEarnDepositCreatedWebhookPayload struct {
 	Caip2 string `json:"caip2" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Base-unit amount of asset deposited (e.g. "1500000").
 	RawAmount string `json:"raw_amount" api:"required"`
 	// The status of the wallet action.
@@ -2090,6 +2093,7 @@ type WalletActionEarnDepositCreatedWebhookPayload struct {
 		AssetAddress   respjson.Field
 		Caip2          respjson.Field
 		CreatedAt      respjson.Field
+		EventID        respjson.Field
 		RawAmount      respjson.Field
 		Status         respjson.Field
 		Type           respjson.Field
@@ -2139,6 +2143,9 @@ type WalletActionEarnDepositFailedWebhookPayload struct {
 	Caip2 string `json:"caip2" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// ISO 8601 timestamp of when the wallet action failed.
 	FailedAt string `json:"failed_at" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
@@ -2183,6 +2190,7 @@ type WalletActionEarnDepositFailedWebhookPayload struct {
 		AssetAddress   respjson.Field
 		Caip2          respjson.Field
 		CreatedAt      respjson.Field
+		EventID        respjson.Field
 		FailedAt       respjson.Field
 		FailureReason  respjson.Field
 		RawAmount      respjson.Field
@@ -2235,6 +2243,9 @@ type WalletActionEarnDepositRejectedWebhookPayload struct {
 	Caip2 string `json:"caip2" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason" api:"required"`
 	// Base-unit amount of asset deposited (e.g. "1500000").
@@ -2278,6 +2289,7 @@ type WalletActionEarnDepositRejectedWebhookPayload struct {
 		AssetAddress   respjson.Field
 		Caip2          respjson.Field
 		CreatedAt      respjson.Field
+		EventID        respjson.Field
 		FailureReason  respjson.Field
 		RawAmount      respjson.Field
 		RejectedAt     respjson.Field
@@ -2332,6 +2344,9 @@ type WalletActionEarnDepositSucceededWebhookPayload struct {
 	CompletedAt string `json:"completed_at" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Base-unit amount of asset deposited (e.g. "1500000").
 	RawAmount string `json:"raw_amount" api:"required"`
 	// Vault shares received in base units.
@@ -2374,6 +2389,7 @@ type WalletActionEarnDepositSucceededWebhookPayload struct {
 		Caip2          respjson.Field
 		CompletedAt    respjson.Field
 		CreatedAt      respjson.Field
+		EventID        respjson.Field
 		RawAmount      respjson.Field
 		ShareAmount    respjson.Field
 		Status         respjson.Field
@@ -2425,6 +2441,9 @@ type WalletActionEarnFeeCollectCreatedWebhookPayload struct {
 	Caip2 string `json:"caip2" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Base-unit amount of fees collected (e.g. "1500000").
 	RawAmount string `json:"raw_amount" api:"required"`
 	// The status of the wallet action.
@@ -2460,6 +2479,7 @@ type WalletActionEarnFeeCollectCreatedWebhookPayload struct {
 		AssetAddress   respjson.Field
 		Caip2          respjson.Field
 		CreatedAt      respjson.Field
+		EventID        respjson.Field
 		RawAmount      respjson.Field
 		Status         respjson.Field
 		Type           respjson.Field
@@ -2509,6 +2529,9 @@ type WalletActionEarnFeeCollectFailedWebhookPayload struct {
 	Caip2 string `json:"caip2" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// ISO 8601 timestamp of when the wallet action failed.
 	FailedAt string `json:"failed_at" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
@@ -2553,6 +2576,7 @@ type WalletActionEarnFeeCollectFailedWebhookPayload struct {
 		AssetAddress   respjson.Field
 		Caip2          respjson.Field
 		CreatedAt      respjson.Field
+		EventID        respjson.Field
 		FailedAt       respjson.Field
 		FailureReason  respjson.Field
 		RawAmount      respjson.Field
@@ -2605,6 +2629,9 @@ type WalletActionEarnFeeCollectRejectedWebhookPayload struct {
 	Caip2 string `json:"caip2" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason" api:"required"`
 	// Base-unit amount of fees collected (e.g. "1500000").
@@ -2648,6 +2675,7 @@ type WalletActionEarnFeeCollectRejectedWebhookPayload struct {
 		AssetAddress   respjson.Field
 		Caip2          respjson.Field
 		CreatedAt      respjson.Field
+		EventID        respjson.Field
 		FailureReason  respjson.Field
 		RawAmount      respjson.Field
 		RejectedAt     respjson.Field
@@ -2702,6 +2730,9 @@ type WalletActionEarnFeeCollectSucceededWebhookPayload struct {
 	CompletedAt string `json:"completed_at" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Base-unit amount of fees collected (e.g. "1500000").
 	RawAmount string `json:"raw_amount" api:"required"`
 	// The status of the wallet action.
@@ -2742,6 +2773,7 @@ type WalletActionEarnFeeCollectSucceededWebhookPayload struct {
 		Caip2          respjson.Field
 		CompletedAt    respjson.Field
 		CreatedAt      respjson.Field
+		EventID        respjson.Field
 		RawAmount      respjson.Field
 		Status         respjson.Field
 		Steps          respjson.Field
@@ -2790,6 +2822,9 @@ type WalletActionEarnIncentiveClaimCreatedWebhookPayload struct {
 	Chain string `json:"chain" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Claimed reward tokens. Populated after the preparation step fetches from Merkl.
 	Rewards []EarnIncetiveClaimRewardEntry `json:"rewards" api:"required"`
 	// The status of the wallet action.
@@ -2811,6 +2846,7 @@ type WalletActionEarnIncentiveClaimCreatedWebhookPayload struct {
 		ActionType     respjson.Field
 		Chain          respjson.Field
 		CreatedAt      respjson.Field
+		EventID        respjson.Field
 		Rewards        respjson.Field
 		Status         respjson.Field
 		Type           respjson.Field
@@ -2853,6 +2889,9 @@ type WalletActionEarnIncentiveClaimFailedWebhookPayload struct {
 	Chain string `json:"chain" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// ISO 8601 timestamp of when the wallet action failed.
 	FailedAt string `json:"failed_at" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
@@ -2883,6 +2922,7 @@ type WalletActionEarnIncentiveClaimFailedWebhookPayload struct {
 		ActionType     respjson.Field
 		Chain          respjson.Field
 		CreatedAt      respjson.Field
+		EventID        respjson.Field
 		FailedAt       respjson.Field
 		FailureReason  respjson.Field
 		Rewards        respjson.Field
@@ -2928,6 +2968,9 @@ type WalletActionEarnIncentiveClaimRejectedWebhookPayload struct {
 	Chain string `json:"chain" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was rejected.
@@ -2957,6 +3000,7 @@ type WalletActionEarnIncentiveClaimRejectedWebhookPayload struct {
 		ActionType     respjson.Field
 		Chain          respjson.Field
 		CreatedAt      respjson.Field
+		EventID        respjson.Field
 		FailureReason  respjson.Field
 		RejectedAt     respjson.Field
 		Rewards        respjson.Field
@@ -3004,6 +3048,9 @@ type WalletActionEarnIncentiveClaimSucceededWebhookPayload struct {
 	CompletedAt string `json:"completed_at" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Claimed reward tokens. Populated after the preparation step fetches from Merkl.
 	Rewards []EarnIncetiveClaimRewardEntry `json:"rewards" api:"required"`
 	// The status of the wallet action.
@@ -3030,6 +3077,7 @@ type WalletActionEarnIncentiveClaimSucceededWebhookPayload struct {
 		Chain          respjson.Field
 		CompletedAt    respjson.Field
 		CreatedAt      respjson.Field
+		EventID        respjson.Field
 		Rewards        respjson.Field
 		Status         respjson.Field
 		Steps          respjson.Field
@@ -3075,6 +3123,9 @@ type WalletActionEarnWithdrawCreatedWebhookPayload struct {
 	Caip2 string `json:"caip2" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Base-unit amount of asset withdrawn (e.g. "1500000").
 	RawAmount string `json:"raw_amount" api:"required"`
 	// The status of the wallet action.
@@ -3110,6 +3161,7 @@ type WalletActionEarnWithdrawCreatedWebhookPayload struct {
 		AssetAddress   respjson.Field
 		Caip2          respjson.Field
 		CreatedAt      respjson.Field
+		EventID        respjson.Field
 		RawAmount      respjson.Field
 		Status         respjson.Field
 		Type           respjson.Field
@@ -3159,6 +3211,9 @@ type WalletActionEarnWithdrawFailedWebhookPayload struct {
 	Caip2 string `json:"caip2" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// ISO 8601 timestamp of when the wallet action failed.
 	FailedAt string `json:"failed_at" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
@@ -3203,6 +3258,7 @@ type WalletActionEarnWithdrawFailedWebhookPayload struct {
 		AssetAddress   respjson.Field
 		Caip2          respjson.Field
 		CreatedAt      respjson.Field
+		EventID        respjson.Field
 		FailedAt       respjson.Field
 		FailureReason  respjson.Field
 		RawAmount      respjson.Field
@@ -3255,6 +3311,9 @@ type WalletActionEarnWithdrawRejectedWebhookPayload struct {
 	Caip2 string `json:"caip2" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason" api:"required"`
 	// Base-unit amount of asset withdrawn (e.g. "1500000").
@@ -3298,6 +3357,7 @@ type WalletActionEarnWithdrawRejectedWebhookPayload struct {
 		AssetAddress   respjson.Field
 		Caip2          respjson.Field
 		CreatedAt      respjson.Field
+		EventID        respjson.Field
 		FailureReason  respjson.Field
 		RawAmount      respjson.Field
 		RejectedAt     respjson.Field
@@ -3352,6 +3412,9 @@ type WalletActionEarnWithdrawSucceededWebhookPayload struct {
 	CompletedAt string `json:"completed_at" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Base-unit amount of asset withdrawn (e.g. "1500000").
 	RawAmount string `json:"raw_amount" api:"required"`
 	// Vault shares burned in base units.
@@ -3394,6 +3457,7 @@ type WalletActionEarnWithdrawSucceededWebhookPayload struct {
 		Caip2          respjson.Field
 		CompletedAt    respjson.Field
 		CreatedAt      respjson.Field
+		EventID        respjson.Field
 		RawAmount      respjson.Field
 		ShareAmount    respjson.Field
 		Status         respjson.Field
@@ -3451,6 +3515,9 @@ type WalletActionPayoutCreatedWebhookPayload struct {
 	//
 	// Any of "sandbox", "production".
 	Environment Environment `json:"environment" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Supported fiat orchestration providers.
 	//
 	// Any of "bridge".
@@ -3483,6 +3550,7 @@ type WalletActionPayoutCreatedWebhookPayload struct {
 		DestinationFiatAccountID respjson.Field
 		DestinationPaymentRail   respjson.Field
 		Environment              respjson.Field
+		EventID                  respjson.Field
 		Provider                 respjson.Field
 		SourceAmount             respjson.Field
 		SourceAsset              respjson.Field
@@ -3536,6 +3604,9 @@ type WalletActionPayoutFailedWebhookPayload struct {
 	//
 	// Any of "sandbox", "production".
 	Environment Environment `json:"environment" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// ISO 8601 timestamp of when the wallet action failed.
 	FailedAt string `json:"failed_at" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
@@ -3577,6 +3648,7 @@ type WalletActionPayoutFailedWebhookPayload struct {
 		DestinationFiatAccountID respjson.Field
 		DestinationPaymentRail   respjson.Field
 		Environment              respjson.Field
+		EventID                  respjson.Field
 		FailedAt                 respjson.Field
 		FailureReason            respjson.Field
 		Provider                 respjson.Field
@@ -3633,6 +3705,9 @@ type WalletActionPayoutRejectedWebhookPayload struct {
 	//
 	// Any of "sandbox", "production".
 	Environment Environment `json:"environment" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason" api:"required"`
 	// Supported fiat orchestration providers.
@@ -3673,6 +3748,7 @@ type WalletActionPayoutRejectedWebhookPayload struct {
 		DestinationFiatAccountID respjson.Field
 		DestinationPaymentRail   respjson.Field
 		Environment              respjson.Field
+		EventID                  respjson.Field
 		FailureReason            respjson.Field
 		Provider                 respjson.Field
 		RejectedAt               respjson.Field
@@ -3731,6 +3807,9 @@ type WalletActionPayoutSucceededWebhookPayload struct {
 	//
 	// Any of "sandbox", "production".
 	Environment Environment `json:"environment" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Supported fiat orchestration providers.
 	//
 	// Any of "bridge".
@@ -3768,6 +3847,7 @@ type WalletActionPayoutSucceededWebhookPayload struct {
 		DestinationFiatAccountID respjson.Field
 		DestinationPaymentRail   respjson.Field
 		Environment              respjson.Field
+		EventID                  respjson.Field
 		Provider                 respjson.Field
 		SourceAmount             respjson.Field
 		SourceAsset              respjson.Field
@@ -3814,6 +3894,9 @@ type WalletActionSwapCreatedWebhookPayload struct {
 	Caip2 string `json:"caip2" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Amount of input token in base units. Populated after onchain confirmation.
 	InputAmount string `json:"input_amount" api:"required"`
 	// Token address being sold.
@@ -3839,6 +3922,7 @@ type WalletActionSwapCreatedWebhookPayload struct {
 		ActionType     respjson.Field
 		Caip2          respjson.Field
 		CreatedAt      respjson.Field
+		EventID        respjson.Field
 		InputAmount    respjson.Field
 		InputToken     respjson.Field
 		OutputToken    respjson.Field
@@ -3883,6 +3967,9 @@ type WalletActionSwapFailedWebhookPayload struct {
 	Caip2 string `json:"caip2" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// ISO 8601 timestamp of when the wallet action failed.
 	FailedAt string `json:"failed_at" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
@@ -3917,6 +4004,7 @@ type WalletActionSwapFailedWebhookPayload struct {
 		ActionType     respjson.Field
 		Caip2          respjson.Field
 		CreatedAt      respjson.Field
+		EventID        respjson.Field
 		FailedAt       respjson.Field
 		FailureReason  respjson.Field
 		InputAmount    respjson.Field
@@ -3964,6 +4052,9 @@ type WalletActionSwapRejectedWebhookPayload struct {
 	Caip2 string `json:"caip2" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason" api:"required"`
 	// Amount of input token in base units. Populated after onchain confirmation.
@@ -3997,6 +4088,7 @@ type WalletActionSwapRejectedWebhookPayload struct {
 		ActionType     respjson.Field
 		Caip2          respjson.Field
 		CreatedAt      respjson.Field
+		EventID        respjson.Field
 		FailureReason  respjson.Field
 		InputAmount    respjson.Field
 		InputToken     respjson.Field
@@ -4046,6 +4138,9 @@ type WalletActionSwapSucceededWebhookPayload struct {
 	CompletedAt string `json:"completed_at" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was created.
 	CreatedAt string `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Amount of input token in base units. Populated after onchain confirmation.
 	InputAmount string `json:"input_amount" api:"required"`
 	// Token address being sold.
@@ -4079,6 +4174,7 @@ type WalletActionSwapSucceededWebhookPayload struct {
 		Caip2          respjson.Field
 		CompletedAt    respjson.Field
 		CreatedAt      respjson.Field
+		EventID        respjson.Field
 		InputAmount    respjson.Field
 		InputToken     respjson.Field
 		OutputAmount   respjson.Field
@@ -4125,6 +4221,9 @@ type WalletActionTransferCreatedWebhookPayload struct {
 	CreatedAt string `json:"created_at" api:"required"`
 	// Recipient address.
 	DestinationAddress string `json:"destination_address" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Chain name (e.g. "tempo", "base").
 	SourceChain string `json:"source_chain" api:"required"`
 	// The status of the wallet action.
@@ -4158,6 +4257,7 @@ type WalletActionTransferCreatedWebhookPayload struct {
 		ActionType          respjson.Field
 		CreatedAt           respjson.Field
 		DestinationAddress  respjson.Field
+		EventID             respjson.Field
 		SourceChain         respjson.Field
 		Status              respjson.Field
 		Type                respjson.Field
@@ -4204,6 +4304,9 @@ type WalletActionTransferFailedWebhookPayload struct {
 	CreatedAt string `json:"created_at" api:"required"`
 	// Recipient address.
 	DestinationAddress string `json:"destination_address" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// ISO 8601 timestamp of when the wallet action failed.
 	FailedAt string `json:"failed_at" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
@@ -4246,6 +4349,7 @@ type WalletActionTransferFailedWebhookPayload struct {
 		ActionType          respjson.Field
 		CreatedAt           respjson.Field
 		DestinationAddress  respjson.Field
+		EventID             respjson.Field
 		FailedAt            respjson.Field
 		FailureReason       respjson.Field
 		SourceChain         respjson.Field
@@ -4295,6 +4399,9 @@ type WalletActionTransferRejectedWebhookPayload struct {
 	CreatedAt string `json:"created_at" api:"required"`
 	// Recipient address.
 	DestinationAddress string `json:"destination_address" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// A description of why a wallet action (or a step within a wallet action) failed.
 	FailureReason FailureReason `json:"failure_reason" api:"required"`
 	// ISO 8601 timestamp of when the wallet action was rejected.
@@ -4336,6 +4443,7 @@ type WalletActionTransferRejectedWebhookPayload struct {
 		ActionType          respjson.Field
 		CreatedAt           respjson.Field
 		DestinationAddress  respjson.Field
+		EventID             respjson.Field
 		FailureReason       respjson.Field
 		RejectedAt          respjson.Field
 		SourceChain         respjson.Field
@@ -4387,6 +4495,9 @@ type WalletActionTransferSucceededWebhookPayload struct {
 	CreatedAt string `json:"created_at" api:"required"`
 	// Recipient address.
 	DestinationAddress string `json:"destination_address" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Chain name (e.g. "tempo", "base").
 	SourceChain string `json:"source_chain" api:"required"`
 	// The status of the wallet action.
@@ -4425,6 +4536,7 @@ type WalletActionTransferSucceededWebhookPayload struct {
 		CompletedAt         respjson.Field
 		CreatedAt           respjson.Field
 		DestinationAddress  respjson.Field
+		EventID             respjson.Field
 		SourceChain         respjson.Field
 		Status              respjson.Field
 		Steps               respjson.Field
