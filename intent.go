@@ -73,6 +73,19 @@ func (r *IntentService) ListAutoPaging(ctx context.Context, query IntentListPara
 	return pagination.NewCursorAutoPager(r.List(ctx, query, opts...))
 }
 
+// Authorize a pending intent by providing a signature. Can be called by the wallet
+// owner (via user token) or with the app secret.
+func (r *IntentService) Authorize(ctx context.Context, intentID string, body IntentAuthorizeParams, opts ...option.RequestOption) (res *IntentResponseUnion, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if intentID == "" {
+		err = errors.New("missing required intent_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("v1/intents/%s/authorize", url.PathEscape(intentID))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return res, err
+}
+
 // Create an intent to add items to a condition set. The intent must be authorized
 // by the condition set owner before it can be executed.
 func (r *IntentService) NewConditionSetItems(ctx context.Context, conditionSetID string, params IntentNewConditionSetItemsParams, opts ...option.RequestOption) (res *ConditionSetItemMutateIntentResponse, err error) {
@@ -1100,6 +1113,26 @@ type IntentAuthorizationUserMemberType string
 const (
 	IntentAuthorizationUserMemberTypeUser IntentAuthorizationUserMemberType = "user"
 )
+
+// Request body for authorizing an intent.
+//
+// The properties Signature, Timestamp are required.
+type IntentAuthorizeInput struct {
+	// Signature authorizing the intent.
+	Signature string `json:"signature" api:"required"`
+	// Unix timestamp (in milliseconds) when the signature was created. Used to verify
+	// the signature was created when the signing key was valid.
+	Timestamp float64 `json:"timestamp" api:"required"`
+	paramObj
+}
+
+func (r IntentAuthorizeInput) MarshalJSON() (data []byte, err error) {
+	type shadow IntentAuthorizeInput
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *IntentAuthorizeInput) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 // IntentResponseUnion contains all possible properties and values from
 // [RpcIntentResponse], [TransferIntentResponse], [RawSignIntentResponse],
@@ -3004,6 +3037,19 @@ const (
 	IntentListParamsSortByExpiresAtAsc  IntentListParamsSortBy = "expires_at_asc"
 	IntentListParamsSortByUpdatedAtDesc IntentListParamsSortBy = "updated_at_desc"
 )
+
+type IntentAuthorizeParams struct {
+	// Request body for authorizing an intent.
+	IntentAuthorizeInput IntentAuthorizeInput
+	paramObj
+}
+
+func (r IntentAuthorizeParams) MarshalJSON() (data []byte, err error) {
+	return shimjson.Marshal(r.IntentAuthorizeInput)
+}
+func (r *IntentAuthorizeParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 type IntentNewConditionSetItemsParams struct {
 	// Array of values to add to the condition set. Maximum 100 items per request.

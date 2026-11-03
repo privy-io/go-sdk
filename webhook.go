@@ -1510,8 +1510,8 @@ const (
 // associated token account creation rent).
 type UsageAtaDepositRecordedWebhookPayload struct {
 	AmountUsd string `json:"amount_usd" api:"required"`
-	// An opaque, stable identifier for this charge. Use it to deduplicate webhook
-	// deliveries.
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
 	EventID    string `json:"event_id" api:"required"`
 	RecordedAt int64  `json:"recorded_at" api:"required"`
 	SourceID   string `json:"source_id" api:"required"`
@@ -1553,8 +1553,8 @@ const (
 // gas).
 type UsageGasSponsorshipRecordedWebhookPayload struct {
 	AmountUsd string `json:"amount_usd" api:"required"`
-	// An opaque, stable identifier for this charge. Use it to deduplicate webhook
-	// deliveries.
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
 	EventID    string `json:"event_id" api:"required"`
 	RecordedAt int64  `json:"recorded_at" api:"required"`
 	SourceID   string `json:"source_id" api:"required"`
@@ -1605,8 +1605,8 @@ const (
 // fee on a cross-chain transfer or swap).
 type UsageSwapProviderFeeRecordedWebhookPayload struct {
 	AmountUsd string `json:"amount_usd" api:"required"`
-	// An opaque, stable identifier for this charge. Use it to deduplicate webhook
-	// deliveries.
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
 	EventID    string `json:"event_id" api:"required"`
 	RecordedAt int64  `json:"recorded_at" api:"required"`
 	SourceID   string `json:"source_id" api:"required"`
