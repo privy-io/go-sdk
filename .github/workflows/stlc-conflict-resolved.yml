@@ -35,7 +35,7 @@ jobs:
           BRANCH: ${{ github.ref_name }}
         run: |
           target_branch="${BRANCH%--integrated}"
-          GH_HOST=github.com gh api repos/privy-io/stainless-sdks-config/dispatches \
+          GH_HOST=github.com gh api repos/privy-io/sdks/dispatches \
             -X POST \
             -f event_type=conflict-resolved \
             -f 'client_payload[branch]='"$target_branch" \

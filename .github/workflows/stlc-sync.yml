@@ -156,7 +156,7 @@ jobs:
       group: seal-dispatch-${{ github.ref }}
       cancel-in-progress: false
     env:
-      CONFIG_REPO: privy-io/stainless-sdks-config
+      CONFIG_REPO: privy-io/sdks
     steps:
       - name: Loop-guard
         id: guard
