@@ -16,6 +16,8 @@ type WalletEarnService struct {
 	Options []option.RequestOption
 	// Operations related to wallet actions
 	Ethereum WalletEarnEthereumService
+	// Operations related to wallet actions
+	Tmmf WalletEarnTmmfService
 }
 
 // NewWalletEarnService generates a new service that applies the given options to
@@ -25,5 +27,6 @@ func NewWalletEarnService(opts ...option.RequestOption) (r WalletEarnService) {
 	r = WalletEarnService{}
 	r.Options = opts
 	r.Ethereum = NewWalletEarnEthereumService(opts...)
+	r.Tmmf = NewWalletEarnTmmfService(opts...)
 	return
 }

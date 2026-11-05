@@ -1224,8 +1224,9 @@ const (
 type PolicyAction string
 
 const (
-	PolicyActionAllow PolicyAction = "ALLOW"
-	PolicyActionDeny  PolicyAction = "DENY"
+	PolicyActionAllow        PolicyAction = "ALLOW"
+	PolicyActionDeny         PolicyAction = "DENY"
+	PolicyActionAllowWithMfa PolicyAction = "ALLOW_WITH_MFA"
 )
 
 // PolicyConditionUnionResp contains all possible properties and values from
@@ -1671,7 +1672,7 @@ const (
 type PolicyRuleRequestBodyResp struct {
 	// The action to take when a policy rule matches.
 	//
-	// Any of "ALLOW", "DENY".
+	// Any of "ALLOW", "DENY", "ALLOW_WITH_MFA".
 	Action     PolicyAction               `json:"action" api:"required"`
 	Conditions []PolicyConditionUnionResp `json:"conditions" api:"required"`
 	// Method the rule applies to.
@@ -1717,7 +1718,7 @@ func (r PolicyRuleRequestBodyResp) ToParam() PolicyRuleRequestBody {
 type PolicyRuleRequestBody struct {
 	// The action to take when a policy rule matches.
 	//
-	// Any of "ALLOW", "DENY".
+	// Any of "ALLOW", "DENY", "ALLOW_WITH_MFA".
 	Action     PolicyAction           `json:"action,omitzero" api:"required"`
 	Conditions []PolicyConditionUnion `json:"conditions,omitzero" api:"required"`
 	// Method the rule applies to.
@@ -1748,7 +1749,7 @@ type PolicyRuleResponse struct {
 	ID string `json:"id" api:"required"`
 	// The action to take when a policy rule matches.
 	//
-	// Any of "ALLOW", "DENY".
+	// Any of "ALLOW", "DENY", "ALLOW_WITH_MFA".
 	Action     PolicyAction               `json:"action" api:"required"`
 	Conditions []PolicyConditionUnionResp `json:"conditions" api:"required"`
 	// Method the rule applies to.
@@ -2979,7 +2980,7 @@ func (r *PolicyNewParams) UnmarshalJSON(data []byte) error {
 type PolicyNewParamsRule struct {
 	// The action to take when a policy rule matches.
 	//
-	// Any of "ALLOW", "DENY".
+	// Any of "ALLOW", "DENY", "ALLOW_WITH_MFA".
 	Action     PolicyAction           `json:"action,omitzero" api:"required"`
 	Conditions []PolicyConditionUnion `json:"conditions,omitzero" api:"required"`
 	// Method the rule applies to.

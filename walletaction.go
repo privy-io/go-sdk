@@ -1479,6 +1479,505 @@ const (
 	TempoZoneSettlementWalletActionStepTypeTempoZoneSettlement TempoZoneSettlementWalletActionStepType = "tempo_zone_settlement"
 )
 
+type TmmfChain = string
+
+type TmmfCurrency = string
+
+type TmmfDecimalAmount = string
+
+// A tokenized money market fund (tMMF) deposit.
+type TmmfDepositActionResponse struct {
+	// The ID of the wallet action.
+	ID string `json:"id" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// Status of a wallet action.
+	//
+	// Any of "pending", "succeeded", "rejected", "failed".
+	Status WalletActionStatus `json:"status" api:"required"`
+	// Any of "tmmf_deposit".
+	Type TmmfDepositActionResponseType `json:"type" api:"required"`
+	// The ID of the wallet involved in the action.
+	WalletID string `json:"wallet_id" api:"required"`
+	// A description of why a wallet action (or a step within a wallet action) failed.
+	FailureReason FailureReason `json:"failure_reason"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
+	// The steps of the wallet action. Only returned if `?include=steps` is provided.
+	Steps []WalletActionStepUnion `json:"steps"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID            respjson.Field
+		CreatedAt     respjson.Field
+		Status        respjson.Field
+		Type          respjson.Field
+		WalletID      respjson.Field
+		FailureReason respjson.Field
+		ReferenceID   respjson.Field
+		Steps         respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TmmfDepositActionResponse) RawJSON() string { return r.JSON.raw }
+func (r *TmmfDepositActionResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type TmmfDepositActionResponseType string
+
+const (
+	TmmfDepositActionResponseTypeTmmfDeposit TmmfDepositActionResponseType = "tmmf_deposit"
+)
+
+// Request body for buying tMMF shares with a currency the wallet holds.
+//
+// The properties Amount, Chain, DepositAsset, Fund, OrderType are required.
+type TmmfDepositRequestBody struct {
+	// A positive decimal amount in the asset's standard unit, e.g. "1000.00".
+	Amount TmmfDecimalAmount `json:"amount" api:"required"`
+	// Chain the fund is held on, e.g. "ethereum_sepolia".
+	Chain TmmfChain `json:"chain" api:"required"`
+	// Currency symbol, e.g. "USDC". Case-insensitive.
+	DepositAsset TmmfCurrency `json:"deposit_asset" api:"required"`
+	// Fund ticker, e.g. "WTGXX". Case-insensitive.
+	Fund TmmfFund `json:"fund" api:"required"`
+	// How a tMMF order fills: `secondary` from the provider pool in minutes, or
+	// `primary` at the next NAV strike.
+	//
+	// Any of "primary", "secondary".
+	OrderType TmmfOrderType `json:"order_type,omitzero" api:"required"`
+	// Unique caller-generated nonce used to prevent replaying a signed wallet action
+	// request. Must be at least 24 characters (e.g. a cuid2 or UUID).
+	Nonce param.Opt[WalletActionNonce] `json:"nonce,omitzero"`
+	// Developer-provided identifier for this request. Must be unique per app.
+	ReferenceID param.Opt[string] `json:"reference_id,omitzero"`
+	paramObj
+}
+
+func (r TmmfDepositRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow TmmfDepositRequestBody
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TmmfDepositRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type TmmfFund = string
+
+// TmmfOrderActionResponseUnion contains all possible properties and values from
+// [TmmfDepositActionResponse], [TmmfWithdrawActionResponse].
+//
+// Use the [TmmfOrderActionResponseUnion.AsAny] method to switch on the variant.
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type TmmfOrderActionResponseUnion struct {
+	ID        string    `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	// This field is from variant [TmmfDepositActionResponse].
+	Status WalletActionStatus `json:"status"`
+	// Any of "tmmf_deposit", "tmmf_withdraw".
+	Type     string `json:"type"`
+	WalletID string `json:"wallet_id"`
+	// This field is from variant [TmmfDepositActionResponse].
+	FailureReason FailureReason           `json:"failure_reason"`
+	ReferenceID   string                  `json:"reference_id"`
+	Steps         []WalletActionStepUnion `json:"steps"`
+	JSON          struct {
+		ID            respjson.Field
+		CreatedAt     respjson.Field
+		Status        respjson.Field
+		Type          respjson.Field
+		WalletID      respjson.Field
+		FailureReason respjson.Field
+		ReferenceID   respjson.Field
+		Steps         respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// anyTmmfOrderActionResponse is implemented by each variant of
+// [TmmfOrderActionResponseUnion] to add type safety for the return type of
+// [TmmfOrderActionResponseUnion.AsAny]
+type anyTmmfOrderActionResponse interface {
+	implTmmfOrderActionResponseUnion()
+}
+
+func (TmmfDepositActionResponse) implTmmfOrderActionResponseUnion()  {}
+func (TmmfWithdrawActionResponse) implTmmfOrderActionResponseUnion() {}
+
+// Use the following switch statement to find the correct variant
+//
+//	switch variant := TmmfOrderActionResponseUnion.AsAny().(type) {
+//	case privyclient.TmmfDepositActionResponse:
+//	case privyclient.TmmfWithdrawActionResponse:
+//	default:
+//	  fmt.Errorf("no variant present")
+//	}
+func (u TmmfOrderActionResponseUnion) AsAny() anyTmmfOrderActionResponse {
+	switch u.Type {
+	case "tmmf_deposit":
+		return u.AsTmmfDeposit()
+	case "tmmf_withdraw":
+		return u.AsTmmfWithdraw()
+	}
+	return nil
+}
+
+func (u TmmfOrderActionResponseUnion) AsTmmfDeposit() (v TmmfDepositActionResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u TmmfOrderActionResponseUnion) AsTmmfWithdraw() (v TmmfWithdrawActionResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u TmmfOrderActionResponseUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *TmmfOrderActionResponseUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// How a tMMF order fills: `secondary` from the provider pool in minutes, or
+// `primary` at the next NAV strike.
+type TmmfOrderType string
+
+const (
+	TmmfOrderTypePrimary   TmmfOrderType = "primary"
+	TmmfOrderTypeSecondary TmmfOrderType = "secondary"
+)
+
+// A wallet's position in one fund on one chain. Fields read from the provider are
+// null when that call fails.
+type TmmfPosition struct {
+	// Chain the fund is held on, e.g. "ethereum_sepolia".
+	Chain TmmfChain `json:"chain" api:"required"`
+	// Fund ticker, e.g. "WTGXX". Case-insensitive.
+	Fund TmmfFund `json:"fund" api:"required"`
+	// Publication date of the NAV, e.g. "2026-09-25", or null without one or when the
+	// provider call fails.
+	NavDate string `json:"nav_date" api:"required"`
+	// Latest published NAV per share in USD, or null when the provider call fails.
+	NavUsd string `json:"nav_usd" api:"required"`
+	// Accrued, undistributed income in USD that is not yet spendable, or null when the
+	// provider call fails.
+	PendingDividendsUsd string `json:"pending_dividends_usd" api:"required"`
+	// Wallet actions for purchases and redemptions that are still pending.
+	PendingOrders []TmmfOrderActionResponseUnion `json:"pending_orders" api:"required"`
+	// Start date of the open accrual period, e.g. "2026-09-01", or null without one or
+	// when the provider call fails.
+	PendingSince string `json:"pending_since" api:"required"`
+	// The fund provider.
+	Provider TmmfProvider `json:"provider" api:"required"`
+	// `shares` valued at `nav_usd`, or null when the provider call fails.
+	ShareValueUsd string `json:"share_value_usd" api:"required"`
+	// Fund shares held on-chain by the wallet.
+	Shares string `json:"shares" api:"required"`
+	// Estimated share value plus available pending dividends, excluding settlement
+	// currency and in-transit assets; null without NAV.
+	TotalPositionValueUsd string `json:"total_position_value_usd" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Chain                 respjson.Field
+		Fund                  respjson.Field
+		NavDate               respjson.Field
+		NavUsd                respjson.Field
+		PendingDividendsUsd   respjson.Field
+		PendingOrders         respjson.Field
+		PendingSince          respjson.Field
+		Provider              respjson.Field
+		ShareValueUsd         respjson.Field
+		Shares                respjson.Field
+		TotalPositionValueUsd respjson.Field
+		ExtraFields           map[string]respjson.Field
+		raw                   string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TmmfPosition) RawJSON() string { return r.JSON.raw }
+func (r *TmmfPosition) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A page of a wallet's tMMF positions for all providers: one per fund and chain
+// the wallet is registered for.
+type TmmfPositionResponse struct {
+	// Cursor of the next page of positions, or null on the last page.
+	NextCursor string `json:"next_cursor" api:"required"`
+	// A page of the wallet's positions, one per registered fund and chain.
+	Positions []TmmfPosition `json:"positions" api:"required"`
+	// ID of the Privy wallet holding the positions.
+	WalletID string `json:"wallet_id" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		NextCursor  respjson.Field
+		Positions   respjson.Field
+		WalletID    respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TmmfPositionResponse) RawJSON() string { return r.JSON.raw }
+func (r *TmmfPositionResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The fund provider.
+type TmmfProvider string
+
+const (
+	TmmfProviderWisdomtree TmmfProvider = "wisdomtree"
+)
+
+// A registered wallet's status with its tMMF provider, read live from the
+// provider.
+type TmmfProviderWalletStatus string
+
+const (
+	TmmfProviderWalletStatusCreated  TmmfProviderWalletStatus = "created"
+	TmmfProviderWalletStatusApproved TmmfProviderWalletStatus = "approved"
+	TmmfProviderWalletStatusRejected TmmfProviderWalletStatus = "rejected"
+)
+
+// Request body for registering a wallet with a tMMF provider for the wallet's
+// user, e.g. an organization.
+//
+// The properties Chain, Provider are required.
+type TmmfRegisterRequestBody struct {
+	// Chain the fund is held on, e.g. "ethereum_sepolia".
+	Chain TmmfChain `json:"chain" api:"required"`
+	// The fund provider.
+	Provider TmmfProvider `json:"provider,omitzero" api:"required"`
+	paramObj
+}
+
+func (r TmmfRegisterRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow TmmfRegisterRequestBody
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TmmfRegisterRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A user's registration status with a tMMF provider, read live from the provider.
+type TmmfRegistrationStatus string
+
+const (
+	TmmfRegistrationStatusPending        TmmfRegistrationStatus = "pending"
+	TmmfRegistrationStatusActionRequired TmmfRegistrationStatus = "action_required"
+	TmmfRegistrationStatusApproved       TmmfRegistrationStatus = "approved"
+	TmmfRegistrationStatusRejected       TmmfRegistrationStatus = "rejected"
+	TmmfRegistrationStatusSuspended      TmmfRegistrationStatus = "suspended"
+)
+
+// A user's registration with one tMMF provider.
+type TmmfUserRegistration struct {
+	// The fund provider.
+	Provider TmmfProvider `json:"provider" api:"required"`
+	// A user's registration status with a tMMF provider, read live from the provider.
+	Status TmmfRegistrationStatus `json:"status" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Provider    respjson.Field
+		Status      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TmmfUserRegistration) RawJSON() string { return r.JSON.raw }
+func (r *TmmfUserRegistration) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A user's registration with each tMMF provider, and the wallets registered for
+// each.
+type TmmfUserResponse struct {
+	// ID of the Privy user, which can be an organization.
+	UserID string `json:"user_id" api:"required"`
+	// The user's registrations with tMMF providers.
+	UserRegistrations []TmmfUserRegistration `json:"user_registrations" api:"required"`
+	// A page of wallets registered for the user with tMMF providers.
+	WalletRegistrations []TmmfUserWalletResponse `json:"wallet_registrations" api:"required"`
+	// Cursor of the next page of wallet registrations, or null on the last page.
+	WalletsNextCursor string `json:"wallets_next_cursor" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		UserID              respjson.Field
+		UserRegistrations   respjson.Field
+		WalletRegistrations respjson.Field
+		WalletsNextCursor   respjson.Field
+		ExtraFields         map[string]respjson.Field
+		raw                 string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TmmfUserResponse) RawJSON() string { return r.JSON.raw }
+func (r *TmmfUserResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A wallet registered for a user with a provider on one chain.
+type TmmfUserWalletResponse struct {
+	// Blockchain address of the registered wallet.
+	Address string `json:"address" api:"required"`
+	// Chain the fund is held on, e.g. "ethereum_sepolia".
+	Chain TmmfChain `json:"chain" api:"required"`
+	// The fund provider.
+	Provider TmmfProvider `json:"provider" api:"required"`
+	// A registered wallet's status with its tMMF provider, read live from the
+	// provider.
+	Status TmmfProviderWalletStatus `json:"status" api:"required"`
+	// ID of the registered Privy wallet.
+	WalletID string `json:"wallet_id" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Address     respjson.Field
+		Chain       respjson.Field
+		Provider    respjson.Field
+		Status      respjson.Field
+		WalletID    respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TmmfUserWalletResponse) RawJSON() string { return r.JSON.raw }
+func (r *TmmfUserWalletResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A Privy wallet registered for a user with one tMMF provider on one chain.
+type TmmfWalletResponse struct {
+	// Blockchain address of the registered wallet.
+	Address string `json:"address" api:"required"`
+	// Chain the fund is held on, e.g. "ethereum_sepolia".
+	Chain TmmfChain `json:"chain" api:"required"`
+	// Unix timestamp in milliseconds when the wallet registration was created.
+	CreatedAt int64 `json:"created_at" api:"required"`
+	// The fund provider.
+	Provider TmmfProvider `json:"provider" api:"required"`
+	// A registered wallet's status with its tMMF provider, read live from the
+	// provider.
+	Status TmmfProviderWalletStatus `json:"status" api:"required"`
+	// Unix timestamp in milliseconds when the wallet registration was last updated.
+	UpdatedAt int64 `json:"updated_at" api:"required"`
+	// ID of the Privy user the wallet is registered for.
+	UserID string `json:"user_id" api:"required"`
+	// ID of the Privy wallet registered to trade and hold fund shares.
+	WalletID string `json:"wallet_id" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Address     respjson.Field
+		Chain       respjson.Field
+		CreatedAt   respjson.Field
+		Provider    respjson.Field
+		Status      respjson.Field
+		UpdatedAt   respjson.Field
+		UserID      respjson.Field
+		WalletID    respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TmmfWalletResponse) RawJSON() string { return r.JSON.raw }
+func (r *TmmfWalletResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A tokenized money market fund (tMMF) withdrawal.
+type TmmfWithdrawActionResponse struct {
+	// The ID of the wallet action.
+	ID string `json:"id" api:"required"`
+	// ISO 8601 timestamp of when the wallet action was created.
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// Status of a wallet action.
+	//
+	// Any of "pending", "succeeded", "rejected", "failed".
+	Status WalletActionStatus `json:"status" api:"required"`
+	// Any of "tmmf_withdraw".
+	Type TmmfWithdrawActionResponseType `json:"type" api:"required"`
+	// The ID of the wallet involved in the action.
+	WalletID string `json:"wallet_id" api:"required"`
+	// A description of why a wallet action (or a step within a wallet action) failed.
+	FailureReason FailureReason `json:"failure_reason"`
+	// Developer-provided reference ID, if one was included in the request.
+	ReferenceID string `json:"reference_id" api:"nullable"`
+	// The steps of the wallet action. Only returned if `?include=steps` is provided.
+	Steps []WalletActionStepUnion `json:"steps"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID            respjson.Field
+		CreatedAt     respjson.Field
+		Status        respjson.Field
+		Type          respjson.Field
+		WalletID      respjson.Field
+		FailureReason respjson.Field
+		ReferenceID   respjson.Field
+		Steps         respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r TmmfWithdrawActionResponse) RawJSON() string { return r.JSON.raw }
+func (r *TmmfWithdrawActionResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type TmmfWithdrawActionResponseType string
+
+const (
+	TmmfWithdrawActionResponseTypeTmmfWithdraw TmmfWithdrawActionResponseType = "tmmf_withdraw"
+)
+
+// Request body for redeeming tMMF shares the wallet holds.
+//
+// The properties Chain, Fund, OrderType, Shares, WithdrawAsset are required.
+type TmmfWithdrawRequestBody struct {
+	// Chain the fund is held on, e.g. "ethereum_sepolia".
+	Chain TmmfChain `json:"chain" api:"required"`
+	// Fund ticker, e.g. "WTGXX". Case-insensitive.
+	Fund TmmfFund `json:"fund" api:"required"`
+	// How a tMMF order fills: `secondary` from the provider pool in minutes, or
+	// `primary` at the next NAV strike.
+	//
+	// Any of "primary", "secondary".
+	OrderType TmmfOrderType `json:"order_type,omitzero" api:"required"`
+	// A positive decimal amount in the asset's standard unit, e.g. "1000.00".
+	Shares TmmfDecimalAmount `json:"shares" api:"required"`
+	// Currency symbol, e.g. "USDC". Case-insensitive.
+	WithdrawAsset TmmfCurrency `json:"withdraw_asset" api:"required"`
+	// Unique caller-generated nonce used to prevent replaying a signed wallet action
+	// request. Must be at least 24 characters (e.g. a cuid2 or UUID).
+	Nonce param.Opt[WalletActionNonce] `json:"nonce,omitzero"`
+	// Developer-provided identifier for this request. Must be unique per app.
+	ReferenceID param.Opt[string] `json:"reference_id,omitzero"`
+	paramObj
+}
+
+func (r TmmfWithdrawRequestBody) MarshalJSON() (data []byte, err error) {
+	type shadow TmmfWithdrawRequestBody
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *TmmfWithdrawRequestBody) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Response for a transfer action.
 type TransferActionResponse struct {
 	// The ID of the wallet action.
@@ -1648,7 +2147,8 @@ const (
 // WalletActionResponseUnion contains all possible properties and values from
 // [SwapActionResponse], [TransferActionResponse], [EarnDepositActionResponse],
 // [EarnWithdrawActionResponse], [EarnIncentiveClaimActionResponse],
-// [EarnFeeCollectActionResponse], [PayoutResponse].
+// [EarnFeeCollectActionResponse], [PayoutResponse], [TmmfDepositActionResponse],
+// [TmmfWithdrawActionResponse].
 //
 // Use the [WalletActionResponseUnion.AsAny] method to switch on the variant.
 //
@@ -1668,7 +2168,8 @@ type WalletActionResponseUnion struct {
 	// This field is from variant [SwapActionResponse].
 	Status WalletActionStatus `json:"status"`
 	// Any of "swap", "transfer", "earn_deposit", "earn_withdraw",
-	// "earn_incentive_claim", "earn_fee_collect", "payout".
+	// "earn_incentive_claim", "earn_fee_collect", "payout", "tmmf_deposit",
+	// "tmmf_withdraw".
 	Type               string `json:"type"`
 	WalletID           string `json:"wallet_id"`
 	DestinationAddress string `json:"destination_address"`
@@ -1786,6 +2287,8 @@ func (EarnWithdrawActionResponse) implWalletActionResponseUnion()       {}
 func (EarnIncentiveClaimActionResponse) implWalletActionResponseUnion() {}
 func (EarnFeeCollectActionResponse) implWalletActionResponseUnion()     {}
 func (PayoutResponse) implWalletActionResponseUnion()                   {}
+func (TmmfDepositActionResponse) implWalletActionResponseUnion()        {}
+func (TmmfWithdrawActionResponse) implWalletActionResponseUnion()       {}
 
 // Use the following switch statement to find the correct variant
 //
@@ -1797,6 +2300,8 @@ func (PayoutResponse) implWalletActionResponseUnion()                   {}
 //	case privyclient.EarnIncentiveClaimActionResponse:
 //	case privyclient.EarnFeeCollectActionResponse:
 //	case privyclient.PayoutResponse:
+//	case privyclient.TmmfDepositActionResponse:
+//	case privyclient.TmmfWithdrawActionResponse:
 //	default:
 //	  fmt.Errorf("no variant present")
 //	}
@@ -1816,6 +2321,10 @@ func (u WalletActionResponseUnion) AsAny() anyWalletActionResponse {
 		return u.AsEarnFeeCollect()
 	case "payout":
 		return u.AsPayout()
+	case "tmmf_deposit":
+		return u.AsTmmfDeposit()
+	case "tmmf_withdraw":
+		return u.AsTmmfWithdraw()
 	}
 	return nil
 }
@@ -1855,6 +2364,16 @@ func (u WalletActionResponseUnion) AsPayout() (v PayoutResponse) {
 	return
 }
 
+func (u WalletActionResponseUnion) AsTmmfDeposit() (v TmmfDepositActionResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WalletActionResponseUnion) AsTmmfWithdraw() (v TmmfWithdrawActionResponse) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
 // Returns the unmodified JSON received from the API
 func (u WalletActionResponseUnion) RawJSON() string { return u.JSON.raw }
 
@@ -1876,7 +2395,7 @@ const (
 // [EvmTransactionWalletActionStep], [EvmUserOperationWalletActionStep],
 // [SvmTransactionWalletActionStep], [TvmTransactionWalletActionStep],
 // [ExternalTransactionWalletActionStep], [CustodianTransactionWalletActionStep],
-// [TempoZoneSettlementWalletActionStep].
+// [TempoZoneSettlementWalletActionStep], [WisdomTreeSettlementWalletActionStep].
 //
 // Use the [WalletActionStepUnion.AsAny] method to switch on the variant.
 //
@@ -1887,7 +2406,7 @@ type WalletActionStepUnion struct {
 	TransactionHash string `json:"transaction_hash"`
 	// Any of "evm_transaction", "evm_user_operation", "svm_transaction",
 	// "tvm_transaction", "external_transaction", "custodian_transaction",
-	// "tempo_zone_settlement".
+	// "tempo_zone_settlement", "wisdomtree_settlement".
 	Type string `json:"type"`
 	// This field is from variant [EvmTransactionWalletActionStep].
 	FailureReason FailureReason `json:"failure_reason"`
@@ -1909,23 +2428,35 @@ type WalletActionStepUnion struct {
 	Provider ExternalTransactionStepProvider `json:"provider"`
 	// This field is from variant [CustodianTransactionWalletActionStep].
 	Custodian string `json:"custodian"`
-	JSON      struct {
-		Caip2                 respjson.Field
-		Status                respjson.Field
-		TransactionHash       respjson.Field
-		Type                  respjson.Field
-		FailureReason         respjson.Field
-		Finalized             respjson.Field
-		GasCreditsCharged     respjson.Field
-		GasCreditsChargedUsd  respjson.Field
-		BundleTransactionHash respjson.Field
-		EntrypointVersion     respjson.Field
-		UserOperationHash     respjson.Field
-		TransactionSignature  respjson.Field
-		TransactionID         respjson.Field
-		Provider              respjson.Field
-		Custodian             respjson.Field
-		raw                   string
+	// This field is from variant [WisdomTreeSettlementWalletActionStep].
+	OrderType TmmfOrderType `json:"order_type"`
+	// This field is from variant [WisdomTreeSettlementWalletActionStep].
+	Received WisdomTreeSettlementWalletActionStepReceived `json:"received"`
+	// This field is from variant [WisdomTreeSettlementWalletActionStep].
+	Requested WisdomTreeSettlementWalletActionStepRequested `json:"requested"`
+	// This field is from variant [WisdomTreeSettlementWalletActionStep].
+	SettlementTransactionHash string `json:"settlement_transaction_hash"`
+	JSON                      struct {
+		Caip2                     respjson.Field
+		Status                    respjson.Field
+		TransactionHash           respjson.Field
+		Type                      respjson.Field
+		FailureReason             respjson.Field
+		Finalized                 respjson.Field
+		GasCreditsCharged         respjson.Field
+		GasCreditsChargedUsd      respjson.Field
+		BundleTransactionHash     respjson.Field
+		EntrypointVersion         respjson.Field
+		UserOperationHash         respjson.Field
+		TransactionSignature      respjson.Field
+		TransactionID             respjson.Field
+		Provider                  respjson.Field
+		Custodian                 respjson.Field
+		OrderType                 respjson.Field
+		Received                  respjson.Field
+		Requested                 respjson.Field
+		SettlementTransactionHash respjson.Field
+		raw                       string
 	} `json:"-"`
 }
 
@@ -1942,6 +2473,7 @@ func (TvmTransactionWalletActionStep) implWalletActionStepUnion()       {}
 func (ExternalTransactionWalletActionStep) implWalletActionStepUnion()  {}
 func (CustodianTransactionWalletActionStep) implWalletActionStepUnion() {}
 func (TempoZoneSettlementWalletActionStep) implWalletActionStepUnion()  {}
+func (WisdomTreeSettlementWalletActionStep) implWalletActionStepUnion() {}
 
 // Use the following switch statement to find the correct variant
 //
@@ -1953,6 +2485,7 @@ func (TempoZoneSettlementWalletActionStep) implWalletActionStepUnion()  {}
 //	case privyclient.ExternalTransactionWalletActionStep:
 //	case privyclient.CustodianTransactionWalletActionStep:
 //	case privyclient.TempoZoneSettlementWalletActionStep:
+//	case privyclient.WisdomTreeSettlementWalletActionStep:
 //	default:
 //	  fmt.Errorf("no variant present")
 //	}
@@ -1972,6 +2505,8 @@ func (u WalletActionStepUnion) AsAny() anyWalletActionStep {
 		return u.AsCustodianTransaction()
 	case "tempo_zone_settlement":
 		return u.AsTempoZoneSettlement()
+	case "wisdomtree_settlement":
+		return u.AsWisdomtreeSettlement()
 	}
 	return nil
 }
@@ -2011,6 +2546,11 @@ func (u WalletActionStepUnion) AsTempoZoneSettlement() (v TempoZoneSettlementWal
 	return
 }
 
+func (u WalletActionStepUnion) AsWisdomtreeSettlement() (v WisdomTreeSettlementWalletActionStep) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
 // Returns the unmodified JSON received from the API
 func (u WalletActionStepUnion) RawJSON() string { return u.JSON.raw }
 
@@ -2029,7 +2569,244 @@ const (
 	WalletActionTypeEarnIncentiveClaim WalletActionType = "earn_incentive_claim"
 	WalletActionTypeEarnFeeCollect     WalletActionType = "earn_fee_collect"
 	WalletActionTypePayout             WalletActionType = "payout"
+	WalletActionTypeTmmfDeposit        WalletActionType = "tmmf_deposit"
+	WalletActionTypeTmmfWithdraw       WalletActionType = "tmmf_withdraw"
 )
+
+// An amount of the currency a tMMF deposit sends.
+type WisdomTreeSettlementDepositAssetAmount struct {
+	// A positive decimal amount in the asset's standard unit, e.g. "1000.00".
+	Amount TmmfDecimalAmount `json:"amount" api:"required"`
+	// Currency symbol, e.g. "USDC". Case-insensitive.
+	DepositAsset TmmfCurrency `json:"deposit_asset" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Amount       respjson.Field
+		DepositAsset respjson.Field
+		ExtraFields  map[string]respjson.Field
+		raw          string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WisdomTreeSettlementDepositAssetAmount) RawJSON() string { return r.JSON.raw }
+func (r *WisdomTreeSettlementDepositAssetAmount) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// An amount of fund shares a tMMF order sends or receives.
+type WisdomTreeSettlementFundAmount struct {
+	// A positive decimal amount in the asset's standard unit, e.g. "1000.00".
+	Amount TmmfDecimalAmount `json:"amount" api:"required"`
+	// Fund ticker, e.g. "WTGXX". Case-insensitive.
+	Fund TmmfFund `json:"fund" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Amount      respjson.Field
+		Fund        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WisdomTreeSettlementFundAmount) RawJSON() string { return r.JSON.raw }
+func (r *WisdomTreeSettlementFundAmount) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// WisdomTreeSettlementReceivedAmountUnion contains all possible properties and
+// values from [WisdomTreeSettlementFundAmount],
+// [WisdomTreeSettlementWithdrawAssetAmount].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type WisdomTreeSettlementReceivedAmountUnion struct {
+	// This field is from variant [WisdomTreeSettlementFundAmount].
+	Amount TmmfDecimalAmount `json:"amount"`
+	// This field is from variant [WisdomTreeSettlementFundAmount].
+	Fund TmmfFund `json:"fund"`
+	// This field is from variant [WisdomTreeSettlementWithdrawAssetAmount].
+	WithdrawAsset TmmfCurrency `json:"withdraw_asset"`
+	JSON          struct {
+		Amount        respjson.Field
+		Fund          respjson.Field
+		WithdrawAsset respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+func (u WisdomTreeSettlementReceivedAmountUnion) AsWisdomTreeSettlementFundAmount() (v WisdomTreeSettlementFundAmount) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WisdomTreeSettlementReceivedAmountUnion) AsWisdomTreeSettlementWithdrawAssetAmount() (v WisdomTreeSettlementWithdrawAssetAmount) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u WisdomTreeSettlementReceivedAmountUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *WisdomTreeSettlementReceivedAmountUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// WisdomTreeSettlementRequestedAmountUnion contains all possible properties and
+// values from [WisdomTreeSettlementDepositAssetAmount],
+// [WisdomTreeSettlementFundAmount].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+type WisdomTreeSettlementRequestedAmountUnion struct {
+	// This field is from variant [WisdomTreeSettlementDepositAssetAmount].
+	Amount TmmfDecimalAmount `json:"amount"`
+	// This field is from variant [WisdomTreeSettlementDepositAssetAmount].
+	DepositAsset TmmfCurrency `json:"deposit_asset"`
+	// This field is from variant [WisdomTreeSettlementFundAmount].
+	Fund TmmfFund `json:"fund"`
+	JSON struct {
+		Amount       respjson.Field
+		DepositAsset respjson.Field
+		Fund         respjson.Field
+		raw          string
+	} `json:"-"`
+}
+
+func (u WisdomTreeSettlementRequestedAmountUnion) AsWisdomTreeSettlementDepositAssetAmount() (v WisdomTreeSettlementDepositAssetAmount) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u WisdomTreeSettlementRequestedAmountUnion) AsWisdomTreeSettlementFundAmount() (v WisdomTreeSettlementFundAmount) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u WisdomTreeSettlementRequestedAmountUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *WisdomTreeSettlementRequestedAmountUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A wallet action step representing the settlement of a tokenized money market
+// fund (tMMF) order by WisdomTree.
+type WisdomTreeSettlementWalletActionStep struct {
+	// CAIP-2 identifier of the chain the order trades on.
+	Caip2 string `json:"caip2" api:"required"`
+	// How a tMMF order fills: `secondary` from the provider pool in minutes, or
+	// `primary` at the next NAV strike.
+	//
+	// Any of "primary", "secondary".
+	OrderType TmmfOrderType `json:"order_type" api:"required"`
+	// What a tMMF order receives: fund shares for a deposit, the withdraw asset for a
+	// withdrawal.
+	Received WisdomTreeSettlementWalletActionStepReceived `json:"received" api:"required"`
+	// What a tMMF order sends: the deposit asset for a deposit, fund shares for a
+	// withdrawal.
+	Requested WisdomTreeSettlementWalletActionStepRequested `json:"requested" api:"required"`
+	// The transaction that delivered the received asset. Null until Privy verifies the
+	// settlement.
+	SettlementTransactionHash string `json:"settlement_transaction_hash" api:"required"`
+	// Status of a WisdomTree settlement step in a wallet action.
+	Status WisdomTreeSettlementWalletActionStepStatus `json:"status" api:"required"`
+	// Any of "wisdomtree_settlement".
+	Type WisdomTreeSettlementWalletActionStepType `json:"type" api:"required"`
+	// A description of why a wallet action (or a step within a wallet action) failed.
+	FailureReason FailureReason `json:"failure_reason"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Caip2                     respjson.Field
+		OrderType                 respjson.Field
+		Received                  respjson.Field
+		Requested                 respjson.Field
+		SettlementTransactionHash respjson.Field
+		Status                    respjson.Field
+		Type                      respjson.Field
+		FailureReason             respjson.Field
+		ExtraFields               map[string]respjson.Field
+		raw                       string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WisdomTreeSettlementWalletActionStep) RawJSON() string { return r.JSON.raw }
+func (r *WisdomTreeSettlementWalletActionStep) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// What a tMMF order receives: fund shares for a deposit, the withdraw asset for a
+// withdrawal.
+type WisdomTreeSettlementWalletActionStepReceived struct {
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+	WisdomTreeSettlementReceivedAmountUnion
+}
+
+// Returns the unmodified JSON received from the API
+func (r WisdomTreeSettlementWalletActionStepReceived) RawJSON() string { return r.JSON.raw }
+func (r *WisdomTreeSettlementWalletActionStepReceived) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// What a tMMF order sends: the deposit asset for a deposit, fund shares for a
+// withdrawal.
+type WisdomTreeSettlementWalletActionStepRequested struct {
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+	WisdomTreeSettlementRequestedAmountUnion
+}
+
+// Returns the unmodified JSON received from the API
+func (r WisdomTreeSettlementWalletActionStepRequested) RawJSON() string { return r.JSON.raw }
+func (r *WisdomTreeSettlementWalletActionStepRequested) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type WisdomTreeSettlementWalletActionStepType string
+
+const (
+	WisdomTreeSettlementWalletActionStepTypeWisdomtreeSettlement WisdomTreeSettlementWalletActionStepType = "wisdomtree_settlement"
+)
+
+// Status of a WisdomTree settlement step in a wallet action.
+type WisdomTreeSettlementWalletActionStepStatus string
+
+const (
+	WisdomTreeSettlementWalletActionStepStatusPreparing WisdomTreeSettlementWalletActionStepStatus = "preparing"
+	WisdomTreeSettlementWalletActionStepStatusQueued    WisdomTreeSettlementWalletActionStepStatus = "queued"
+	WisdomTreeSettlementWalletActionStepStatusPending   WisdomTreeSettlementWalletActionStepStatus = "pending"
+	WisdomTreeSettlementWalletActionStepStatusConfirmed WisdomTreeSettlementWalletActionStepStatus = "confirmed"
+	WisdomTreeSettlementWalletActionStepStatusRejected  WisdomTreeSettlementWalletActionStepStatus = "rejected"
+	WisdomTreeSettlementWalletActionStepStatusFailed    WisdomTreeSettlementWalletActionStepStatus = "failed"
+)
+
+// An amount of the currency a tMMF withdrawal receives.
+type WisdomTreeSettlementWithdrawAssetAmount struct {
+	// A positive decimal amount in the asset's standard unit, e.g. "1000.00".
+	Amount TmmfDecimalAmount `json:"amount" api:"required"`
+	// Currency symbol, e.g. "USDC". Case-insensitive.
+	WithdrawAsset TmmfCurrency `json:"withdraw_asset" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Amount        respjson.Field
+		WithdrawAsset respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r WisdomTreeSettlementWithdrawAssetAmount) RawJSON() string { return r.JSON.raw }
+func (r *WisdomTreeSettlementWithdrawAssetAmount) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 type WalletActionGetParams struct {
 	// ID of the wallet.

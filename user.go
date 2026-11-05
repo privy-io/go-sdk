@@ -31,6 +31,7 @@ import (
 // the [NewUserService] method instead.
 type UserService struct {
 	Options []option.RequestOption
+	Earn    UserEarnService
 	// Operations related to fiat onramping and offramping
 	ExternalFiatAccounts UserExternalFiatAccountService
 	// Operations related to fiat onramping and offramping
@@ -44,6 +45,7 @@ type UserService struct {
 func NewUserService(opts ...option.RequestOption) (r UserService) {
 	r = UserService{}
 	r.Options = opts
+	r.Earn = NewUserEarnService(opts...)
 	r.ExternalFiatAccounts = NewUserExternalFiatAccountService(opts...)
 	r.KYC = NewUserKYCService(opts...)
 	r.Mfa = NewUserMfaService(opts...)
