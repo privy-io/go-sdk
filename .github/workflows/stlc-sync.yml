@@ -205,7 +205,7 @@ jobs:
           owner: privy-io
           # Downscope to only the config repo + only Contents:write (all repository_dispatch
           # needs), so this token is no broader than a single-purpose PAT would be.
-          repositories: stainless-sdks-config
+          repositories: sdks
           permission-contents: write
 
       - name: Send re-seal dispatch

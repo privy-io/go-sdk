@@ -26,7 +26,7 @@ jobs:
           app-id: ${{ secrets.BUILDER_BLOBBY_APP_ID }}
           private-key: ${{ secrets.BUILDER_BLOBBY_APP_PRIVATE_KEY }}
           owner: privy-io
-          repositories: stainless-sdks-config
+          repositories: sdks
 
       - name: Send repository_dispatch to config repo
         env:
