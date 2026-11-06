@@ -323,7 +323,7 @@ func TestWalletAttachAutomationsWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestWalletAuthenticateWithJwt(t *testing.T) {
+func TestWalletAuthenticateWithJwtWithOptionalParams(t *testing.T) {
 	t.Skip("Mock server tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -343,6 +343,7 @@ func TestWalletAuthenticateWithJwt(t *testing.T) {
 			RecipientPublicKey: "DAQcDQgAEx4aoeD72yykviK+fckqE2CItVIGn1rCnvCXZ1HgpOcMEMialRmTrqIK4oZlYd1",
 			UserJwt:            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30",
 		},
+		MfaToken: privyclient.String("x"),
 	})
 	if err != nil {
 		var apierr *privyclient.Error

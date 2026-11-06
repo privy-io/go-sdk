@@ -173,10 +173,13 @@ func (r *WalletService) AttachAutomations(ctx context.Context, walletID string, 
 
 // Exchange a user JWT for a session key authorized to act on the user's wallets.
 // Returns the encrypted authorization key and the list of wallets it can access.
-func (r *WalletService) AuthenticateWithJwt(ctx context.Context, body WalletAuthenticateWithJwtParams, opts ...option.RequestOption) (res *WalletAuthenticateWithJwtResponseUnion, err error) {
+func (r *WalletService) AuthenticateWithJwt(ctx context.Context, params WalletAuthenticateWithJwtParams, opts ...option.RequestOption) (res *WalletAuthenticateWithJwtResponseUnion, err error) {
+	if !param.IsOmitted(params.MfaToken) {
+		opts = append(opts, option.WithHeader("privy-mfa-token", fmt.Sprintf("%v", params.MfaToken.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	path := "v1/wallets/authenticate"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return res, err
 }
 
@@ -12494,6 +12497,9 @@ func (r *WalletAttachAutomationsParams) UnmarshalJSON(data []byte) error {
 type WalletAuthenticateWithJwtParams struct {
 	// Request body for wallet authentication with HPKE-encrypted response.
 	WalletAuthenticateRequestBody WalletAuthenticateRequestBody
+	// MFA token from a completed MFA verification, required on MFA-protected requests
+	// for users with MFA enrolled.
+	MfaToken param.Opt[string] `header:"privy-mfa-token,omitzero" json:"-"`
 	paramObj
 }
 
