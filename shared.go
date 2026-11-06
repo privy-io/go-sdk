@@ -241,6 +241,8 @@ func (r *OwnerInputUser) UnmarshalJSON(data []byte) error {
 
 type P256PublicKey = string
 
+type StellarAddress = string
+
 // A simple success response.
 type SuccessResponse struct {
 	Success bool `json:"success" api:"required"`

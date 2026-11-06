@@ -732,6 +732,9 @@ type IntentAuthorizedWebhookPayload struct {
 	AuthorizedAt float64 `json:"authorized_at" api:"required"`
 	// Unix timestamp when the intent was created.
 	CreatedAt float64 `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Unix timestamp when the intent expires.
 	ExpiresAt float64 `json:"expires_at" api:"required"`
 	// The unique ID of the intent.
@@ -754,6 +757,7 @@ type IntentAuthorizedWebhookPayload struct {
 	JSON struct {
 		AuthorizedAt         respjson.Field
 		CreatedAt            respjson.Field
+		EventID              respjson.Field
 		ExpiresAt            respjson.Field
 		IntentID             respjson.Field
 		IntentType           respjson.Field
@@ -784,6 +788,9 @@ const (
 type IntentCreatedWebhookPayload struct {
 	// Unix timestamp when the intent was created.
 	CreatedAt float64 `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Unix timestamp when the intent expires.
 	ExpiresAt float64 `json:"expires_at" api:"required"`
 	// The unique ID of the intent.
@@ -805,6 +812,7 @@ type IntentCreatedWebhookPayload struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		CreatedAt            respjson.Field
+		EventID              respjson.Field
 		ExpiresAt            respjson.Field
 		IntentID             respjson.Field
 		IntentType           respjson.Field
@@ -837,6 +845,9 @@ type IntentExecutedWebhookPayload struct {
 	ActionResult BaseActionResult `json:"action_result" api:"required"`
 	// Unix timestamp when the intent was created.
 	CreatedAt float64 `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Unix timestamp when the intent expires.
 	ExpiresAt float64 `json:"expires_at" api:"required"`
 	// The unique ID of the intent.
@@ -857,6 +868,7 @@ type IntentExecutedWebhookPayload struct {
 	JSON struct {
 		ActionResult         respjson.Field
 		CreatedAt            respjson.Field
+		EventID              respjson.Field
 		ExpiresAt            respjson.Field
 		IntentID             respjson.Field
 		IntentType           respjson.Field
@@ -888,6 +900,9 @@ type IntentFailedWebhookPayload struct {
 	ActionResult BaseActionResult `json:"action_result" api:"required"`
 	// Unix timestamp when the intent was created.
 	CreatedAt float64 `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Unix timestamp when the intent expires.
 	ExpiresAt float64 `json:"expires_at" api:"required"`
 	// The unique ID of the intent.
@@ -908,6 +923,7 @@ type IntentFailedWebhookPayload struct {
 	JSON struct {
 		ActionResult         respjson.Field
 		CreatedAt            respjson.Field
+		EventID              respjson.Field
 		ExpiresAt            respjson.Field
 		IntentID             respjson.Field
 		IntentType           respjson.Field
@@ -937,6 +953,9 @@ const (
 type IntentRejectedWebhookPayload struct {
 	// Unix timestamp when the intent was created.
 	CreatedAt float64 `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Unix timestamp when the intent expires.
 	ExpiresAt float64 `json:"expires_at" api:"required"`
 	// The unique ID of the intent.
@@ -958,6 +977,7 @@ type IntentRejectedWebhookPayload struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		CreatedAt            respjson.Field
+		EventID              respjson.Field
 		ExpiresAt            respjson.Field
 		IntentID             respjson.Field
 		IntentType           respjson.Field
@@ -986,6 +1006,9 @@ const (
 
 // Payload for the mfa.disabled webhook event.
 type MfaDisabledWebhookPayload struct {
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// A multi-factor authentication method supported by the app.
 	//
 	// Any of "sms", "totp", "passkey", "email".
@@ -998,6 +1021,7 @@ type MfaDisabledWebhookPayload struct {
 	UserID string `json:"user_id" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
+		EventID     respjson.Field
 		Method      respjson.Field
 		Type        respjson.Field
 		UserID      respjson.Field
@@ -1021,6 +1045,9 @@ const (
 
 // Payload for the mfa.enabled webhook event.
 type MfaEnabledWebhookPayload struct {
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// A multi-factor authentication method supported by the app.
 	//
 	// Any of "sms", "totp", "passkey", "email".
@@ -1033,6 +1060,7 @@ type MfaEnabledWebhookPayload struct {
 	UserID string `json:"user_id" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
+		EventID     respjson.Field
 		Method      respjson.Field
 		Type        respjson.Field
 		UserID      respjson.Field
@@ -1121,6 +1149,9 @@ func (r *OrganizationKYBUpdatedTosData) UnmarshalJSON(data []byte) error {
 
 // Payload for the wallet.private_key_export webhook event.
 type PrivateKeyExportWebhookPayload struct {
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// The type of webhook event.
 	//
 	// Any of "wallet.private_key_export".
@@ -1138,6 +1169,7 @@ type PrivateKeyExportWebhookPayload struct {
 	ExportSource ExportType `json:"export_source"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
+		EventID       respjson.Field
 		Type          respjson.Field
 		UserID        respjson.Field
 		WalletAddress respjson.Field
@@ -1194,6 +1226,52 @@ const (
 	RefundDetailsProviderRelay RefundDetailsProvider = "relay"
 )
 
+// Payload for the wallet.seed_phrase_export webhook event.
+type SeedPhraseExportWebhookPayload struct {
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
+	// The type of webhook event.
+	//
+	// Any of "wallet.seed_phrase_export".
+	Type SeedPhraseExportWebhookPayloadType `json:"type" api:"required"`
+	// The ID of the user who exported the seed phrase.
+	UserID string `json:"user_id" api:"required"`
+	// The address of the wallet.
+	WalletAddress string `json:"wallet_address" api:"required"`
+	// The ID of the wallet.
+	WalletID string `json:"wallet_id" api:"required"`
+	// The export type. 'display' is for showing the key to the user in the UI,
+	// 'client' is for exporting to the client application.
+	//
+	// Any of "display", "client".
+	ExportSource ExportType `json:"export_source"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		EventID       respjson.Field
+		Type          respjson.Field
+		UserID        respjson.Field
+		WalletAddress respjson.Field
+		WalletID      respjson.Field
+		ExportSource  respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r SeedPhraseExportWebhookPayload) RawJSON() string { return r.JSON.raw }
+func (r *SeedPhraseExportWebhookPayload) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The type of webhook event.
+type SeedPhraseExportWebhookPayloadType string
+
+const (
+	SeedPhraseExportWebhookPayloadTypeWalletSeedPhraseExport SeedPhraseExportWebhookPayloadType = "wallet.seed_phrase_export"
+)
+
 // Payload for the tmmf.wallet.updated webhook event: a register request created or
 // confirmed a tMMF wallet.
 type TmmfWalletUpdatedWebhookPayload struct {
@@ -1203,6 +1281,9 @@ type TmmfWalletUpdatedWebhookPayload struct {
 	Chain TmmfChain `json:"chain" api:"required"`
 	// Unix timestamp in milliseconds when the wallet registration was created.
 	CreatedAt int64 `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// The fund provider.
 	Provider TmmfProvider `json:"provider" api:"required"`
 	// A registered wallet's status with its tMMF provider, read live from the
@@ -1223,6 +1304,7 @@ type TmmfWalletUpdatedWebhookPayload struct {
 		Address     respjson.Field
 		Chain       respjson.Field
 		CreatedAt   respjson.Field
+		EventID     respjson.Field
 		Provider    respjson.Field
 		Status      respjson.Field
 		Type        respjson.Field
@@ -1252,6 +1334,9 @@ type TransactionBroadcastedWebhookPayload struct {
 	// The CAIP-2 chain identifier (e.g., eip155:4217 for Tempo, eip155:1 for Ethereum
 	// mainnet).
 	Caip2 string `json:"caip2" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// The blockchain transaction hash.
 	TransactionHash string `json:"transaction_hash" api:"required"`
 	// The Privy-assigned ID for this transaction.
@@ -1268,6 +1353,7 @@ type TransactionBroadcastedWebhookPayload struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2           respjson.Field
+		EventID         respjson.Field
 		TransactionHash respjson.Field
 		TransactionID   respjson.Field
 		Type            respjson.Field
@@ -1296,6 +1382,9 @@ type TransactionConfirmedWebhookPayload struct {
 	// The CAIP-2 chain identifier (e.g., eip155:4217 for Tempo, eip155:1 for Ethereum
 	// mainnet).
 	Caip2 string `json:"caip2" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// The blockchain transaction hash.
 	TransactionHash string `json:"transaction_hash" api:"required"`
 	// The Privy-assigned ID for this transaction.
@@ -1312,6 +1401,7 @@ type TransactionConfirmedWebhookPayload struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2           respjson.Field
+		EventID         respjson.Field
 		TransactionHash respjson.Field
 		TransactionID   respjson.Field
 		Type            respjson.Field
@@ -1340,6 +1430,9 @@ type TransactionExecutionRevertedWebhookPayload struct {
 	// The CAIP-2 chain identifier (e.g., eip155:4217 for Tempo, eip155:1 for Ethereum
 	// mainnet).
 	Caip2 string `json:"caip2" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// The blockchain transaction hash.
 	TransactionHash string `json:"transaction_hash" api:"required"`
 	// The Privy-assigned ID for this transaction.
@@ -1356,6 +1449,7 @@ type TransactionExecutionRevertedWebhookPayload struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2           respjson.Field
+		EventID         respjson.Field
 		TransactionHash respjson.Field
 		TransactionID   respjson.Field
 		Type            respjson.Field
@@ -1384,6 +1478,9 @@ type TransactionFailedWebhookPayload struct {
 	// The CAIP-2 chain identifier (e.g., eip155:4217 for Tempo, eip155:1 for Ethereum
 	// mainnet).
 	Caip2 string `json:"caip2" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// The blockchain transaction hash.
 	TransactionHash string `json:"transaction_hash" api:"required"`
 	// The Privy-assigned ID for this transaction.
@@ -1400,6 +1497,7 @@ type TransactionFailedWebhookPayload struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2           respjson.Field
+		EventID         respjson.Field
 		TransactionHash respjson.Field
 		TransactionID   respjson.Field
 		Type            respjson.Field
@@ -1428,6 +1526,9 @@ type TransactionProviderErrorWebhookPayload struct {
 	// The CAIP-2 chain identifier (e.g., eip155:4217 for Tempo, eip155:1 for Ethereum
 	// mainnet).
 	Caip2 string `json:"caip2" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// The blockchain transaction hash.
 	TransactionHash string `json:"transaction_hash" api:"required"`
 	// The Privy-assigned ID for this transaction.
@@ -1444,6 +1545,7 @@ type TransactionProviderErrorWebhookPayload struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2           respjson.Field
+		EventID         respjson.Field
 		TransactionHash respjson.Field
 		TransactionID   respjson.Field
 		Type            respjson.Field
@@ -1472,6 +1574,9 @@ type TransactionReplacedWebhookPayload struct {
 	// The CAIP-2 chain identifier (e.g., eip155:4217 for Tempo, eip155:1 for Ethereum
 	// mainnet).
 	Caip2 string `json:"caip2" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// The blockchain transaction hash.
 	TransactionHash string `json:"transaction_hash" api:"required"`
 	// The Privy-assigned ID for this transaction.
@@ -1488,6 +1593,7 @@ type TransactionReplacedWebhookPayload struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2           respjson.Field
+		EventID         respjson.Field
 		TransactionHash respjson.Field
 		TransactionID   respjson.Field
 		Type            respjson.Field
@@ -1516,6 +1622,9 @@ type TransactionStillPendingWebhookPayload struct {
 	// The CAIP-2 chain identifier (e.g., eip155:4217 for Tempo, eip155:1 for Ethereum
 	// mainnet).
 	Caip2 string `json:"caip2" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// The blockchain transaction hash.
 	TransactionHash string `json:"transaction_hash" api:"required"`
 	// The Privy-assigned ID for this transaction.
@@ -1535,6 +1644,7 @@ type TransactionStillPendingWebhookPayload struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2              respjson.Field
+		EventID            respjson.Field
 		TransactionHash    respjson.Field
 		TransactionID      respjson.Field
 		TransactionRequest respjson.Field
@@ -1701,6 +1811,9 @@ const (
 type UserAuthenticatedWebhookPayload struct {
 	// A linked account for the user.
 	Account LinkedAccountUnion `json:"account" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// The type of webhook event.
 	//
 	// Any of "user.authenticated".
@@ -1710,6 +1823,7 @@ type UserAuthenticatedWebhookPayload struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Account     respjson.Field
+		EventID     respjson.Field
 		Type        respjson.Field
 		User        respjson.Field
 		ExtraFields map[string]respjson.Field
@@ -1732,6 +1846,9 @@ const (
 
 // Payload for the user.created webhook event.
 type UserCreatedWebhookPayload struct {
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// The type of webhook event.
 	//
 	// Any of "user.created".
@@ -1740,6 +1857,7 @@ type UserCreatedWebhookPayload struct {
 	User User `json:"user" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
+		EventID     respjson.Field
 		Type        respjson.Field
 		User        respjson.Field
 		ExtraFields map[string]respjson.Field
@@ -1762,6 +1880,9 @@ const (
 
 // Payload for the user.deleted webhook event.
 type UserDeletedWebhookPayload struct {
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// The type of webhook event.
 	//
 	// Any of "user.deleted".
@@ -1770,6 +1891,7 @@ type UserDeletedWebhookPayload struct {
 	User User `json:"user" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
+		EventID     respjson.Field
 		Type        respjson.Field
 		User        respjson.Field
 		ExtraFields map[string]respjson.Field
@@ -1862,6 +1984,9 @@ func (r *UserKYCUpdatedTosData) UnmarshalJSON(data []byte) error {
 type UserLinkedAccountWebhookPayload struct {
 	// A linked account for the user.
 	Account LinkedAccountUnion `json:"account" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// The type of webhook event.
 	//
 	// Any of "user.linked_account".
@@ -1871,6 +1996,7 @@ type UserLinkedAccountWebhookPayload struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Account     respjson.Field
+		EventID     respjson.Field
 		Type        respjson.Field
 		User        respjson.Field
 		ExtraFields map[string]respjson.Field
@@ -1963,6 +2089,9 @@ type UserTransferredAccountWebhookPayload struct {
 	Account LinkedAccountUnion `json:"account" api:"required"`
 	// Any of true.
 	DeletedUser bool `json:"deletedUser" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// A reference to a user by their unique identifier.
 	FromUser UserReference `json:"fromUser" api:"required"`
 	// A Privy user object.
@@ -1975,6 +2104,7 @@ type UserTransferredAccountWebhookPayload struct {
 	JSON struct {
 		Account     respjson.Field
 		DeletedUser respjson.Field
+		EventID     respjson.Field
 		FromUser    respjson.Field
 		ToUser      respjson.Field
 		Type        respjson.Field
@@ -2000,6 +2130,9 @@ const (
 type UserUnlinkedAccountWebhookPayload struct {
 	// A linked account for the user.
 	Account LinkedAccountUnion `json:"account" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// The type of webhook event.
 	//
 	// Any of "user.unlinked_account".
@@ -2009,6 +2142,7 @@ type UserUnlinkedAccountWebhookPayload struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Account     respjson.Field
+		EventID     respjson.Field
 		Type        respjson.Field
 		User        respjson.Field
 		ExtraFields map[string]respjson.Field
@@ -2033,6 +2167,9 @@ const (
 type UserUpdatedAccountWebhookPayload struct {
 	// A linked account for the user.
 	Account LinkedAccountUnion `json:"account" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// The type of webhook event.
 	//
 	// Any of "user.updated_account".
@@ -2042,6 +2179,7 @@ type UserUpdatedAccountWebhookPayload struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Account     respjson.Field
+		EventID     respjson.Field
 		Type        respjson.Field
 		User        respjson.Field
 		ExtraFields map[string]respjson.Field
@@ -2064,6 +2202,9 @@ const (
 
 // Payload for the user.wallet_created webhook event.
 type UserWalletCreatedWebhookPayload struct {
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// The type of webhook event.
 	//
 	// Any of "user.wallet_created".
@@ -2074,6 +2215,7 @@ type UserWalletCreatedWebhookPayload struct {
 	Wallet LinkedAccountBaseWallet `json:"wallet" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
+		EventID     respjson.Field
 		Type        respjson.Field
 		User        respjson.Field
 		Wallet      respjson.Field
@@ -5074,6 +5216,9 @@ type WalletArchivedWebhookPayload struct {
 	ArchivedAt float64 `json:"archived_at" api:"required"`
 	// The chain type of the archived wallet.
 	ChainType string `json:"chain_type" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// The type of webhook event.
 	//
 	// Any of "wallet.archived".
@@ -5086,6 +5231,7 @@ type WalletArchivedWebhookPayload struct {
 	JSON struct {
 		ArchivedAt    respjson.Field
 		ChainType     respjson.Field
+		EventID       respjson.Field
 		Type          respjson.Field
 		WalletAddress respjson.Field
 		WalletID      respjson.Field
@@ -5115,6 +5261,9 @@ type WalletAutomationSubmittedWebhookPayload struct {
 	AutomationID string `json:"automation_id" api:"required"`
 	// ISO 8601 timestamp of when the automation was submitted.
 	CreatedAt string `json:"created_at" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Contract address of the triggering deposit's asset, or 'native-token' for the
 	// native asset.
 	TriggerAssetAddress string `json:"trigger_asset_address" api:"required"`
@@ -5135,6 +5284,7 @@ type WalletAutomationSubmittedWebhookPayload struct {
 		ActionID            respjson.Field
 		AutomationID        respjson.Field
 		CreatedAt           respjson.Field
+		EventID             respjson.Field
 		TriggerAssetAddress respjson.Field
 		TriggerCaip2        respjson.Field
 		TriggerID           respjson.Field
@@ -5447,6 +5597,9 @@ const (
 
 // Payload for the wallet.recovered webhook event.
 type WalletRecoveredWebhookPayload struct {
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// The type of webhook event.
 	//
 	// Any of "wallet.recovered".
@@ -5459,6 +5612,7 @@ type WalletRecoveredWebhookPayload struct {
 	WalletID string `json:"wallet_id" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
+		EventID       respjson.Field
 		Type          respjson.Field
 		UserID        respjson.Field
 		WalletAddress respjson.Field
@@ -5495,6 +5649,9 @@ const (
 
 // Payload for the wallet.recovery_setup webhook event.
 type WalletRecoverySetupWebhookPayload struct {
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Recovery method types for embedded wallet recovery setup webhooks.
 	//
 	// Any of "user_passcode_derived_recovery_key",
@@ -5514,6 +5671,7 @@ type WalletRecoverySetupWebhookPayload struct {
 	WalletID string `json:"wallet_id" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
+		EventID       respjson.Field
 		Method        respjson.Field
 		Type          respjson.Field
 		UserID        respjson.Field
@@ -5541,6 +5699,9 @@ const (
 type WalletRestoredWebhookPayload struct {
 	// The chain type of the restored wallet.
 	ChainType string `json:"chain_type" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// The type of webhook event.
 	//
 	// Any of "wallet.restored".
@@ -5552,6 +5713,7 @@ type WalletRestoredWebhookPayload struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ChainType     respjson.Field
+		EventID       respjson.Field
 		Type          respjson.Field
 		WalletAddress respjson.Field
 		WalletID      respjson.Field
@@ -5575,7 +5737,10 @@ const (
 
 // Payload for the yield.claim.confirmed webhook event.
 type YieldClaimConfirmedWebhookPayload struct {
-	Caip2         string             `json:"caip2" api:"required"`
+	Caip2 string `json:"caip2" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID       string             `json:"event_id" api:"required"`
 	Rewards       []YieldClaimReward `json:"rewards" api:"required"`
 	TransactionID string             `json:"transaction_id" api:"required"`
 	// The type of webhook event.
@@ -5586,6 +5751,7 @@ type YieldClaimConfirmedWebhookPayload struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Caip2         respjson.Field
+		EventID       respjson.Field
 		Rewards       respjson.Field
 		TransactionID respjson.Field
 		Type          respjson.Field
@@ -5633,9 +5799,12 @@ func (r *YieldClaimReward) UnmarshalJSON(data []byte) error {
 type YieldDepositConfirmedWebhookPayload struct {
 	Assets string `json:"assets" api:"required"`
 	Caip2  string `json:"caip2" api:"required"`
-	Owner  string `json:"owner" api:"required"`
-	Sender string `json:"sender" api:"required"`
-	Shares string `json:"shares" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
+	Owner   string `json:"owner" api:"required"`
+	Sender  string `json:"sender" api:"required"`
+	Shares  string `json:"shares" api:"required"`
 	// The type of webhook event.
 	//
 	// Any of "yield.deposit.confirmed".
@@ -5645,6 +5814,7 @@ type YieldDepositConfirmedWebhookPayload struct {
 	JSON struct {
 		Assets       respjson.Field
 		Caip2        respjson.Field
+		EventID      respjson.Field
 		Owner        respjson.Field
 		Sender       respjson.Field
 		Shares       respjson.Field
@@ -5670,8 +5840,11 @@ const (
 
 // Payload for the yield.withdraw.confirmed webhook event.
 type YieldWithdrawConfirmedWebhookPayload struct {
-	Assets   string `json:"assets" api:"required"`
-	Caip2    string `json:"caip2" api:"required"`
+	Assets string `json:"assets" api:"required"`
+	Caip2  string `json:"caip2" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID  string `json:"event_id" api:"required"`
 	Owner    string `json:"owner" api:"required"`
 	Receiver string `json:"receiver" api:"required"`
 	Sender   string `json:"sender" api:"required"`
@@ -5685,6 +5858,7 @@ type YieldWithdrawConfirmedWebhookPayload struct {
 	JSON struct {
 		Assets       respjson.Field
 		Caip2        respjson.Field
+		EventID      respjson.Field
 		Owner        respjson.Field
 		Receiver     respjson.Field
 		Sender       respjson.Field
@@ -5716,8 +5890,11 @@ type OrganizationKYBUpdatedWebhookEvent struct {
 	// Provider environment (production or sandbox).
 	//
 	// Any of "production", "sandbox".
-	Environment    KyxEnvironment `json:"environment" api:"required"`
-	OrganizationID string         `json:"organization_id" api:"required"`
+	Environment KyxEnvironment `json:"environment" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID        string `json:"event_id" api:"required"`
+	OrganizationID string `json:"organization_id" api:"required"`
 	// KYC/KYB provider identifier.
 	//
 	// Any of "bridge".
@@ -5731,6 +5908,7 @@ type OrganizationKYBUpdatedWebhookEvent struct {
 		Changes        respjson.Field
 		Data           respjson.Field
 		Environment    respjson.Field
+		EventID        respjson.Field
 		OrganizationID respjson.Field
 		Provider       respjson.Field
 		Type           respjson.Field
@@ -5760,6 +5938,9 @@ type UserKYCUpdatedWebhookEvent struct {
 	//
 	// Any of "production", "sandbox".
 	Environment KyxEnvironment `json:"environment" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// KYC/KYB provider identifier.
 	//
 	// Any of "bridge".
@@ -5774,6 +5955,7 @@ type UserKYCUpdatedWebhookEvent struct {
 		Changes     respjson.Field
 		Data        respjson.Field
 		Environment respjson.Field
+		EventID     respjson.Field
 		Provider    respjson.Field
 		Type        respjson.Field
 		UserID      respjson.Field
@@ -5806,6 +5988,9 @@ type WalletDepositAccountDepositCompletedWebhookEvent struct {
 	//
 	// Any of "sandbox", "production".
 	Environment Environment `json:"environment" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Supported fiat orchestration providers.
 	//
 	// Any of "bridge".
@@ -5823,6 +6008,7 @@ type WalletDepositAccountDepositCompletedWebhookEvent struct {
 		DepositAccountID  respjson.Field
 		DepositType       respjson.Field
 		Environment       respjson.Field
+		EventID           respjson.Field
 		Provider          respjson.Field
 		ProviderDepositID respjson.Field
 		Type              respjson.Field
@@ -5861,6 +6047,9 @@ type WalletDepositAccountDepositFailedWebhookEvent struct {
 	//
 	// Any of "sandbox", "production".
 	Environment Environment `json:"environment" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Supported fiat orchestration providers.
 	//
 	// Any of "bridge".
@@ -5879,6 +6068,7 @@ type WalletDepositAccountDepositFailedWebhookEvent struct {
 		DepositAccountID  respjson.Field
 		DepositType       respjson.Field
 		Environment       respjson.Field
+		EventID           respjson.Field
 		Provider          respjson.Field
 		Type              respjson.Field
 		WalletID          respjson.Field
@@ -5917,6 +6107,9 @@ type WalletDepositAccountDepositStartedWebhookEvent struct {
 	//
 	// Any of "sandbox", "production".
 	Environment Environment `json:"environment" api:"required"`
+	// The ID of this event, stable across repeat deliveries so clients can deduplicate
+	// on it.
+	EventID string `json:"event_id" api:"required"`
 	// Supported fiat orchestration providers.
 	//
 	// Any of "bridge".
@@ -5934,6 +6127,7 @@ type WalletDepositAccountDepositStartedWebhookEvent struct {
 		DepositAccountID  respjson.Field
 		DepositType       respjson.Field
 		Environment       respjson.Field
+		EventID           respjson.Field
 		Provider          respjson.Field
 		ProviderDepositID respjson.Field
 		Type              respjson.Field
@@ -5986,6 +6180,7 @@ const (
 // [FundsDepositedWebhookPayload], [FundsWithdrawnWebhookPayload],
 // [PrivateKeyExportWebhookPayload], [WalletRecoveredWebhookPayload],
 // [WalletRecoverySetupWebhookPayload], [WalletRestoredWebhookPayload],
+// [SeedPhraseExportWebhookPayload],
 // [WalletActionEarnDepositCreatedWebhookPayload],
 // [WalletActionEarnDepositFailedWebhookPayload],
 // [WalletActionEarnDepositRejectedWebhookPayload],
@@ -6037,6 +6232,7 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	// [string], [string], [string], [string], [string], [string], [string], [string],
 	// [string], [string], [string], [string], [string], [string]
 	CreatedAt UnsafeUnwrapWebhookEventUnionCreatedAt `json:"created_at"`
+	EventID   string                                 `json:"event_id"`
 	ExpiresAt float64                                `json:"expires_at"`
 	IntentID  string                                 `json:"intent_id"`
 	// This field is from variant [IntentAuthorizedWebhookPayload].
@@ -6058,7 +6254,7 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	// "wallet.deposit_account.deposit_failed",
 	// "wallet.deposit_account.deposit_started", "wallet.funds_deposited",
 	// "wallet.funds_withdrawn", "wallet.private_key_export", "wallet.recovered",
-	// "wallet.recovery_setup", "wallet.restored",
+	// "wallet.recovery_setup", "wallet.restored", "wallet.seed_phrase_export",
 	// "wallet_action.earn_deposit.created", "wallet_action.earn_deposit.failed",
 	// "wallet_action.earn_deposit.rejected", "wallet_action.earn_deposit.succeeded",
 	// "wallet_action.earn_fee_collect.created",
@@ -6116,7 +6312,6 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	// This field is from variant [TransactionStillPendingWebhookPayload].
 	TransactionRequest UnsignedStandardEthereumTransactionResp `json:"transaction_request"`
 	AmountUsd          string                                  `json:"amount_usd"`
-	EventID            string                                  `json:"event_id"`
 	RecordedAt         int64                                   `json:"recorded_at"`
 	SourceID           string                                  `json:"source_id"`
 	// This field is from variant [UsageAtaDepositRecordedWebhookPayload].
@@ -6225,6 +6420,7 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	JSON     struct {
 		AuthorizedAt             respjson.Field
 		CreatedAt                respjson.Field
+		EventID                  respjson.Field
 		ExpiresAt                respjson.Field
 		IntentID                 respjson.Field
 		IntentType               respjson.Field
@@ -6253,7 +6449,6 @@ type UnsafeUnwrapWebhookEventUnion struct {
 		ReferenceID              respjson.Field
 		TransactionRequest       respjson.Field
 		AmountUsd                respjson.Field
-		EventID                  respjson.Field
 		RecordedAt               respjson.Field
 		SourceID                 respjson.Field
 		SourceType               respjson.Field
@@ -6373,6 +6568,7 @@ func (PrivateKeyExportWebhookPayload) implUnsafeUnwrapWebhookEventUnion()       
 func (WalletRecoveredWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                         {}
 func (WalletRecoverySetupWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                     {}
 func (WalletRestoredWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                          {}
+func (SeedPhraseExportWebhookPayload) implUnsafeUnwrapWebhookEventUnion()                        {}
 func (WalletActionEarnDepositCreatedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()          {}
 func (WalletActionEarnDepositFailedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()           {}
 func (WalletActionEarnDepositRejectedWebhookPayload) implUnsafeUnwrapWebhookEventUnion()         {}
@@ -6456,6 +6652,7 @@ func (YieldWithdrawConfirmedWebhookPayload) implUnsafeUnwrapWebhookEventUnion() 
 //	case privyclient.WalletRecoveredWebhookPayload:
 //	case privyclient.WalletRecoverySetupWebhookPayload:
 //	case privyclient.WalletRestoredWebhookPayload:
+//	case privyclient.SeedPhraseExportWebhookPayload:
 //	case privyclient.WalletActionEarnDepositCreatedWebhookPayload:
 //	case privyclient.WalletActionEarnDepositFailedWebhookPayload:
 //	case privyclient.WalletActionEarnDepositRejectedWebhookPayload:
@@ -6579,6 +6776,8 @@ func (u UnsafeUnwrapWebhookEventUnion) AsAny() anyUnsafeUnwrapWebhookEvent {
 		return u.AsWalletRecoverySetup()
 	case "wallet.restored":
 		return u.AsWalletRestored()
+	case "wallet.seed_phrase_export":
+		return u.AsWalletSeedPhraseExport()
 	case "wallet_action.earn_deposit.created":
 		return u.AsWalletActionEarnDepositCreated()
 	case "wallet_action.earn_deposit.failed":
@@ -6854,6 +7053,11 @@ func (u UnsafeUnwrapWebhookEventUnion) AsWalletRecoverySetup() (v WalletRecovery
 }
 
 func (u UnsafeUnwrapWebhookEventUnion) AsWalletRestored() (v WalletRestoredWebhookPayload) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+func (u UnsafeUnwrapWebhookEventUnion) AsWalletSeedPhraseExport() (v SeedPhraseExportWebhookPayload) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }

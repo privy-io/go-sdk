@@ -13,7 +13,7 @@ import (
 	"github.com/privy-io/go-sdk/option"
 )
 
-func TestOrganizationNew(t *testing.T) {
+func TestOrganizationNewWithOptionalParams(t *testing.T) {
 	t.Skip("Mock server tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -31,6 +31,29 @@ func TestOrganizationNew(t *testing.T) {
 		OrganizationCreateRequestBody: privyclient.OrganizationCreateRequestBody{
 			DefaultKeyQuorumID: "string",
 			DisplayName:        "x",
+			DefaultWalletConfigurations: privyclient.OrganizationDefaultWalletConfigurations{
+				Ethereum: privyclient.OrganizationWalletConfiguration{
+					AdditionalSigners: privyclient.AdditionalSignerInput{privyclient.AdditionalSignerItemInput{
+						SignerID:          "string",
+						OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
+					}},
+					PolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
+				},
+				Solana: privyclient.OrganizationWalletConfiguration{
+					AdditionalSigners: privyclient.AdditionalSignerInput{privyclient.AdditionalSignerItemInput{
+						SignerID:          "string",
+						OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
+					}},
+					PolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
+				},
+				Tron: privyclient.OrganizationWalletConfiguration{
+					AdditionalSigners: privyclient.AdditionalSignerInput{privyclient.AdditionalSignerItemInput{
+						SignerID:          "string",
+						OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
+					}},
+					PolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
+				},
+			},
 		},
 	})
 	if err != nil {
@@ -62,7 +85,30 @@ func TestOrganizationUpdateWithOptionalParams(t *testing.T) {
 		privyclient.OrganizationUpdateParams{
 			OrganizationUpdateRequestBody: privyclient.OrganizationUpdateRequestBody{
 				DefaultKeyQuorumID: privyclient.String("string"),
-				DisplayName:        privyclient.String("x"),
+				DefaultWalletConfigurations: privyclient.OrganizationDefaultWalletConfigurationsUpdate{
+					Ethereum: privyclient.OrganizationWalletConfiguration{
+						AdditionalSigners: privyclient.AdditionalSignerInput{privyclient.AdditionalSignerItemInput{
+							SignerID:          "string",
+							OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
+						}},
+						PolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
+					},
+					Solana: privyclient.OrganizationWalletConfiguration{
+						AdditionalSigners: privyclient.AdditionalSignerInput{privyclient.AdditionalSignerItemInput{
+							SignerID:          "string",
+							OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
+						}},
+						PolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
+					},
+					Tron: privyclient.OrganizationWalletConfiguration{
+						AdditionalSigners: privyclient.AdditionalSignerInput{privyclient.AdditionalSignerItemInput{
+							SignerID:          "string",
+							OverridePolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
+						}},
+						PolicyIDs: privyclient.PolicyInput{"xxxxxxxxxxxxxxxxxxxxxxxx"},
+					},
+				},
+				DisplayName: privyclient.String("x"),
 			},
 		},
 	)

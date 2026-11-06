@@ -520,12 +520,15 @@ type ConditionSetItem struct {
 	CreatedAt float64 `json:"created_at" api:"required"`
 	// The value stored in this condition set item.
 	Value string `json:"value" api:"required"`
+	// Label for the item, or null if it has none.
+	Name string `json:"name" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID             respjson.Field
 		ConditionSetID respjson.Field
 		CreatedAt      respjson.Field
 		Value          respjson.Field
+		Name           respjson.Field
 		ExtraFields    map[string]respjson.Field
 		raw            string
 	} `json:"-"`
@@ -537,12 +540,15 @@ func (r *ConditionSetItem) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// A single value to add to a condition set.
+// A value to add to a condition set, with an optional name.
 type ConditionSetItemValueInputResp struct {
 	Value string `json:"value" api:"required"`
+	// Optional label for the item, unique within the condition set ignoring case.
+	Name string `json:"name"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Value       respjson.Field
+		Name        respjson.Field
 		ExtraFields map[string]respjson.Field
 		raw         string
 	} `json:"-"`
@@ -564,11 +570,13 @@ func (r ConditionSetItemValueInputResp) ToParam() ConditionSetItemValueInput {
 	return param.Override[ConditionSetItemValueInput](json.RawMessage(r.RawJSON()))
 }
 
-// A single value to add to a condition set.
+// A value to add to a condition set, with an optional name.
 //
 // The property Value is required.
 type ConditionSetItemValueInput struct {
 	Value string `json:"value" api:"required"`
+	// Optional label for the item, unique within the condition set ignoring case.
+	Name param.Opt[string] `json:"name,omitzero"`
 	paramObj
 }
 

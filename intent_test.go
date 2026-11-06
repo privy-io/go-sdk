@@ -101,6 +101,7 @@ func TestIntentNewConditionSetItemsWithOptionalParams(t *testing.T) {
 		privyclient.IntentNewConditionSetItemsParams{
 			ConditionSetItemsRequestBody: privyclient.ConditionSetItemsRequestBody{privyclient.ConditionSetItemValueInput{
 				Value: "x",
+				Name:  privyclient.String("x"),
 			}},
 			PrivyRequestExpiry: privyclient.String("privy-request-expiry"),
 		},
@@ -570,6 +571,7 @@ func TestIntentUpdateConditionSetItemsWithOptionalParams(t *testing.T) {
 		privyclient.IntentUpdateConditionSetItemsParams{
 			ConditionSetItemsRequestBody: privyclient.ConditionSetItemsRequestBody{privyclient.ConditionSetItemValueInput{
 				Value: "x",
+				Name:  privyclient.String("x"),
 			}},
 			PrivyRequestExpiry: privyclient.String("privy-request-expiry"),
 		},

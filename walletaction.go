@@ -2431,9 +2431,9 @@ type WalletActionStepUnion struct {
 	// This field is from variant [WisdomTreeSettlementWalletActionStep].
 	OrderType TmmfOrderType `json:"order_type"`
 	// This field is from variant [WisdomTreeSettlementWalletActionStep].
-	Received WisdomTreeSettlementWalletActionStepReceived `json:"received"`
+	Received WisdomTreeSettlementReceivedAmountUnion `json:"received"`
 	// This field is from variant [WisdomTreeSettlementWalletActionStep].
-	Requested WisdomTreeSettlementWalletActionStepRequested `json:"requested"`
+	Requested WisdomTreeSettlementRequestedAmountUnion `json:"requested"`
 	// This field is from variant [WisdomTreeSettlementWalletActionStep].
 	SettlementTransactionHash string `json:"settlement_transaction_hash"`
 	JSON                      struct {
@@ -2701,10 +2701,10 @@ type WisdomTreeSettlementWalletActionStep struct {
 	OrderType TmmfOrderType `json:"order_type" api:"required"`
 	// What a tMMF order receives: fund shares for a deposit, the withdraw asset for a
 	// withdrawal.
-	Received WisdomTreeSettlementWalletActionStepReceived `json:"received" api:"required"`
+	Received WisdomTreeSettlementReceivedAmountUnion `json:"received" api:"required"`
 	// What a tMMF order sends: the deposit asset for a deposit, fund shares for a
 	// withdrawal.
-	Requested WisdomTreeSettlementWalletActionStepRequested `json:"requested" api:"required"`
+	Requested WisdomTreeSettlementRequestedAmountUnion `json:"requested" api:"required"`
 	// The transaction that delivered the received asset. Null until Privy verifies the
 	// settlement.
 	SettlementTransactionHash string `json:"settlement_transaction_hash" api:"required"`
@@ -2732,40 +2732,6 @@ type WisdomTreeSettlementWalletActionStep struct {
 // Returns the unmodified JSON received from the API
 func (r WisdomTreeSettlementWalletActionStep) RawJSON() string { return r.JSON.raw }
 func (r *WisdomTreeSettlementWalletActionStep) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// What a tMMF order receives: fund shares for a deposit, the withdraw asset for a
-// withdrawal.
-type WisdomTreeSettlementWalletActionStepReceived struct {
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-	WisdomTreeSettlementReceivedAmountUnion
-}
-
-// Returns the unmodified JSON received from the API
-func (r WisdomTreeSettlementWalletActionStepReceived) RawJSON() string { return r.JSON.raw }
-func (r *WisdomTreeSettlementWalletActionStepReceived) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// What a tMMF order sends: the deposit asset for a deposit, fund shares for a
-// withdrawal.
-type WisdomTreeSettlementWalletActionStepRequested struct {
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-	WisdomTreeSettlementRequestedAmountUnion
-}
-
-// Returns the unmodified JSON received from the API
-func (r WisdomTreeSettlementWalletActionStepRequested) RawJSON() string { return r.JSON.raw }
-func (r *WisdomTreeSettlementWalletActionStepRequested) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

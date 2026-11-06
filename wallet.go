@@ -1317,9 +1317,9 @@ const (
 // Source for a transfer identified by a token contract address (EVM) or mint
 // address (Solana). Use this variant for tokens that are not first-class assets.
 type CustomTokenTransferSourceResp struct {
-	// The token contract address (EVM) or mint address (Solana) of the asset to
-	// transfer.
-	AssetAddress string `json:"asset_address" api:"required"`
+	// Stellar account address: an ed25519 public key in StrKey encoding, starting with
+	// G.
+	AssetAddress StellarAddress `json:"asset_address" api:"required"`
 	// The blockchain network on which to perform the transfer. Supported chains
 	// include: 'tempo', 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and their
 	// respective testnets.
@@ -1362,9 +1362,9 @@ func (r CustomTokenTransferSourceResp) ToParam() CustomTokenTransferSource {
 //
 // The properties AssetAddress, Chain are required.
 type CustomTokenTransferSource struct {
-	// The token contract address (EVM) or mint address (Solana) of the asset to
-	// transfer.
-	AssetAddress string `json:"asset_address" api:"required"`
+	// Stellar account address: an ed25519 public key in StrKey encoding, starting with
+	// G.
+	AssetAddress StellarAddress `json:"asset_address" api:"required"`
 	// The blockchain network on which to perform the transfer. Supported chains
 	// include: 'tempo', 'ethereum', 'base', 'arbitrum', 'polygon', 'solana', and their
 	// respective testnets.
@@ -1498,8 +1498,10 @@ type DeveloperFee struct {
 	// Amount in USD (in decimals).
 	Amount string `json:"amount" api:"required"`
 	// Any of "developer".
-	Type      DeveloperFeeType `json:"type" api:"required"`
-	Recipient string           `json:"recipient"`
+	Type DeveloperFeeType `json:"type" api:"required"`
+	// Stellar account address: an ed25519 public key in StrKey encoding, starting with
+	// G.
+	Recipient StellarAddress `json:"recipient"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Amount      respjson.Field
@@ -3506,8 +3508,9 @@ func (r *FeeConfiguration) UnmarshalJSON(data []byte) error {
 type FeeLineItemUnion struct {
 	Amount string `json:"amount"`
 	// Any of "relayer", "privy", "developer".
-	Type      string `json:"type"`
-	Recipient string `json:"recipient"`
+	Type string `json:"type"`
+	// This field is from variant [RelayerFee].
+	Recipient StellarAddress `json:"recipient"`
 	JSON      struct {
 		Amount    respjson.Field
 		Type      respjson.Field
@@ -4257,8 +4260,10 @@ type PrivyFee struct {
 	// Amount in USD (in decimals).
 	Amount string `json:"amount" api:"required"`
 	// Any of "privy".
-	Type      PrivyFeeType `json:"type" api:"required"`
-	Recipient string       `json:"recipient"`
+	Type PrivyFeeType `json:"type" api:"required"`
+	// Stellar account address: an ed25519 public key in StrKey encoding, starting with
+	// G.
+	Recipient StellarAddress `json:"recipient"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Amount      respjson.Field
@@ -4678,8 +4683,10 @@ type RelayerFee struct {
 	// Amount in USD (in decimals).
 	Amount string `json:"amount" api:"required"`
 	// Any of "relayer".
-	Type      RelayerFeeType `json:"type" api:"required"`
-	Recipient string         `json:"recipient"`
+	Type RelayerFeeType `json:"type" api:"required"`
+	// Stellar account address: an ed25519 public key in StrKey encoding, starting with
+	// G.
+	Recipient StellarAddress `json:"recipient"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Amount      respjson.Field
@@ -7800,8 +7807,9 @@ func (r *TokenOutput) UnmarshalJSON(data []byte) error {
 // The destination address for a token transfer. Optionally specify a different
 // asset or chain for cross-asset or cross-chain transfers.
 type TokenTransferDestinationResp struct {
-	// Recipient address (hex for EVM, base58 for Solana, base58check for Tron)
-	Address string `json:"address" api:"required"`
+	// Stellar account address: an ed25519 public key in StrKey encoding, starting with
+	// G.
+	Address StellarAddress `json:"address" api:"required"`
 	// The destination asset. Required for cross-asset transfers (e.g., source 'usdt'
 	// to destination 'usdc').
 	Asset string `json:"asset"`
@@ -7839,8 +7847,9 @@ func (r TokenTransferDestinationResp) ToParam() TokenTransferDestination {
 //
 // The property Address is required.
 type TokenTransferDestination struct {
-	// Recipient address (hex for EVM, base58 for Solana, base58check for Tron)
-	Address string `json:"address" api:"required"`
+	// Stellar account address: an ed25519 public key in StrKey encoding, starting with
+	// G.
+	Address StellarAddress `json:"address" api:"required"`
 	// The destination asset. Required for cross-asset transfers (e.g., source 'usdt'
 	// to destination 'usdc').
 	Asset param.Opt[string] `json:"asset,omitzero"`
@@ -7868,7 +7877,7 @@ type TokenTransferSourceUnionResp struct {
 	Chain  string `json:"chain"`
 	Amount string `json:"amount"`
 	// This field is from variant [CustomTokenTransferSourceResp].
-	AssetAddress string `json:"asset_address"`
+	AssetAddress StellarAddress `json:"asset_address"`
 	JSON         struct {
 		Asset        respjson.Field
 		Chain        respjson.Field
@@ -7912,7 +7921,7 @@ func TokenTransferSourceOfNamedTokenTransferSource(asset string, chain string) T
 	return TokenTransferSourceUnion{OfNamedTokenTransferSource: &variant}
 }
 
-func TokenTransferSourceOfCustomTokenTransferSource(assetAddress string, chain string) TokenTransferSourceUnion {
+func TokenTransferSourceOfCustomTokenTransferSource(assetAddress StellarAddress, chain string) TokenTransferSourceUnion {
 	var variant CustomTokenTransferSource
 	variant.AssetAddress = assetAddress
 	variant.Chain = chain
