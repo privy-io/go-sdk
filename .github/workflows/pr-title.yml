@@ -6,8 +6,8 @@ on:
       - main--integrated
 
 permissions:
-  pull-requests: read   # Read PR details
-  contents: read        # Read repository content
+  pull-requests: read # Read PR details
+  contents: read # Read repository content
 
 jobs:
   conventional-commits:
@@ -17,5 +17,5 @@ jobs:
     steps:
       - uses: ytanikin/pr-conventional-commits@639145d78959c53c43112365837e3abd21ed67c1
         with:
-          task_types: '["feat","fix","docs","test","ci","refactor","perf","chore","revert","style","build","release","deps"]'
+          task_types: '["feat","fix","docs","test","ci","refactor","perf","chore","revert","release","deps"]'
           add_label: 'false'
