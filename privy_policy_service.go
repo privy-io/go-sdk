@@ -71,7 +71,7 @@ func (s *PrivyPolicyService) Update(
 		authorizationContext: options.AuthorizationContext,
 		requestExpiry:        requestExpiry,
 		method:               "PATCH",
-		url:                  s.baseURL + "/v1/policies/" + policyID,
+		url:                  signedRequestURL(s.baseURL, "/v1/policies/%s", policyID),
 		body:                 params,
 	})
 	if err != nil {
@@ -116,7 +116,7 @@ func (s *PrivyPolicyService) Delete(
 		authorizationContext: options.AuthorizationContext,
 		requestExpiry:        requestExpiry,
 		method:               "DELETE",
-		url:                  s.baseURL + "/v1/policies/" + policyID,
+		url:                  signedRequestURL(s.baseURL, "/v1/policies/%s", policyID),
 		body:                 "",
 	})
 	if err != nil {
@@ -161,7 +161,7 @@ func (s *PrivyPolicyService) NewRule(
 		authorizationContext: options.AuthorizationContext,
 		requestExpiry:        requestExpiry,
 		method:               "POST",
-		url:                  s.baseURL + "/v1/policies/" + policyID + "/rules",
+		url:                  signedRequestURL(s.baseURL, "/v1/policies/%s/rules", policyID),
 		body:                 params,
 	})
 	if err != nil {
@@ -206,7 +206,7 @@ func (s *PrivyPolicyService) DeleteRule(
 		authorizationContext: options.AuthorizationContext,
 		requestExpiry:        requestExpiry,
 		method:               "DELETE",
-		url:                  s.baseURL + "/v1/policies/" + params.PolicyID + "/rules/" + ruleID,
+		url:                  signedRequestURL(s.baseURL, "/v1/policies/%s/rules/%s", params.PolicyID, ruleID),
 		body:                 "",
 	})
 	if err != nil {
@@ -251,7 +251,7 @@ func (s *PrivyPolicyService) UpdateRule(
 		authorizationContext: options.AuthorizationContext,
 		requestExpiry:        requestExpiry,
 		method:               "PATCH",
-		url:                  s.baseURL + "/v1/policies/" + params.PolicyID + "/rules/" + ruleID,
+		url:                  signedRequestURL(s.baseURL, "/v1/policies/%s/rules/%s", params.PolicyID, ruleID),
 		body:                 params,
 	})
 	if err != nil {

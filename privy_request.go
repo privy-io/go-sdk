@@ -2,6 +2,8 @@ package privyclient
 
 import (
 	"context"
+	"fmt"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -134,4 +136,17 @@ func stringPtr(v string) *string {
 
 func int64Ptr(v int64) *int64 {
 	return &v
+}
+
+// signedRequestURL builds the absolute URL that is covered by an authorization
+// signature. pathFormat mirrors the generated method's path construction (for
+// example "/v1/wallets/%s/rpc") and each identifier is escaped with
+// url.PathEscape, exactly as the generated methods do, so the signed URL matches
+// the encoded path that is actually transmitted.
+func signedRequestURL(baseURL string, pathFormat string, ids ...string) string {
+	escaped := make([]any, len(ids))
+	for i, id := range ids {
+		escaped[i] = url.PathEscape(id)
+	}
+	return baseURL + fmt.Sprintf(pathFormat, escaped...)
 }

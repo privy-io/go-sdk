@@ -101,7 +101,7 @@ func (s *PrivyWalletService) Rpc(
 		idempotencyKey:       options.IdempotencyKey,
 		requestExpiry:        s.requestExpiryOrDefault(options),
 		method:               "POST",
-		url:                  s.baseURL + "/v1/wallets/" + walletID + "/rpc",
+		url:                  signedRequestURL(s.baseURL, "/v1/wallets/%s/rpc", walletID),
 		body:                 params,
 	})
 
@@ -146,7 +146,7 @@ func (s *PrivyWalletService) Update(
 		idempotencyKey:       options.IdempotencyKey,
 		requestExpiry:        s.requestExpiryOrDefault(options),
 		method:               "PATCH",
-		url:                  s.baseURL + "/v1/wallets/" + walletID,
+		url:                  signedRequestURL(s.baseURL, "/v1/wallets/%s", walletID),
 		body:                 params,
 	})
 	if err != nil {
@@ -187,7 +187,7 @@ func (s *PrivyWalletService) RawSign(
 		idempotencyKey:       options.IdempotencyKey,
 		requestExpiry:        s.requestExpiryOrDefault(options),
 		method:               "POST",
-		url:                  s.baseURL + "/v1/wallets/" + walletID + "/raw_sign",
+		url:                  signedRequestURL(s.baseURL, "/v1/wallets/%s/raw_sign", walletID),
 		body:                 params,
 	})
 	if err != nil {
@@ -526,7 +526,7 @@ func (s *PrivyWalletService) Export(
 		idempotencyKey:       options.IdempotencyKey,
 		requestExpiry:        s.requestExpiryOrDefault(options),
 		method:               "POST",
-		url:                  s.baseURL + "/v1/wallets/" + walletID + "/export",
+		url:                  signedRequestURL(s.baseURL, "/v1/wallets/%s/export", walletID),
 		body:                 params,
 	})
 	if err != nil {

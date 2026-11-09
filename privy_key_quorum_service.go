@@ -65,7 +65,7 @@ func (s *PrivyKeyQuorumService) Update(
 		authorizationContext: options.AuthorizationContext,
 		requestExpiry:        requestExpiry,
 		method:               "PATCH",
-		url:                  s.baseURL + "/v1/key_quorums/" + keyQuorumID,
+		url:                  signedRequestURL(s.baseURL, "/v1/key_quorums/%s", keyQuorumID),
 		body:                 params,
 	})
 	if err != nil {
@@ -106,7 +106,7 @@ func (s *PrivyKeyQuorumService) Delete(
 		authorizationContext: options.AuthorizationContext,
 		requestExpiry:        requestExpiry,
 		method:               "DELETE",
-		url:                  s.baseURL + "/v1/key_quorums/" + keyQuorumID,
+		url:                  signedRequestURL(s.baseURL, "/v1/key_quorums/%s", keyQuorumID),
 		body:                 params,
 	})
 	if err != nil {
