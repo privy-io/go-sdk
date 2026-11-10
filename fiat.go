@@ -187,6 +187,9 @@ type ExternalFiatAccount struct {
 	UserID   string                      `json:"user_id" api:"required"`
 	BankName string                      `json:"bank_name"`
 	Last4    string                      `json:"last_4"`
+	// Payment rails supported by an external fiat account and reasons other rails are
+	// unavailable.
+	PaymentRails ExternalFiatAccountPaymentRails `json:"payment_rails"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID               respjson.Field
@@ -199,6 +202,7 @@ type ExternalFiatAccount struct {
 		UserID           respjson.Field
 		BankName         respjson.Field
 		Last4            respjson.Field
+		PaymentRails     respjson.Field
 		ExtraFields      map[string]respjson.Field
 		raw              string
 	} `json:"-"`
@@ -436,6 +440,29 @@ func init() {
 		apijson.Discriminator[ExternalFiatAccountIndividualOwner]("individual"),
 		apijson.Discriminator[ExternalFiatAccountBusinessOwner]("business"),
 	)
+}
+
+// Payment rails supported by an external fiat account and reasons other rails are
+// unavailable.
+type ExternalFiatAccountPaymentRails struct {
+	// Supported payment rails, using the same names as `payment_rail` on payouts, such
+	// as ach, ach_same_day, wire, or fednow.
+	Supported []string `json:"supported" api:"required"`
+	// Reasons payment rails are unavailable, keyed by rail name.
+	UnsupportedReasons map[string]string `json:"unsupported_reasons" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Supported          respjson.Field
+		UnsupportedReasons respjson.Field
+		ExtraFields        map[string]respjson.Field
+		raw                string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ExternalFiatAccountPaymentRails) RawJSON() string { return r.JSON.raw }
+func (r *ExternalFiatAccountPaymentRails) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
 // Brazilian Pix account data for an external fiat account. Provide exactly one of
@@ -1715,6 +1742,9 @@ type OrganizationExternalFiatAccount struct {
 	Provider OrganizationExternalFiatAccountProvider `json:"provider" api:"required"`
 	BankName string                                  `json:"bank_name"`
 	Last4    string                                  `json:"last_4"`
+	// Payment rails supported by an external fiat account and reasons other rails are
+	// unavailable.
+	PaymentRails ExternalFiatAccountPaymentRails `json:"payment_rails"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID               respjson.Field
@@ -1727,6 +1757,7 @@ type OrganizationExternalFiatAccount struct {
 		Provider         respjson.Field
 		BankName         respjson.Field
 		Last4            respjson.Field
+		PaymentRails     respjson.Field
 		ExtraFields      map[string]respjson.Field
 		raw              string
 	} `json:"-"`
