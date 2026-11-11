@@ -66,7 +66,7 @@ func (s *PrivyWalletEarnEthereumService) Deposit(
 		idempotencyKey:       options.IdempotencyKey,
 		requestExpiry:        w.requestExpiryOrDefault(options),
 		method:               "POST",
-		url:                  w.baseURL + "/v1/wallets/" + walletID + "/earn/ethereum/deposit",
+		url:                  signedRequestURL(w.baseURL, "/v1/wallets/%s/earn/ethereum/deposit", walletID),
 		body:                 params,
 	})
 	if err != nil {
@@ -111,7 +111,7 @@ func (s *PrivyWalletEarnEthereumService) Withdraw(
 		idempotencyKey:       options.IdempotencyKey,
 		requestExpiry:        w.requestExpiryOrDefault(options),
 		method:               "POST",
-		url:                  w.baseURL + "/v1/wallets/" + walletID + "/earn/ethereum/withdraw",
+		url:                  signedRequestURL(w.baseURL, "/v1/wallets/%s/earn/ethereum/withdraw", walletID),
 		body:                 params,
 	})
 	if err != nil {
@@ -168,7 +168,7 @@ func (s *PrivyWalletEarnEthereumIncentiveService) Claim(
 		idempotencyKey:       options.IdempotencyKey,
 		requestExpiry:        w.requestExpiryOrDefault(options),
 		method:               "POST",
-		url:                  w.baseURL + "/v1/wallets/" + walletID + "/earn/ethereum/incentive/claim",
+		url:                  signedRequestURL(w.baseURL, "/v1/wallets/%s/earn/ethereum/incentive/claim", walletID),
 		body:                 params,
 	})
 	if err != nil {

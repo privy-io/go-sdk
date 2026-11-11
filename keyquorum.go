@@ -63,7 +63,7 @@ func (r *KeyQuorumService) Update(ctx context.Context, keyQuorumID KeyQuorumID, 
 		err = errors.New("missing required key_quorum_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/key_quorums/%s", url.PathEscape(keyQuorumID))
+	path := fmt.Sprintf("v1/key_quorums/%s", keyQuorumID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, params, &res, opts...)
 	return res, err
 }
@@ -104,7 +104,7 @@ func (r *KeyQuorumService) Delete(ctx context.Context, keyQuorumID KeyQuorumID, 
 		err = errors.New("missing required key_quorum_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/key_quorums/%s", url.PathEscape(keyQuorumID))
+	path := fmt.Sprintf("v1/key_quorums/%s", keyQuorumID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
 	return res, err
 }
@@ -116,7 +116,7 @@ func (r *KeyQuorumService) Get(ctx context.Context, keyQuorumID KeyQuorumID, opt
 		err = errors.New("missing required key_quorum_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/key_quorums/%s", url.PathEscape(keyQuorumID))
+	path := fmt.Sprintf("v1/key_quorums/%s", keyQuorumID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return res, err
 }

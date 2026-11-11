@@ -33,6 +33,9 @@ type PrivyWalletService struct {
 	// Tron provides convenience methods for Tron wallet operations.
 	Tron *PrivyTronWalletService
 
+	// Actions shadows WalletService.Actions to path-escape action IDs.
+	Actions *PrivyWalletActionService
+
 	// DepositAccounts shadows WalletService.DepositAccounts; Crypto.New is signed.
 	DepositAccounts *PrivyWalletDepositAccountService
 
@@ -70,6 +73,7 @@ func newPrivyWalletService(
 	s.Ethereum = newPrivyEthereumWalletService(s)
 	s.Solana = newPrivySolanaWalletService(s)
 	s.Tron = newPrivyTronWalletService(s)
+	s.Actions = &PrivyWalletActionService{service.Actions}
 	s.DepositAccounts = newPrivyWalletDepositAccountService(service.DepositAccounts, s)
 	s.Earn = newPrivyWalletEarnService(service.Earn, s)
 	s.Payout = newPrivyWalletPayoutService(service.Payout, s)
@@ -240,7 +244,7 @@ func (s *PrivyWalletService) Transfer(
 		idempotencyKey:       options.IdempotencyKey,
 		requestExpiry:        s.requestExpiryOrDefault(options),
 		method:               "POST",
-		url:                  s.baseURL + "/v1/wallets/" + walletID + "/transfer",
+		url:                  signedRequestURL(s.baseURL, "/v1/wallets/%s/transfer", walletID),
 		body:                 params,
 	})
 	if err != nil {
@@ -283,7 +287,7 @@ func (s *PrivyWalletService) AttachAutomations(
 		authorizationContext: options.AuthorizationContext,
 		requestExpiry:        s.requestExpiryOrDefault(options),
 		method:               "POST",
-		url:                  s.baseURL + "/v1/wallets/" + walletID + "/automations/attach",
+		url:                  signedRequestURL(s.baseURL, "/v1/wallets/%s/automations/attach", walletID),
 		body:                 params,
 	})
 	if err != nil {
@@ -323,7 +327,7 @@ func (s *PrivyWalletService) DetachAutomations(
 		authorizationContext: options.AuthorizationContext,
 		requestExpiry:        s.requestExpiryOrDefault(options),
 		method:               "POST",
-		url:                  s.baseURL + "/v1/wallets/" + walletID + "/automations/detach",
+		url:                  signedRequestURL(s.baseURL, "/v1/wallets/%s/automations/detach", walletID),
 		body:                 params,
 	})
 	if err != nil {

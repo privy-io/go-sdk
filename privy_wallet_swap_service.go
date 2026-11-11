@@ -42,7 +42,7 @@ func (s *PrivyWalletSwapService) Execute(
 		idempotencyKey:       options.IdempotencyKey,
 		requestExpiry:        w.requestExpiryOrDefault(options),
 		method:               "POST",
-		url:                  w.baseURL + "/v1/wallets/" + walletID + "/swap",
+		url:                  signedRequestURL(w.baseURL, "/v1/wallets/%s/swap", walletID),
 		body:                 params,
 	})
 	if err != nil {
@@ -86,7 +86,7 @@ func (s *PrivyWalletSwapService) Quote(
 		authorizationContext: options.AuthorizationContext,
 		requestExpiry:        w.requestExpiryOrDefault(options),
 		method:               "POST",
-		url:                  w.baseURL + "/v1/wallets/" + walletID + "/swap/quote",
+		url:                  signedRequestURL(w.baseURL, "/v1/wallets/%s/swap/quote", walletID),
 		body:                 params,
 	})
 	if err != nil {

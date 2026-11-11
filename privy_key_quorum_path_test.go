@@ -11,10 +11,9 @@ import (
 
 	privyclient "github.com/privy-io/go-sdk"
 	"github.com/privy-io/go-sdk/authorization"
-	"github.com/privy-io/go-sdk/option"
 )
 
-// Generated and wrapped clients must contain each identifier in one path segment.
+// Wrapped clients must contain each identifier in one path segment.
 func TestKeyQuorumIdentifierContainment(t *testing.T) {
 	for _, id := range []string{"kq_legit", "kq?limit=100", "kq#fragment", "kq%2Fother"} {
 		t.Run(id, func(t *testing.T) {
@@ -29,18 +28,8 @@ func TestKeyQuorumIdentifierContainment(t *testing.T) {
 				fmt.Fprint(w, `{}`)
 			}))
 			defer server.Close()
-			client := privyclient.NewClient(option.WithBaseURL(server.URL), option.WithAppID("test"), option.WithAppSecret("test"))
 			wrapped := privyclient.NewPrivyClient(privyclient.PrivyClientOptions{AppID: "test", AppSecret: "test", APIUrl: server.URL})
 			for _, call := range []func() error{
-				func() error { _, e := client.KeyQuorums.Get(context.Background(), id); return e },
-				func() error {
-					_, e := client.KeyQuorums.Update(context.Background(), id, privyclient.KeyQuorumUpdateParams{})
-					return e
-				},
-				func() error {
-					_, e := client.KeyQuorums.Delete(context.Background(), id, privyclient.KeyQuorumDeleteParams{})
-					return e
-				},
 				func() error { _, e := wrapped.KeyQuorums.Get(context.Background(), id); return e },
 				func() error {
 					_, e := wrapped.KeyQuorums.Update(context.Background(), id, privyclient.KeyQuorumUpdateParams{})
@@ -55,8 +44,8 @@ func TestKeyQuorumIdentifierContainment(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
-			if calls != 6 {
-				t.Fatalf("got %d requests, want 6", calls)
+			if calls != 3 {
+				t.Fatalf("got %d requests, want 3", calls)
 			}
 		})
 	}
@@ -66,7 +55,7 @@ func TestKeyQuorumDotSegmentsRejected(t *testing.T) {
 	calls := 0
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { calls++; fmt.Fprint(w, `{}`) }))
 	defer server.Close()
-	client := privyclient.NewClient(option.WithBaseURL(server.URL), option.WithAppID("test"), option.WithAppSecret("test"))
+	client := privyclient.NewPrivyClient(privyclient.PrivyClientOptions{AppID: "test", AppSecret: "test", APIUrl: server.URL})
 	for _, id := range []string{".", "..", "../users/victim", "%2e%2e/users/victim"} {
 		if _, err := client.KeyQuorums.Get(context.Background(), id); (id == "." || id == ".." || id == "../users/victim") && err == nil {
 			t.Errorf("accepted traversal %q", id)
@@ -75,6 +64,25 @@ func TestKeyQuorumDotSegmentsRejected(t *testing.T) {
 	// A literally percent-encoded identifier is escaped once, not decoded into traversal.
 	if calls != 1 {
 		t.Errorf("got %d requests, want only the percent-literal identifier", calls)
+	}
+}
+
+func TestWalletSubresourceIdentifierContainment(t *testing.T) {
+	id := "id?limit=100#fragment"
+	var got []string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		got = append(got, r.URL.RequestURI())
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, `{}`)
+	}))
+	defer server.Close()
+	client := privyclient.NewPrivyClient(privyclient.PrivyClientOptions{AppID: "test", AppSecret: "test", APIUrl: server.URL})
+	client.Wallets.Actions.Get(context.Background(), id, privyclient.WalletActionGetParams{WalletID: "w"})
+	client.Wallets.DepositAccounts.Crypto.Orders.Get(context.Background(), id, privyclient.WalletDepositAccountCryptoOrderGetParams{WalletID: "w"})
+	escaped := url.PathEscape(id)
+	want := []string{"/v1/wallets/w/actions/" + escaped, "/v1/wallets/w/deposit_accounts/crypto/orders/" + escaped}
+	if fmt.Sprint(got) != fmt.Sprint(want) {
+		t.Errorf("got %q, want %q", got, want)
 	}
 }
 

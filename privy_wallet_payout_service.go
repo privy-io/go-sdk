@@ -59,7 +59,7 @@ func (s *PrivyWalletPayoutFiatService) New(
 		idempotencyKey:       options.IdempotencyKey,
 		requestExpiry:        w.requestExpiryOrDefault(options),
 		method:               "POST",
-		url:                  w.baseURL + "/v1/wallets/" + walletID + "/payout/fiat",
+		url:                  signedRequestURL(w.baseURL, "/v1/wallets/%s/payout/fiat", walletID),
 		body:                 params,
 	})
 	if err != nil {

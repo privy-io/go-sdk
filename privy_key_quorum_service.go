@@ -2,8 +2,10 @@ package privyclient
 
 import (
 	"context"
+	"net/url"
 
 	"github.com/privy-io/go-sdk/internal/jwtexchange"
+	"github.com/privy-io/go-sdk/option"
 	"github.com/privy-io/go-sdk/packages/param"
 )
 
@@ -79,7 +81,7 @@ func (s *PrivyKeyQuorumService) Update(
 		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
 	}
 
-	return s.KeyQuorumService.Update(ctx, keyQuorumID, params, options.RequestOptions...)
+	return s.KeyQuorumService.Update(ctx, url.PathEscape(keyQuorumID), params, options.RequestOptions...)
 }
 
 // Delete removes a key quorum
@@ -120,5 +122,10 @@ func (s *PrivyKeyQuorumService) Delete(
 		params.PrivyRequestExpiry = param.NewOpt(*prepared.privyRequestExpiry)
 	}
 
-	return s.KeyQuorumService.Delete(ctx, keyQuorumID, params, options.RequestOptions...)
+	return s.KeyQuorumService.Delete(ctx, url.PathEscape(keyQuorumID), params, options.RequestOptions...)
+}
+
+// Get fetches a key quorum, path-escaping the ID the generated method interpolates verbatim.
+func (s *PrivyKeyQuorumService) Get(ctx context.Context, keyQuorumID string, opts ...option.RequestOption) (*KeyQuorum, error) {
+	return s.KeyQuorumService.Get(ctx, url.PathEscape(keyQuorumID), opts...)
 }

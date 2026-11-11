@@ -2,7 +2,9 @@ package privyclient
 
 import (
 	"context"
+	"net/url"
 
+	"github.com/privy-io/go-sdk/option"
 	"github.com/privy-io/go-sdk/packages/param"
 )
 
@@ -29,10 +31,13 @@ func newPrivyWalletDepositAccountService(service WalletDepositAccountService, wa
 type PrivyWalletDepositAccountCryptoService struct {
 	WalletDepositAccountCryptoService
 	wallets *PrivyWalletService
+
+	// Orders shadows WalletDepositAccountCryptoService.Orders to path-escape order IDs.
+	Orders *PrivyWalletDepositAccountCryptoOrderService
 }
 
 func newPrivyWalletDepositAccountCryptoService(service WalletDepositAccountCryptoService, wallets *PrivyWalletService) *PrivyWalletDepositAccountCryptoService {
-	return &PrivyWalletDepositAccountCryptoService{WalletDepositAccountCryptoService: service, wallets: wallets}
+	return &PrivyWalletDepositAccountCryptoService{WalletDepositAccountCryptoService: service, wallets: wallets, Orders: &PrivyWalletDepositAccountCryptoOrderService{service.Orders}}
 }
 
 // New creates crypto deposit accounts that sweep into the wallet with automatic authorization signature generation.
@@ -60,7 +65,7 @@ func (s *PrivyWalletDepositAccountCryptoService) New(
 		idempotencyKey:       options.IdempotencyKey,
 		requestExpiry:        w.requestExpiryOrDefault(options),
 		method:               "POST",
-		url:                  w.baseURL + "/v1/wallets/" + walletID + "/deposit_accounts/crypto",
+		url:                  signedRequestURL(w.baseURL, "/v1/wallets/%s/deposit_accounts/crypto", walletID),
 		body:                 params,
 	})
 	if err != nil {
@@ -78,4 +83,15 @@ func (s *PrivyWalletDepositAccountCryptoService) New(
 	}
 
 	return s.WalletDepositAccountCryptoService.New(ctx, walletID, params, options.RequestOptions...)
+}
+
+// PrivyWalletDepositAccountCryptoOrderService wraps the generated
+// WalletDepositAccountCryptoOrderService to path-escape order IDs.
+type PrivyWalletDepositAccountCryptoOrderService struct {
+	WalletDepositAccountCryptoOrderService
+}
+
+// Get fetches a crypto deposit account order, path-escaping the order ID the generated method interpolates verbatim.
+func (s *PrivyWalletDepositAccountCryptoOrderService) Get(ctx context.Context, orderID string, query WalletDepositAccountCryptoOrderGetParams, opts ...option.RequestOption) (*GetCryptoDepositAccountOrderResponse, error) {
+	return s.WalletDepositAccountCryptoOrderService.Get(ctx, url.PathEscape(orderID), query, opts...)
 }
