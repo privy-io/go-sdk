@@ -242,6 +242,8 @@ type AppResponse struct {
 	CaptchaSiteKey              string                        `json:"captcha_site_key"`
 	// Configuration for funding and on-ramp options.
 	FundingConfig FundingConfigResponseSchema `json:"funding_config"`
+	// How the app enforces multi-factor authentication for wallet operations.
+	MfaEnforcementMode TransactionMfaEnforcementMode `json:"mfa_enforcement_mode"`
 	// Configuration for Telegram authentication.
 	TelegramAuthConfig          TelegramAuthConfigSchema `json:"telegram_auth_config"`
 	TelegramSeamlessAuthEnabled bool                     `json:"telegram_seamless_auth_enabled"`
@@ -307,6 +309,7 @@ type AppResponse struct {
 		WhatsappEnabled                 respjson.Field
 		CaptchaSiteKey                  respjson.Field
 		FundingConfig                   respjson.Field
+		MfaEnforcementMode              respjson.Field
 		TelegramAuthConfig              respjson.Field
 		TelegramSeamlessAuthEnabled     respjson.Field
 		ExtraFields                     map[string]respjson.Field
@@ -958,6 +961,14 @@ func (r TestAccountsResponse) RawJSON() string { return r.JSON.raw }
 func (r *TestAccountsResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// How the app enforces multi-factor authentication for wallet operations.
+type TransactionMfaEnforcementMode string
+
+const (
+	TransactionMfaEnforcementModePolicyBased         TransactionMfaEnforcementMode = "POLICY_BASED"
+	TransactionMfaEnforcementModeAllWalletOperations TransactionMfaEnforcementMode = "ALL_WALLET_OPERATIONS"
+)
 
 func UserInviteInputOfEmail(value string) UserInviteInputUnion {
 	var email EmailInviteInput
