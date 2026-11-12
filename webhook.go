@@ -1680,7 +1680,7 @@ type UsageAtaDepositRecordedWebhookPayload struct {
 	SourceID   string `json:"source_id" api:"required"`
 	// The type of operation that incurred a usage charge.
 	//
-	// Any of "wallet-action-transfer", "wallet-action-swap", "rpc".
+	// Any of "wallet-action-transfer", "wallet-action-swap", "rpc", "deposit-address".
 	SourceType UsageSourceType `json:"source_type" api:"required"`
 	// The type of webhook event.
 	//
@@ -1723,7 +1723,7 @@ type UsageGasSponsorshipRecordedWebhookPayload struct {
 	SourceID   string `json:"source_id" api:"required"`
 	// The type of operation that incurred a usage charge.
 	//
-	// Any of "wallet-action-transfer", "wallet-action-swap", "rpc".
+	// Any of "wallet-action-transfer", "wallet-action-swap", "rpc", "deposit-address".
 	SourceType UsageSourceType `json:"source_type" api:"required"`
 	// The type of webhook event.
 	//
@@ -1762,6 +1762,7 @@ const (
 	UsageSourceTypeWalletActionTransfer UsageSourceType = "wallet-action-transfer"
 	UsageSourceTypeWalletActionSwap     UsageSourceType = "wallet-action-swap"
 	UsageSourceTypeRpc                  UsageSourceType = "rpc"
+	UsageSourceTypeDepositAddress       UsageSourceType = "deposit-address"
 )
 
 // Payload for the usage.swap_provider_fee.recorded webhook event (swap provider
@@ -1775,7 +1776,7 @@ type UsageSwapProviderFeeRecordedWebhookPayload struct {
 	SourceID   string `json:"source_id" api:"required"`
 	// The type of operation that incurred a usage charge.
 	//
-	// Any of "wallet-action-transfer", "wallet-action-swap", "rpc".
+	// Any of "wallet-action-transfer", "wallet-action-swap", "rpc", "deposit-address".
 	SourceType UsageSourceType `json:"source_type" api:"required"`
 	// The type of webhook event.
 	//
