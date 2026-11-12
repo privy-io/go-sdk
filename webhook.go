@@ -4290,27 +4290,33 @@ type WalletActionSwapSucceededWebhookPayload struct {
 	WalletActionID string `json:"wallet_action_id" api:"required"`
 	// The ID of the wallet involved in the action.
 	WalletID string `json:"wallet_id" api:"required"`
+	// CAIP-2 identifier of the chain that settled the swap output.
+	DestinationCaip2 string `json:"destination_caip2"`
+	// Transaction hash on the destination chain that settled the swap output.
+	DestinationTransactionHash string `json:"destination_transaction_hash"`
 	// Developer-provided reference ID, if one was included in the request.
 	ReferenceID string `json:"reference_id" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		ActionType     respjson.Field
-		Caip2          respjson.Field
-		CompletedAt    respjson.Field
-		CreatedAt      respjson.Field
-		EventID        respjson.Field
-		InputAmount    respjson.Field
-		InputToken     respjson.Field
-		OutputAmount   respjson.Field
-		OutputToken    respjson.Field
-		Status         respjson.Field
-		Steps          respjson.Field
-		Type           respjson.Field
-		WalletActionID respjson.Field
-		WalletID       respjson.Field
-		ReferenceID    respjson.Field
-		ExtraFields    map[string]respjson.Field
-		raw            string
+		ActionType                 respjson.Field
+		Caip2                      respjson.Field
+		CompletedAt                respjson.Field
+		CreatedAt                  respjson.Field
+		EventID                    respjson.Field
+		InputAmount                respjson.Field
+		InputToken                 respjson.Field
+		OutputAmount               respjson.Field
+		OutputToken                respjson.Field
+		Status                     respjson.Field
+		Steps                      respjson.Field
+		Type                       respjson.Field
+		WalletActionID             respjson.Field
+		WalletID                   respjson.Field
+		DestinationCaip2           respjson.Field
+		DestinationTransactionHash respjson.Field
+		ReferenceID                respjson.Field
+		ExtraFields                map[string]respjson.Field
+		raw                        string
 	} `json:"-"`
 }
 
@@ -6397,10 +6403,14 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	InputToken               string                               `json:"input_token"`
 	OutputToken              string                               `json:"output_token"`
 	// This field is from variant [WalletActionSwapSucceededWebhookPayload].
-	OutputAmount        string `json:"output_amount"`
-	DestinationAddress  string `json:"destination_address"`
-	SourceAssetAddress  string `json:"source_asset_address"`
-	SourceAssetDecimals int64  `json:"source_asset_decimals"`
+	OutputAmount string `json:"output_amount"`
+	// This field is from variant [WalletActionSwapSucceededWebhookPayload].
+	DestinationCaip2 string `json:"destination_caip2"`
+	// This field is from variant [WalletActionSwapSucceededWebhookPayload].
+	DestinationTransactionHash string `json:"destination_transaction_hash"`
+	DestinationAddress         string `json:"destination_address"`
+	SourceAssetAddress         string `json:"source_asset_address"`
+	SourceAssetDecimals        int64  `json:"source_asset_decimals"`
 	// This field is from variant [WalletAutomationSubmittedWebhookPayload].
 	ActionID string `json:"action_id"`
 	// This field is from variant [WalletAutomationSubmittedWebhookPayload].
@@ -6419,107 +6429,109 @@ type UnsafeUnwrapWebhookEventUnion struct {
 	// This field is from variant [YieldWithdrawConfirmedWebhookPayload].
 	Receiver string `json:"receiver"`
 	JSON     struct {
-		AuthorizedAt             respjson.Field
-		CreatedAt                respjson.Field
-		EventID                  respjson.Field
-		ExpiresAt                respjson.Field
-		IntentID                 respjson.Field
-		IntentType               respjson.Field
-		Member                   respjson.Field
-		Status                   respjson.Field
-		Type                     respjson.Field
-		CreatedByDisplayName     respjson.Field
-		CreatedByID              respjson.Field
-		AuthorizationDetails     respjson.Field
-		ActionResult             respjson.Field
-		RejectedAt               respjson.Field
-		Method                   respjson.Field
-		UserID                   respjson.Field
-		Changes                  respjson.Field
-		Data                     respjson.Field
-		Environment              respjson.Field
-		OrganizationID           respjson.Field
-		Provider                 respjson.Field
-		Address                  respjson.Field
-		Chain                    respjson.Field
-		UpdatedAt                respjson.Field
-		WalletID                 respjson.Field
-		Caip2                    respjson.Field
-		TransactionHash          respjson.Field
-		TransactionID            respjson.Field
-		ReferenceID              respjson.Field
-		TransactionRequest       respjson.Field
-		AmountUsd                respjson.Field
-		RecordedAt               respjson.Field
-		SourceID                 respjson.Field
-		SourceType               respjson.Field
-		Account                  respjson.Field
-		User                     respjson.Field
-		DeletedUser              respjson.Field
-		FromUser                 respjson.Field
-		ToUser                   respjson.Field
-		Wallet                   respjson.Field
-		ActualGasCost            respjson.Field
-		ActualGasUsed            respjson.Field
-		BlockNumber              respjson.Field
-		LogIndex                 respjson.Field
-		Nonce                    respjson.Field
-		Paymaster                respjson.Field
-		Sender                   respjson.Field
-		Success                  respjson.Field
-		UserOpHash               respjson.Field
-		ArchivedAt               respjson.Field
-		ChainType                respjson.Field
-		WalletAddress            respjson.Field
-		DepositAccountID         respjson.Field
-		DepositType              respjson.Field
-		ProviderDepositID        respjson.Field
-		Amount                   respjson.Field
-		Asset                    respjson.Field
-		Block                    respjson.Field
-		IdempotencyKey           respjson.Field
-		Recipient                respjson.Field
-		BridgeMetadata           respjson.Field
-		DepositMetadata          respjson.Field
-		TransactionFee           respjson.Field
-		ExportSource             respjson.Field
-		ActionType               respjson.Field
-		AssetAddress             respjson.Field
-		RawAmount                respjson.Field
-		VaultAddress             respjson.Field
-		VaultID                  respjson.Field
-		WalletActionID           respjson.Field
-		Decimals                 respjson.Field
-		FailedAt                 respjson.Field
-		FailureReason            respjson.Field
-		Steps                    respjson.Field
-		CompletedAt              respjson.Field
-		ShareAmount              respjson.Field
-		Rewards                  respjson.Field
-		DestinationCurrency      respjson.Field
-		DestinationFiatAccountID respjson.Field
-		DestinationPaymentRail   respjson.Field
-		SourceAmount             respjson.Field
-		SourceAsset              respjson.Field
-		SourceChain              respjson.Field
-		InputAmount              respjson.Field
-		InputToken               respjson.Field
-		OutputToken              respjson.Field
-		OutputAmount             respjson.Field
-		DestinationAddress       respjson.Field
-		SourceAssetAddress       respjson.Field
-		SourceAssetDecimals      respjson.Field
-		ActionID                 respjson.Field
-		AutomationID             respjson.Field
-		TriggerAssetAddress      respjson.Field
-		TriggerCaip2             respjson.Field
-		TriggerID                respjson.Field
-		TriggerTxHash            respjson.Field
-		Assets                   respjson.Field
-		Owner                    respjson.Field
-		Shares                   respjson.Field
-		Receiver                 respjson.Field
-		raw                      string
+		AuthorizedAt               respjson.Field
+		CreatedAt                  respjson.Field
+		EventID                    respjson.Field
+		ExpiresAt                  respjson.Field
+		IntentID                   respjson.Field
+		IntentType                 respjson.Field
+		Member                     respjson.Field
+		Status                     respjson.Field
+		Type                       respjson.Field
+		CreatedByDisplayName       respjson.Field
+		CreatedByID                respjson.Field
+		AuthorizationDetails       respjson.Field
+		ActionResult               respjson.Field
+		RejectedAt                 respjson.Field
+		Method                     respjson.Field
+		UserID                     respjson.Field
+		Changes                    respjson.Field
+		Data                       respjson.Field
+		Environment                respjson.Field
+		OrganizationID             respjson.Field
+		Provider                   respjson.Field
+		Address                    respjson.Field
+		Chain                      respjson.Field
+		UpdatedAt                  respjson.Field
+		WalletID                   respjson.Field
+		Caip2                      respjson.Field
+		TransactionHash            respjson.Field
+		TransactionID              respjson.Field
+		ReferenceID                respjson.Field
+		TransactionRequest         respjson.Field
+		AmountUsd                  respjson.Field
+		RecordedAt                 respjson.Field
+		SourceID                   respjson.Field
+		SourceType                 respjson.Field
+		Account                    respjson.Field
+		User                       respjson.Field
+		DeletedUser                respjson.Field
+		FromUser                   respjson.Field
+		ToUser                     respjson.Field
+		Wallet                     respjson.Field
+		ActualGasCost              respjson.Field
+		ActualGasUsed              respjson.Field
+		BlockNumber                respjson.Field
+		LogIndex                   respjson.Field
+		Nonce                      respjson.Field
+		Paymaster                  respjson.Field
+		Sender                     respjson.Field
+		Success                    respjson.Field
+		UserOpHash                 respjson.Field
+		ArchivedAt                 respjson.Field
+		ChainType                  respjson.Field
+		WalletAddress              respjson.Field
+		DepositAccountID           respjson.Field
+		DepositType                respjson.Field
+		ProviderDepositID          respjson.Field
+		Amount                     respjson.Field
+		Asset                      respjson.Field
+		Block                      respjson.Field
+		IdempotencyKey             respjson.Field
+		Recipient                  respjson.Field
+		BridgeMetadata             respjson.Field
+		DepositMetadata            respjson.Field
+		TransactionFee             respjson.Field
+		ExportSource               respjson.Field
+		ActionType                 respjson.Field
+		AssetAddress               respjson.Field
+		RawAmount                  respjson.Field
+		VaultAddress               respjson.Field
+		VaultID                    respjson.Field
+		WalletActionID             respjson.Field
+		Decimals                   respjson.Field
+		FailedAt                   respjson.Field
+		FailureReason              respjson.Field
+		Steps                      respjson.Field
+		CompletedAt                respjson.Field
+		ShareAmount                respjson.Field
+		Rewards                    respjson.Field
+		DestinationCurrency        respjson.Field
+		DestinationFiatAccountID   respjson.Field
+		DestinationPaymentRail     respjson.Field
+		SourceAmount               respjson.Field
+		SourceAsset                respjson.Field
+		SourceChain                respjson.Field
+		InputAmount                respjson.Field
+		InputToken                 respjson.Field
+		OutputToken                respjson.Field
+		OutputAmount               respjson.Field
+		DestinationCaip2           respjson.Field
+		DestinationTransactionHash respjson.Field
+		DestinationAddress         respjson.Field
+		SourceAssetAddress         respjson.Field
+		SourceAssetDecimals        respjson.Field
+		ActionID                   respjson.Field
+		AutomationID               respjson.Field
+		TriggerAssetAddress        respjson.Field
+		TriggerCaip2               respjson.Field
+		TriggerID                  respjson.Field
+		TriggerTxHash              respjson.Field
+		Assets                     respjson.Field
+		Owner                      respjson.Field
+		Shares                     respjson.Field
+		Receiver                   respjson.Field
+		raw                        string
 	} `json:"-"`
 }
 
