@@ -29,6 +29,12 @@ type AuthorizationContext struct {
 	// a short-lived authorization private key via the JwtExchanger.
 	UserJwts []string
 
+	// UserAuth contains users that should sign the request authorization, each
+	// with an optional MFA token from the user's completed MFA verification.
+	// Each JWT is exchanged like a UserJwts entry, and its MFA token is sent
+	// with that exchange.
+	UserAuth []UserAuth
+
 	// Signatures contains pre-computed base64-encoded DER-format signatures.
 	// These are included directly in the authorization header without modification.
 	Signatures []string
@@ -36,6 +42,17 @@ type AuthorizationContext struct {
 	// Signers contains external signing implementations.
 	// Each signer's Sign method is called with the formatted payload.
 	Signers []AuthorizationSigner
+}
+
+// UserAuth is a user that should sign the request authorization.
+type UserAuth struct {
+	// UserJwt is a valid JWT for the user.
+	UserJwt string
+
+	// MfaToken is an MFA token from the user's completed MFA verification. The
+	// JWT exchange requires it when the user has MFA enrolled. Empty is the
+	// same as omitting it.
+	MfaToken string
 }
 
 // WalletApiRequestSignatureInput defines the structure of a request payload
@@ -159,18 +176,38 @@ func GenerateAuthorizationSignature(privateKey string, payload []byte) (string, 
 //   - An error if any signing operation fails
 func GenerateAuthorizationSignatures(ctx context.Context, auth AuthorizationContext, payload []byte, exchanger jwtexchange.JwtExchanger) ([]string, error) {
 	// Check if JWTs are present but no exchanger provided
-	if len(auth.UserJwts) > 0 && exchanger == nil {
+	if (len(auth.UserJwts) > 0 || len(auth.UserAuth) > 0) && exchanger == nil {
 		return nil, errors.New("JWTs present but no exchanger provided")
 	}
 
+	// Collect each JWT once, in order. A JWT given with and without an MFA
+	// token keeps the MFA token.
+	userJwts := make([]string, 0, len(auth.UserJwts)+len(auth.UserAuth))
+	mfaTokens := make(map[string]string, len(auth.UserJwts)+len(auth.UserAuth))
+	for _, jwt := range auth.UserJwts {
+		if _, seen := mfaTokens[jwt]; !seen {
+			userJwts = append(userJwts, jwt)
+			mfaTokens[jwt] = ""
+		}
+	}
+	for _, userAuth := range auth.UserAuth {
+		if _, seen := mfaTokens[userAuth.UserJwt]; !seen {
+			userJwts = append(userJwts, userAuth.UserJwt)
+			mfaTokens[userAuth.UserJwt] = ""
+		}
+		if userAuth.MfaToken != "" {
+			mfaTokens[userAuth.UserJwt] = userAuth.MfaToken
+		}
+	}
+
 	// Initialize slice for collecting signatures
-	signatures := make([]string, 0, len(auth.Signatures)+len(auth.PrivateKeys)+len(auth.UserJwts)+len(auth.Signers))
+	signatures := make([]string, 0, len(auth.Signatures)+len(auth.PrivateKeys)+len(userJwts)+len(auth.Signers))
 
 	// Append pre-computed signatures directly (no validation required)
 	signatures = append(signatures, auth.Signatures...)
 
 	// Exchange JWTs for private keys
-	jwtDerivedKeys, err := jwtexchange.ExchangeJwtsForKeys(ctx, exchanger, auth.UserJwts)
+	jwtDerivedKeys, err := jwtexchange.ExchangeJwtsForKeys(ctx, exchanger, userJwts, mfaTokens)
 	if err != nil {
 		return nil, err
 	}

@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/privy-io/go-sdk/internal/hpke"
+	"github.com/privy-io/go-sdk/packages/param"
 )
 
 // PrivyJwtExchangeService provides JWT-to-authorization-key exchange functionality.
@@ -28,6 +29,15 @@ func newPrivyJwtExchangeService(wallet *WalletService, logger logger) *PrivyJwtE
 // ExchangeJwtForAuthorizationKey exchanges a user JWT for a short-lived authorization private key.
 // The returned string is a base64-encoded PKCS8-formatted P-256 private key.
 func (s *PrivyJwtExchangeService) ExchangeJwtForAuthorizationKey(ctx context.Context, jwt string) (string, error) {
+	return s.ExchangeJwtForAuthorizationKeyWithMfaToken(ctx, jwt, "")
+}
+
+// ExchangeJwtForAuthorizationKeyWithMfaToken exchanges a user JWT for a short-lived authorization
+// private key, sending an MFA token from the user's completed MFA verification as the
+// privy-mfa-token header. The exchange requires the MFA token when the user has MFA enrolled.
+// An empty mfaToken sends no header.
+// The returned string is a base64-encoded PKCS8-formatted P-256 private key.
+func (s *PrivyJwtExchangeService) ExchangeJwtForAuthorizationKeyWithMfaToken(ctx context.Context, jwt string, mfaToken string) (string, error) {
 	recipient, err := hpke.NewHpkeRecipient()
 	if err != nil {
 		return "", fmt.Errorf("failed to create HPKE recipient: %w", err)
@@ -35,13 +45,18 @@ func (s *PrivyJwtExchangeService) ExchangeJwtForAuthorizationKey(ctx context.Con
 
 	recipientPubKey := base64.StdEncoding.EncodeToString(recipient.PublicKeySpki)
 
-	resp, err := s.wallet.AuthenticateWithJwt(ctx, WalletAuthenticateWithJwtParams{
+	params := WalletAuthenticateWithJwtParams{
 		WalletAuthenticateRequestBody: WalletAuthenticateRequestBody{
 			UserJwt:            jwt,
 			RecipientPublicKey: recipientPubKey,
 			EncryptionType:     WalletAuthenticateRequestBodyEncryptionTypeHpke,
 		},
-	})
+	}
+	if mfaToken != "" {
+		params.MfaToken = param.NewOpt(mfaToken)
+	}
+
+	resp, err := s.wallet.AuthenticateWithJwt(ctx, params)
 	if err != nil {
 		return "", fmt.Errorf("failed to authenticate with JWT: %w", err)
 	}

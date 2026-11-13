@@ -176,10 +176,16 @@ authCtx := authorization.AuthorizationContext{
     // Option 2: Use user JWTs (automatically exchanged for auth keys)
     UserJwts: []string{"user-jwt-token"},
 
-    // Option 3: Use pre-computed signatures
+    // Option 3: Use user JWTs with an MFA token from the user's completed MFA
+    // verification, sent with the JWT's exchange
+    UserAuth: []authorization.UserAuth{
+        {UserJwt: "user-jwt-token", MfaToken: "mfa-token"},
+    },
+
+    // Option 4: Use pre-computed signatures
     Signatures: []string{"base64-signature"},
 
-    // Option 4: Use external signers (e.g., KMS, hardware wallets)
+    // Option 5: Use external signers (e.g., KMS, hardware wallets)
     Signers: []authorization.AuthorizationSigner{customSigner},
 }
 ```

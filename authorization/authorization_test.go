@@ -829,9 +829,12 @@ type MockJwtExchanger struct {
 	Keys map[string]string
 	// Errors maps JWT strings to errors that should be returned
 	Errors map[string]error
+	// Exchanges records the JWT and MFA token of each exchange, in order
+	Exchanges []UserAuth
 }
 
-func (m *MockJwtExchanger) ExchangeJwtForAuthorizationKey(ctx context.Context, jwt string) (string, error) {
+func (m *MockJwtExchanger) ExchangeJwtForAuthorizationKeyWithMfaToken(ctx context.Context, jwt string, mfaToken string) (string, error) {
+	m.Exchanges = append(m.Exchanges, UserAuth{UserJwt: jwt, MfaToken: mfaToken})
 	if err, ok := m.Errors[jwt]; ok {
 		return "", err
 	}
@@ -1017,6 +1020,116 @@ func TestGenerateAuthorizationSignatures_NilExchangerWithJwts(t *testing.T) {
 
 	if !strings.Contains(err.Error(), "JWTs present but no exchanger provided") {
 		t.Errorf("expected error about missing exchanger, got: %v", err)
+	}
+}
+
+func TestGenerateAuthorizationSignatures_NilExchangerWithUserAuth(t *testing.T) {
+	auth := AuthorizationContext{
+		UserAuth: []UserAuth{{UserJwt: "some-jwt", MfaToken: "some-mfa-token"}},
+	}
+	payload := []byte("test payload")
+
+	_, err := GenerateAuthorizationSignatures(context.Background(), auth, payload, nil)
+	if err == nil {
+		t.Fatal("expected error when user auth present but exchanger is nil")
+	}
+
+	if !strings.Contains(err.Error(), "JWTs present but no exchanger provided") {
+		t.Errorf("expected error about missing exchanger, got: %v", err)
+	}
+}
+
+func TestGenerateAuthorizationSignatures_UserAuth(t *testing.T) {
+	key1B64, key1 := generateTestP256Key(t)
+	key2B64, key2 := generateTestP256Key(t)
+
+	tests := []struct {
+		name              string
+		auth              AuthorizationContext
+		expectedExchanges []UserAuth
+		expectedKeys      []*ecdsa.PrivateKey
+	}{
+		{
+			name:              "sends the MFA token with the exchange",
+			auth:              AuthorizationContext{UserAuth: []UserAuth{{UserJwt: "jwt1", MfaToken: "mfa1"}}},
+			expectedExchanges: []UserAuth{{UserJwt: "jwt1", MfaToken: "mfa1"}},
+			expectedKeys:      []*ecdsa.PrivateKey{key1},
+		},
+		{
+			name:              "sends no MFA token when it is empty",
+			auth:              AuthorizationContext{UserAuth: []UserAuth{{UserJwt: "jwt1"}}},
+			expectedExchanges: []UserAuth{{UserJwt: "jwt1"}},
+			expectedKeys:      []*ecdsa.PrivateKey{key1},
+		},
+		{
+			name: "exchanges a JWT in both UserJwts and UserAuth once, with the MFA token",
+			auth: AuthorizationContext{
+				UserJwts: []string{"jwt1"},
+				UserAuth: []UserAuth{{UserJwt: "jwt1", MfaToken: "mfa1"}},
+			},
+			expectedExchanges: []UserAuth{{UserJwt: "jwt1", MfaToken: "mfa1"}},
+			expectedKeys:      []*ecdsa.PrivateKey{key1},
+		},
+		{
+			name: "keeps the MFA token when a later entry for the JWT has none",
+			auth: AuthorizationContext{
+				UserAuth: []UserAuth{{UserJwt: "jwt1", MfaToken: "mfa1"}, {UserJwt: "jwt1"}},
+			},
+			expectedExchanges: []UserAuth{{UserJwt: "jwt1", MfaToken: "mfa1"}},
+			expectedKeys:      []*ecdsa.PrivateKey{key1},
+		},
+		{
+			name:              "exchanges a repeated UserJwts entry once",
+			auth:              AuthorizationContext{UserJwts: []string{"jwt1", "jwt1"}},
+			expectedExchanges: []UserAuth{{UserJwt: "jwt1"}},
+			expectedKeys:      []*ecdsa.PrivateKey{key1},
+		},
+		{
+			name: "exchanges JWTs in order of first appearance",
+			auth: AuthorizationContext{
+				UserJwts: []string{"jwt1"},
+				UserAuth: []UserAuth{{UserJwt: "jwt2", MfaToken: "mfa2"}, {UserJwt: "jwt1", MfaToken: "mfa1"}},
+			},
+			expectedExchanges: []UserAuth{{UserJwt: "jwt1", MfaToken: "mfa1"}, {UserJwt: "jwt2", MfaToken: "mfa2"}},
+			expectedKeys:      []*ecdsa.PrivateKey{key1, key2},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			exchanger := &MockJwtExchanger{
+				Keys: map[string]string{
+					"jwt1": key1B64,
+					"jwt2": key2B64,
+				},
+			}
+			payload := []byte("test payload for user auth signatures")
+
+			signatures, err := GenerateAuthorizationSignatures(context.Background(), tt.auth, payload, exchanger)
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+
+			if len(exchanger.Exchanges) != len(tt.expectedExchanges) {
+				t.Fatalf("expected exchanges %v, got %v", tt.expectedExchanges, exchanger.Exchanges)
+			}
+			for i, exchange := range exchanger.Exchanges {
+				if exchange != tt.expectedExchanges[i] {
+					t.Errorf("exchange %d: expected %v, got %v", i, tt.expectedExchanges[i], exchange)
+				}
+			}
+
+			if len(signatures) != len(tt.expectedKeys) {
+				t.Fatalf("expected %d signatures, got %d", len(tt.expectedKeys), len(signatures))
+			}
+			hash := sha256.Sum256(payload)
+			for i, key := range tt.expectedKeys {
+				sigBytes, _ := base64.StdEncoding.DecodeString(signatures[i])
+				if !ecdsa.VerifyASN1(&key.PublicKey, hash[:], sigBytes) {
+					t.Errorf("signature %d verification failed", i)
+				}
+			}
+		})
 	}
 }
 
