@@ -1,5 +1,48 @@
 # Changelog
 
+## [0.17.0](https://github.com/privy-io/go-sdk-private/compare/v0.16.0...v0.17.0) (2026-11-13)
+
+
+### Features
+
+* **api:** api update ([180365c](https://github.com/privy-io/go-sdk-private/commit/180365ca03eb036989f25adba557e2d47d71fe7a))
+* **api:** api update ([ac01d97](https://github.com/privy-io/go-sdk-private/commit/ac01d97a4a58bd7827f43069d1f6552acd8d6527))
+* **api:** api update ([daed1c1](https://github.com/privy-io/go-sdk-private/commit/daed1c1fd125e50fd235dd4576b79f417a98f902))
+* **api:** api update ([6238597](https://github.com/privy-io/go-sdk-private/commit/6238597265ba49dc9028d56fa8f8f630988e895f))
+* **api:** api update ([354b974](https://github.com/privy-io/go-sdk-private/commit/354b9746e36e1dea815e0a1cc73b9afdf99332ee))
+* **api:** api update ([b87fa13](https://github.com/privy-io/go-sdk-private/commit/b87fa138d00b1600708bad7145044bb2c603104e))
+* **api:** api update ([b1ad2ad](https://github.com/privy-io/go-sdk-private/commit/b1ad2ad15d036c29236905d45f70febe4e88b82b))
+* **api:** api update ([41d919a](https://github.com/privy-io/go-sdk-private/commit/41d919a0462a99793d57200310df6fdaf341553f))
+* **api:** api update ([74f4301](https://github.com/privy-io/go-sdk-private/commit/74f43018b7ae4be7f5fa871edba0701b32778b85))
+* **api:** api update ([cf44181](https://github.com/privy-io/go-sdk-private/commit/cf441818d02f4b5c2d0a34cd26df7cbff52649cf))
+* **api:** api update ([a5a1c7d](https://github.com/privy-io/go-sdk-private/commit/a5a1c7defa34012bc9859fcf19963c089629e819))
+* **api:** api update ([5d478d6](https://github.com/privy-io/go-sdk-private/commit/5d478d61faa3457b9065982a6f2ae2933ae6ef60))
+* **api:** api update ([e9f5912](https://github.com/privy-io/go-sdk-private/commit/e9f5912eb7f89fb53c488fedbba423114e07f345))
+* **api:** api update ([d6e1182](https://github.com/privy-io/go-sdk-private/commit/d6e11827f2562a95ef8beff710f76400b11f8fca))
+* **api:** api update ([41700a4](https://github.com/privy-io/go-sdk-private/commit/41700a41edfed82b9418a98d660fc4434774dedb))
+* **api:** api update ([f6819e2](https://github.com/privy-io/go-sdk-private/commit/f6819e2b15327f85c41654ae77a40213ee879bdf))
+* **api:** api update ([cb6f868](https://github.com/privy-io/go-sdk-private/commit/cb6f8682503c923775d6cb2e4a502d5fe57b5c68))
+* **api:** api update ([2dc5ca6](https://github.com/privy-io/go-sdk-private/commit/2dc5ca68bda152e83f0e122b57aff058a4f20b0e))
+* **api:** api update ([79ba8bb](https://github.com/privy-io/go-sdk-private/commit/79ba8bbaa292a8f31ae109410070f50dd36a98a3))
+* **authorization:** accept user auth with an MFA token in the authorization context ([#33](https://github.com/privy-io/go-sdk-private/issues/33)) ([5f25bf4](https://github.com/privy-io/go-sdk-private/commit/5f25bf44e66769491a0b4098d25fc493e33c0945))
+* **intents:** default request expiry for raw sign and condition sets ([#23](https://github.com/privy-io/go-sdk-private/issues/23)) ([c9d53a6](https://github.com/privy-io/go-sdk-private/commit/c9d53a6ca74857b5392468f40015a9b669337df1))
+* **wallets:** sign swap, deposit account, payout, and earn requests ([#22](https://github.com/privy-io/go-sdk-private/issues/22)) ([34764ee](https://github.com/privy-io/go-sdk-private/commit/34764eea48686dcd52f211ae90a44b994da835fa))
+* **wallets:** sign Transfer and automation attach/detach ([#21](https://github.com/privy-io/go-sdk-private/issues/21)) ([d53d6f3](https://github.com/privy-io/go-sdk-private/commit/d53d6f3865342e3f44c166b4805e786e06ffa02b))
+
+
+### Bug Fixes
+
+* **authorization:** path-escape identifiers in signed request URLs ([#13](https://github.com/privy-io/go-sdk-private/issues/13)) ([c32686f](https://github.com/privy-io/go-sdk-private/commit/c32686fab8f2d5a18318be6ab7274c06bc169221))
+* **intents:** honor per-call request expiry when disabled ([#19](https://github.com/privy-io/go-sdk-private/issues/19)) ([8dd8e16](https://github.com/privy-io/go-sdk-private/commit/8dd8e1698d4ff19e4adfaa01463bc12e1569ec4b))
+* **intents:** match updated intent response types and wrap delete intents ([#27](https://github.com/privy-io/go-sdk-private/issues/27)) ([e422afa](https://github.com/privy-io/go-sdk-private/commit/e422afa8c4208a1245ae19042dffef76806a6d61))
+* path-escape identifiers in custom services, not generated files ([#35](https://github.com/privy-io/go-sdk-private/issues/35)) ([7b198ab](https://github.com/privy-io/go-sdk-private/commit/7b198ab951ae06394a19cd2bdbe2c0e750e549bf))
+
+
+### Chores
+
+* **ci:** point at renamed privy-io/sdks config repo ([#32](https://github.com/privy-io/go-sdk-private/issues/32)) ([590ac5c](https://github.com/privy-io/go-sdk-private/commit/590ac5c83a8eeaa1e03ff15c6ad360d952dcd0d8))
+* rename privy-io/stainless-sdks-config to privy-io/sdks ([#31](https://github.com/privy-io/go-sdk-private/issues/31)) ([873a651](https://github.com/privy-io/go-sdk-private/commit/873a6514d6504f6e3b4409176ff7eedbfb5fddb9))
+
 ## [0.16.0](https://github.com/privy-io/go-sdk/compare/v0.15.0...v0.16.0) (2026-10-15)
 
 
