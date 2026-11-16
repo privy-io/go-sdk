@@ -1306,6 +1306,7 @@ const (
 	CurveSigningChainTypeTon            CurveSigningChainType = "ton"
 	CurveSigningChainTypeStarknet       CurveSigningChainType = "starknet"
 	CurveSigningChainTypeXrpl           CurveSigningChainType = "xrpl"
+	CurveSigningChainTypeCanton         CurveSigningChainType = "canton"
 )
 
 // The chain of the custodial wallet.
@@ -9930,7 +9931,7 @@ type Wallet struct {
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
 	// "tron", "bitcoin-segwit", "bitcoin-taproot", "pearl", "near", "ton", "starknet",
-	// "xrpl", "spark".
+	// "xrpl", "canton", "spark".
 	ChainType WalletChainType `json:"chain_type" api:"required"`
 	// Unix timestamp of when the wallet was created in milliseconds.
 	CreatedAt float64 `json:"created_at" api:"required"`
@@ -10348,7 +10349,7 @@ type WalletBatchItemInput struct {
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
 	// "tron", "bitcoin-segwit", "bitcoin-taproot", "pearl", "near", "ton", "starknet",
-	// "xrpl", "spark".
+	// "xrpl", "canton", "spark".
 	ChainType WalletChainType `json:"chain_type,omitzero" api:"required"`
 	// The key quorum ID to set as the owner of the resource. If you provide this, do
 	// not specify an owner.
@@ -10402,6 +10403,7 @@ const (
 	WalletChainTypeTon            WalletChainType = "ton"
 	WalletChainTypeStarknet       WalletChainType = "starknet"
 	WalletChainTypeXrpl           WalletChainType = "xrpl"
+	WalletChainTypeCanton         WalletChainType = "canton"
 	WalletChainTypeSpark          WalletChainType = "spark"
 )
 
@@ -12288,7 +12290,7 @@ type WalletNewParams struct {
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
 	// "tron", "bitcoin-segwit", "bitcoin-taproot", "pearl", "near", "ton", "starknet",
-	// "xrpl", "spark".
+	// "xrpl", "canton", "spark".
 	ChainType WalletChainType `json:"chain_type,omitzero" api:"required"`
 	// The key quorum ID to set as the owner of the resource. If you provide this, do
 	// not specify an owner.
@@ -12369,7 +12371,7 @@ type WalletListParams struct {
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
 	// "tron", "bitcoin-segwit", "bitcoin-taproot", "pearl", "near", "ton", "starknet",
-	// "xrpl", "spark".
+	// "xrpl", "canton", "spark".
 	ChainType WalletChainType `query:"chain_type,omitzero" json:"-"`
 	paramObj
 }
@@ -12597,7 +12599,7 @@ type WalletNewWalletsWithRecoveryParamsWallet struct {
 	//
 	// Any of "ethereum", "solana", "cosmos", "stellar", "sui", "aptos", "movement",
 	// "tron", "bitcoin-segwit", "bitcoin-taproot", "pearl", "near", "ton", "starknet",
-	// "xrpl", "spark".
+	// "xrpl", "canton", "spark".
 	ChainType WalletChainType `json:"chain_type,omitzero" api:"required"`
 	// A human-readable label for the wallet.
 	DisplayName param.Opt[string] `json:"display_name,omitzero"`
